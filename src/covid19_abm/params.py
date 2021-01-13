@@ -118,9 +118,13 @@ class ParamsConfig:
         65: 11.1501,
         70: 11.6564,
         75: 11.8107,
-        np.inf: 11.5379,
+        np.inf: 11.5379,  # sarah to replace with numbers from Column M of to be shared 120121
     })
 
+    
+    # Sarah to add line which includes contact numbers within home 
+    
+    
     ages = list(range(100))
 
     # Make sure to adjust the day hours such that a step matches the hours.

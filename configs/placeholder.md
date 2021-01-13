@@ -14,6 +14,7 @@
   },
   "language_info": {
    "codemirror_mode": {
+    "name": "ipython",
     "version": 3
    },
    "file_extension": ".py",
