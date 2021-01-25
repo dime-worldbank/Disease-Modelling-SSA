@@ -12,7 +12,8 @@ from covid19_abm.dir_manager import get_data_dir
 
 #
 # SETUP
-os.chdir("/Users/sophie/Documents/Github/covid19-agent-based-model/data")
+#os.chdir("/Users/sophie/Documents/Github/covid19-agent-based-model/data")
+os.chdir("/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data")
 cwd = os.getcwd()
 print(cwd)
 

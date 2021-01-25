@@ -15,7 +15,7 @@ class ParamsConfig:
         'In School': 1.0,
         'Homemakers/Housework': 0.8,
         'Office workers': 1.0,
-        'Teachers': 1.0,
+        #'Teachers': 1.0,
         'Service Workers': 1.0,
         'Agriculture Workers': 1.0,
         'Indusrtry Workers': 1.0,
@@ -29,7 +29,7 @@ class ParamsConfig:
         'In School': 0.8,
         'Homemakers/Housework': 0.8,
         'Office workers': 0.8,
-        'Teachers': 0.8,
+        #'Teachers': 0.8,
         'Service Workers': 0.8,
         'Agriculture Workers': 0.8,
         'Indusrtry Workers': 0.8,
@@ -102,28 +102,47 @@ class ParamsConfig:
 
     # Social Contact Structures and Time Use Patterns in the Manicaland Province of Zimbabwe
     # https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0170459
+
+    # Taken from doc age-econ matrix_130121 >> comparison >> Sophie edits - all interactions
     per_capita_contact_rates = pd.Series({
-        5: 7.4709,
-        10: 10.4079,
-        15: 12.4579,
-        20: 11.1542,
-        25: 10.8716,
-        30: 9.7019,
-        35: 11.7569,
-        40: 12.5434,
-        45: 13.2094,
-        50: 10.7766,
-        55: 10.3643,
-        60: 10.9087,
-        65: 11.1501,
-        70: 11.6564,
-        75: 11.8107,
-        np.inf: 11.5379,  # sarah to replace with numbers from Column M of to be shared 120121
+        5: 2.710359,
+        10: 7.453772,
+        15: 7.574741,
+        20: 6.248537,
+        25: 5.950558,
+        30: 6.761012,
+        35: 7.183772,
+        40: 7.366016,
+        45: 7.711605,
+        50: 7.208618,
+        55: 6.434354,
+        60: 5.927063,
+        65: 5.251288,
+        70: 4.591202,
+        np.inf: 3.521694,
     })
 
-    
-    # Sarah to add line which includes contact numbers within home 
-    
+    # Taken from doc age-econ matrix_130121 >> comparison >> Sophie edits - work interactions
+    per_capita_contact_rates_work = pd.Series({
+        5: 6.840359,
+        10: 11.58377,
+        15: 11.70474,
+        20: 10.37854,
+        25: 10.08056,
+        30: 10.89101,
+        35: 11.31377,
+        40: 11.49602,
+        45: 11.8416,
+        50: 11.33862,
+        55: 10.56435,
+        60: 10.05706,
+        65: 9.381288,
+        70: 8.721202,
+        np.inf: 7.651694,
+    })
+
+    # interactions within home
+    per_capital_contact_rate_home = 4.12 # average HH size of 5.12 persons minus self    
     
     ages = list(range(100))
 
@@ -202,8 +221,10 @@ class ParamsConfig:
 
     def __init__(
         self, district='old', data_sample_size=5, R0=None,
+        #normal_interaction_matrix_file='interaction_matrix_update 130121.xlsx',
         normal_interaction_matrix_file='final_close_interaction_matrix_normal.xlsx',
         lockdown_interaction_matrix_file='final_close_interaction_matrix_lockdown.xlsx',
+        #lockdown_interaction_matrix_file='interaction_matrix_update 130121.xlsx',
         stay_duration_file='weekday_mobility_duration_count_df.pickle',
         transition_probability_file='daily_region_transition_probability.csv',
         intra_district_decreased_mobility_rates_file='intra_district_decreased_mobility_rates.csv',
@@ -246,8 +267,8 @@ class ParamsConfig:
         self.AGE_SYMPTOMATIC_INFECTION_RATE_VALUES = self.AGE_SYMPTOMATIC_INFECTION_RATE[sorted(self.ages)].values
 
         self.DISTRICT_MOVING_ECONOMIC_STATUS = set([i for i, j in self.ECONOMIC_STATUS_WEEKDAY_MOVEMENT_PROBABILITY.items() if j > 0])
-        self.DISTRICT_MOVING_ECONOMIC_STATUS.remove('In School')
-        self.DISTRICT_MOVING_ECONOMIC_STATUS.remove('Teachers')
+        #self.DISTRICT_MOVING_ECONOMIC_STATUS.remove('In School')
+        #self.DISTRICT_MOVING_ECONOMIC_STATUS.remove('Teachers') # TODO: reimpelment these
 
         # Values in hours
         self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX = pd.read_pickle(stay_duration_file)
@@ -279,17 +300,40 @@ class ParamsConfig:
 
         self.intra_district_decreased_mobility_rates_file = intra_district_decreased_mobility_rates_file
 
-    def set_interaction_parameters(self, interaction_matrix_file):
+    def set_interaction_parameters(self, interaction_size_file, interaction_matrix_file):
         # This matrix defines the probability of an interaction between two economic status.
         # This will be multiplied by the population density per district to quantify the mixing intensity per district.
         # ECONOMIC_STATUS_INTERACTION_MATRIX = {'employed': {'unemployed'}}
-        self.ECONOMIC_STATUS_INTERACTION_MATRIX = pd.read_excel(
-            interaction_matrix_file,
-            sheet_name='interaction_matrix', index_col=0)
 
-        self.ECONOMIC_STATUS_INTERACTION_SIZE_MAP = pd.read_excel(
-            interaction_matrix_file,
-            sheet_name='interactions', index_col=0)['interactions']
+        print("LOOKING FOR " + interaction_matrix_file)
+
+#        self.ECONOMIC_STATUS_INTERACTION_MATRIX = pd.read_excel(
+#            interaction_matrix_file,
+#            #sheet_name='interaction_matrix', index_col=0)
+#            sheet_name='interactions', index_col=0)
+
+        self.ECONOMIC_STATUS_INTERACTION_MATRIX = pd.DataFrame(pd.read_csv(
+            interaction_size_file, sep="\t"
+            #sheet_name='interaction_matrix', index_col=0)
+            ))
+
+
+        print("set_interaction_parameters ******")
+        print(self.ECONOMIC_STATUS_INTERACTION_MATRIX)
+
+#        self.ECONOMIC_STATUS_INTERACTION_SIZE_MAP = pd.read_excel(
+#            interaction_matrix_file,
+#            #sheet_name='interactions', index_col=0)['interactions']
+#            sheet_name='interactions', index_col=0)['interactions']
+
+        self.ECONOMIC_STATUS_INTERACTION_SIZE_MAP = pd.DataFrame(pd.read_csv(
+            interaction_matrix_file, sep="\t"
+            ))
+
+
+        print("\nset_interaction_map")
+        print(self.ECONOMIC_STATUS_INTERACTION_SIZE_MAP)
+        print("\n")
 
         # self.DISTRICT_POP_DENSITY = pd.read_csv(os.path.join(data_dir, 'district_pop_dens_friction.csv'))
 
@@ -353,6 +397,9 @@ class ParamsConfig:
         self.SEED_INFECT_AGE_MIN = 20
         self.SEED_INFECT_NUM = seed_infected  # 3 -> 66 for a 5% sample
         self.SIMULATION_START_DATE = datetime(2020, 6, 28, 8)
+
+        #self.data_file_name = get_data_dir('preprocessed', 'census', f'zimbabwe_expanded_census_consolidated_{self.data_sample_size}pct.pickle')
+
 
     def set_new_district_seed(self, seed_infected):
         # NOTE: This should be updated when the admin level is changed.
