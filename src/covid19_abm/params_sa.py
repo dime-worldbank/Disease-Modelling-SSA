@@ -6,7 +6,46 @@ import pickle
 
 from covid19_abm.dir_manager import get_data_dir
 
+### SETUP
+os.chdir("/Users/sophieayling/Documents/GitHub/Disease-Modelling-SSA/src/covid19_abm")
+cwd = os.getcwd()
+print(cwd)
 
+# define a function that will read in the text files and turn them into objects 
+
+def readInParams(filename):
+    rawfile = pd.read_csv(filename, skipinitialspace=True)
+    rawfile.dropna(axis=1, inplace=True)
+    myDict = { k:v for (k,v) in zip(rawfile["age"], rawfile["rate"])} 
+    return myDict
+
+susceptibility_by_age = readInParams("../../configs/susceptibility_by_age.txt")
+print(susceptibility_by_age)
+
+hospitalization_rates_by_age = readInParams("../../configs/hospitalization_rates_by_age.txt")
+print(hospitalization_rates_by_age)
+
+critical_rates_by_age = readInParams("../../configs/critical_rates_by_age.txt")
+print(critical_rates_by_age)
+
+hospitalized_death_rates_by_age = readInParams("../../configs/hospitalized_death_rates_by_age.txt")
+print(hospitalized_death_rates_by_age)
+
+per_capita_contact_rates_wk = readInParams("../../configs/per_capita_contact_rates_work.txt")
+print(per_capita_contact_rates_wk)
+
+quit() 
+
+
+ECONOMIC_STATUS_WEEKDAY_MOVEMENT_PROBABILITY = readInParams("../../configs/ECONOMIC_STATUS_WEEKDAY_MOVEMENT_PROBABILITY.txt")
+print(ECONOMIC_STATUS_WEEKDAY_MOVEMENT_PROBABILITY)
+
+
+ECONOMIC_STATUS_OTHER_DAY_MOVEMENT_PROBABILITY = readInParams("../../configs/ECONOMIC_STATUS_OTHER_DAY_MOVEMENT_PROBABILITY.txt")
+print(ECONOMIC_STATUS_OTHER_DAY_MOVEMENT_PROBABILITY)
+
+# the functions needed to be added to the classes below and the hardcoded values removed 
+         
 class ParamsConfig:
 
     # This is the probability that a person will go out of his/her household during weekdays.
@@ -23,6 +62,7 @@ class ParamsConfig:
         'Disabled and not working': 0.0
     }
 
+    
     # This is the probability that a person will go out of his/her household during weekends.
     ECONOMIC_STATUS_OTHER_DAY_MOVEMENT_PROBABILITY = {
         'Not working, inactive, not in universe': 0.8,
@@ -118,12 +158,12 @@ class ParamsConfig:
         65: 11.1501,
         70: 11.6564,
         75: 11.8107,
-        np.inf: 11.5379,  # sarah to replace with numbers from Column M of to be shared 120121
+        np.inf: 11.5379,  # refer to text file per_capita_contact_rates_work.txt 
     })
 
     
     # Sarah to add line which includes contact numbers within home 
-    
+    per_capita_contact_rates_home  = 4.12 
     
     ages = list(range(100))
 
