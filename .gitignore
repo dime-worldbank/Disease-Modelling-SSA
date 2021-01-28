@@ -71,6 +71,7 @@
 ######################
 # Including some of the input data which corresponds to important parameters
 !/configs/*.txt
+!/configs/*.csv
 
 #######################
 # Include some additional file formats in any output folder. You might have

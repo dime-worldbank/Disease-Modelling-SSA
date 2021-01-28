@@ -1,4 +1,4 @@
-age, critical_rates_by_age, 
+age, rate, 
 34, 5.0,
 39, 5.3,
 44, 6.0,

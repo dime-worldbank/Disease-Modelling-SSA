@@ -20,30 +20,45 @@ def readInParams(filename):
     return myDict
 
 susceptibility_by_age = readInParams("../../configs/susceptibility_by_age.txt")
-print(susceptibility_by_age)
+for k, v in susceptibility_by_age.items():
+    print(k, ' : ', v)
 
 hospitalization_rates_by_age = readInParams("../../configs/hospitalization_rates_by_age.txt")
-print(hospitalization_rates_by_age)
+for k, v in hospitalization_rates_by_age.items():
+    print(k, ' : ', v)
 
 critical_rates_by_age = readInParams("../../configs/critical_rates_by_age.txt")
-print(critical_rates_by_age)
+for k, v in critical_rates_by_age.items():
+    print(k, ' : ', v)
 
 hospitalized_death_rates_by_age = readInParams("../../configs/hospitalized_death_rates_by_age.txt")
-print(hospitalized_death_rates_by_age)
-
+for k, v in hospitalized_death_rates_by_age.items():
+    print(k, ' : ', v)
+    
 per_capita_contact_rates_wk = readInParams("../../configs/per_capita_contact_rates_work.txt")
-print(per_capita_contact_rates_wk)
+for k, v in per_capita_contact_rates_wk.items():
+    print(k, ' : ', v)
+
+
+
+# define another function that will read in the other format of text files and turn them to objects
+
+def readInParams2(filename):
+    rawfile = pd.read_csv(filename, skipinitialspace=True)
+    rawfile.dropna(axis=1, inplace=True)
+    myDict = { k:v for (k,v) in zip(rawfile["economic_status"], rawfile["movement_probability"])} 
+    return myDict
+
+ECONOMIC_STATUS_WEEKDAY_MOVEMENT_PROBABILITY = readInParams2("../../configs/ECONOMIC_STATUS_WEEKDAY_MOVEMENT_PROBABILITY.txt")
+for k, v in ECONOMIC_STATUS_WEEKDAY_MOVEMENT_PROBABILITY.items():
+    print(k, ' : ', v)
+
+
+ECONOMIC_STATUS_OTHER_DAY_MOVEMENT_PROBABILITY = readInParams2("../../configs/ECONOMIC_STATUS_OTHER_DAY_MOVEMENT_PROBABILITY.txt")
+for k, v in ECONOMIC_STATUS_OTHER_DAY_MOVEMENT_PROBABILITY.items():
+    print(k, ' : ', v)
 
 quit() 
-
-
-ECONOMIC_STATUS_WEEKDAY_MOVEMENT_PROBABILITY = readInParams("../../configs/ECONOMIC_STATUS_WEEKDAY_MOVEMENT_PROBABILITY.txt")
-print(ECONOMIC_STATUS_WEEKDAY_MOVEMENT_PROBABILITY)
-
-
-ECONOMIC_STATUS_OTHER_DAY_MOVEMENT_PROBABILITY = readInParams("../../configs/ECONOMIC_STATUS_OTHER_DAY_MOVEMENT_PROBABILITY.txt")
-print(ECONOMIC_STATUS_OTHER_DAY_MOVEMENT_PROBABILITY)
-
 # the functions needed to be added to the classes below and the hardcoded values removed 
          
 class ParamsConfig:

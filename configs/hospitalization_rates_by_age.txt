@@ -1,4 +1,4 @@
-age, hospitalization_rates_by_age,
+age, rate,
 14, 0.1,
 19, 0.2,
 24, 0.5,
