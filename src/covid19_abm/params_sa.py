@@ -305,7 +305,7 @@ class ParamsConfig:
         self.DISTRICT_MOVING_ECONOMIC_STATUS.remove('Teachers')
 
         # Values in hours
-        self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX = pd.read_pickle(stay_duration_file)
+        self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX = pd.read_csv(stay_duration_file) #
         self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX[['avg_duration', 'stddev_duration']] = self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX[['avg_duration', 'stddev_duration']] + 0.001
 
         self.DAILY_DISTRICT_TRANSITION_PROBABILITY = pd.read_csv(transition_probability_file, index_col=[0, 1])

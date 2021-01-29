@@ -3,8 +3,9 @@ import sys
 from datetime import datetime, timedelta
 import numpy as np
 
-from covid19_abm.base_model import Country
+from mesa import Agent
 
+from covid19_abm.base_model import Country
 
 class UnmitigatedScenario(Country):
     def __init__(self, params, model_log_file=None, individual_log_file=None):
@@ -366,6 +367,23 @@ class Phase1GovernmentOpenSchoolsScenario(Country):
         # Run model until Jan. 2021.
 
         self.params.scenario_phase1_government_open_schools()
+        stepper = Phase1GovernmentOpenSchoolsScenario.PhaseOneOpenSchools(0, self)
+        self.scheduler.add(stepper)
+
+    class PhaseOneOpenSchools(Agent):
+
+        def step(self):
+            if (self.model.scheduler.real_time.year == 2021) and (self.model.scheduler.real_time.day == 1):
+                if self.model.scheduler.real_time.month == 1:
+                    self.model.active_school_phases.append(2)
+                    self.model.active_school_phases.append(4)
+                elif self.model.scheduler.real_time.month == 5:
+                    self.model.active_school_phases.append(3)
+                    self.model.active_school_phases.append(5)
+
+                self.model.open_schools(np.unique(self.model.district_ids), self.model.active_school_phases)
+
+
 
     def scenario_data_preprocessing(self, df):
         pass
@@ -397,9 +415,20 @@ class DynamicPhase1GovernmentOpenSchoolsScenario(Country):
         # Run model until Jan. 2021.
 
         self.params.scenario_dynamic_phase1_government_open_schools()
+        stepper = DynamicPhase1GovernmentOpenSchoolsScenario.DynamicPhaseOneOpenSchools(0, self)
+        self.scheduler.add(stepper)
+
+    class DynamicPhaseOneOpenSchools(Agent):
+
+        def step(self):
+            if self.model.scheduler.real_time.day == 1:
+                    safe_district_ids, unsafe_district_ids = self.model.get_safe_and_unsafe_districts(quantile_value=0.75)
+                    self.model.open_schools(safe_district_ids, self.model.active_school_phases)
+                    self.model.lockdown_schools(unsafe_district_ids, self.model.active_school_phases)
 
     def scenario_data_preprocessing(self, df):
         pass
+
 
     def scenario_data_postprocessing(self, df):
         #### NOTE: SCENARIO SPECIFIC: Continued lockdown with mining open
@@ -424,6 +453,21 @@ class AcceleratedGovernmentOpenSchoolsScenario(Country):
         self.is_school_scenario = True
 
         self.params.scenario_accelerated_government_open_schools()
+        stepper = AcceleratedGovernmentOpenSchoolsScenario.AcceleratedGovernmentOpenSchools(0, self)
+        self.scheduler.add(stepper)
+
+    class AcceleratedGovernmentOpenSchools(Agent):
+
+        def step(self):
+            if self.model.scheduler.real_time.day == 1:
+                # Increase phase number every month.
+                current_phase = self.model.active_school_phases[-1] + 1
+
+                if current_phase <= self.model.max_school_phase:
+                    self.model.active_school_phases.append(current_phase)
+                    self.model.open_schools(np.unique(self.model.district_ids), self.model.active_school_phases)
+
+
 
     def scenario_data_preprocessing(self, df):
         pass

@@ -33,6 +33,9 @@ class EpidemicScheduler(BaseScheduler):
     def step(self):
         current_time = self.real_time
 
+        for agent in self.agent_buffer(shuffled=False):
+            agent.step()
+
         self.model.log_model_output()
 
         self.update_agent_states()
@@ -383,7 +386,7 @@ class EpidemicScheduler(BaseScheduler):
             # Take the probability that a person is not allowed to move to other districts
 
             lockdown_not_allowed_target_district_index = np.less(
-                np.array([self.params.LOCKDOWN_ALLOWED_PROBABILITY[i] for i in self.district_ids[district_out_mover_ids]]),
+                np.array([self.params.LOCKDOWN_ALLOWED_PROBABILITY[i] for i in self.model.district_ids[district_out_mover_ids]]),
                 np.random.random(len(target_district_ids)))
 
             # If a person is not allowed to move and target location is on lockdown
@@ -807,34 +810,6 @@ class Country(Model):
             self.economic_activity_location_ids[school_educ_ids] = self.school_ids[school_educ_ids]
 
     def step(self):
-
-        if self.params.SCENARIO == "DYNAMIC_PHASE1_GOVERNMENT_OPEN_SCHOOLS":
-            # Check if 1st of month. Assess epidemic status.
-            if self.scheduler.real_time.day == 1:
-                safe_district_ids, unsafe_district_ids = self.get_safe_and_unsafe_districts(quantile_value=0.75)
-                self.open_schools(safe_district_ids, self.active_school_phases)
-                self.lockdown_schools(unsafe_district_ids, self.active_school_phases)
-
-        elif self.params.SCENARIO == "ACCELERATED_GOVERNMENT_OPEN_SCHOOLS":
-            if self.scheduler.real_time.day == 1:
-                # Increase phase number every month.
-                current_phase = self.active_school_phases[-1] + 1
-
-                if current_phase <= self.max_school_phase:
-                    self.active_school_phases.append(current_phase)
-                    self.open_schools(np.unique(self.district_ids), self.active_school_phases)
-
-        elif self.params.SCENARIO == "PHASE1_GOVERNMENT_OPEN_SCHOOLS":
-            if (self.scheduler.real_time.year == 2021) and (self.scheduler.real_time.day == 1):
-                if self.scheduler.real_time.month == 1:
-                    self.active_school_phases.append(2)
-                    self.active_school_phases.append(4)
-                elif self.scheduler.real_time.month == 5:
-                    self.active_school_phases.append(3)
-                    self.active_school_phases.append(5)
-
-                self.open_schools(np.unique(self.district_ids), self.active_school_phases)
-
         self.scheduler.step()
 
     def set_epidemic_status(self, neighbors_to_infect):
