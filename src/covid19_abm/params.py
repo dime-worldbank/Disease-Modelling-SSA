@@ -7,12 +7,12 @@ import pickle
 from covid19_abm.dir_manager import get_data_dir
 
 
-# the functions needed to be added to the classes below and the hardcoded values removed 
          
 class ParamsConfig:
 
+    ################## EPIDEMIOLOGICAL PARAMS ########################
     
-    # Sarah to add line which includes contact numbers within home 
+    # Sophie added a line to include contact numbers within home 
     per_capita_contact_rates_home  = 4.12 
     
     ages = list(range(100))
@@ -87,16 +87,18 @@ class ParamsConfig:
 
     # Map of district to hospital ids
     DISTRICT_HOSPITALS = {}
+    
+################## MOBILITY PARAMS ########################
 
     DISTRICT_MOVEMENT_ALLOWED_AGE = 18
 
     def __init__(
         self, district='old', data_sample_size=5, R0=None,
-        normal_interaction_matrix_file='final_close_interaction_matrix_normal.xlsx',
-        lockdown_interaction_matrix_file='final_close_interaction_matrix_lockdown.xlsx',
-        stay_duration_file='weekday_mobility_duration_count_df.pickle',
-        transition_probability_file='daily_region_transition_probability.csv',
-        intra_district_decreased_mobility_rates_file='intra_district_decreased_mobility_rates.csv',
+        normal_interaction_matrix_file='../../configs/interaction_matrix_nld.txt', # updated by Sophie
+        lockdown_interaction_matrix_file='../../configs/interaction_matrix_ld.txt',  # updated by Sophie
+        stay_duration_file='../../preprocessed/mobility/New Files/weekday_mobility_duration_count_df-new-district i5.pickle', # i5 to start
+        transition_probability_file='../../preprocessed/mobility/New Files/daily_region_transition_probability-new-district-post-lockdown_i5.csv', # i5 to start
+        intra_district_decreased_mobility_rates_file='../../preprocessed/mobility/intra_district_decreased_mobility_rates.csv',
         timestep=None,
     ):
         if R0 is not None:
@@ -109,12 +111,13 @@ class ParamsConfig:
         # read in from files
 
 
-        ### SETUP
-        os.chdir("/Users/swise/workspace/worldbank/Disease-Modelling-SSA/src/covid19_abm")#"/Users/sophieayling/Documents/GitHub/Disease-Modelling-SSA/src/covid19_abm")
+        ################## MORE EPIDEMIOLOGICAL PARAMS (move up once pushed) ########################
+        os.chdir("/Users/swise/workspace/worldbank/Disease-Modelling-SSA/src/covid19_abm")
+        #"/Users/sophieayling/Documents/GitHub/Disease-Modelling-SSA/src/covid19_abm")
         cwd = os.getcwd()
         print(cwd)
 
-        # define a function that will read in the text files and turn them into objects 
+        # Functions for reading in params as text files 
 
         self.susceptibility_by_age = pd.Series(self.readInParams("../../configs/susceptibility_by_age.txt"))
 
@@ -322,11 +325,15 @@ class ParamsConfig:
         self.HW_MIN_TO_MEAN_DELTA = self.MEAN_HW_RISK - self.MIN_HW_RISK
 
         return 1 + (self.HW_MIN_TO_MEAN_INCREASE * (hw - self.MEAN_HW_RISK) / self.HW_MIN_TO_MEAN_DELTA)
+    
+    
+
+        ################## SCENARIO FUNCTIONS SET UP ########################
 
     def scenario_test_interaction_matrix_sensitivity(self):
         self.SCENARIO = 'INTERACTION_MATRIX_SENSITIVITY'
         self.set_interaction_parameters(
-            get_data_dir('raw', 'sensitivity_interaction_matrix.xlsx'))
+            get_data_dir('raw', 'age-econ_matrix', 'sensitivity_interaction_matrix.xlsx'))
 
     def scenario_handwashing_risk(self):
         self.SCENARIO = 'HANDWASHING_RISK'
