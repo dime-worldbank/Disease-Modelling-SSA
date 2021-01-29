@@ -1,1 +1,1 @@
-economic_status, movement_probability"Not working, inactive, not in universe'",0.8'In School',1'Homemakers/Housework',0.8'Office workers',1'Teachers',1'Service Workers',1'Agriculture Workers',1'Industry Workers',1'In the army',1'Disabled and not working',0
+economic_status, movement_probability"Not working, inactive, not in universe",0.8"In School",1"Homemakers/Housework",0.8"Office workers",1"Teachers",1"Service Workers",1"Agriculture Workers",1"Industry Workers",1"In the army",1"Disabled and not working",0
