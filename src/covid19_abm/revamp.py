@@ -27,7 +27,7 @@ params = params.ParamsConfig(
 #    lockdown_interaction_matrix_file=('/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/raw/final_close_interaction_matrix.xlsx'),
     stay_duration_file=dir_manager.get_data_dir('preprocessed', 'mobility', stay_duration_file),
     transition_probability_file=dir_manager.get_data_dir('preprocessed', 'mobility', transition_probability_file),
-    intra_district_decreased_mobility_rates_file=dir_manager.get_data_dir('preprocessed', 'mobility', transition_probability_file),
+ #   intra_district_decreased_mobility_rates_file=dir_manager.get_data_dir('preprocessed', 'mobility', transition_probability_file),
     timestep=timestep)
 
 params.set_new_district_seed(seed_infected=2)

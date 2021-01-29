@@ -117,36 +117,18 @@ class ParamsConfig:
         # define a function that will read in the text files and turn them into objects 
 
         self.susceptibility_by_age = pd.Series(self.readInParams("../../configs/susceptibility_by_age.txt"))
-        for k, v in self.susceptibility_by_age.items():
-            print(k, ' : ', v)
 
         self.hospitalization_rates_by_age = pd.Series(self.readInParams("../../configs/hospitalization_rates_by_age.txt"))
-        for k, v in self.hospitalization_rates_by_age.items():
-            print(k, ' : ', v)
 
         self.critical_rates_by_age = pd.Series(self.readInParams("../../configs/critical_rates_by_age.txt"))
-        for k, v in self.critical_rates_by_age.items():
-            print(k, ' : ', v)
 
         self.hospitalized_death_rates_by_age = pd.Series(self.readInParams("../../configs/hospitalized_death_rates_by_age.txt"))
-        for k, v in self.hospitalized_death_rates_by_age.items():
-            print(k, ' : ', v)
             
         self.per_capita_contact_rates_wk = pd.Series(self.readInParams("../../configs/per_capita_contact_rates_work.txt"))
-        for k, v in self.per_capita_contact_rates_wk.items():
-            print(k, ' : ', v)
-
-
 
         self.ECONOMIC_STATUS_WEEKDAY_MOVEMENT_PROBABILITY = self.readInParams2("../../configs/ECONOMIC_STATUS_WEEKDAY_MOVEMENT_PROBABILITY.txt")
-        for k, v in self.ECONOMIC_STATUS_WEEKDAY_MOVEMENT_PROBABILITY.items():
-            print(k, ' : ', v)
-
 
         self.ECONOMIC_STATUS_OTHER_DAY_MOVEMENT_PROBABILITY = self.readInParams2("../../configs/ECONOMIC_STATUS_OTHER_DAY_MOVEMENT_PROBABILITY.txt")
-        for k, v in self.ECONOMIC_STATUS_OTHER_DAY_MOVEMENT_PROBABILITY.items():
-            print(k, ' : ', v)
-
 
         # STOP READ IN
 
@@ -185,10 +167,6 @@ class ParamsConfig:
         self.DISTRICT_MOVING_ECONOMIC_STATUS.remove('In School')
         self.DISTRICT_MOVING_ECONOMIC_STATUS.remove('Teachers')
 
-        # Values in hours
-        self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX = pd.read_csv(stay_duration_file) #
-        self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX[['avg_duration', 'stddev_duration']] = self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX[['avg_duration', 'stddev_duration']] + 0.001
-
         self.DAILY_DISTRICT_TRANSITION_PROBABILITY = pd.read_csv(transition_probability_file, index_col=[0, 1])
         self.DAILY_DISTRICT_TRANSITION_PROBABILITY = self.DAILY_DISTRICT_TRANSITION_PROBABILITY.loc[sorted(self.DAILY_DISTRICT_TRANSITION_PROBABILITY.index)]
 
@@ -200,6 +178,20 @@ class ParamsConfig:
 
         for wid_i in self.DISTRICT_IDS:
             self.DISTRICT_HOSPITALS[wid_i] = [f'c_{wid_i}_{i}' for i in list(np.random.randint(0, 1000, size=10))]
+
+        # Values in hours
+        self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX = pd.read_csv(stay_duration_file) #
+
+        myregions = sorted(self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX['home_region'].unique())
+        full_idx = [(dow, 'd_' + str(src), 'd_' + str(dst)) for dow in range(7) for src in myregions for dst in myregions]
+
+        self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX["idx"] = [(x, 'd_' + str(y), 'd_' + str(z)) for (x, y, z) in zip(self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX["weekday"], self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX["home_region"], self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX["region"])]
+        self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX = self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX.set_index("idx")
+        self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX = self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX.reindex(full_idx)
+
+        self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX['avg_duration'] = self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX['avg_duration'].fillna(24)
+        self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX['stddev_duration'] = self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX['stddev_duration'].fillna(self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX['stddev_duration'].mean())
+        self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX[['avg_duration', 'stddev_duration']] = self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX[['avg_duration', 'stddev_duration']] + 0.001
 
         if self.district_type == 'old':
             self.set_old_district_seed(seed_infected=3)
@@ -238,8 +230,8 @@ class ParamsConfig:
         # This will be multiplied by the population density per district to quantify the mixing intensity per district.
         # ECONOMIC_STATUS_INTERACTION_MATRIX = {'employed': {'unemployed'}}
         
-        self.ECONOMIC_STATUS_INTERACTION_MATRIX = pd.read_csv("../../configs/interaction_matrix_nld.txt")
-        self.ECONOMIC_STATUS_INTERACTION_SIZE_MAP = pd.read_csv("../../configs/no_interactions_wk_econ.txt")
+        self.ECONOMIC_STATUS_INTERACTION_MATRIX = pd.read_csv("../../configs/interaction_matrix_nld.txt", index_col=0)
+        self.ECONOMIC_STATUS_INTERACTION_SIZE_MAP = pd.read_csv("../../configs/no_interactions_wk_econ.txt", index_col=0)
 
         # self.DISTRICT_POP_DENSITY = pd.read_csv(os.path.join(data_dir, 'district_pop_dens_friction.csv'))
 
@@ -252,7 +244,6 @@ class ParamsConfig:
 
     def set_intra_district_decreased_mobility_rates(self, intra_district_decreased_mobility_rates_file):
 
-        return # TODO TAKE ME CBACK OUT SARAH PLEASE
         self.LOCKDOWN_DECREASED_MOBILITY_RATE = pd.read_csv(
             get_data_dir('preprocessed', 'mobility', intra_district_decreased_mobility_rates_file),
             index_col=0
