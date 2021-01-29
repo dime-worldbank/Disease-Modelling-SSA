@@ -6,175 +6,10 @@ import pickle
 
 from covid19_abm.dir_manager import get_data_dir
 
-### SETUP
-os.chdir("/Users/swise/workspace/worldbank/Disease-Modelling-SSA/src/covid19_abm")#"/Users/sophieayling/Documents/GitHub/Disease-Modelling-SSA/src/covid19_abm")
-cwd = os.getcwd()
-print(cwd)
 
-# define a function that will read in the text files and turn them into objects 
-
-def readInParams(filename):
-    rawfile = pd.read_csv(filename, skipinitialspace=True)
-    rawfile.dropna(axis=1, inplace=True)
-    myDict = { k:v for (k,v) in zip(rawfile["age"], rawfile["rate"])} 
-    return myDict
-
-susceptibility_by_age = readInParams("../../configs/susceptibility_by_age.txt")
-for k, v in susceptibility_by_age.items():
-    print(k, ' : ', v)
-
-hospitalization_rates_by_age = readInParams("../../configs/hospitalization_rates_by_age.txt")
-for k, v in hospitalization_rates_by_age.items():
-    print(k, ' : ', v)
-
-critical_rates_by_age = readInParams("../../configs/critical_rates_by_age.txt")
-for k, v in critical_rates_by_age.items():
-    print(k, ' : ', v)
-
-hospitalized_death_rates_by_age = readInParams("../../configs/hospitalized_death_rates_by_age.txt")
-for k, v in hospitalized_death_rates_by_age.items():
-    print(k, ' : ', v)
-    
-per_capita_contact_rates_wk = readInParams("../../configs/per_capita_contact_rates_work.txt")
-for k, v in per_capita_contact_rates_wk.items():
-    print(k, ' : ', v)
-
-
-
-# define another function that will read in the other format of text files and turn them to objects
-
-def readInParams2(filename):
-    rawfile = pd.read_csv(filename, skipinitialspace=True)
-    rawfile.dropna(axis=1, inplace=True)
-    myDict = { k:v for (k,v) in zip(rawfile["economic_status"], rawfile["movement_probability"])} 
-    return myDict
-
-ECONOMIC_STATUS_WEEKDAY_MOVEMENT_PROBABILITY = readInParams2("../../configs/ECONOMIC_STATUS_WEEKDAY_MOVEMENT_PROBABILITY.txt")
-for k, v in ECONOMIC_STATUS_WEEKDAY_MOVEMENT_PROBABILITY.items():
-    print(k, ' : ', v)
-
-
-ECONOMIC_STATUS_OTHER_DAY_MOVEMENT_PROBABILITY = readInParams2("../../configs/ECONOMIC_STATUS_OTHER_DAY_MOVEMENT_PROBABILITY.txt")
-for k, v in ECONOMIC_STATUS_OTHER_DAY_MOVEMENT_PROBABILITY.items():
-    print(k, ' : ', v)
-
-quit() 
 # the functions needed to be added to the classes below and the hardcoded values removed 
          
 class ParamsConfig:
-
-    # This is the probability that a person will go out of his/her household during weekdays.
-    ECONOMIC_STATUS_WEEKDAY_MOVEMENT_PROBABILITY = {
-        'Not working, inactive, not in universe': 0.8,
-        'In School': 1.0,
-        'Homemakers/Housework': 0.8,
-        'Office workers': 1.0,
-        'Teachers': 1.0,
-        'Service Workers': 1.0,
-        'Agriculture Workers': 1.0,
-        'Indusrtry Workers': 1.0,
-        'In the army': 1.0,
-        'Disabled and not working': 0.0
-    }
-
-    
-    # This is the probability that a person will go out of his/her household during weekends.
-    ECONOMIC_STATUS_OTHER_DAY_MOVEMENT_PROBABILITY = {
-        'Not working, inactive, not in universe': 0.8,
-        'In School': 0.8,
-        'Homemakers/Housework': 0.8,
-        'Office workers': 0.8,
-        'Teachers': 0.8,
-        'Service Workers': 0.8,
-        'Agriculture Workers': 0.8,
-        'Indusrtry Workers': 0.8,
-        'In the army': 0.8,
-        'Disabled and not working': 0.0
-    }
-
-    # Susceptibility by age
-    susceptibility_by_age = pd.Series({
-        9: 0.4,
-        19: 0.38,
-        29: 0.79,
-        39: 0.86,
-        49: 0.8,
-        59: 0.82,
-        69: 0.88,
-        np.inf: 0.74,
-    })
-
-    # Hospitalization rates by age
-    # https://mrc-ide.github.io/global-lmic-reports/parameters.html
-    hospitalization_rates_by_age = pd.Series({
-        14: 0.1,
-        19: 0.2,
-        24: 0.5,
-        29: 1.0,
-        34: 1.6,
-        39: 2.3,
-        44: 2.9,
-        49: 3.9,
-        54: 5.8,
-        59: 7.2,
-        64: 10.2,
-        69: 11.7,
-        74: 14.6,
-        79: 17.7,
-        np.inf: 18.0
-    }) / 100
-
-    # ICU rates by age
-    # https://mrc-ide.github.io/global-lmic-reports/parameters.html
-    critical_rates_by_age = pd.Series({
-        34: 5.0,
-        39: 5.3,
-        44: 6.0,
-        49: 7.5,
-        54: 10.4,
-        59: 14.9,
-        64: 22.4,
-        69: 30.7,
-        74: 38.6,
-        79: 46.1,
-        np.inf: 70.9
-    }) / 100
-
-    # Death rates by age
-    # https://mrc-ide.github.io/global-lmic-reports/parameters.html
-    hospitalized_death_rates_by_age = pd.Series({
-        39: 1.3,
-        44: 1.5,
-        49: 1.9,
-        54: 2.7,
-        59: 4.2,
-        64: 6.9,
-        69: 10.5,
-        74: 14.9,
-        79: 20.3,
-        np.inf: 58.0
-    }) / 100
-
-    # Social Contact Structures and Time Use Patterns in the Manicaland Province of Zimbabwe
-    # https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0170459
-    per_capita_contact_rates = pd.Series({
-        5: 7.4709,
-        10: 10.4079,
-        15: 12.4579,
-        20: 11.1542,
-        25: 10.8716,
-        30: 9.7019,
-        35: 11.7569,
-        40: 12.5434,
-        45: 13.2094,
-        50: 10.7766,
-        55: 10.3643,
-        60: 10.9087,
-        65: 11.1501,
-        70: 11.6564,
-        75: 11.8107,
-        np.inf: 11.5379,  # refer to text file per_capita_contact_rates_work.txt 
-    })
 
     
     # Sarah to add line which includes contact numbers within home 
@@ -270,6 +105,52 @@ class ParamsConfig:
         if timestep is not None:
             self.step_timedelta = timestep
 
+
+        # read in from files
+
+
+        ### SETUP
+        os.chdir("/Users/swise/workspace/worldbank/Disease-Modelling-SSA/src/covid19_abm")#"/Users/sophieayling/Documents/GitHub/Disease-Modelling-SSA/src/covid19_abm")
+        cwd = os.getcwd()
+        print(cwd)
+
+        # define a function that will read in the text files and turn them into objects 
+
+        self.susceptibility_by_age = pd.Series(self.readInParams("../../configs/susceptibility_by_age.txt"))
+        for k, v in self.susceptibility_by_age.items():
+            print(k, ' : ', v)
+
+        self.hospitalization_rates_by_age = pd.Series(self.readInParams("../../configs/hospitalization_rates_by_age.txt"))
+        for k, v in self.hospitalization_rates_by_age.items():
+            print(k, ' : ', v)
+
+        self.critical_rates_by_age = pd.Series(self.readInParams("../../configs/critical_rates_by_age.txt"))
+        for k, v in self.critical_rates_by_age.items():
+            print(k, ' : ', v)
+
+        self.hospitalized_death_rates_by_age = pd.Series(self.readInParams("../../configs/hospitalized_death_rates_by_age.txt"))
+        for k, v in self.hospitalized_death_rates_by_age.items():
+            print(k, ' : ', v)
+            
+        self.per_capita_contact_rates_wk = pd.Series(self.readInParams("../../configs/per_capita_contact_rates_work.txt"))
+        for k, v in self.per_capita_contact_rates_wk.items():
+            print(k, ' : ', v)
+
+
+
+        self.ECONOMIC_STATUS_WEEKDAY_MOVEMENT_PROBABILITY = self.readInParams2("../../configs/ECONOMIC_STATUS_WEEKDAY_MOVEMENT_PROBABILITY.txt")
+        for k, v in self.ECONOMIC_STATUS_WEEKDAY_MOVEMENT_PROBABILITY.items():
+            print(k, ' : ', v)
+
+
+        self.ECONOMIC_STATUS_OTHER_DAY_MOVEMENT_PROBABILITY = self.readInParams2("../../configs/ECONOMIC_STATUS_OTHER_DAY_MOVEMENT_PROBABILITY.txt")
+        for k, v in self.ECONOMIC_STATUS_OTHER_DAY_MOVEMENT_PROBABILITY.items():
+            print(k, ' : ', v)
+
+
+        # STOP READ IN
+
+
         self.data_sample_size = data_sample_size
         self.district_type = district  # 'new' or 'old'
         self.SCENARIO = 'UNMITIGATED'
@@ -293,11 +174,11 @@ class ParamsConfig:
         # Computing beta with contact matrix https://github.com/mrc-ide/squire/blob/master/R/beta.R
         # https://cran.r-project.org/web/packages/socialmixr/vignettes/introduction.html
         self.AGE_ASYMPTOMATIC_INFECTION_RATE = pd.Series({
-            age: self.R0 / ((timedelta(days=self.ASYMPTOMATIC_CONTAGIOUS_PERIOD_MEAN) / self.step_timedelta) * self.per_capita_contact_rates.iloc[(self.per_capita_contact_rates.index >= age).argmax()]) for age in self.ages})
+            age: self.R0 / ((timedelta(days=self.ASYMPTOMATIC_CONTAGIOUS_PERIOD_MEAN) / self.step_timedelta) * self.per_capita_contact_rates_wk.iloc[(self.per_capita_contact_rates_wk.index >= age).argmax()]) for age in self.ages})
         self.AGE_ASYMPTOMATIC_INFECTION_RATE_VALUES = self.AGE_ASYMPTOMATIC_INFECTION_RATE[sorted(self.ages)].values
 
         self.AGE_SYMPTOMATIC_INFECTION_RATE = pd.Series({
-            age: self.R0 / ((timedelta(days=self.SYMPTOMATIC_CONTAGIOUS_PERIOD_MEAN) / self.step_timedelta) * self.per_capita_contact_rates.iloc[(self.per_capita_contact_rates.index >= age).argmax()]) for age in self.ages})
+            age: self.R0 / ((timedelta(days=self.SYMPTOMATIC_CONTAGIOUS_PERIOD_MEAN) / self.step_timedelta) * self.per_capita_contact_rates_wk.iloc[(self.per_capita_contact_rates_wk.index >= age).argmax()]) for age in self.ages})
         self.AGE_SYMPTOMATIC_INFECTION_RATE_VALUES = self.AGE_SYMPTOMATIC_INFECTION_RATE[sorted(self.ages)].values
 
         self.DISTRICT_MOVING_ECONOMIC_STATUS = set([i for i, j in self.ECONOMIC_STATUS_WEEKDAY_MOVEMENT_PROBABILITY.items() if j > 0])
@@ -334,17 +215,31 @@ class ParamsConfig:
 
         self.intra_district_decreased_mobility_rates_file = intra_district_decreased_mobility_rates_file
 
+
+    def readInParams(self, filename):
+        rawfile = pd.read_csv(filename, skipinitialspace=True)
+        rawfile.dropna(axis=1, inplace=True)
+        rawDict = { k: v for (k,v) in zip(rawfile["age"], rawfile["rate"])} 
+        maxVal = float(rawDict.pop("older"))
+        myDict = {int(k): float(v) for (k, v) in rawDict.items()}
+        myDict[np.inf] = maxVal
+        return myDict
+
+    # define another function that will read in the other format of text files and turn them to objects
+    def readInParams2(self, filename):
+        rawfile = pd.read_csv(filename, skipinitialspace=True)
+        rawfile.dropna(axis=1, inplace=True)
+        myDict = { k:float(v) for (k,v) in zip(rawfile["economic_status"], rawfile["movement_probability"])} 
+        return myDict
+
+
     def set_interaction_parameters(self, interaction_matrix_file):
         # This matrix defines the probability of an interaction between two economic status.
         # This will be multiplied by the population density per district to quantify the mixing intensity per district.
         # ECONOMIC_STATUS_INTERACTION_MATRIX = {'employed': {'unemployed'}}
-        self.ECONOMIC_STATUS_INTERACTION_MATRIX = pd.read_excel(
-            interaction_matrix_file,
-            sheet_name='interaction_matrix', index_col=0)
-
-        self.ECONOMIC_STATUS_INTERACTION_SIZE_MAP = pd.read_excel(
-            interaction_matrix_file,
-            sheet_name='interactions', index_col=0)['interactions']
+        
+        self.ECONOMIC_STATUS_INTERACTION_MATRIX = pd.read_csv("../../configs/interaction_matrix_nld.txt")
+        self.ECONOMIC_STATUS_INTERACTION_SIZE_MAP = pd.read_csv("../../configs/no_interactions_wk_econ.txt")
 
         # self.DISTRICT_POP_DENSITY = pd.read_csv(os.path.join(data_dir, 'district_pop_dens_friction.csv'))
 
@@ -356,6 +251,8 @@ class ParamsConfig:
             self.ECONOMIC_STATUS_INTERACTION_MATRIX_CUMSUM.columns].values
 
     def set_intra_district_decreased_mobility_rates(self, intra_district_decreased_mobility_rates_file):
+
+        return # TODO TAKE ME CBACK OUT SARAH PLEASE
         self.LOCKDOWN_DECREASED_MOBILITY_RATE = pd.read_csv(
             get_data_dir('preprocessed', 'mobility', intra_district_decreased_mobility_rates_file),
             index_col=0
