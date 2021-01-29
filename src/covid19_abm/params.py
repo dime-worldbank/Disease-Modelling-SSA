@@ -7,7 +7,7 @@ import pickle
 from covid19_abm.dir_manager import get_data_dir
 
 ### SETUP
-os.chdir("/Users/sophieayling/Documents/GitHub/Disease-Modelling-SSA/src/covid19_abm")
+os.chdir("/Users/swise/workspace/worldbank/Disease-Modelling-SSA/src/covid19_abm")#"/Users/sophieayling/Documents/GitHub/Disease-Modelling-SSA/src/covid19_abm")
 cwd = os.getcwd()
 print(cwd)
 
