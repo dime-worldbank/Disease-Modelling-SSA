@@ -112,8 +112,8 @@ class ParamsConfig:
 
 
         ################## MORE EPIDEMIOLOGICAL PARAMS (move up once pushed) ########################
-        os.chdir("/Users/swise/workspace/worldbank/Disease-Modelling-SSA/src/covid19_abm")
-        #"/Users/sophieayling/Documents/GitHub/Disease-Modelling-SSA/src/covid19_abm")
+        #os.chdir("/Users/swise/workspace/worldbank/Disease-Modelling-SSA/src/covid19_abm")
+        os.chdir("/Users/sophieayling/Documents/GitHub/Disease-Modelling-SSA/src/covid19_abm")
         cwd = os.getcwd()
         print(cwd)
 
@@ -247,6 +247,7 @@ class ParamsConfig:
 
     def set_intra_district_decreased_mobility_rates(self, intra_district_decreased_mobility_rates_file):
 
+        print(intra_district_decreased_mobility_rates_file)
         self.LOCKDOWN_DECREASED_MOBILITY_RATE = pd.read_csv(
             get_data_dir('preprocessed', 'mobility', intra_district_decreased_mobility_rates_file),
             index_col=0
