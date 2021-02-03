@@ -15,30 +15,22 @@ timestep=timedelta(hours=4)
 os.chdir("/Users/sophieayling/Documents/GitHub/Disease-Modelling-SSA/src/covid19_abm")
 cwd = os.getcwd()
 
-stay_duration_file = dir_manager.get_data_dir('preprocessed', 'mobility', 'weekday_mobility_duration_count_df-new-district i5.csv')#weekday_mobility_duration_count_df-new-district.pickle')
-transition_probability_file = dir_manager.get_data_dir('preprocessed', 'mobility', 'daily_region_transition_probability-new-district-pre-lockdown_i5.csv')#daily_region_transition_probability-new-district-pre-lockdown.csv')
-reduced_transition_probability_file = dir_manager.get_data_dir('preprocessed', 'mobility', 'daily_region_transition_probability-new-district-post-lockdown_i5.csv')
+stay_duration_file = dir_manager.get_data_dir('preprocessed', 'mobility', 'New Files', 'weekday_mobility_duration_count_df-new-district i5.csv')
+transition_probability_file = dir_manager.get_data_dir('preprocessed', 'mobility', 'New Files', 'daily_region_transition_probability-new-district-pre-lockdown_i5.csv')
+reduced_transition_probability_file = dir_manager.get_data_dir('preprocessed', 'mobility', 'New Files', 'daily_region_transition_probability-new-district-post-lockdown_i5.csv')
 
-# note from Sophie that I'm not sure how any of these are working because they are not in the data folder? Maybe get_data_dir is working its magic? I didn't get any error so perhaps
 
 
 sample_size = 10
 R0 = 1.3
 
-# start to run into difficulties with the below however (Sophie)
-
 params = params.ParamsConfig(
     district='new', data_sample_size=sample_size, R0=R0,
-    normal_interaction_matrix_file=('../../configs/interaction_matrix_nld.txt') # sophie replaced with text files
-    lockdown_interaction_matrix_file=('../../configs/interaction_matrix_ld.txt') # sophie replaced with text files
-    #normal_interaction_matrix_file=('../../data/raw/interaction_matrix_update 130121.xlsx'), # sophie commented out
-    #lockdown_interaction_matrix_file=('../../Disease-Modelling-SSA/data/raw/interaction_matrix_update 130121.xlsx'), # sophie commented out
-
-#    normal_interaction_matrix_file=('/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/raw/final_close_interaction_matrix.xlsx'),
-#    lockdown_interaction_matrix_file=('/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/raw/final_close_interaction_matrix.xlsx'),
+    normal_interaction_matrix_file=('../../configs/interaction_matrix_nld.txt'), 
+    lockdown_interaction_matrix_file=('../../configs/interaction_matrix_ld.txt'), 
     stay_duration_file=dir_manager.get_data_dir('preprocessed', 'mobility', stay_duration_file),
     transition_probability_file=dir_manager.get_data_dir('preprocessed', 'mobility', transition_probability_file),
- #   intra_district_decreased_mobility_rates_file=dir_manager.get_data_dir('preprocessed', 'mobility', transition_probability_file),
+    #intra_district_decreased_mobility_rates_file=dir_manager.get_data_dir('preprocessed', 'mobility', transition_probability_file),
     timestep=timestep)
 
 params.set_new_district_seed(seed_infected=2)
