@@ -3,31 +3,32 @@ import os
 
 num_simulations = 1
 
-python_path = '/opt/anaconda3/envs/covid19_abm/bin/python'
-
+python_path = '/Users/swise/opt/anaconda3/envs/covid19_abm/bin/python'#'/opt/anaconda3/envs/covid19_abm/bin/python'
+# NOT SURE WHERE TO FIND THIS? If using conda, run the following (and then add /bin/python to the end!):
+# conda info --envs
 
 scenarios = [
     # 'HandWashingRiskScenario',
     # 'HandWashingRiskImproved1Scenario',
     # 'HandWashingRiskImproved2Scenario',
-    'UnmitigatedScenario',
+    #'UnmitigatedScenario',
     # 'LockdownGreatestMobilityScenario',
     # 'BlockGreatestMobilityScenario',
-    'ContinuedLockdownScenario',
+    #'ContinuedLockdownScenario',
     # 'InteractionSensitivityScenario',
     # 'OpenSchoolsScenario',
     # 'OpenManufacturingAndSchoolsScenario',
     # 'OpenMiningScenario',
     # 'OpenManufacturingScenario',
-    'EasedLockdownScenario',
+    #'EasedLockdownScenario',
     # 'EasedOpenSchoolsScenario',
     'Phase1GovernmentOpenSchoolsScenario',
     'DynamicPhase1GovernmentOpenSchoolsScenario',
-    'AcceleratedGovernmentOpenSchoolsScenario',
+    #'AcceleratedGovernmentOpenSchoolsScenario',
 ]
 
 run_env = os.environ.copy()
-run_env['PATH'] = '/opt/anaconda3/envs/covid19_abm/bin/:' + run_env['PATH']
+#run_env['PATH'] = '/opt/anaconda3/envs/covid19_abm/bin/:' + run_env['PATH']
 run_env['OMP_NUM_THREADS'] = '1'
 
 run_scenarios_script = 'run_scenarios.py'

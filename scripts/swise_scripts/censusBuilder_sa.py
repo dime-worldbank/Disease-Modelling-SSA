@@ -12,16 +12,16 @@ from covid19_abm.dir_manager import get_data_dir
 
 #sys.exit()
 # This is how to set the directory - 
-os.chdir("/Users/sophie/Documents/Github/covid19-agent-based-model/data")
-cwd = os.getcwd()
-print(cwd)
+#os.chdir("/Users/sophie/Documents/Github/covid19-agent-based-model/data")
+#cwd = os.getcwd()
+#print(cwd)
 
 # define the relevant filenames
 
-census_filename =os.path.join('raw', 'census', 'census_dummy_0.001_pct.dta')
+census_filename =get_data_dir('raw', 'census', 'census_dummy_0.001_pct.dta')
 #'ABM_Simulated_Pop_WardDistributed_UpdatedMay30_school_complete_060520.dta'
-district_filename = os.path.join('raw','district_relation.csv')
-output_filename = os.path.join('preprocessed', 'census', 'dummy_100pct.pickle')
+district_filename = get_data_dir('raw','district_relation.csv')
+output_filename = get_data_dir('preprocessed', 'census', 'sample_1500.pickle')
 
 # set up mappings between the input data and the values used by the census builder
 
