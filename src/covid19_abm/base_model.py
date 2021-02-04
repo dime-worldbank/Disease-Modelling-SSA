@@ -1057,9 +1057,9 @@ class Country(Model):
         return location_person_ids
 
     def log_model_output(self):
-        print("log_flag")
+       
         if self.scheduler.real_time.hour == 0:   # temp edit from 8 by Sophie and Sarah to test model 4/12
-            print("log_flag_success")
+            
             current_time = self.scheduler.real_time
             if self.model_log_file is not None:
                 data = dict(

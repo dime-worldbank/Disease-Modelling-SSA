@@ -500,24 +500,31 @@ def run_scenario(scenarioClass, scenario_name, sim_fname, R0, sample_size, seed_
 
     if scaled_mobility:
         sim_fname = f'scaled_{scenario_name}_{sim_fname}_R{R0}_samp{sample_size}_seed{seed_num}'
-        stay_duration_file = 'weekday_mobility_duration_count_df-new-district-scaled.pickle'
-        transition_probability_file = 'daily_region_transition_probability-new-district-scaled.csv'
+     #   stay_duration_file = 'weekday_mobility_duration_count_df-new-district-scaled.pickle'
+     #   transition_probability_file = 'daily_region_transition_probability-new-district-scaled.csv'
     else:
         sim_fname = f'{scenario_name}_{sim_fname}_R{R0}_samp{sample_size}_seed{seed_num}'
-        stay_duration_file = 'weekday_mobility_duration_count_df-new-district.pickle'
-        transition_probability_file = 'daily_region_transition_probability-new-district-pre-lockdown.csv'
+    #    stay_duration_file = 'weekday_mobility_duration_count_df-new-district.pickle'
+    #    transition_probability_file = 'daily_region_transition_probability-new-district-pre-lockdown.csv'
 
     now = datetime.now().isoformat()
 
     model_log_file = get_data_dir('logs',  f'model_log_file_{sim_fname}.{now}.log')
     individual_log_file = get_data_dir('logs', f'individual_log_file_{sim_fname}.{now}.log')
 
+    stay_duration_file = get_data_dir('preprocessed', 'mobility', 'weekday_mobility_duration_count_df-new-district i5.csv')
+    transition_probability_file = get_data_dir('preprocessed', 'mobility', 'daily_region_transition_probability-new-district-pre-lockdown_i5.csv')
+
     params = ParamsConfig(
         district='new', data_sample_size=sample_size, R0=R0,
-        normal_interaction_matrix_file=('/Users/sophieayling/Documents/GitHub/covid19-agent-based-model/data/raw/final_close_interaction_matrix.xlsx'),
-        lockdown_interaction_matrix_file=('/Users/sophieayling/Documents/GitHub/covid19-agent-based-model/data/raw/final_close_interaction_matrix.xlsx'),
+#        normal_interaction_matrix_file=('/Users/sophieayling/Documents/GitHub/covid19-agent-based-model/data/raw/final_close_interaction_matrix.xlsx'),
+#        lockdown_interaction_matrix_file=('/Users/sophieayling/Documents/GitHub/covid19-agent-based-model/data/raw/final_close_interaction_matrix.xlsx'),
+        normal_interaction_matrix_file=('../../data/raw/interaction_matrix_update 130121.xlsx'),
+        lockdown_interaction_matrix_file=('../../data/raw/interaction_matrix_update 130121.xlsx'),
+
         stay_duration_file=get_data_dir('preprocessed', 'mobility', stay_duration_file),
         transition_probability_file=get_data_dir('preprocessed', 'mobility', transition_probability_file),
+
         timestep=timestep
     )
     params.set_new_district_seed(seed_infected=seed_num)

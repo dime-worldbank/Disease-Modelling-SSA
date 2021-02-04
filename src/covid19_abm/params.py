@@ -12,7 +12,6 @@ class ParamsConfig:
 
     ################## EPIDEMIOLOGICAL PARAMS ########################
     
-    # Sophie added a line to include contact numbers within home 
     per_capita_contact_rates_home  = 4.12 
     
     ages = list(range(100))
@@ -114,8 +113,8 @@ class ParamsConfig:
         ################## MORE EPIDEMIOLOGICAL PARAMS (move up once pushed) ########################
         os.chdir("/Users/swise/workspace/worldbank/Disease-Modelling-SSA/src/covid19_abm")
         #"/Users/sophieayling/Documents/GitHub/Disease-Modelling-SSA/src/covid19_abm")
-        cwd = os.getcwd()
-        print(cwd)
+        #cwd = os.getcwd()
+        #print(cwd)
 
         # Functions for reading in params as text files 
 

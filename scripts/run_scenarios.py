@@ -8,8 +8,8 @@ import covid19_abm.scenario_models as sm
 scenarios = {
     #'LockdownGreatestMobilityScenario': sm.LockdownGreatestMobilityScenario,
     #'BlockGreatestMobilityScenario': sm.BlockGreatestMobilityScenario,
-    'UnmitigatedScenario': sm.UnmitigatedScenario,
-    'ContinuedLockdownScenario': sm.ContinuedLockdownScenario,
+    #'UnmitigatedScenario': sm.UnmitigatedScenario,
+    #'ContinuedLockdownScenario': sm.ContinuedLockdownScenario,
     #'OpenSchoolsScenario': sm.OpenSchoolsScenario,
     #'OpenSchoolsSeedKidsScenario': sm.OpenSchoolsSeedKidsScenario,
     #'OpenManufacturingAndSchoolsScenario': sm.OpenManufacturingAndSchoolsScenario,
@@ -19,11 +19,11 @@ scenarios = {
     #'InteractionSensitivityScenario': sm.InteractionSensitivityScenario,
     #'OpenMiningScenario': sm.OpenMiningScenario,
     #'OpenManufacturingScenario': sm.OpenManufacturingScenario,
-    'EasedLockdownScenario': sm.EasedLockdownScenario,
+    #'EasedLockdownScenario': sm.EasedLockdownScenario,
     #'EasedOpenSchoolsScenario': sm.EasedOpenSchoolsScenario,
     'Phase1GovernmentOpenSchoolsScenario': sm.Phase1GovernmentOpenSchoolsScenario,
     'DynamicPhase1GovernmentOpenSchoolsScenario': sm.DynamicPhase1GovernmentOpenSchoolsScenario,
-    'AcceleratedGovernmentOpenSchoolsScenario': sm.AcceleratedGovernmentOpenSchoolsScenario,
+    #'AcceleratedGovernmentOpenSchoolsScenario': sm.AcceleratedGovernmentOpenSchoolsScenario,
 }
 
 # R0 = 1.9
