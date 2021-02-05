@@ -512,8 +512,8 @@ def run_scenario(scenarioClass, scenario_name, sim_fname, R0, sample_size, seed_
     model_log_file = get_data_dir('logs',  f'model_log_file_{sim_fname}.{now}.log')
     individual_log_file = get_data_dir('logs', f'individual_log_file_{sim_fname}.{now}.log')
 
-    stay_duration_file = get_data_dir('preprocessed', 'mobility', 'weekday_mobility_duration_count_df-new-district i5.csv')
-    transition_probability_file = get_data_dir('preprocessed', 'mobility', 'daily_region_transition_probability-new-district-pre-lockdown_i5.csv')
+    stay_duration_file = 'weekday_mobility_duration_count_df-new-district i5.csv'
+    transition_probability_file = 'daily_region_transition_probability-new-district-pre-lockdown_i5.csv'
 
     params = ParamsConfig(
         district='new', data_sample_size=sample_size, R0=R0,
@@ -522,8 +522,8 @@ def run_scenario(scenarioClass, scenario_name, sim_fname, R0, sample_size, seed_
         normal_interaction_matrix_file=('../../data/raw/interaction_matrix_update 130121.xlsx'),
         lockdown_interaction_matrix_file=('../../data/raw/interaction_matrix_update 130121.xlsx'),
 
-        stay_duration_file=get_data_dir('preprocessed', 'mobility', stay_duration_file),
-        transition_probability_file=get_data_dir('preprocessed', 'mobility', transition_probability_file),
+        stay_duration_file=get_data_dir('preprocessed', 'mobility', 'New Files', stay_duration_file),
+        transition_probability_file=get_data_dir('preprocessed', 'mobility', 'New Files',  transition_probability_file),
 
         timestep=timestep
     )
@@ -545,7 +545,8 @@ def run_scenario(scenarioClass, scenario_name, sim_fname, R0, sample_size, seed_
         if ((model.epidemic_state >= model.STATE_INFECTED) & (model.epidemic_state < model.STATE_RECOVERED)).sum() == 0:
             break
 
-    model_dump_file = get_data_dir('logs', f'model_dump_file_{sim_fname}.{now}.pickle')
-
+    model_dump_file = get_data_dir('logs', f'model_dump_file_{sim_fname}.{now}.pickle') # .csv
+    #model.log_model_output()
+    
     with open(model_dump_file, 'wb') as fl:
-        pickle.dump(model, fl)
+       pickle.dump(model, fl)

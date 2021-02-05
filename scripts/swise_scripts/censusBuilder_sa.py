@@ -18,10 +18,10 @@ from covid19_abm.dir_manager import get_data_dir
 
 # define the relevant filenames
 
-census_filename =get_data_dir('raw', 'census', 'census_dummy_0.001_pct.dta')
+census_filename =get_data_dir('raw', 'census', 'census_sample_1500.dta')
 #'ABM_Simulated_Pop_WardDistributed_UpdatedMay30_school_complete_060520.dta'
 district_filename = get_data_dir('raw','district_relation.csv')
-output_filename = get_data_dir('preprocessed', 'census', 'sample_1500.pickle')
+output_filename = get_data_dir('preprocessed', 'census', 'sample_1500.csv')#pickle')
 
 # set up mappings between the input data and the values used by the census builder
 
@@ -146,7 +146,7 @@ print(mining_df[relevant_cols].head())
 
 print("Writing out to file...")
 
-mining_df[relevant_cols].to_pickle(output_filename)
+mining_df[relevant_cols].to_pickle(output_filename)#to_csv(output_filename)
 
 # want to only export a subset? Uncomment these!
 #mining_df[relevant_cols][mining_df.serial_expanded % 100 < 5].to_pickle( get_data_dir(output_filename) + '_5pct.pickle')

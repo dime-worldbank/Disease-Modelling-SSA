@@ -1,20 +1,38 @@
-cd "/Users/sophieayling/Documents/GitHub/"
-/*
+************ create initial dummy datasets for Aivin's abm
+clear all
+
+cd "/Users/sophieayling/Documents/GitHub/Disease-Modelling-SSA"
+tempfile temp1 
 
 
-use "covid19-agent-based-model/data/raw/census/abm_individual_new_092220_final_merged_complete_FINAL_orig.dta"
+************ add back in missing variables from other census version -- province = geo1_zw2012
+
+** save old dataset key vars for merge as tempfile 
+use "data/raw/census/versions/ABM_Simulated_Pop_WardDistributed_UpdatedMay30_school_complete_060520.dta", clear
+
+keep district_id geo1_zw2012 geo2_zw2012
+sort district_id 
+duplicates drop
+isid district_id
 
 
-* extracting my ~100 sample from census 
-sample 0.001, by 
 
-* extracting my ~1000 sample from census, making sure there are roughly similar number of obs per district
+save `temp1', replace
 
-sample 0.01, by(new_district_id). // 1,507 obs
+use "data/raw/census/census_sample_1500.dta", clear
+sort district_id
+merge m:1 district_id using `temp1' 
 
-save census_sample_1,500.dta, replace
-*/
-************ create more characteristics for dummy dataset
+** save new version of 1500 data set
+
+drop _merge
+save "data/raw/census/census_sample_1507.dta", replace
+
+** this file has been MANUALLY renamed to _1500. It is the version created 5 feb 2021 16:03
+
+
+
+************ create more characteristics for dummy dataset for PhD work
 
 
 
@@ -44,3 +62,20 @@ order pid sex age d_infected economic_status
 
 save "other_practice/census_dummy_subset.dta", replace
 export delimited using "other_practice/census_dummy_subset.csv", replace
+
+
+/* Some old code
+
+
+use "covid19-agent-based-model/data/raw/census/abm_individual_new_092220_final_merged_complete_FINAL_orig.dta"
+
+
+* extracting my ~100 sample from census 
+sample 0.001, by(new_district_id)
+
+* extracting my ~1000 sample from census, making sure there are roughly similar number of obs per district
+
+sample 0.01, by(new_district_id). // 1,507 obs
+
+save census_sample_1,500.dta, replace
+*/
