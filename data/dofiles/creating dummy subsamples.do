@@ -23,6 +23,9 @@ use "data/raw/census/census_sample_1500.dta", clear
 sort district_id
 merge m:1 district_id using `temp1' 
 
+drop district_id 
+rename new_district_id district_id
+
 ** save new version of 1500 data set
 
 drop _merge

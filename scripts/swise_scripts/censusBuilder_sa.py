@@ -32,6 +32,7 @@ age_map = {
     '98': 98,
     'not reported/missing': None,
 }
+# note SA to SW: in stata, these are coded values, so 'not reported/missing' is 999 code
 
 econ_stat_map = {
     'Not working, inactive, not': 'Not working, inactive, not in universe',
@@ -44,6 +45,7 @@ econ_stat_map = {
 full_individual_df = pd.read_stata(census_filename)
 
 print("Successfully read in file...")
+
 
 # map the input data to the mappings defined above
 full_individual_df['age'] = full_individual_df['age'].map(lambda x: age_map.get(x.strip(), x.strip()))
@@ -74,6 +76,7 @@ gb = GradientBoostingRegressor(n_estimators=100, max_depth=3, random_state=1029)
 frac = 0.05
 X_tr = X_train.sample(frac=frac, random_state=1029)
 gb.fit(X_tr, individual_df.loc[X_tr.index, 'age'])
+# NB SA to SW - this has an error 'could not convert string to float
 
 # now pull out the individuals with null ages and replace their ages with regressed integer values
 missing_age = X[individual_df['age'].isnull()]
@@ -104,7 +107,7 @@ individual_df['new_district_id'] = individual_df['geo2_zw2012'].map(lambda x: f'
 expanded_individual_df = individual_df.copy()
 
 expanded_individual_df['school_goers'] = 1 * (expanded_individual_df['school_goers'] != 0)
-
+# Q SA to SW - what is this doing? 
 
 #
 # MINING SECTION
