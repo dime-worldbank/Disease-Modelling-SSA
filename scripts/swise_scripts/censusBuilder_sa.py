@@ -18,10 +18,10 @@ from covid19_abm.dir_manager import get_data_dir
 
 # define the relevant filenames
 
-census_filename =get_data_dir('raw', 'census', 'census_sample_1500.dta')
+census_filename =get_data_dir('raw', 'census', '5_perc_sample', 'census_sample_5perc.dta')
 #'ABM_Simulated_Pop_WardDistributed_UpdatedMay30_school_complete_060520.dta'
 district_filename = get_data_dir('raw','district_relation.csv')
-output_filename = get_data_dir('preprocessed', 'census', 'sample_1500.csv')#pickle')
+output_filename = get_data_dir('preprocessed', 'census', 'sample_5_perc.csv')#pickle')
 
 # set up mappings between the input data and the values used by the census builder
 
@@ -38,7 +38,9 @@ econ_stat_map = {
     'Not working, inactive, not': 'Not working, inactive, not in universe',
 }
 
-#
+#note SA to SW: Why is this the only set of values being mapped? 
+
+
 # BEGIN READING IN DATA
 #
 
