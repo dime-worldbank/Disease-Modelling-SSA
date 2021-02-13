@@ -87,40 +87,8 @@ def process_experiments(R0, scenario_files, cutoff_date=datetime(2020, 12, 31), 
 	        continue
 	    
 	    #scenario_df.head() 
-	    
-	# work with date data
-	scenario_df['date'] = pd.to_datetime(scenario_df['date'])
-	max_date = scenario_df['date'].max()
-	min_date = scenario_df['date'].min()
+	return scenario_df    
 
-	full_dates = scenario_df[scenario_df['version'] == scenario_df[scenario_df['date'] == max_date].iloc[0].version]
-	idx = full_dates['date']
-
-	df = pd.DataFrame()
-
-	for v, gdf in scenario_df.groupby('version'):
-	    gdf = gdf.set_index('date')
-
-	    gdf = gdf.reindex(idx)
-	    gdf = gdf.fillna(method='ffill')
-	    gdf = gdf.reset_index()
-
-	    if df.empty:
-	        df = gdf
-	    else:
-	        df = pd.concat([df, gdf])
-
-	df['date'] = pd.to_datetime(df['date'])
-	
-	df_dec= df#.loc[df['date'] < cutoff_date]
-
-
-	# possibly export data to file?
-	if(write_out):
-		df_dec.to_csv(f'../../data/plots/R{R0}_countrywide.csv')
-	
-	# return data frame
-	return df_dec
 
 # plot some variable of the dataframe relative to the date column
 def plot_by_date(df, output_file, title, my_key):

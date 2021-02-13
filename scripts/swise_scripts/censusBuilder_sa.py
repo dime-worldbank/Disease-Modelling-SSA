@@ -18,10 +18,11 @@ from covid19_abm.dir_manager import get_data_dir
 
 # define the relevant filenames
 
-census_filename =get_data_dir('raw', 'census', 'census_sample_1500.dta')
+#census_filename =get_data_dir('raw', 'census', 'census_sample_1500.dta')
+census_filename =get_data_dir('raw', 'census', '5_perc_sample', 'census_sample_5perc.dta')
 #'ABM_Simulated_Pop_WardDistributed_UpdatedMay30_school_complete_060520.dta'
-#district_filename = get_data_dir('raw','district_relation.csv')
-output_filename = get_data_dir('preprocessed', 'census', 'sample_1500.pickle')
+district_filename = get_data_dir('raw','district_relation.csv')
+output_filename = get_data_dir('preprocessed', 'census', 'sample_5_perc.csv')#pickle')
 
 # set up mappings between the input data and the values used by the census builder
 
@@ -32,18 +33,22 @@ age_map = {
     '98': 98,
     'not reported/missing': None,
 }
+# note SA to SW: in stata, these are coded values, so 'not reported/missing' is 999 code
 
 econ_stat_map = {
     'Not working, inactive, not': 'Not working, inactive, not in universe',
 }
 
-#
+#note SA to SW: Why is this the only set of values being mapped? 
+
+
 # BEGIN READING IN DATA
 #
 
 full_individual_df = pd.read_stata(census_filename)
 
 print("Successfully read in file...")
+
 
 # map the input data to the mappings defined above
 full_individual_df['age'] = full_individual_df['age'].map(lambda x: age_map.get(x.strip(), x.strip()))
@@ -74,6 +79,7 @@ gb = GradientBoostingRegressor(n_estimators=100, max_depth=3, random_state=1029)
 frac = 0.05
 X_tr = X_train.sample(frac=frac, random_state=1029)
 gb.fit(X_tr, individual_df.loc[X_tr.index, 'age'])
+# NB SA to SW - this has an error 'could not convert string to float
 
 # now pull out the individuals with null ages and replace their ages with regressed integer values
 missing_age = X[individual_df['age'].isnull()]
@@ -104,7 +110,7 @@ individual_df['household_id'] = individual_df['serial_expanded'].map(lambda x: f
 expanded_individual_df = individual_df.copy()
 
 expanded_individual_df['school_goers'] = 1 * (expanded_individual_df['school_goers'] != 0)
-
+# Q SA to SW - what is this doing? 
 
 #
 # MINING SECTION
@@ -149,9 +155,10 @@ raw_output.rename(columns={'Schoolnumber': 'school_id'}, inplace=True)
 
 print("Writing out to file...")
 
-#mining_df[relevant_cols].to_pickle(output_filename)
-raw_output.to_pickle(output_filename)
+mining_df[relevant_cols].to_pickle(output_filename)
+#raw_output.to_pickle(output_filename)
 #raw_output.to_csv(output_filename)
+
 # want to only export a subset? Uncomment these!
 #mining_df[relevant_cols][mining_df.serial_expanded % 100 < 5].to_pickle( get_data_dir(output_filename) + '_5pct.pickle')
 #mining_df[relevant_cols][mining_df.serial_expanded % 100 < 10].to_pickle( get_data_dir(output_filename) + '_10pct.pickle')
