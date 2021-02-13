@@ -112,8 +112,8 @@ class ParamsConfig:
 
         ################## MORE EPIDEMIOLOGICAL PARAMS (move up once pushed) ########################
 
-        os.chdir("/Users/sophieayling/Documents/GitHub/Disease-Modelling-SSA/src/covid19_abm")
-        #os.chdir("/Users/swise/workspace/worldbank/Disease-Modelling-SSA/src/covid19_abm")
+        #os.chdir("/Users/sophieayling/Documents/GitHub/Disease-Modelling-SSA/src/covid19_abm")
+        os.chdir("/Users/swise/workspace/worldbank/Disease-Modelling-SSA/src/covid19_abm")
         #cwd = os.getcwd()
         #print(cwd)
 
@@ -176,6 +176,8 @@ class ParamsConfig:
         self.DISTRICT_IDS = sorted(self.DAILY_DISTRICT_TRANSITION_PROBABILITY.columns)
         self.DISTRICT_ID_TO_NAME = dict(enumerate(self.DISTRICT_IDS))
         self.DISTRICT_NAME_TO_ID = {j: i for i, j in self.DISTRICT_ID_TO_NAME.items()}
+
+        #print(self.DISTRCT_NAME_TO_ID)
 
         self.DAILY_DISTRICT_TRANSITION_PROBABILITY = self.DAILY_DISTRICT_TRANSITION_PROBABILITY[self.DISTRICT_IDS]
 
@@ -307,11 +309,14 @@ class ParamsConfig:
         # model.params.DISTRICT_NAME_TO_ID['d_2'] -> 11 Harare
         # model.params.DISTRICT_NAME_TO_ID['d_18'] -> 9 Goromonzi
 
-        with open(get_data_dir('preprocessed', 'line_list', 'latest_line_list.pickle'), 'rb') as fl:
-            infected_count = pickle.load(fl)
-            self.DISTRICT_ID_INFECTED_COUNT = {self.DISTRICT_NAME_TO_ID.get(i): j for i, j in infected_count.items()}
-            self.DISTRICT_ID_INFECTED_PROB = pd.Series(self.DISTRICT_ID_INFECTED_COUNT)
-            self.DISTRICT_ID_INFECTED_PROB = (self.DISTRICT_ID_INFECTED_PROB / self.DISTRICT_ID_INFECTED_PROB.sum()).to_dict()
+        infected_file = ("../../data/preprocessed/line_list/latest_line_list.txt")#get_data_dir('preprocessed', 'line_list', 'latest_line_list.txt')
+        infected_count = pd.read_csv(infected_file, sep="\t")
+#        with open(get_data_dir('preprocessed', 'line_list', 'latest_line_list.pickle'), 'rb') as fl:
+#            infected_count = pickle.load(fl)
+
+        self.DISTRICT_ID_INFECTED_COUNT = {self.DISTRICT_NAME_TO_ID.get(i): int(j) for i, j in zip(infected_count["district"], infected_count["count"])}#infected_count.items()}
+        self.DISTRICT_ID_INFECTED_PROB = pd.Series(self.DISTRICT_ID_INFECTED_COUNT)
+        self.DISTRICT_ID_INFECTED_PROB = (self.DISTRICT_ID_INFECTED_PROB / self.DISTRICT_ID_INFECTED_PROB.sum()).to_dict()
 
         self.SEED_INFECT_DISTRICT_IDS =  np.array([i for i in self.DISTRICT_ID_INFECTED_COUNT])
         self.SEED_INFECT_AGE_MIN = 20
@@ -319,7 +324,7 @@ class ParamsConfig:
         self.SEED_INFECT_NUM = seed_infected  # 3 -> 66 for a 5% sample
         self.SIMULATION_START_DATE = datetime(2020, 9, 1, 8)
 
-        self.data_file_name = get_data_dir('preprocessed', 'census', f'zimbabwe_expanded_census_consolidated_{self.data_sample_size}pct.pickle')
+        self.data_file_name = get_data_dir('preprocessed', 'census', 'sample_1500.pickle')#f'zimbabwe_expanded_census_consolidated_{self.data_sample_size}pct.pickle')
 
     def get_effective_R0(self, hw):
         self.HW_MIN_TO_MEAN_INCREASE = 0.05
