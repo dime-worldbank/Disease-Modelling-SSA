@@ -267,6 +267,7 @@ class ParamsConfig:
             # 33% decrease in inter-district mobility (empirical)
             self.LOCKDOWN_ALLOWED_PROBABILITY = {w: 0.67 for w in self.DISTRICT_ID_TO_NAME}
             # self.LOCKDOWN_DECREASED_MOBILITY_RATE = {w: 0.59 for w in self.DISTRICT_ID_TO_NAME}
+            # SA: this is currently not being used. Aivin says we could here replace the input parameter with a file with the reduced mobility levels. Am concerned that we have w everywhere here, should be d? This should then be updated --> scenario_models, THEN to base_model for scenario specific changes  
         elif lockdown_mode == 'lockdown_assumed':
             self.LOCKDOWN_ALLOWED_PROBABILITY = {w: 0.05 for w in self.DISTRICT_ID_TO_NAME}
             # 41% decrease in short-range mobility
@@ -309,14 +310,11 @@ class ParamsConfig:
         # model.params.DISTRICT_NAME_TO_ID['d_2'] -> 11 Harare
         # model.params.DISTRICT_NAME_TO_ID['d_18'] -> 9 Goromonzi
 
-        infected_file = ("../../data/preprocessed/line_list/latest_line_list.txt")#get_data_dir('preprocessed', 'line_list', 'latest_line_list.txt')
-        infected_count = pd.read_csv(infected_file, sep="\t")
-#        with open(get_data_dir('preprocessed', 'line_list', 'latest_line_list.pickle'), 'rb') as fl:
-#            infected_count = pickle.load(fl)
-
-        self.DISTRICT_ID_INFECTED_COUNT = {self.DISTRICT_NAME_TO_ID.get(i): int(j) for i, j in zip(infected_count["district"], infected_count["count"])}#infected_count.items()}
-        self.DISTRICT_ID_INFECTED_PROB = pd.Series(self.DISTRICT_ID_INFECTED_COUNT)
-        self.DISTRICT_ID_INFECTED_PROB = (self.DISTRICT_ID_INFECTED_PROB / self.DISTRICT_ID_INFECTED_PROB.sum()).to_dict()
+        with open(get_data_dir('preprocessed', 'line_list', 'line_list.pickle'), 'rb') as fl:
+            infected_count = pickle.load(fl)
+            self.DISTRICT_ID_INFECTED_COUNT = {self.DISTRICT_NAME_TO_ID.get(i): j for i, j in infected_count.items()}
+            self.DISTRICT_ID_INFECTED_PROB = pd.Series(self.DISTRICT_ID_INFECTED_COUNT)
+            self.DISTRICT_ID_INFECTED_PROB = (self.DISTRICT_ID_INFECTED_PROB / self.DISTRICT_ID_INFECTED_PROB.sum()).to_dict()
 
         self.SEED_INFECT_DISTRICT_IDS =  np.array([i for i in self.DISTRICT_ID_INFECTED_COUNT])
         self.SEED_INFECT_AGE_MIN = 20
