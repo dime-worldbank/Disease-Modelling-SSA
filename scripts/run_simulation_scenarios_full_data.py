@@ -11,8 +11,8 @@ scenarios = [
     # 'HandWashingRiskScenario',
     # 'HandWashingRiskImproved1Scenario',
     # 'HandWashingRiskImproved2Scenario',
-    #'UnmitigatedScenario',
-    # 'LockdownGreatestMobilityScenario',
+    'UnmitigatedScenario',
+    #'LockdownGreatestMobilityScenario',
     # 'BlockGreatestMobilityScenario',
     #'ContinuedLockdownScenario',
     # 'InteractionSensitivityScenario',
@@ -22,8 +22,8 @@ scenarios = [
     # 'OpenManufacturingScenario',
     #'EasedLockdownScenario',
     # 'EasedOpenSchoolsScenario',
-    'Phase1GovernmentOpenSchoolsScenario',
-    'DynamicPhase1GovernmentOpenSchoolsScenario',
+    #'Phase1GovernmentOpenSchoolsScenario',
+    #'DynamicPhase1GovernmentOpenSchoolsScenario',
     #'AcceleratedGovernmentOpenSchoolsScenario',
 ]
 

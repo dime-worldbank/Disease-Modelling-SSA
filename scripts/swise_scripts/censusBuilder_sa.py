@@ -18,9 +18,9 @@ from covid19_abm.dir_manager import get_data_dir
 
 # define the relevant filenames
 
-census_filename =get_data_dir('raw', 'census', 'census_dummy_0.001_pct.dta')
+census_filename =get_data_dir('raw', 'census', 'census_sample_1500.dta')
 #'ABM_Simulated_Pop_WardDistributed_UpdatedMay30_school_complete_060520.dta'
-district_filename = get_data_dir('raw','district_relation.csv')
+#district_filename = get_data_dir('raw','district_relation.csv')
 output_filename = get_data_dir('preprocessed', 'census', 'sample_1500.pickle')
 
 # set up mappings between the input data and the values used by the census builder
@@ -92,14 +92,14 @@ relevant_cols = [
     # 'household', 'district'
 ]
 
-old_new_districts = pd.read_csv(district_filename, index_col=0)
-old_new_districts.index = old_new_districts['ADMIN_NAME'].str.lower()
+#old_new_districts = pd.read_csv(district_filename, index_col=0)
+#old_new_districts.index = old_new_districts['ADMIN_NAME'].str.lower()
 
 individual_df['serial_expanded'] = individual_df['serial']
 
 individual_df['household_id'] = individual_df['serial_expanded'].map(lambda x: f'h_{x}')
-individual_df['old_district_id'] = individual_df['geo2_zw2012'].map(lambda x: f'd_{old_new_districts["DIST2012"][x]}')                                          
-individual_df['new_district_id'] = individual_df['geo2_zw2012'].map(lambda x: f'd_{old_new_districts["NEW_DIST_ID_2"][x]}')
+#individual_df['old_district_id'] = individual_df['geo2_zw2012'].map(lambda x: f'd_{old_new_districts["DIST2012"][x]}')                                          
+#individual_df['new_district_id'] = individual_df['geo2_zw2012'].map(lambda x: f'd_{old_new_districts["NEW_DIST_ID_2"][x]}')
 
 expanded_individual_df = individual_df.copy()
 
@@ -110,11 +110,12 @@ expanded_individual_df['school_goers'] = 1 * (expanded_individual_df['school_goe
 # MINING SECTION
 #
 
+print(expanded_individual_df.columns)
 relevant_cols = [
     'person_id', 'age', 'sex',
     'household_id', 'district_id',
     'economic_status', 'economic_activity_location_id',
-    # 'school_id_district', 
+    'Schoolnumber',#'school_id_district', 
     'school_goers',
     'manufacturing_workers',
     # 'mining_district_id'
@@ -126,7 +127,7 @@ mining_df = expanded_individual_df.copy()
 p = mining_df['economic_status']
 
 mining_df.loc[p == 'Disabled and not working', 'economic_activity_location_id'] = mining_df.loc[p == 'Disabled and not working', 'household_id']
-mining_df.loc[p != 'Disabled and not working', 'economic_activity_location_id'] = mining_df.loc[p != 'Disabled and not working', 'new_district_id']
+mining_df.loc[p != 'Disabled and not working', 'economic_activity_location_id'] = mining_df.loc[p != 'Disabled and not working', 'district_id']
 
 try:
     mining_df.drop('person_id', axis=1, inplace=True)
@@ -136,9 +137,11 @@ except KeyError:
 mining_df['person_id'] = mining_df.index
 mining_df['age'] = mining_df['age'].astype(int)
 mining_df['economic_status'] = mining_df['economic_status'].str.strip()
-mining_df.rename(columns={'new_district_id': 'district_id'}, inplace=True)
+raw_output = mining_df[relevant_cols]
+#raw_output.rename(columns={'new_district_id': 'district_id'}, inplace=True)
+raw_output.rename(columns={'Schoolnumber': 'school_id'}, inplace=True)
 
-print(mining_df[relevant_cols].head())
+#print(mining_df[relevant_cols].head())
 
 #
 # WRITING OUT TO THE PICKLE FILES
@@ -146,8 +149,9 @@ print(mining_df[relevant_cols].head())
 
 print("Writing out to file...")
 
-mining_df[relevant_cols].to_pickle(output_filename)
-
+#mining_df[relevant_cols].to_pickle(output_filename)
+raw_output.to_pickle(output_filename)
+#raw_output.to_csv(output_filename)
 # want to only export a subset? Uncomment these!
 #mining_df[relevant_cols][mining_df.serial_expanded % 100 < 5].to_pickle( get_data_dir(output_filename) + '_5pct.pickle')
 #mining_df[relevant_cols][mining_df.serial_expanded % 100 < 10].to_pickle( get_data_dir(output_filename) + '_10pct.pickle')

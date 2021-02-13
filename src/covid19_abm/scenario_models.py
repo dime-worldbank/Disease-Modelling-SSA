@@ -431,6 +431,8 @@ class DynamicPhase1GovernmentOpenSchoolsScenario(Country):
 
 
     def scenario_data_postprocessing(self, df):
+        print(df.columns)
+
         #### NOTE: SCENARIO SPECIFIC: Continued lockdown with mining open
         assert(self.params.SCENARIO == 'DYNAMIC_PHASE1_GOVERNMENT_OPEN_SCHOOLS')
         if "phase" in df:
@@ -512,8 +514,8 @@ def run_scenario(scenarioClass, scenario_name, sim_fname, R0, sample_size, seed_
     model_log_file = get_data_dir('logs',  f'model_log_file_{sim_fname}.{now}.log')
     individual_log_file = get_data_dir('logs', f'individual_log_file_{sim_fname}.{now}.log')
 
-    stay_duration_file = get_data_dir('preprocessed', 'mobility', 'weekday_mobility_duration_count_df-new-district i5.csv')
-    transition_probability_file = get_data_dir('preprocessed', 'mobility', 'daily_region_transition_probability-new-district-pre-lockdown_i5.csv')
+    stay_duration_file = get_data_dir('preprocessed', 'mobility', 'New Files', 'weekday_mobility_duration_count_df-new-district i5.csv')
+    transition_probability_file = get_data_dir('preprocessed', 'mobility', 'New Files', 'daily_region_transition_probability-new-district-pre-lockdown_i5.csv')
 
     params = ParamsConfig(
         district='new', data_sample_size=sample_size, R0=R0,
@@ -547,5 +549,6 @@ def run_scenario(scenarioClass, scenario_name, sim_fname, R0, sample_size, seed_
 
     model_dump_file = get_data_dir('logs', f'model_dump_file_{sim_fname}.{now}.pickle')
 
-    with open(model_dump_file, 'wb') as fl:
-        pickle.dump(model, fl)
+    model.log_model_output()
+#    with open(model_dump_file, 'wb') as fl:
+#        pickle.dump(model, fl)

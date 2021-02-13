@@ -603,8 +603,12 @@ class Country(Model):
 
         self.person_ids = np.array(range(size), dtype=int)
 
-        self.district_ids = np.array(df['district_id'].map(self.params.DISTRICT_NAME_TO_ID))
+        self.district_ids = np.array(df['district_id'])#.map(self.params.DISTRICT_NAME_TO_ID))
         self.household_ids = np.array(df['household_id'].map(self.params.HOUSEHOLD_NAME_TO_ID))
+
+        #print("\nINIT ********")
+        #print(df['district_id'])
+        #print(self.params.DISTRICT_NAME_TO_ID)
 
         self.age = np.array(df['age'])
         self.sex = np.array(df['sex'].map(self.params.SEX_NAME_TO_ID))
@@ -780,12 +784,18 @@ class Country(Model):
         self.initialize_epidemic_vectors(size)
         self.initialize_clinical_vectors(size)
 
+        #print("\nLOAD_AGENTS")
+        #print(self.params.SEED_INFECT_DISTRICT_IDS)
+        #print(self.current_district_ids)
+
         if infect_num is not None:
+
             candidate_ids = self.person_ids[
                 np.in1d(self.current_district_ids, self.params.SEED_INFECT_DISTRICT_IDS) &
                 ((self.age > self.params.SEED_INFECT_AGE_MIN) & (self.age < self.params.SEED_INFECT_AGE_MAX))
             ]
 
+#            print(candidate_ids)
             neighbors_to_infect = []
 
             for did, pr in self.params.DISTRICT_ID_INFECTED_PROB.items():
@@ -796,9 +806,15 @@ class Country(Model):
                 # above line added 1st Dec to ensure not more people than exist are infected
                 neighbors_to_infect.append(np.random.choice(cands, size=ic, replace=False))
 
-            neighbors_to_infect = np.concatenate(neighbors_to_infect)
+            #neighbors_to_infect = np.concatenate(neighbors_to_infect)
 
-            self.set_epidemic_status(neighbors_to_infect)
+
+            neighbors_as_ints = [int(x) for x in neighbors_to_infect]
+            print(neighbors_as_ints)
+
+            print("********FLAG *****\n") 
+           # print(neighbors_to_infect.astype(int).tolist())
+            self.set_epidemic_status(neighbors_as_ints)#.astype(int).tolist())
 
         del(df)
         gc.collect()
@@ -820,6 +836,7 @@ class Country(Model):
 
         current_time = self.scheduler.real_time
 
+        #print(neighbors_to_infect)
         self.infected_at_district_ids[neighbors_to_infect] = self.current_district_ids[neighbors_to_infect]
         self.infected_at_location_ids[neighbors_to_infect] = self.current_location_ids[neighbors_to_infect]
 
