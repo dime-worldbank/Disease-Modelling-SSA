@@ -68,6 +68,10 @@
 # Julia
 !/**/*.jl
 
+# Java
+!/**/*.java
+!/**/*.jar
+
 ######################
 # Including some of the input data which corresponds to important parameters
 !/configs/*.txt
