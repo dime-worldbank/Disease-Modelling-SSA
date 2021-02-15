@@ -3,8 +3,8 @@ import os
 
 num_simulations = 1
 
-#python_path = '/Users/swise/opt/anaconda3/envs/covid19_abm/bin/python'#'/opt/anaconda3/envs/covid19_abm/bin/python'
-python_path = '/opt/anaconda3/envs/covid19_abm/bin/python'
+python_path = '/Users/swise/opt/anaconda3/envs/covid19_abm/bin/python'#'/opt/anaconda3/envs/covid19_abm/bin/python'
+#python_path = '/opt/anaconda3/envs/covid19_abm/bin/python'
 # NOT SURE WHERE TO FIND THIS? If using conda, run the following (and then add /bin/python to the end!):
 #conda info --envs
 

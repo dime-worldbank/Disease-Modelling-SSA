@@ -373,6 +373,10 @@ class EpidemicScheduler(BaseScheduler):
         )]
 
         district_probs = self.model.params.DAILY_DISTRICT_TRANSITION_PROBABILITY.loc[current_time.weekday()]
+        print("\nDISTRICT MOVER IDS")
+        print(self.model.district_ids[district_out_mover_ids])
+        print("\nDISTRICT PROBS")
+        print(district_probs)
         target_district_ids = np.less(
             np.random.random((len(district_out_mover_ids), 1)),
             # NOTE: We can use .iloc because we explicitly defined that district_ids are sorted increasingly.
@@ -804,17 +808,16 @@ class Country(Model):
                 ic = int(pr * infect_num) + 1
                 ic = min(ic, len(cands)) 
                 # above line added 1st Dec to ensure not more people than exist are infected
-                neighbors_to_infect.append(np.random.choice(cands, size=ic, replace=False))
+                randchoices = np.random.choice(cands, size=ic, replace=False)
+                neighbors_to_infect.extend(randchoices.tolist())
 
-            #neighbors_to_infect = np.concatenate(neighbors_to_infect)
+#            neighbors_to_infect = np.concatenate(neighbors_to_infect)
 
+            neighbor_array = np.array(neighbors_to_infect)
 
-            neighbors_as_ints = [int(x) for x in neighbors_to_infect]
-            print(neighbors_as_ints)
+            ##### TODO
 
-            print("********FLAG *****\n") 
-           # print(neighbors_to_infect.astype(int).tolist())
-            self.set_epidemic_status(neighbors_as_ints)#.astype(int).tolist())
+            self.set_epidemic_status(neighbor_array)
 
         del(df)
         gc.collect()

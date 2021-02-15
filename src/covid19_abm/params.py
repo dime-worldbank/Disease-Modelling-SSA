@@ -310,7 +310,7 @@ class ParamsConfig:
         # model.params.DISTRICT_NAME_TO_ID['d_2'] -> 11 Harare
         # model.params.DISTRICT_NAME_TO_ID['d_18'] -> 9 Goromonzi
 
-        with open(get_data_dir('preprocessed', 'line_list', 'line_list.pickle'), 'rb') as fl:
+        with open(get_data_dir('preprocessed', 'line_list', 'd_line_list.pickle'), 'rb') as fl:
             infected_count = pickle.load(fl)
             self.DISTRICT_ID_INFECTED_COUNT = {self.DISTRICT_NAME_TO_ID.get(i): j for i, j in infected_count.items()}
             self.DISTRICT_ID_INFECTED_PROB = pd.Series(self.DISTRICT_ID_INFECTED_COUNT)
