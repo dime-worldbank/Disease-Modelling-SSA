@@ -21,7 +21,7 @@ public class WorldBankCovid19Sim extends SimState {
 	
 	ArrayList <Location> districts;
 		
-	Params params;
+	public Params params;
 	
 	/**
 	 * Constructor function
@@ -72,7 +72,7 @@ public class WorldBankCovid19Sim extends SimState {
 			while ((s = agentData.readLine()) != null) {
 				
 				// separate the columns from the raw text
-				String[] bits = s.split(",");
+				String[] bits = Params.splitRawCSVString(s);
 				
 				// make sure the larger units are set up before we create the individual
 
@@ -106,15 +106,16 @@ public class WorldBankCovid19Sim extends SimState {
 						Integer.parseInt(bits[2]), // age
 						bits[3], // sex
 						bits[6],
-						econLocation
+						econLocation,
+						this
 						);
 				h.addPerson(p);
 				p.setLocation(h);
 				agents.add(p);
 				
 				// schedule the agent to run at the beginning of the simulation
-				//this.schedule.scheduleOnce(0, p);
-				this.schedule.scheduleRepeating(p);
+				this.schedule.scheduleOnce(0, p);
+				//this.schedule.scheduleRepeating(p);
 				
 
 			}
@@ -142,7 +143,7 @@ public class WorldBankCovid19Sim extends SimState {
 
 		System.out.println("Running...");
 
-		while(mySim.schedule.getTime() < 60 * 5 && !mySim.schedule.scheduleComplete()){
+		while(mySim.schedule.getTime() < 24 * 7 && !mySim.schedule.scheduleComplete()){
 			mySim.schedule.step(mySim);
 		}
 		

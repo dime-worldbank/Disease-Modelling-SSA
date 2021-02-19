@@ -14,15 +14,26 @@ public class Params {
 	
 	double r0 = 3.0;
 	
-	HashMap <String, Double> economic_status_weekday_movement_prob;
-	HashMap <String, Double> economic_status_otherday_movement_prob;
+	public HashMap <String, Double> economic_status_weekday_movement_prob;
+	public HashMap <String, Double> economic_status_otherday_movement_prob;
 	double mild_symptom_movement_prob;
+	
+
+	// holders for locational data
+	HashMap <String, Location> districts;
+	ArrayList <Map<String, Map<String, Double>>> dailyTransitionProbs;
 	
 	// data files
 	
 	public String population_filename = "/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/preprocessed/census/sample_1500.txt";
 	public String district_transition_filename = "/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/preprocessed/mobility/New Files/daily_region_transition_probability-new-district-post-lockdown_i5.csv";	
 
+	public String economic_status_weekday_movement_prob_filename = 
+			"/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/configs/ECONOMIC_STATUS_WEEKDAY_MOVEMENT_PROBABILITY.txt";
+	public String economic_status_otherday_movement_prob_filename = 
+			"/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/configs/ECONOMIC_STATUS_OTHER_DAY_MOVEMENT_PROBABILITY.txt";
+	
+	
 	// params used by other objects
 	
 	public static int state_susceptible = 0;
@@ -49,13 +60,13 @@ public class Params {
 	public static int hour_end_day_weekday = 16;
 	public static int hour_end_day_otherday = 16;
 	
-	// holders for locational data
-	HashMap <String, Location> districts;
-	ArrayList <Map<String, Map<String, Double>>> dailyTransitionProbs;
 	
 	
 	public Params(){
 		load_district_data(district_transition_filename);
+		
+		economic_status_weekday_movement_prob = readInEconomicData(economic_status_weekday_movement_prob_filename);
+		economic_status_otherday_movement_prob = readInEconomicData(economic_status_otherday_movement_prob_filename);
 	}
 	
 	public void load_district_data(String districtFilename){
@@ -85,7 +96,7 @@ public class Params {
 			s = districtData.readLine();
 			
 			// map the header into column names relative to location
-			String [] header = s.split(",");
+			String [] header = splitRawCSVString(s);
 			HashMap <String, Integer> rawColumnNames = new HashMap <String, Integer> ();
 			for(int i = 0; i < header.length; i++){
 				rawColumnNames.put(header[i], new Integer(i));
@@ -100,7 +111,7 @@ public class Params {
 			
 			// read in the raw data
 			while ((s = districtData.readLine()) != null) {
-				String [] bits = s.split(",");
+				String [] bits = splitRawCSVString(s);
 				
 				// extract the day of the week and the district name
 				int dayOfWeek = Integer.parseInt(bits[weekdayIndex]);
@@ -129,6 +140,99 @@ public class Params {
 			districtData.close();
 		} catch (Exception e) {
 			System.err.println("File input error: " + districtFilename);
+		}
+	}
+
+	public HashMap <String, Double> readInEconomicData(String econFilename){
+		try {
+			
+			// set up structure to hold the data
+			HashMap <String, Double> econData = new HashMap <String, Double> ();
+			
+			System.out.println("Reading in econ mobility data from " + econFilename);
+			
+			// Open the tracts file
+			FileInputStream fstream = new FileInputStream(econFilename);
+
+			// Convert our input stream to a BufferedReader
+			BufferedReader econDataFile = new BufferedReader(new InputStreamReader(fstream));
+			String s;
+
+			// extract the header
+			s = econDataFile.readLine();
+			
+			// map the header into column names relative to location
+			String [] header = splitRawCSVString(s);
+			HashMap <String, Integer> columnNames = parseHeader(header);
+			
+			int statusIndex = columnNames.get("economic_status");
+			int probIndex = columnNames.get("movement_probability");
+			
+			// set up holders for the information
+			
+			// read in the raw data
+			while ((s = econDataFile.readLine()) != null) {
+				String [] bits = splitRawCSVString(s);
+				econData.put(bits[statusIndex], Double.parseDouble(bits[probIndex]));
+			}
+			
+			// cleanup
+			econDataFile.close();
+			
+			// report success
+			System.out.println("...Finished reading in from " + econFilename);
+			
+			return econData;
+		} catch (Exception e) {
+			System.err.println("File input error: " + econFilename);
+		}
+		return null;
+	}
+	
+	/**
+	 * Helper function to allow user to read in comma separated values, respecting double quotes.
+	 * @param s the raw String
+	 * @return An array of Strings, stripped of quotation marks and whitespace
+	 */
+	public static String [] splitRawCSVString(String s){
+		String [] myString =s.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
+		for(int i = 0; i < myString.length; i++){
+			String transfer = myString[i];
+			myString[i] = transfer.replaceAll("\"", "").trim();
+		}
+		return myString;
+	}
+	
+	/**
+	 * 
+	 * @param rawHeader
+	 * @return
+	 */
+	public static HashMap <String, Integer> parseHeader(String [] rawHeader){
+		HashMap <String, Integer> rawColumnNames = new HashMap <String, Integer> ();
+		for(int i = 0; i < rawHeader.length; i++){
+			String colName = rawHeader[i];
+			rawColumnNames.put(colName, new Integer(i));
+		}
+		return rawColumnNames;
+	}
+	
+	/**
+	 * Public function to allow Persons to query economic mobility data based on day of week.
+	 * @param day Day of the week as an integer (0-4 are weekdays, 5-6 are weekends)
+	 * @param econ_status Name of economic_status
+	 * @return
+	 */
+	public double getEconProbByDay(int day, String econ_status){
+		if(day < 5){
+			if(!economic_status_weekday_movement_prob.containsKey(econ_status))
+				return -1;
+			else return economic_status_weekday_movement_prob.get(econ_status);
+		}
+		else {
+			if(!economic_status_otherday_movement_prob.containsKey(econ_status))
+				return -1;
+			else return economic_status_otherday_movement_prob.get(econ_status);
 		}
 	}
 }
