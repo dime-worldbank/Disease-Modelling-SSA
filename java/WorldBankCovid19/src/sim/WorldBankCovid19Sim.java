@@ -37,7 +37,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public void start(){
 		
 		// set up the behavioural framework
-		movementFramework = new MovementBehaviourFramework();
+		movementFramework = new MovementBehaviourFramework(this);
 		
 		// load the population
 		load_population(params.population_filename);
@@ -154,9 +154,9 @@ public class WorldBankCovid19Sim extends SimState {
 		System.out.println("Running...");
 
 		while(mySim.schedule.getTime() < 24 * 7 && !mySim.schedule.scheduleComplete()){
-			double myTime = mySim.schedule.getTime();
-			System.out.println("*****CURRENT TIME: DAY " + (int)(myTime / 6) + " HOUR " + (int)((myTime % 6) * 4));
 			mySim.schedule.step(mySim);
+			double myTime = mySim.schedule.getTime();
+			System.out.println("*****END TIME: DAY " + (int)(myTime / 6) + " HOUR " + (int)((myTime % 6) * 4) + " RAWTIME: " + myTime);
 		}
 		
 		mySim.finish();

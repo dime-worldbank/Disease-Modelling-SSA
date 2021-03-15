@@ -151,7 +151,7 @@ public class Params {
 				ArrayList <Double> cumulativeProbTransfer = new ArrayList <Double> ();
 				for(int i = homeregionIndex + 1; i < bits.length; i++){
 					transferFromDistrict.put(header[i], Double.parseDouble(bits[i]));
-					cumulativeProbTransfer.add(Double.parseDouble(bits[i]));
+					cumulativeProbTransfer.add(Double.parseDouble(bits[i])/100.);
 				}
 
 				// save the transitions
@@ -352,7 +352,7 @@ public class Params {
 		
 		// now compare the random roll to the probability distribution.
 		for(int i = 0; i < myTransitionProbs.size(); i++){
-			if(rand > myTransitionProbs.get(i)) // hooray! We've found the right bucket!
+			if(rand <= myTransitionProbs.get(i)) // hooray! We've found the right bucket!
 				return districts.get(districtNames.get(i)); // return the location associated with this position
 		}
 		
