@@ -47,4 +47,22 @@ public class Location {
 		return personsHere.add(p);
 	}
 	
+	public boolean removePerson(Person p){
+		return personsHere.remove(p);
+	}
+	
+	public Location getSuper(){
+		return mySuperLocation;
+	}
+	
+	public String getId(){
+		return myId;
+	}
+	
+	public Location getRootSuperLocation(){
+		Location l = mySuperLocation;
+		while(l.getSuper() != null)
+			l = l.getSuper();
+		return l;
+	}
 }
