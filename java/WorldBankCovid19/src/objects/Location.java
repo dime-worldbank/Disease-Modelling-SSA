@@ -60,7 +60,7 @@ public class Location {
 	}
 	
 	public Location getRootSuperLocation(){
-		Location l = mySuperLocation;
+		Location l = this;
 		while(l.getSuper() != null)
 			l = l.getSuper();
 		return l;

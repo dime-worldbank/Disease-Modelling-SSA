@@ -5,7 +5,6 @@ import sim.WorldBankCovid19Sim;
 import sim.engine.SimState;
 import behaviours.BehaviourNode;
 import behaviours.MovementBehaviourFramework;
-import behaviours.MovementBehaviourFramework.Activity;
 
 import swise.agents.MobileAgent;
 
@@ -35,7 +34,6 @@ public class Person extends MobileAgent {
 	boolean district_mover; // allowed to move between districts?
 	
 	// activity
-	Activity currentActivity = Activity.HOME; // 0 is work, 1 is leisure
 	BehaviourNode currentActivityNode = null;
 	
 	// copy of world
@@ -119,56 +117,10 @@ public class Person extends MobileAgent {
 	@Override
 	public void step(SimState world) {
 		double time = world.schedule.getTime(); // find the current time
-//		double myDelta = myWorld.movementFramework.update(this);
 		double myDelta = this.currentActivityNode.next(this, time);
 		myWorld.schedule.scheduleOnce(time + myDelta, this);
 	}	
-/*		// get time information		
-		double time = world.schedule.getTime(); // find the current time
-		int myHour = (int)time % Params.ticks_per_day; // get the current hour
-		int myDay = (int)(time / Params.ticks_per_day) % 7; // get the day of the week
-		
-		double delta = 1;
-		
-		// DECISION POINT 1: check if the person is severely ill
-		// P1 - YES ill
-		// Take no action
-		if(this.infected_symptomatic_status >= Params.symptom_symptomatic){ // TODO confirm this framing
-			world.schedule.scheduleOnce(time + 1, this); // if they are ill, no movement!
-			return;
-		}
-		
-		// P1 - NOT ill
 
-		// Go outside!
-		
-		// DECISION POINT 2: 
-		// depending on day of week and time, possibly move. Decide where!
-		// DECISION POINT 3: check where to move - within or outside the district
-		Location targetLocation = myWorld.params.getTargetMoveDistrict(this, myDay, myWorld.random.nextDouble());
-				
-		if(Params.isWeekday(myDay)){
-			if(myHour >= Params.hour_end_day_weekday)
-				delta = goHome();
-			else if(myHour == Params.hour_start_day_weekday)
-				delta = goOut(myDay);
-			else
-				delta = goLeisure(targetLocation, Params.time_leisure_weekday);
-		}
-		else {
-			if(myHour >= Params.hour_end_day_otherday)
-				delta = goHome();
-			else if (myHour == Params.hour_start_day_otherday)
-				delta = goOut(myDay);
-			else
-				delta = goLeisure(targetLocation, Params.time_leisure_weekend);
-		}
-		
-		if(delta > 0) // delta will be negative if there is a problem and it should no longer run
-			world.schedule.scheduleOnce(time + delta, this);
-	}
-	*/
-	
 	/**
 	 * A function which moves the Person from wherever they are to their Household.
 	 * @return the amount of time spent travelling to the Household location.
@@ -176,25 +128,32 @@ public class Person extends MobileAgent {
 	public double goHome(){
 		
 		// only move the Person if they are not already in the Household
-		if(this.currentLocation != this.myHousehold){
-			this.currentLocation = this.myHousehold;
-		}
+		if(this.currentLocation != this.myHousehold)
+			transferTo(myHousehold);
 		
 		return 1; // TODO make based on distance travelled!
 	}
 	
-	public double goToWork(){
-		if(economic_activity_location != null)
-			currentLocation = economic_activity_location;
+	public double goToWork(Location l){
+		if(l == null || l == economic_activity_location.getRootSuperLocation())
+			transferTo(economic_activity_location);
+		else
+			transferTo(l);
 		return 1;
 	}
 	
-	public double goToCommunity(){
+	public double goToCommunity(Location l){
+		if(l == myHousehold.getRootSuperLocation())
+			transferTo(myHousehold.getRootSuperLocation());
+		else
+			transferTo(l);
+		return 0;
+	}
+	
+	public void transferTo(Location l){
 		currentLocation.removePerson(this);
-		Location l = myHousehold.getRootSuperLocation();
 		currentLocation = l;
 		l.addPerson(this);
-		return 0;
 	}
 	
 	/**
@@ -256,14 +215,6 @@ public class Person extends MobileAgent {
 		return currentLocation;
 	}
 	
-	public Activity getActivity(){
-		return currentActivity;
-	}
-	
-	public void setActivity(Activity a){
-		currentActivity = a;
-	}
-	
 	public boolean isHome(){
 		return currentLocation == myHousehold;
 	}
@@ -275,4 +226,8 @@ public class Person extends MobileAgent {
 	public void setActivityNode(BehaviourNode bn){
 		currentActivityNode = bn;
 	}
+	
+	public String getEconStatus(){ return economic_status;}
+	
+	public Location getHousehold(){ return myHousehold; }
 }
