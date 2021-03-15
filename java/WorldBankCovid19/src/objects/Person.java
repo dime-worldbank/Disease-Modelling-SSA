@@ -3,6 +3,10 @@ package objects;
 import sim.Params;
 import sim.WorldBankCovid19Sim;
 import sim.engine.SimState;
+import behaviours.BehaviourNode;
+import behaviours.MovementBehaviourFramework;
+import behaviours.MovementBehaviourFramework.Activity;
+
 import swise.agents.MobileAgent;
 
 
@@ -31,7 +35,8 @@ public class Person extends MobileAgent {
 	boolean district_mover; // allowed to move between districts?
 	
 	// activity
-	int currentActivity = -1; // 0 is work, 1 is leisure
+	Activity currentActivity = Activity.HOME; // 0 is work, 1 is leisure
+	BehaviourNode currentActivityNode = null;
 	
 	// copy of world
 	WorldBankCovid19Sim myWorld;
@@ -42,7 +47,7 @@ public class Person extends MobileAgent {
 	
 	// health
 	int epidemic_state;
-	double infection_rate; // TODO what??
+	double infection_rate;
 	int infected_symptomatic_status;
 	int clinical_state;
 	
@@ -113,38 +118,62 @@ public class Person extends MobileAgent {
 	
 	@Override
 	public void step(SimState world) {
-		
 		double time = world.schedule.getTime(); // find the current time
-		int myHour = (int)time % 24; // get the current hour
-		int myDay = (int)(time / 24) % 7; // get the day of the week
-		
-		// TODO PROCESS DEATHS
+//		double myDelta = myWorld.movementFramework.update(this);
+		double myDelta = this.currentActivityNode.next(this, time);
+		myWorld.schedule.scheduleOnce(time + myDelta, this);
+	}	
+/*		// get time information		
+		double time = world.schedule.getTime(); // find the current time
+		int myHour = (int)time % Params.ticks_per_day; // get the current hour
+		int myDay = (int)(time / Params.ticks_per_day) % 7; // get the day of the week
 		
 		double delta = 1;
 		
-		// depending on day of week and time, possibly move
-		if(myDay < 5){
-			if(myHour == Params.hour_end_day_weekday)
+		// DECISION POINT 1: check if the person is severely ill
+		// P1 - YES ill
+		// Take no action
+		if(this.infected_symptomatic_status >= Params.symptom_symptomatic){ // TODO confirm this framing
+			world.schedule.scheduleOnce(time + 1, this); // if they are ill, no movement!
+			return;
+		}
+		
+		// P1 - NOT ill
+
+		// Go outside!
+		
+		// DECISION POINT 2: 
+		// depending on day of week and time, possibly move. Decide where!
+		// DECISION POINT 3: check where to move - within or outside the district
+		Location targetLocation = myWorld.params.getTargetMoveDistrict(this, myDay, myWorld.random.nextDouble());
+				
+		if(Params.isWeekday(myDay)){
+			if(myHour >= Params.hour_end_day_weekday)
 				delta = goHome();
 			else if(myHour == Params.hour_start_day_weekday)
 				delta = goOut(myDay);
+			else
+				delta = goLeisure(targetLocation, Params.time_leisure_weekday);
 		}
 		else {
-			if(myHour == Params.hour_end_day_otherday)
+			if(myHour >= Params.hour_end_day_otherday)
 				delta = goHome();
 			else if (myHour == Params.hour_start_day_otherday)
 				delta = goOut(myDay);
+			else
+				delta = goLeisure(targetLocation, Params.time_leisure_weekend);
 		}
 		
 		if(delta > 0) // delta will be negative if there is a problem and it should no longer run
 			world.schedule.scheduleOnce(time + delta, this);
 	}
+	*/
 	
 	/**
 	 * A function which moves the Person from wherever they are to their Household.
 	 * @return the amount of time spent travelling to the Household location.
 	 */
-	double goHome(){
+	public double goHome(){
 		
 		// only move the Person if they are not already in the Household
 		if(this.currentLocation != this.myHousehold){
@@ -154,17 +183,39 @@ public class Person extends MobileAgent {
 		return 1; // TODO make based on distance travelled!
 	}
 	
+	public double goToWork(){
+		if(economic_activity_location != null)
+			currentLocation = economic_activity_location;
+		return 1;
+	}
+	
+	public double goToCommunity(){
+		currentLocation.removePerson(this);
+		Location l = myHousehold.getRootSuperLocation();
+		currentLocation = l;
+		l.addPerson(this);
+		return 0;
+	}
+	
 	/**
 	 * Based on the Person's economic status, attempt to leave the Household. The destination selected will
 	 * be drawn from their economic_activity_location.
 	 * @param weekday The Person will pick different destinations based on the day of the week.
 	 * @return
 	 */
-	double goOut(int weekday){
+/*	double goOut(int weekday){
+	
 		
-		// if the Person is not currently in their Household, throw up a warning TODO refine with more nuanced movement model
+		// First, check that the Person is currently in their Household
+		// TODO refine with more nuanced movement model
 		if(this.currentLocation != this.myHousehold){
 			System.out.println("WARNING: Person " + this.myId + " is not at home.");
+		}
+		
+
+		
+		if(Params.isWeekday(weekday)){
+			
 		}
 		
 		// if the Person has a workplace and is not there, consider going!
@@ -192,7 +243,7 @@ public class Person extends MobileAgent {
 		}
 		return 1; // TODO base this on distance travelled!!
 	}
-
+*/
 	//
 	// UTILITIES
 	//
@@ -201,5 +252,27 @@ public class Person extends MobileAgent {
 		this.currentLocation = l;
 	}
 	
+	public Location getLocation(){
+		return currentLocation;
+	}
+	
+	public Activity getActivity(){
+		return currentActivity;
+	}
+	
+	public void setActivity(Activity a){
+		currentActivity = a;
+	}
+	
+	public boolean isHome(){
+		return currentLocation == myHousehold;
+	}
 
+	public String toString(){
+		return "P_" + this.myId;
+	}
+	
+	public void setActivityNode(BehaviourNode bn){
+		currentActivityNode = bn;
+	}
 }

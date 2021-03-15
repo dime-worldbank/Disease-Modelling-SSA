@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import behaviours.MovementBehaviourFramework;
 import objects.Household;
 import objects.Location;
 import objects.Person;
@@ -20,7 +21,8 @@ public class WorldBankCovid19Sim extends SimState {
 	ArrayList <Household> households;
 	
 	ArrayList <Location> districts;
-		
+	
+	public MovementBehaviourFramework movementFramework;
 	public Params params;
 	
 	/**
@@ -34,7 +36,10 @@ public class WorldBankCovid19Sim extends SimState {
 	
 	public void start(){
 		
+		// set up the behavioural framework
+		movementFramework = new MovementBehaviourFramework();
 		
+		// load the population
 		load_population(params.population_filename);
 		
 		// if there are no agents, SOMETHING IS WRONG. Flag this issue!
@@ -42,6 +47,8 @@ public class WorldBankCovid19Sim extends SimState {
 			System.out.println("ERROR *** NO AGENTS LOADED");
 			System.exit(0);
 		}
+		
+		
 	}
 	
 	public void load_population(String agentsFilename){
@@ -69,7 +76,9 @@ public class WorldBankCovid19Sim extends SimState {
 			System.out.print("BEGIN READING IN PEOPLE...");
 			
 			// read in the raw data
-			while ((s = agentData.readLine()) != null) {
+			int myIndex = 10;
+			while ((s = agentData.readLine()) != null && myIndex > 0) {
+				myIndex--;
 				
 				// separate the columns from the raw text
 				String[] bits = Params.splitRawCSVString(s);
@@ -111,6 +120,7 @@ public class WorldBankCovid19Sim extends SimState {
 						);
 				h.addPerson(p);
 				p.setLocation(h);
+				p.setActivityNode(movementFramework.getEntryPoint());
 				agents.add(p);
 				
 				// schedule the agent to run at the beginning of the simulation
@@ -144,6 +154,8 @@ public class WorldBankCovid19Sim extends SimState {
 		System.out.println("Running...");
 
 		while(mySim.schedule.getTime() < 24 * 7 && !mySim.schedule.scheduleComplete()){
+			double myTime = mySim.schedule.getTime();
+			System.out.println("*****CURRENT TIME: DAY " + (int)(myTime / 6) + " HOUR " + (int)((myTime % 6) * 4));
 			mySim.schedule.step(mySim);
 		}
 		
