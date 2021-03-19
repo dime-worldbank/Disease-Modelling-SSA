@@ -65,4 +65,8 @@ public class Location {
 			l = l.getSuper();
 		return l;
 	}
+	
+	public ArrayList <Person> getPeople(){
+		return personsHere;
+	}
 }

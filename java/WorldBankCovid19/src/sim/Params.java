@@ -29,6 +29,13 @@ public class Params {
 
 	HashMap <Location, Double> districtLeavingProb;
 	
+	// holders for economic-related data
+	
+	HashMap <String, Map<String, Double>> economicInteractionDistrib;
+	HashMap <String, List<Double>> economicInteractionCumulativeDistrib;
+	HashMap <String, Integer> econBubbleSize;
+	ArrayList <String> orderedEconStatuses;
+	
 	// data files
 	
 	public String population_filename = "/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/preprocessed/census/sample_1500.txt";
@@ -40,10 +47,11 @@ public class Params {
 	public String economic_status_otherday_movement_prob_filename = 
 			"/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/configs/ECONOMIC_STATUS_OTHER_DAY_MOVEMENT_PROBABILITY.txt";
 	
+	public String econ_interaction_distrib_filename = "/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/configs/interaction_matrix_nld.csv";
 	
 	// params used by other objects
 	
-	public static int state_susceptible = 0;
+/**	public static int state_susceptible = 0;
 	public static int state_infected = 1;
 	public static int state_contagious = 2;
 	public static int state_recovered = 3;
@@ -59,7 +67,7 @@ public class Params {
 	public static int symptom_none = -1;
 	public static int symptom_asymptomatic = 0;
 	public static int symptom_symptomatic = 1;
-
+*/
 	// time
 	public static int hours_per_tick = 4; // the number of hours each tick represents
 	public static int ticks_per_day = 24 / hours_per_tick;
@@ -80,6 +88,67 @@ public class Params {
 		
 		economic_status_weekday_movement_prob = readInEconomicData(economic_status_weekday_movement_prob_filename);
 		economic_status_otherday_movement_prob = readInEconomicData(economic_status_otherday_movement_prob_filename);
+		
+		load_econ_distrib();
+	}
+	
+	public void load_econ_distrib(){
+		economicInteractionDistrib = new HashMap <String, Map<String, Double>> ();
+		economicInteractionCumulativeDistrib = new HashMap <String, List<Double>> ();
+		econBubbleSize = new HashMap <String, Integer> ();
+		orderedEconStatuses = new ArrayList <String> ();
+		
+		try {
+			
+			System.out.println("Reading in econ interaction data from " + econ_interaction_distrib_filename);
+			
+			// Open the tracts file
+			FileInputStream fstream = new FileInputStream(econ_interaction_distrib_filename);
+
+			// Convert our input stream to a BufferedReader
+			BufferedReader econDistribData = new BufferedReader(new InputStreamReader(fstream));
+			String s;
+
+			// extract the header
+			s = econDistribData.readLine();
+			
+			// map the header into column names relative to location
+			String [] header = splitRawCSVString(s);
+			HashMap <String, Integer> rawColumnNames = new HashMap <String, Integer> ();
+			for(int i = 0; i < header.length; i++){
+				rawColumnNames.put(header[i], new Integer(i));
+			}
+			int bubbleIndex = rawColumnNames.get("Bubble");
+			
+			while ((s = econDistribData.readLine()) != null) {
+				String [] bits = splitRawCSVString(s);
+				System.out.println(bits);
+				
+				// save bubble info
+				econBubbleSize.put(bits[0], Integer.parseInt(bits[bubbleIndex]));
+				
+				// save interaction info
+				HashMap <String, Double> interacts = new HashMap <String, Double> ();
+				ArrayList <Double> interactsCum = new ArrayList <Double> ();
+				double cumTotal = 0;
+				for(int i = bubbleIndex + 1; i < bits.length; i++){
+					Double val = Double.parseDouble(bits[i]);
+					interacts.put(header[i], val);
+					
+					cumTotal += val;
+					interactsCum.add(cumTotal);
+				}
+				economicInteractionDistrib.put(bits[0], interacts);
+				economicInteractionCumulativeDistrib.put(bits[0], interactsCum);
+				
+				// save ordering info
+				orderedEconStatuses.add(bits[0]);
+			}
+			
+			econDistribData.close();
+		} catch (Exception e) {
+			System.err.println("File input error: " + econ_interaction_distrib_filename);
+		}
 	}
 	
 	public void load_district_data(String districtFilename){
