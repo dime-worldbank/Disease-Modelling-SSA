@@ -88,7 +88,10 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 				
 				// if there is some time before going home, go out into the community!
 				else if(hour > 3) {
-					p.goToCommunity(p.getLocation().getRootSuperLocation());
+					if(p.getLocation() != null)
+						p.goToCommunity(p.getLocation().getRootSuperLocation());
+					else
+						p.goToCommunity(p.getHousehold().getRootSuperLocation());
 					p.setActivityNode(communityNode);
 					System.out.println("Person " + p.toString() + " going out to the community after work!");
 					return 1; // 4 hours in the community

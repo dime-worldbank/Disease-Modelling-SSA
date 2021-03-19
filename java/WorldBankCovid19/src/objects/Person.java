@@ -3,6 +3,9 @@ package objects;
 import sim.Params;
 import sim.WorldBankCovid19Sim;
 import sim.engine.SimState;
+
+import java.util.ArrayList;
+
 import behaviours.BehaviourNode;
 import behaviours.MovementBehaviourFramework;
 
@@ -32,6 +35,10 @@ public class Person extends MobileAgent {
 	// locational attributes
 	Location currentLocation;
 	boolean district_mover; // allowed to move between districts?
+	
+	// social attributes
+	ArrayList <Person> workBubble;
+	ArrayList <Person> communityBubble;
 	
 	// activity
 	BehaviourNode currentActivityNode = null;
@@ -99,15 +106,17 @@ public class Person extends MobileAgent {
 
 		// agents are initialised uninfected
 		
-		epidemic_state = Params.state_susceptible;
-		infected_symptomatic_status = Params.symptom_none;
-		clinical_state = Params.clinical_not_hospitalized;
+	//	epidemic_state = Params.state_susceptible;
+	//	infected_symptomatic_status = Params.symptom_none;
+	//	clinical_state = Params.clinical_not_hospitalized;
 		
 		time_infected = Double.MAX_VALUE;
 		time_died = Double.MAX_VALUE;
 		
 		infectedAtLocation = null;
 	
+		workBubble = new ArrayList <Person> ();
+		communityBubble = new ArrayList <Person> ();
 	}
 	
 	//
@@ -151,9 +160,11 @@ public class Person extends MobileAgent {
 	}
 	
 	public void transferTo(Location l){
-		currentLocation.removePerson(this);
+		if(currentLocation != null)
+			currentLocation.removePerson(this);
 		currentLocation = l;
-		l.addPerson(this);
+		if(l != null)
+			l.addPerson(this);
 	}
 	
 	/**
@@ -214,6 +225,12 @@ public class Person extends MobileAgent {
 	public Location getLocation(){
 		return currentLocation;
 	}
+	
+	public void addToWorkBubble(ArrayList <Person> newPeople){
+		workBubble.addAll(newPeople);
+	}
+	
+	public ArrayList <Person> getWorkBubble(){ return workBubble; }
 	
 	public boolean isHome(){
 		return currentLocation == myHousehold;

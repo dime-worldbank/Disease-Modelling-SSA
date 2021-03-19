@@ -41,6 +41,7 @@ public class WorldBankCovid19Sim extends SimState {
 		
 		// load the population
 		load_population(params.population_filename);
+		InteractionUtilities.create_work_bubbles(this);
 		
 		// if there are no agents, SOMETHING IS WRONG. Flag this issue!
 		if(agents.size() == 0) {
@@ -76,9 +77,9 @@ public class WorldBankCovid19Sim extends SimState {
 			System.out.print("BEGIN READING IN PEOPLE...");
 			
 			// read in the raw data
-			int myIndex = 10;
-			while ((s = agentData.readLine()) != null && myIndex > 0) {
-				myIndex--;
+			//int myIndex = 10;
+			while ((s = agentData.readLine()) != null ){//&& myIndex > 0) {
+				//myIndex--;
 				
 				// separate the columns from the raw text
 				String[] bits = Params.splitRawCSVString(s);
@@ -138,6 +139,8 @@ public class WorldBankCovid19Sim extends SimState {
 			System.err.println("File input error: " + agentsFilename);
 		}
 	}
+	
+
 	
 	public static void main(String [] args){
 		if(args.length < 0){
