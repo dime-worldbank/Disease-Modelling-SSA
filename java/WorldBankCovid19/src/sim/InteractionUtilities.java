@@ -1,7 +1,13 @@
 package sim;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -73,9 +79,9 @@ public class InteractionUtilities {
 					(HashMap <String, List<Person>>) peoplePerDistrictPerJob.get(myWorkLocation);
 			
 			// combine these into bubble member candidates and add them to the list of friends
-			ArrayList <Person> candidateBubble = new ArrayList <Person> ();
+			HashSet <Person> candidateBubble = new HashSet <Person> (p.getWorkBubble());
 			int emergencyBrake = 100; // it's dangerous to screw with for loops - take this!
-			for(int i = 0; i < bubbleSize; i++){ // TODO this should depend on how many friends already exist for this person!
+			for(int i = candidateBubble.size(); i < bubbleSize; i++){ // TODO this should depend on how many friends already exist for this person!
 				int indexOfInteract = indexOfCumulativeDist(world.random.nextDouble(), interDistrib);
 				String otherStatus = world.params.orderedEconStatuses.get(indexOfInteract);
 				
@@ -102,8 +108,7 @@ public class InteractionUtilities {
 					otherPerson = potentialBubblemates.get(world.random.nextInt(groupSize));
 
 				// save them to the list
-				if(!candidateBubble.contains(otherPerson))
-					candidateBubble.add(otherPerson);
+				candidateBubble.add(otherPerson);
 			}
 			
 			
@@ -114,6 +119,29 @@ public class InteractionUtilities {
 			p.goHome();
 		}
 		System.out.println();
+		
+		
+		String makeTerribleGraphFilename = "/Users/swise/Downloads/rawGraph_latest.csv";
+		try {
+			
+			System.out.println("Reading in district transfer information from " + makeTerribleGraphFilename);
+			
+			// shove it out
+			BufferedWriter badGraph = new BufferedWriter(new FileWriter(makeTerribleGraphFilename));
+
+			for(Person p: world.agents){
+				String myStr = p.toString();
+				for(Person op: p.getWorkBubble()){
+					myStr += ";" + op.toString();
+				}
+				badGraph.write("\n" + myStr);
+			}
+			
+			badGraph.close();
+		} catch (Exception e) {
+			System.err.println("File input error: " + makeTerribleGraphFilename);
+		}
+
 	}
 	
 	public static int indexOfCumulativeDist(double val, ArrayList<Double> dist){

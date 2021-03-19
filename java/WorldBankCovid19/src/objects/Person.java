@@ -5,6 +5,7 @@ import sim.WorldBankCovid19Sim;
 import sim.engine.SimState;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 import behaviours.BehaviourNode;
 import behaviours.MovementBehaviourFramework;
@@ -226,7 +227,7 @@ public class Person extends MobileAgent {
 		return currentLocation;
 	}
 	
-	public void addToWorkBubble(ArrayList <Person> newPeople){
+	public void addToWorkBubble(Collection <Person> newPeople){
 		workBubble.addAll(newPeople);
 	}
 	
@@ -247,4 +248,9 @@ public class Person extends MobileAgent {
 	public String getEconStatus(){ return economic_status;}
 	
 	public Location getHousehold(){ return myHousehold; }
+	
+	public boolean equals(Object o){
+		if(! (o instanceof Person)) return false;
+		return ((Person) o).myId == this.myId;
+	}
 }
