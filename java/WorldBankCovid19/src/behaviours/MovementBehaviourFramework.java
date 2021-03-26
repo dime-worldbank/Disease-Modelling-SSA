@@ -5,6 +5,7 @@ import objects.Person;
 import sim.Params;
 import sim.WorldBankCovid19Sim;
 import sim.engine.SimState;
+import sim.engine.Steppable;
 
 /**
  * The MovementBehaviourFramework is an extension on the basis of the BehaviourFramework which
@@ -27,7 +28,9 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 			public String getTitle() {return "Home";}
 
 			@Override
-			public double next(Person p, double time) {
+			public double next(Steppable s, double time) {
+				
+				Person p = (Person) s;
 				
 				// extract time info
 				int hour = ((int)time) % Params.ticks_per_day;
@@ -73,8 +76,10 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 			public String getTitle() { return "At work"; }
 
 			@Override
-			public double next(Person p, double time) {
+			public double next(Steppable s, double time) {
 
+				Person p = (Person) s;
+				
 				// extract time info
 				int hour = ((int)time) % Params.ticks_per_day;
 				
@@ -108,10 +113,13 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 			public String getTitle() { return "In community"; }
 
 			@Override
-			public double next(Person p, double time) {
+			public double next(Steppable s, double time) {
+				
+				Person p = (Person) s;
+				
 				// extract time info
 				int hour = ((int)time) % Params.ticks_per_day;
-				int day = (int)(time / Params.ticks_per_day) % 7;
+				//int day = (int)(time / Params.ticks_per_day) % 7;
 
 				if(hour >= 5) { // late! Go home!
 					p.goHome();

@@ -11,5 +11,7 @@ class BehaviourFramework {
 	
 	BehaviourNode entryPoint; // the point at which Agents are initialised
 	
-
+	public BehaviourNode getEntryPoint(){
+		return entryPoint;
+	}
 }

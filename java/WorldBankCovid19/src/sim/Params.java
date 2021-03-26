@@ -14,16 +14,17 @@ import objects.Person;
 
 public class Params {
 	
-	double r0 = 3.0;
+	public double r0 = 3.0;
+	public double infection_beta = 0.5;//0.16;
 	
 	public HashMap <String, Double> economic_status_weekday_movement_prob;
 	public HashMap <String, Double> economic_status_otherday_movement_prob;
+	public HashMap <String, Double> economic_num_interactions_weekday;
 	double mild_symptom_movement_prob;
 	
 
 	// holders for locational data
 	HashMap <String, Location> districts;
-//	ArrayList <Map<String, Map<String, Double>>> dailyTransitionProbs;
 	ArrayList <String> districtNames;
 	ArrayList <Map<String, List<Double>>> dailyTransitionProbs;
 
@@ -42,10 +43,9 @@ public class Params {
 	public String district_transition_filename = "/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/preprocessed/mobility/New Files/daily_region_transition_probability-new-district-post-lockdown_i5.csv";	
 	public String district_leaving_filename = "/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/preprocessed/mobility/intra_district_decreased_mobility_rates.csv";
 	
-	public String economic_status_weekday_movement_prob_filename = 
-			"/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/configs/ECONOMIC_STATUS_WEEKDAY_MOVEMENT_PROBABILITY.txt";
-	public String economic_status_otherday_movement_prob_filename = 
-			"/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/configs/ECONOMIC_STATUS_OTHER_DAY_MOVEMENT_PROBABILITY.txt";
+	public String economic_status_weekday_movement_prob_filename = "/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/configs/ECONOMIC_STATUS_WEEKDAY_MOVEMENT_PROBABILITY.txt";
+	public String economic_status_otherday_movement_prob_filename = "/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/configs/ECONOMIC_STATUS_OTHER_DAY_MOVEMENT_PROBABILITY.txt";
+	public String economic_status_num_daily_interacts_filename = "/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/configs/no_interactions_wk_econ.txt";
 	
 	public String econ_interaction_distrib_filename = "/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/configs/interaction_matrix_nld.csv";
 	
@@ -86,8 +86,9 @@ public class Params {
 		load_district_data(district_transition_filename);
 		load_district_leaving_data(district_leaving_filename);
 		
-		economic_status_weekday_movement_prob = readInEconomicData(economic_status_weekday_movement_prob_filename);
-		economic_status_otherday_movement_prob = readInEconomicData(economic_status_otherday_movement_prob_filename);
+		economic_status_weekday_movement_prob = readInEconomicData(economic_status_weekday_movement_prob_filename, "economic_status", "movement_probability");
+		economic_status_otherday_movement_prob = readInEconomicData(economic_status_otherday_movement_prob_filename, "economic_status", "movement_probability");
+		economic_num_interactions_weekday = readInEconomicData(economic_status_num_daily_interacts_filename, "economic_status", "interactions");
 		
 		load_econ_distrib();
 	}
@@ -154,11 +155,6 @@ public class Params {
 	public void load_district_data(String districtFilename){
 		
 		// set up structure to hold transition probability
-/*		dailyTransitionProbs = new ArrayList <Map<String, Map<String, Double>>> ();
-		for(int i = 0; i < 7; i++){
-			dailyTransitionProbs.add(new HashMap <String, Map<String, Double>> ());
-		}
-		*/
 		dailyTransitionProbs = new ArrayList <Map<String, List<Double>>> ();
 		for(int i = 0; i < 7; i++){
 			dailyTransitionProbs.add(new HashMap <String, List<Double>> ());
@@ -246,13 +242,13 @@ public class Params {
 	 * @param econFilename
 	 * @return
 	 */
-	public HashMap <String, Double> readInEconomicData(String econFilename){
+	public HashMap <String, Double> readInEconomicData(String econFilename, String statusColName, String probColName){
 		try {
 			
 			// set up structure to hold the data
 			HashMap <String, Double> econData = new HashMap <String, Double> ();
 			
-			System.out.println("Reading in econ mobility data from " + econFilename);
+			System.out.println("Reading in data from " + econFilename);
 			
 			// Open the tracts file
 			FileInputStream fstream = new FileInputStream(econFilename);
@@ -268,8 +264,8 @@ public class Params {
 			String [] header = splitRawCSVString(s);
 			HashMap <String, Integer> columnNames = parseHeader(header);
 			
-			int statusIndex = columnNames.get("economic_status");
-			int probIndex = columnNames.get("movement_probability");
+			int statusIndex = columnNames.get(statusColName);
+			int probIndex = columnNames.get(probColName);
 			
 			// set up holders for the information
 			
