@@ -121,7 +121,7 @@ relevant_cols = [
     'person_id', 'age', 'sex',
     'household_id', 'district_id',
     'economic_status', 'economic_activity_location_id',
-    'Schoolnumber',#'school_id_district', 
+    #'Schoolnumber',#'school_id_district', 
     'school_goers',
     'manufacturing_workers',
     # 'mining_district_id'
