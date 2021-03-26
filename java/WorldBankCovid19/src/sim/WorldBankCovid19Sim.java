@@ -1,15 +1,19 @@
 package sim;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import behaviours.InfectiousBehaviourFramework;
 import behaviours.MovementBehaviourFramework;
 import objects.Household;
+import objects.Infection;
 import objects.Location;
 import objects.Person;
 import sim.engine.SimState;
@@ -23,6 +27,7 @@ public class WorldBankCovid19Sim extends SimState {
 	ArrayList <Location> districts;
 	
 	public MovementBehaviourFramework movementFramework;
+	public InfectiousBehaviourFramework infectiousFramework;
 	public Params params;
 	
 	/**
@@ -38,18 +43,26 @@ public class WorldBankCovid19Sim extends SimState {
 		
 		// set up the behavioural framework
 		movementFramework = new MovementBehaviourFramework(this);
+		infectiousFramework = new InfectiousBehaviourFramework(this);
 		
 		// load the population
 		load_population(params.population_filename);
-		InteractionUtilities.create_work_bubbles(this);
 		
 		// if there are no agents, SOMETHING IS WRONG. Flag this issue!
 		if(agents.size() == 0) {
 			System.out.println("ERROR *** NO AGENTS LOADED");
 			System.exit(0);
 		}
-		
-		
+
+		// set up the social networks
+		InteractionUtilities.create_work_bubbles(this);
+
+		// set up the infections
+		for(int i = 0; i < 5; i++){
+			int personIndex = random.nextInt(agents.size());
+			Infection inf = new Infection(agents.get(personIndex), null, infectiousFramework.getEntryPoint());
+			schedule.scheduleOnce(1, 10, inf);
+		}
 	}
 	
 	public void load_population(String agentsFilename){
@@ -141,6 +154,34 @@ public class WorldBankCovid19Sim extends SimState {
 	}
 	
 
+	void reportOnInfected(){
+		String makeTerribleGraphFilename = "/Users/swise/Downloads/nodes_latest.csv";
+		try {
+			
+			System.out.println("Printing out infects? from " + makeTerribleGraphFilename);
+			
+			// shove it out
+			BufferedWriter badGraph = new BufferedWriter(new FileWriter(makeTerribleGraphFilename));
+
+			for(Person p: agents){
+				String myStr = p.toString();
+				myStr += ";" + p.getInfectStatus();
+				if(p.getInfection() != null){
+					myStr += ";" + p.getInfection().getStartTime();
+				}
+				else
+					myStr += ";" + -1;
+/*				for(Person op: p.getWorkBubble()){
+					myStr += ";" + op.toString();
+				}
+	*/			badGraph.write("\n" + myStr);
+			}
+			
+			badGraph.close();
+		} catch (Exception e) {
+			System.err.println("File input error: " + makeTerribleGraphFilename);
+		}
+	}
 	
 	public static void main(String [] args){
 		if(args.length < 0){
@@ -161,6 +202,8 @@ public class WorldBankCovid19Sim extends SimState {
 			double myTime = mySim.schedule.getTime();
 			System.out.println("*****END TIME: DAY " + (int)(myTime / 6) + " HOUR " + (int)((myTime % 6) * 4) + " RAWTIME: " + myTime);
 		}
+		
+		mySim.reportOnInfected();
 		
 		mySim.finish();
 		

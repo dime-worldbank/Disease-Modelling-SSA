@@ -1,6 +1,7 @@
 package behaviours;
 
 import objects.Person;
+import sim.engine.Steppable;
 
 /**
  * BehaviourNodes are the behavioural units which identify the actions Persons take.
@@ -37,5 +38,5 @@ public interface BehaviourNode extends java.io.Serializable{
 	 * @param p - the Person to transition to the next step
 	 * @return the next BehaviourNode for the person to go to
 	 */
-	public double next(Person p, double time);
+	public double next(Steppable s, double time);
 }

@@ -43,6 +43,7 @@ public class Person extends MobileAgent {
 	
 	// activity
 	BehaviourNode currentActivityNode = null;
+	Infection myInfection = null;
 	
 	// copy of world
 	WorldBankCovid19Sim myWorld;
@@ -52,27 +53,13 @@ public class Person extends MobileAgent {
 	//
 	
 	// health
-	int epidemic_state;
-	double infection_rate;
-	int infected_symptomatic_status;
 	int clinical_state;
+	
+	double infection_severity; // 0-100 degree to which person is being impacted by disease and can't move/work/etc.
 	
 	double severe_disease_risk;
 	
-	// infection timekeeping
-	double time_infected;
-	double time_start_contagious;
-	double time_start_symptomatic;
-	double time_recovered;
-	
-	Location infectedAtLocation;
-	
-	// clinical care
-	double time_start_hospitalised;
-	double time_end_hospitalised;
-	double time_start_critical;
-	double time_end_critical;
-	double time_died;
+
 	
 	/**
 	 * Constructor for Person object.
@@ -107,14 +94,6 @@ public class Person extends MobileAgent {
 
 		// agents are initialised uninfected
 		
-	//	epidemic_state = Params.state_susceptible;
-	//	infected_symptomatic_status = Params.symptom_none;
-	//	clinical_state = Params.clinical_not_hospitalized;
-		
-		time_infected = Double.MAX_VALUE;
-		time_died = Double.MAX_VALUE;
-		
-		infectedAtLocation = null;
 	
 		workBubble = new ArrayList <Person> ();
 		communityBubble = new ArrayList <Person> ();
@@ -166,6 +145,59 @@ public class Person extends MobileAgent {
 		currentLocation = l;
 		if(l != null)
 			l.addPerson(this);
+	}
+	
+	public void infectNeighbours(){
+		
+		// if not currently in the space, do not try to interact
+		if(currentLocation == null) return;
+		
+		// otherwise, get a list of others in the space
+		ArrayList <Person> currentNeighbours = currentLocation.getPeople();
+
+		// now apply the rules based on the setting
+
+		// they may be at home
+		if(currentLocation instanceof Household){
+
+			// interact with everyone in the Household
+			for(Person p: currentNeighbours){
+				
+				// if the person is not infected, based on the infection beta they may become infected 
+				if(p.myInfection == null 
+						&& myWorld.random.nextDouble() < myWorld.params.infection_beta){
+					Infection i = new Infection(p, this, myWorld.infectiousFramework.getEntryPoint());
+					myWorld.schedule.scheduleOnce(i, 10);
+				}
+			}
+			
+		}
+		
+		// they may be at their economic activity site!
+		else if(currentLocation == economic_activity_location){
+			Double d = myWorld.params.economic_num_interactions_weekday.get(this.economic_status);
+			int myNumInteractions = (int) Math.round(d);
+			ArrayList <Person> copyOfCoworkers = (ArrayList <Person>) this.workBubble.clone();
+			int n = copyOfCoworkers.size();
+			for(int i = 0; i < myNumInteractions; i++){
+				
+				if(n <= 0){ // break clause if we're run out of coworkers
+					i = myNumInteractions;
+					continue;
+				}
+				
+				// otherwise choose a random coworker
+				int j = myWorld.random.nextInt(n);
+				Person p = copyOfCoworkers.remove(j);
+				if(p.myInfection == null 
+						&& myWorld.random.nextDouble() < myWorld.params.infection_beta){
+					Infection inf = new Infection(p, this, myWorld.infectiousFramework.getEntryPoint());
+					myWorld.schedule.scheduleOnce(inf, 10);
+				}
+				
+				n--; // recordkeeping
+			}
+		}
 	}
 	
 	/**
@@ -252,5 +284,19 @@ public class Person extends MobileAgent {
 	public boolean equals(Object o){
 		if(! (o instanceof Person)) return false;
 		return ((Person) o).myId == this.myId;
+	}
+	
+	public void setInfection(Infection i){
+		myInfection = i;
+	}
+	
+	public Infection getInfection(){
+		return myInfection;
+	}
+	
+	public String getInfectStatus(){
+		if(myInfection == null)
+			return "";
+		return myInfection.currentBehaviourNode.getTitle();
 	}
 }
