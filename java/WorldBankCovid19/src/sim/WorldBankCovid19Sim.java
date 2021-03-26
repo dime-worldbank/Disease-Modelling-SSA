@@ -1,14 +1,19 @@
 package sim;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import behaviours.InfectiousBehaviourFramework;
+import behaviours.MovementBehaviourFramework;
 import objects.Household;
+import objects.Infection;
 import objects.Location;
 import objects.Person;
 import sim.engine.SimState;
@@ -20,8 +25,10 @@ public class WorldBankCovid19Sim extends SimState {
 	ArrayList <Household> households;
 	
 	ArrayList <Location> districts;
-		
-	Params params;
+	
+	public MovementBehaviourFramework movementFramework;
+	public InfectiousBehaviourFramework infectiousFramework;
+	public Params params;
 	
 	/**
 	 * Constructor function
@@ -34,13 +41,27 @@ public class WorldBankCovid19Sim extends SimState {
 	
 	public void start(){
 		
+		// set up the behavioural framework
+		movementFramework = new MovementBehaviourFramework(this);
+		infectiousFramework = new InfectiousBehaviourFramework(this);
 		
+		// load the population
 		load_population(params.population_filename);
 		
 		// if there are no agents, SOMETHING IS WRONG. Flag this issue!
 		if(agents.size() == 0) {
 			System.out.println("ERROR *** NO AGENTS LOADED");
 			System.exit(0);
+		}
+
+		// set up the social networks
+		InteractionUtilities.create_work_bubbles(this);
+
+		// set up the infections
+		for(int i = 0; i < 5; i++){
+			int personIndex = random.nextInt(agents.size());
+			Infection inf = new Infection(agents.get(personIndex), null, infectiousFramework.getEntryPoint());
+			schedule.scheduleOnce(1, 10, inf);
 		}
 	}
 	
@@ -69,10 +90,12 @@ public class WorldBankCovid19Sim extends SimState {
 			System.out.print("BEGIN READING IN PEOPLE...");
 			
 			// read in the raw data
-			while ((s = agentData.readLine()) != null) {
+			//int myIndex = 10;
+			while ((s = agentData.readLine()) != null ){//&& myIndex > 0) {
+				//myIndex--;
 				
 				// separate the columns from the raw text
-				String[] bits = s.split(",");
+				String[] bits = Params.splitRawCSVString(s);
 				
 				// make sure the larger units are set up before we create the individual
 
@@ -106,15 +129,17 @@ public class WorldBankCovid19Sim extends SimState {
 						Integer.parseInt(bits[2]), // age
 						bits[3], // sex
 						bits[6],
-						econLocation
+						econLocation,
+						this
 						);
 				h.addPerson(p);
 				p.setLocation(h);
+				p.setActivityNode(movementFramework.getEntryPoint());
 				agents.add(p);
 				
 				// schedule the agent to run at the beginning of the simulation
-				//this.schedule.scheduleOnce(0, p);
-				this.schedule.scheduleRepeating(p);
+				this.schedule.scheduleOnce(0, p);
+				//this.schedule.scheduleRepeating(p);
 				
 
 			}
@@ -125,6 +150,36 @@ public class WorldBankCovid19Sim extends SimState {
 			System.out.println("FINISHED READING PEOPLE");
 		} catch (Exception e) {
 			System.err.println("File input error: " + agentsFilename);
+		}
+	}
+	
+
+	void reportOnInfected(){
+		String makeTerribleGraphFilename = "/Users/swise/Downloads/nodes_latest.csv";
+		try {
+			
+			System.out.println("Printing out infects? from " + makeTerribleGraphFilename);
+			
+			// shove it out
+			BufferedWriter badGraph = new BufferedWriter(new FileWriter(makeTerribleGraphFilename));
+
+			for(Person p: agents){
+				String myStr = p.toString();
+				myStr += ";" + p.getInfectStatus();
+				if(p.getInfection() != null){
+					myStr += ";" + p.getInfection().getStartTime();
+				}
+				else
+					myStr += ";" + -1;
+/*				for(Person op: p.getWorkBubble()){
+					myStr += ";" + op.toString();
+				}
+	*/			badGraph.write("\n" + myStr);
+			}
+			
+			badGraph.close();
+		} catch (Exception e) {
+			System.err.println("File input error: " + makeTerribleGraphFilename);
 		}
 	}
 	
@@ -142,9 +197,13 @@ public class WorldBankCovid19Sim extends SimState {
 
 		System.out.println("Running...");
 
-		while(mySim.schedule.getTime() < 60 * 5 && !mySim.schedule.scheduleComplete()){
+		while(mySim.schedule.getTime() < 24 * 7 && !mySim.schedule.scheduleComplete()){
 			mySim.schedule.step(mySim);
+			double myTime = mySim.schedule.getTime();
+			System.out.println("*****END TIME: DAY " + (int)(myTime / 6) + " HOUR " + (int)((myTime % 6) * 4) + " RAWTIME: " + myTime);
 		}
+		
+		mySim.reportOnInfected();
 		
 		mySim.finish();
 		
