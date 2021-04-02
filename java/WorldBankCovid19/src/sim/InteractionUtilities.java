@@ -121,7 +121,7 @@ public class InteractionUtilities {
 		System.out.println();
 		
 		
-		String makeTerribleGraphFilename = "/Users/swise/Downloads/rawGraph_latest.csv";
+/*		String makeTerribleGraphFilename = "/Users/swise/Downloads/rawWorkGraph_latest.csv";
 		try {
 			
 			System.out.println("Reading in district transfer information from " + makeTerribleGraphFilename);
@@ -141,7 +141,90 @@ public class InteractionUtilities {
 		} catch (Exception e) {
 			System.err.println("File input error: " + makeTerribleGraphFilename);
 		}
+*/
+	}
 
+	/**
+	 * Cluster agents into work bubbles.
+	 */
+	public static void create_social_bubbles(WorldBankCovid19Sim world){
+		
+		HashMap <String, List<Person>> peoplePerDistrict = 
+				new HashMap <String, List<Person>> (); 
+		
+		// position everyone so they can assemble their group of peers
+		for(Person p: world.agents){
+			
+			// extract workplace location
+			p.goToCommunity(p.getHousehold().getRootSuperLocation());		
+		}
+		
+		System.out.print("Attempting to assemble social bubbles...");
+		
+		// for each person, draw their interaction probabilities from the distribution
+		for(Person p: world.agents){
+			
+			// Person has been moved either to workplace or to household (if no job etc.)
+			Location myLocation = p.getLocation();
+			
+			int bubbleSize = world.params.social_bubble_size;
+			
+			// combine these into bubble member candidates and add them to the list of friends
+			ArrayList <Person> candidateBubble = new ArrayList <Person> (myLocation.getPeople());
+			HashSet <Person> myBubble = new HashSet <Person> ();
+			
+			int emergencyBrake = 100; // it's dangerous to screw with for loops - take this!
+			
+			for(int i = myBubble.size(); i < bubbleSize; i++){ // TODO this should depend on how many friends already exist for this person!
+
+				if(emergencyBrake == 0){
+					System.out.println("\nERROR - cannot assemble full bubble for " + p.toString());
+					i = bubbleSize;
+					continue;
+				}
+
+				// select the other Person
+				int groupSize = candidateBubble.size(); // save for reuse
+				Person otherPerson = candidateBubble.get(world.random.nextInt(groupSize));
+				while(p == otherPerson)
+					otherPerson = candidateBubble.get(world.random.nextInt(groupSize));
+
+				// save them to the list
+				myBubble.add(otherPerson);
+			}
+			
+			
+			// store the list inside the Person
+			p.addToCommunityBubble(myBubble);			
+		}
+		System.out.println();
+
+		// finally, reset the agent
+		for(Person p: world.agents)
+			p.goHome();
+
+		
+/*		String makeTerribleGraphFilename = "/Users/swise/Downloads/rawSocialGraph_latest.csv";
+		try {
+			
+			System.out.println("Reading in district transfer information from " + makeTerribleGraphFilename);
+			
+			// shove it out
+			BufferedWriter badGraph = new BufferedWriter(new FileWriter(makeTerribleGraphFilename));
+
+			for(Person p: world.agents){
+				String myStr = p.toString();
+				for(Person op: p.getCommunityBubble()){
+					myStr += ";" + op.toString();
+				}
+				badGraph.write("\n" + myStr);
+			}
+			
+			badGraph.close();
+		} catch (Exception e) {
+			System.err.println("File input error: " + makeTerribleGraphFilename);
+		}
+*/
 	}
 	
 	public static int indexOfCumulativeDist(double val, ArrayList<Double> dist){

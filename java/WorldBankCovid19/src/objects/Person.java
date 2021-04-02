@@ -53,9 +53,8 @@ public class Person extends MobileAgent {
 	//
 	
 	// health
+	boolean isDead = false;
 	int clinical_state;
-	
-	double infection_severity; // 0-100 degree to which person is being impacted by disease and can't move/work/etc.
 	
 	double severe_disease_risk;
 	
@@ -105,6 +104,7 @@ public class Person extends MobileAgent {
 	
 	@Override
 	public void step(SimState world) {
+		if(isDead) return; // do not run if the Person has already died!
 		double time = world.schedule.getTime(); // find the current time
 		double myDelta = this.currentActivityNode.next(this, time);
 		myWorld.schedule.scheduleOnce(time + myDelta, this);
@@ -147,6 +147,12 @@ public class Person extends MobileAgent {
 			l.addPerson(this);
 	}
 	
+	public void die(){
+		isDead = true;
+		transferTo(null);
+		System.out.println(this.toString() + " has DIED :(");
+	}
+	
 	public void infectNeighbours(){
 		
 		// if not currently in the space, do not try to interact
@@ -178,6 +184,7 @@ public class Person extends MobileAgent {
 			Double d = myWorld.params.economic_num_interactions_weekday.get(this.economic_status);
 			int myNumInteractions = (int) Math.round(d);
 			ArrayList <Person> copyOfCoworkers = (ArrayList <Person>) this.workBubble.clone();
+			copyOfCoworkers.retainAll(currentLocation.personsHere);
 			int n = copyOfCoworkers.size();
 			for(int i = 0; i < myNumInteractions; i++){
 				
@@ -264,7 +271,12 @@ public class Person extends MobileAgent {
 	}
 	
 	public ArrayList <Person> getWorkBubble(){ return workBubble; }
+
+	public void addToCommunityBubble(Collection <Person> newPeople){
+		communityBubble.addAll(newPeople);
+	}
 	
+	public ArrayList <Person> getCommunityBubble(){ return communityBubble; }
 	public boolean isHome(){
 		return currentLocation == myHousehold;
 	}
@@ -299,4 +311,10 @@ public class Person extends MobileAgent {
 			return "";
 		return myInfection.currentBehaviourNode.getTitle();
 	}
+	
+	public int getAge(){
+		return age;
+	}
+	
+	public int getID(){ return this.myId; }
 }
