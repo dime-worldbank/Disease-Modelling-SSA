@@ -10,6 +10,8 @@ public class Infection implements Steppable {
 	Person source;
 	BehaviourNode currentBehaviourNode = null;
 	
+	double severity; // 0-100 degree to which person is being impacted by disease and can't move/work/etc.
+	
 	int epidemic_state;
 	double infection_rate;
 	int infected_symptomatic_status;
@@ -40,6 +42,8 @@ public class Infection implements Steppable {
 		host = myHost;
 		myHost.setInfection(this);
 		
+		severity = host.myWorld.random.nextDouble() * 100;
+		
 		source = mySource;
 		
 		//	epidemic_state = Params.state_susceptible;
@@ -47,11 +51,11 @@ public class Infection implements Steppable {
 		//	clinical_state = Params.clinical_not_hospitalized;
 			
 		// store the time when it is infected!
-		time_infected = host.myWorld.schedule.getTime();
+		time_infected = host.myWorld.schedule.getTime();		
+		infectedAtLocation = host.currentLocation;
+		
 		time_died = Double.MAX_VALUE;
-		
-		infectedAtLocation = null;
-		
+
 		currentBehaviourNode = initNode;
 	}
 
@@ -61,11 +65,25 @@ public class Infection implements Steppable {
 		double myDelta = this.currentBehaviourNode.next(this, time);
 		world.schedule.scheduleOnce(time + myDelta, this);
 	}
+
+	public void updateSeverity(){
+		// TODO age factor
+		double impactFactor = 1 + (.5 - host.myWorld.random.nextDouble())/ 100.;
+		severity *= impactFactor;
+	}
 	
 	public void setBehaviourNode(BehaviourNode bn){
 		this.currentBehaviourNode = bn;
 	}
 	
+	public String getBehaviourName(){
+		if(this.currentBehaviourNode == null) return "";
+		return this.currentBehaviourNode.getTitle();
+	}
+	
 	public Person getHost() { return host; }
+	public Person getSource() { return source; }
 	public double getStartTime() { return time_infected;}
+	
+	public double getSeverity(){ return severity;}
 }

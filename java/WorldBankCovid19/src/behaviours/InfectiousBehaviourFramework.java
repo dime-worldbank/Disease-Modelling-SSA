@@ -8,7 +8,13 @@ import sim.engine.Steppable;
 public class InfectiousBehaviourFramework extends BehaviourFramework {
 	
 	WorldBankCovid19Sim myWorld;
-	BehaviourNode susceptibleNode = null, exposedNode = null, infectedNode = null, recovedNode = null, deadNode = null;
+	BehaviourNode susceptibleNode = null, exposedNode = null, infectedNode = null,
+			hospitalNode = null, icuNode = null, recovedNode = null, deadNode = null;
+	
+	double severity_param_DEATH = 80;
+	double severity_param_ICU = 5;
+	double severity_param_HOSPITAL = 2;
+	double severity_param_RECOVERED = .01;
 
 	// PARAMS to control development of disease
 	
@@ -40,11 +46,14 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 			public double next(Steppable s, double time) {
 				Infection i = (Infection) s;
 				
+				// the infection may take - in which case the agent becomes INFECTED
 				if(myWorld.random.nextDouble() < myWorld.params.infection_beta){
 					i.setBehaviourNode(infectedNode);
 					return 1;
 				}
 				
+				// the infection may also NOT take - in which case the agents just goes back
+				// to being susceptible
 				i.setBehaviourNode(susceptibleNode);
 				return Double.MAX_VALUE;
 			}
@@ -58,8 +67,29 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 
 			@Override
 			public double next(Steppable s, double time) {
-				((Infection)s).getHost().infectNeighbours();
+				Infection i = (Infection) s;
+				i.updateSeverity();
+				i.getHost().infectNeighbours();
+				if(i.getSeverity() > severity_param_DEATH){
+					i.setBehaviourNode(deadNode);
+					i.getHost().die();
+					return Double.MAX_VALUE;
+				} else if (i.getSeverity() > severity_param_ICU){
+				
+				}
 				return 1;
+			}
+			
+		};
+		
+		deadNode = new BehaviourNode(){
+
+			@Override
+			public String getTitle() { return "Dead"; }
+
+			@Override
+			public double next(Steppable s, double time) {
+				return Double.MAX_VALUE; // no need to run ever again
 			}
 			
 		};

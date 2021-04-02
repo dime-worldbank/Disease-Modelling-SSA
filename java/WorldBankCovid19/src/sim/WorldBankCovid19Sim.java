@@ -56,6 +56,7 @@ public class WorldBankCovid19Sim extends SimState {
 
 		// set up the social networks
 		InteractionUtilities.create_work_bubbles(this);
+		InteractionUtilities.create_social_bubbles(this);
 
 		// set up the infections
 		for(int i = 0; i < 5; i++){
@@ -155,7 +156,7 @@ public class WorldBankCovid19Sim extends SimState {
 	
 
 	void reportOnInfected(){
-		String makeTerribleGraphFilename = "/Users/swise/Downloads/nodes_latest.csv";
+		String makeTerribleGraphFilename = "/Users/swise/Downloads/nodes_latest.gexf";
 		try {
 			
 			System.out.println("Printing out infects? from " + makeTerribleGraphFilename);
@@ -163,20 +164,47 @@ public class WorldBankCovid19Sim extends SimState {
 			// shove it out
 			BufferedWriter badGraph = new BufferedWriter(new FileWriter(makeTerribleGraphFilename));
 
+			//badGraph.write("ID;econ;age;infect;time;source");
+			badGraph.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<gexf xmlns=\"http://www.gexf.net/1.1draft\" version=\"1.1\">\n" + 
+					"<graph mode=\"static\" defaultedgetype=\"directed\">\n" + 
+					"<attributes class=\"node\" type=\"static\"> \n" +
+				     "<attribute id=\"infected\" title=\"Infected\" type=\"string\"/>\n</attributes>\n");
+			badGraph.write("<nodes>\n");
 			for(Person p: agents){
 				String myStr = p.toString();
-				myStr += ";" + p.getInfectStatus();
+				//myStr += ";" + p.getEconStatus() + ";" + p.getAge() + ";" + p.getInfectStatus();
+				
 				if(p.getInfection() != null){
-					myStr += ";" + p.getInfection().getStartTime();
+					Person source = p.getInfection().getSource();
+					String sourceName = null;
+					if(source != null)
+						sourceName = source.toString();
+					//myStr += ";" + p.getInfection().getStartTime() + ";" + sourceName;
+					myStr = p.getInfection().getBehaviourName();
 				}
 				else
-					myStr += ";" + -1;
+					//myStr += "Susceptible;;";
+					myStr = "Susceptible";
 /*				for(Person op: p.getWorkBubble()){
 					myStr += ";" + op.toString();
 				}
-	*/			badGraph.write("\n" + myStr);
+	*/			
+				badGraph.write("\t<node id=\"" + p.getID() + "\" label=\"" + p.toString() + 
+						"\"> <attvalue for=\"infected\" value=\"" +myStr +  "\"/></node>\n");
+
+				//badGraph.write("\n" + myStr);
+			}
+			badGraph.write("</nodes>\n");
+			badGraph.write("<edges>\n");
+			for(Person p: agents){
+				int myID = p.getID();
+				for(Person op: p.getWorkBubble()){
+					badGraph.write("\t<edge source=\"" + myID + "\" target=\"" + op.getID() + "\" weight=\"1\" />\n");
+				}
 			}
 			
+			badGraph.write("</edges>\n");
+			badGraph.write("</graph>\n</gexf>");
 			badGraph.close();
 		} catch (Exception e) {
 			System.err.println("File input error: " + makeTerribleGraphFilename);

@@ -49,25 +49,9 @@ public class Params {
 	
 	public String econ_interaction_distrib_filename = "/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/configs/interaction_matrix_nld.csv";
 	
-	// params used by other objects
+	// social qualities
+	public static int social_bubble_size = 30;
 	
-/**	public static int state_susceptible = 0;
-	public static int state_infected = 1;
-	public static int state_contagious = 2;
-	public static int state_recovered = 3;
-	public static int state_dead = 4;
-
-	public static int dead_location_id = -1;
-	
-	public static int clinical_not_hospitalized = 0;
-	public static int clinical_hospitalized = 1;
-	public static int clinical_critical = 2;
-	public static int clinical_released_or_dead = 3;
-	
-	public static int symptom_none = -1;
-	public static int symptom_asymptomatic = 0;
-	public static int symptom_symptomatic = 1;
-*/
 	// time
 	public static int hours_per_tick = 4; // the number of hours each tick represents
 	public static int ticks_per_day = 24 / hours_per_tick;
