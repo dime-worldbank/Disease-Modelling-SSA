@@ -11,7 +11,7 @@ cap cd "/Users/sophieayling/Documents/GitHub/Disease-Modelling-SSA/data/"
 
 ***5% sample 
 **check if the proportions in the 5% sample are the same when carrying out this process
-use "raw/census/5_perc_sample/abm_individual_new_091720", clear
+use "raw/census/5_perc_sample/census_sample_5perc_092320", clear
 
 
 
@@ -103,19 +103,19 @@ replace persons=. if persons==99
 * sum persons  if hhtype !=11 & hhtype !=99 // av households size 5.13 - in 100% sample
 sum persons if zw2012a_hhtype ==1 // hh size is still av 5.13 so we are good for 5% sample 
 
-* no. interactions for work= total-(5.13 - 1 (excluding self)) 
-
+* no. interactions for work= total-(6 (-5.12-1, rounded, excluding self)) 
+** updated using melegaro tables for school and work 
 gen interactions_work=0
-replace interactions_work=1.87 if economic_status==0  // inactive, niu 
-replace interactions_work=7.87 if economic_status==1 // current students 
-replace interactions_work=4.87 if economic_status==2 // homemakers
-replace interactions_work=6.87 if economic_status==3 // office workers 
-replace interactions_work=9.87 if economic_status==4 // service workers 
-replace interactions_work=4.87 if economic_status==5 //ag workers 
-replace interactions_work=7.87 if economic_status==6  // industry workers 
-replace interactions_work=9.87 if economic_status==7 // in the army 
-replace interactions_work=1.87 if economic_status==8 //disabled or not working
-replace interactions_work=25.87 if economic_status==9 // teachers 
+replace interactions_work=1 if economic_status==0  // inactive, niu (closer to zero but must assume one)
+replace interactions_work=6 if economic_status==1 // current students 
+replace interactions_work=3 if economic_status==2 // homemakers
+replace interactions_work=5 if economic_status==3 // office workers 
+replace interactions_work=10 if economic_status==4 // service workers (5 for that age range, but assumed double)
+replace interactions_work=5 if economic_status==5 //ag workers 
+replace interactions_work=5 if economic_status==6  // industry workers 
+replace interactions_work=10 if economic_status==7 // in the army (assumed double)
+replace interactions_work=1 if economic_status==8 //disabled or not working (closer to zero but must assume one)
+replace interactions_work=12 if economic_status==9 // teachers (assumed double that of students)
 
 
 *now check the number of interactions by age 

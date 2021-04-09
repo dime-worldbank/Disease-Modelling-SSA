@@ -19,7 +19,7 @@ from covid19_abm.dir_manager import get_data_dir
 # define the relevant filenames
 
 #census_filename =get_data_dir('raw', 'census', 'census_sample_1500.dta')
-census_filename =get_data_dir('raw', 'census', '5_perc_sample', 'census_sample_5perc.dta')
+census_filename =get_data_dir('raw', 'census', '5_perc_sample', 'census_sample_5perc_092320.dta')
 #'ABM_Simulated_Pop_WardDistributed_UpdatedMay30_school_complete_060520.dta'
 district_filename = get_data_dir('raw','district_relation.csv')
 output_filename = get_data_dir('preprocessed', 'census', 'sample_5_perc.csv')#pickle')
@@ -27,11 +27,17 @@ output_filename = get_data_dir('preprocessed', 'census', 'sample_5_perc.csv')#pi
 # set up mappings between the input data and the values used by the census builder
 
 age_map = {
-    'less than 1 year': 0,
+   'less than 1 year': 0,
+    'less than 1 year ': 0,
     '1 year': 1,
+    '1 year ': 1,
     '2 years': 2,
+    '2 years ': 2,
     '98': 98,
+    '98 ': 98,
+    '999': None, 
     'not reported/missing': None,
+    'not reported/missing ': None,
 }
 # note SA to SW: in stata, these are coded values, so 'not reported/missing' is 999 code
 
