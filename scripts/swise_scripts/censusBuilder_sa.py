@@ -19,7 +19,7 @@ from covid19_abm.dir_manager import get_data_dir
 # define the relevant filenames
 
 #census_filename =get_data_dir('raw', 'census', 'census_sample_1500.dta')
-census_filename =get_data_dir('raw', 'census', '5_perc_sample', 'census_sample_5perc_092320.dta')
+census_filename =get_data_dir('raw', 'census', '5_perc_sample', 'census_sample_5perc_042221.dta')
 #'ABM_Simulated_Pop_WardDistributed_UpdatedMay30_school_complete_060520.dta'
 district_filename = get_data_dir('raw','district_relation.csv')
 output_filename = get_data_dir('preprocessed', 'census', 'sample_5_perc.csv')#pickle')
@@ -88,8 +88,8 @@ gb.fit(X_tr, individual_df.loc[X_tr.index, 'age'])
 # NB SA to SW - this has an error 'could not convert string to float
 
 # now pull out the individuals with null ages and replace their ages with regressed integer values
-missing_age = X[individual_df['age'].isnull()]
-individual_df.loc[missing_age.index, 'age'] = gb.predict(missing_age).astype(int)
+#missing_age = X[individual_df['age'].isnull()]
+#individual_df.loc[missing_age.index, 'age'] = gb.predict(missing_age).astype(int)
 
 print("\nAll missing ages regressed and predicted successfully...")
 
@@ -107,9 +107,9 @@ relevant_cols = [
 #old_new_districts = pd.read_csv(district_filename, index_col=0)
 #old_new_districts.index = old_new_districts['ADMIN_NAME'].str.lower()
 
-individual_df['serial_expanded'] = individual_df['serial']
+#individual_df['serial_expanded'] = individual_df['serial']
 
-individual_df['household_id'] = individual_df['serial_expanded'].map(lambda x: f'h_{x}')
+#individual_df['household_id'] = individual_df['serial_expanded'].map(lambda x: f'h_{x}')
 #individual_df['old_district_id'] = individual_df['geo2_zw2012'].map(lambda x: f'd_{old_new_districts["DIST2012"][x]}')                                          
 #individual_df['new_district_id'] = individual_df['geo2_zw2012'].map(lambda x: f'd_{old_new_districts["NEW_DIST_ID_2"][x]}')
 
