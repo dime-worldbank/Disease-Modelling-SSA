@@ -4,18 +4,19 @@ clear all
 cd "/Users/sophieayling/Documents/GitHub/Disease-Modelling-SSA"
 tempfile temp1 temp2
 
-/*
+
 ** check other version that Billy shared -- if it has all right vars, am just going to use this instead
 
 use "data/raw/census/100_perc/abm_individual_new_092320_final_merged_complete_FINAL.dta", clear
 
 * it still needs some of the work done down below, but first cut it to 5% sample
 
-sample 0.05, by(new_district_id)
+sample 5, by(new_district_id)
 drop district_id 
 rename new_district_id district_id
 save "data/raw/census/5_perc_sample/5_perc_092320_missingvars.dta", replace
 */
+e
 ** save old dataset key vars for merge as tempfile 
 use "data/raw/census/5_perc_sample/ABM_Simulated_Pop_WardDistributed_UpdatedMay30_school_complete_060520.dta", clear
 
@@ -34,7 +35,7 @@ save `temp1', replace
 use "data/raw/census/5_perc_sample/5_perc_092320_missingvars.dta", clear
 sort district_id
 merge m:1 district_id using `temp1' 
-
+e
 ** save new version of 5 perc dataset
 tab economic_status, nol
 gen economic_status2 = economic_status
