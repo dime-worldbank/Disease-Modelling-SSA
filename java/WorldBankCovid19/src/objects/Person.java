@@ -43,7 +43,7 @@ public class Person extends MobileAgent {
 	
 	// activity
 	BehaviourNode currentActivityNode = null;
-	Infection myInfection = null;
+	Infection myInfection = null; // TODO make a hashset of different infections! Allow multiple!!
 	
 	// copy of world
 	WorldBankCovid19Sim myWorld;
@@ -157,6 +157,10 @@ public class Person extends MobileAgent {
 		
 		// if not currently in the space, do not try to interact
 		if(currentLocation == null) return;
+		else if(myInfection == null){
+			System.out.println("ERROR: " + this.myId + " asked to infect others, but is not infected!");
+			return;
+		}
 		
 		// otherwise, get a list of others in the space
 		ArrayList <Person> currentNeighbours = currentLocation.getPeople();
@@ -196,6 +200,42 @@ public class Person extends MobileAgent {
 				// otherwise choose a random coworker
 				int j = myWorld.random.nextInt(n);
 				Person p = copyOfCoworkers.remove(j);
+				if(p.myInfection == null 
+						&& myWorld.random.nextDouble() < myWorld.params.infection_beta){
+					Infection inf = new Infection(p, this, myWorld.infectiousFramework.getEntryPoint());
+					myWorld.schedule.scheduleOnce(inf, 10);
+				}
+				
+				n--; // recordkeeping
+			}
+		}
+		
+		else {
+			int myNumInteractions = myWorld.params.community_interaction_count;
+			Location myHomeCommunity = this.getHousehold().getRootSuperLocation();
+			ArrayList <Person> copyOfCommunity;
+			
+			// set up pool of possible interactions
+			if(currentLocation == myHomeCommunity){
+				copyOfCommunity = (ArrayList <Person>) this.communityBubble.clone();
+				copyOfCommunity.retainAll(currentLocation.personsHere);
+			}
+			else
+				copyOfCommunity = (ArrayList <Person>) currentLocation.personsHere.clone();;
+				
+			int n = copyOfCommunity.size(); // break clause checker
+			
+			// select the interaction partners
+			for(int i = 0; i < myNumInteractions; i++){
+				
+				if(n <= 0){ // break clause if we're run out of coworkers
+					i = myNumInteractions;
+					continue;
+				}
+				
+				// otherwise choose a random coworker
+				int j = myWorld.random.nextInt(n);
+				Person p = copyOfCommunity.remove(j);
 				if(p.myInfection == null 
 						&& myWorld.random.nextDouble() < myWorld.params.infection_beta){
 					Infection inf = new Infection(p, this, myWorld.infectiousFramework.getEntryPoint());
@@ -259,7 +299,10 @@ public class Person extends MobileAgent {
 	//
 	
 	public void setLocation(Location l){
+		if(this.currentLocation != null)
+			currentLocation.removePerson(this);
 		this.currentLocation = l;
+		l.addPerson(this);
 	}
 	
 	public Location getLocation(){
@@ -317,4 +360,8 @@ public class Person extends MobileAgent {
 	}
 	
 	public int getID(){ return this.myId; }
+	
+	public double getSusceptibility(){
+		return myWorld.params.getSuspectabilityByAge(age); // TODO modify with appropriate parameters
+	}
 }

@@ -15,13 +15,15 @@ import objects.Person;
 public class Params {
 	
 	public double r0 = 3.0;
-	public double infection_beta = 0.5;//0.16;
+	public double infection_beta = 0.116;
 	
 	public HashMap <String, Double> economic_status_weekday_movement_prob;
 	public HashMap <String, Double> economic_status_otherday_movement_prob;
 	public HashMap <String, Double> economic_num_interactions_weekday;
 	double mild_symptom_movement_prob;
 	
+	// export parameters
+	String [] exportParams = new String [] {"infected_count"};
 
 	// holders for locational data
 	HashMap <String, Location> districts;
@@ -37,6 +39,31 @@ public class Params {
 	HashMap <String, Integer> econBubbleSize;
 	ArrayList <String> orderedEconStatuses;
 	
+	// holders for epidemic-related data
+	
+	HashMap <Location, Integer> lineList;
+	
+	// see Kerr et al 2020 - https://www.medrxiv.org/content/10.1101/2020.05.10.20097469v3.full.pdf
+	public double exposedToInfectious_mean =	4.5;
+	public double exposedToInfectious_std =		1.5;
+	public double infectiousToSymptomatic_mean =1.1;
+	public double infectiousToSymptomatic_std = 0.9;
+	public double symptomaticToSevere_mean = 	6.6;
+	public double symptomaticToSevere_std = 	4.9;
+	public double severeToCritical_mean =		1.5;
+	public double severeToCritical_std =		2.0;
+	public double criticalToDeath_mean =		10.7;
+	public double criticalToDeath_std =			4.8;
+	public double asymptomaticToRecovery_mean =	8.0;
+	public double asymptomaticToRecovery_std =	2.0;
+	public double sympomaticToRecovery_mean =	8.0;
+	public double sympomaticToRecovery_std =	2.0;
+	public double severeToRecovery_mean =		18.1;
+	public double severeToRecovery_std =		6.3;
+	public double criticalToRecovery_mean =		18.1;
+	public double criticalToRecovery_std =		6.3;
+	
+	
 	// data files
 	
 	public String population_filename = "/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/preprocessed/census/sample_1500.txt";
@@ -49,8 +76,11 @@ public class Params {
 	
 	public String econ_interaction_distrib_filename = "/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/configs/interaction_matrix_nld.csv";
 	
+	public String line_list_filename = "/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/preprocessed/line_list/line_list_5perc.txt";
+	
 	// social qualities
 	public static int social_bubble_size = 30;
+	public static int community_interaction_count = 5;
 	
 	// time
 	public static int hours_per_tick = 4; // the number of hours each tick represents
@@ -75,7 +105,56 @@ public class Params {
 		economic_num_interactions_weekday = readInEconomicData(economic_status_num_daily_interacts_filename, "economic_status", "interactions");
 		
 		load_econ_distrib();
+		
+		load_line_list(line_list_filename);
 	}
+	
+	//
+	// DATA IMPORT UTILITIES
+	//
+	
+	// Epidemic
+	
+	public void load_line_list(String lineListFilename){
+		try {
+			
+			System.out.println("Reading in data from " + lineListFilename);
+			
+			// Open the tracts file
+			FileInputStream fstream = new FileInputStream(lineListFilename);
+
+			// Convert our input stream to a BufferedReader
+			BufferedReader lineListDataFile = new BufferedReader(new InputStreamReader(fstream));
+			String s;
+
+			// extract the header
+			s = lineListDataFile.readLine();
+
+			// map the header into column names relative to location
+			String [] header = splitRawCSVString(s);
+			HashMap <String, Integer> columnNames = parseHeader(header);
+			int districtNameIndex = columnNames.get("district");
+			int countIndex = columnNames.get("count");
+			
+			// set up data container
+			lineList = new HashMap <Location, Integer> ();
+			
+			// read in the raw data
+			while ((s = lineListDataFile.readLine()) != null) {
+				String [] bits = splitRawCSVString(s);
+				Location myDistrict = districts.get(bits[districtNameIndex]);
+				Integer myCount = Integer.parseInt(bits[countIndex]);
+				lineList.put(myDistrict, myCount);
+			}
+
+		} catch (Exception e) {
+			System.err.println("File input error: " + lineListFilename);
+		}
+	}
+	
+	
+	
+	// Economic
 	
 	public void load_econ_distrib(){
 		economicInteractionDistrib = new HashMap <String, Map<String, Double>> ();
@@ -327,6 +406,8 @@ public class Params {
 			System.err.println("File input error: " + districtFilename);
 		}
 	}
+
+	// file import helper utilities
 	
 	/**
 	 * Helper function to allow user to read in comma separated values, respecting double quotes.
@@ -355,6 +436,24 @@ public class Params {
 		}
 		return rawColumnNames;
 	}
+	
+	// END file import helper utilities
+	
+	//
+	// END DATA IMPORT UTILITIES
+	//
+
+	//
+	// DATA ACCESS UTILITIES
+	//
+	
+	// Epidemic data access
+	public double getSuspectabilityByAge(double age){
+		// TODO make specific
+		return infection_beta;
+	}
+	
+	// Mobility data access
 	
 	/**
 	 * Public function to allow Persons to query economic mobility data based on day of week.

@@ -5,31 +5,31 @@ import sim.engine.SimState;
 import sim.engine.Steppable;
 
 public class Infection implements Steppable {
-	
+
+	// record keeping
 	Person host;
 	Person source;
+	Location infectedAtLocation;
+	
+	// behaviours
 	BehaviourNode currentBehaviourNode = null;
 	
-	double severity; // 0-100 degree to which person is being impacted by disease and can't move/work/etc.
-	
-	int epidemic_state;
 	double infection_rate;
 	int infected_symptomatic_status;
 
 	// infection timekeeping
-	double time_infected;
-	double time_start_contagious;
-	double time_start_symptomatic;
-	double time_recovered;
-	
-	Location infectedAtLocation;
+	// default these to -1 so it's clear when they've been reset
+	public double time_infected = 	-1;
+	public double time_infectious = -1;
+	public double time_start_symptomatic = -1;
+	public double time_start_severe = -1;
+	public double time_start_critical = -1;
+	public double time_recovered = 	-1;
+	public double time_died;
 	
 	// clinical care
 	double time_start_hospitalised;
 	double time_end_hospitalised;
-	double time_start_critical;
-	double time_end_critical;
-	double time_died;
 	
 	/**
 	 * 
@@ -41,8 +41,6 @@ public class Infection implements Steppable {
 		
 		host = myHost;
 		myHost.setInfection(this);
-		
-		severity = host.myWorld.random.nextDouble() * 100;
 		
 		source = mySource;
 		
@@ -66,12 +64,6 @@ public class Infection implements Steppable {
 		world.schedule.scheduleOnce(time + myDelta, this);
 	}
 
-	public void updateSeverity(){
-		// TODO age factor
-		double impactFactor = 1 + (.5 - host.myWorld.random.nextDouble())/ 100.;
-		severity *= impactFactor;
-	}
-	
 	public void setBehaviourNode(BehaviourNode bn){
 		this.currentBehaviourNode = bn;
 	}
@@ -85,5 +77,4 @@ public class Infection implements Steppable {
 	public Person getSource() { return source; }
 	public double getStartTime() { return time_infected;}
 	
-	public double getSeverity(){ return severity;}
 }
