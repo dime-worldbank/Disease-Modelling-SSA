@@ -1,1 +1,3 @@
-economic_status,interactions "Not working, inactive, not in universe",1.88Current Students,7.88Homemakers/Housework,4.88Office workers,6.88Teachers,25.88Service Workers,9.88Agriculture Workers,4.88Industry Workers,7.88In the army,9.88Disabled and not working,1.88
+economic_status,interactions,bubble_size"Not working, inactive, not in universe",1,10
+Current Students,6,30Homemakers/Housework,3,15
+Office workers,5,30Teachers,12,100Service Workers,10,100Agriculture Workers,5,30Industry Workers,5,30In the army,10,100Disabled and not working,1,10

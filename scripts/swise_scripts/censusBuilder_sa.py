@@ -27,10 +27,15 @@ output_filename = get_data_dir('preprocessed', 'census', 'sample_5_perc_092320.c
 # set up mappings between the input data and the values used by the census builder
 
 age_map = {
-    'less than 1 year': 0,
+   'less than 1 year': 0,
+    'less than 1 year ': 0,
     '1 year': 1,
+    '1 year ': 1,
     '2 years': 2,
+    '2 years ': 2,
     '98': 98,
+    '98 ': 98,
+    '999': None, 
     'not reported/missing': None,
     'NaN': None
 }
@@ -83,14 +88,9 @@ gb.fit(X_tr, individual_df.loc[X_tr.index, 'age'])
 # NB SA to SW - this has an error 'could not convert string to float
 
 # now pull out the individuals with null ages and replace their ages with regressed integer values
-missing_age = X[individual_df['age'].isnull()]
-print("hoho")
-print(missing_age)
-print("hehe")
-for blah in missing_age:
-	print(blah)
-print("haha")
-individual_df.loc[missing_age.index, 'age'] = gb.predict(missing_age).astype(int)
+
+#missing_age = X[individual_df['age'].isnull()]
+#individual_df.loc[missing_age.index, 'age'] = gb.predict(missing_age).astype(int)
 
 print("\nAll missing ages regressed and predicted successfully...")
 
@@ -108,9 +108,9 @@ relevant_cols = [
 #old_new_districts = pd.read_csv(district_filename, index_col=0)
 #old_new_districts.index = old_new_districts['ADMIN_NAME'].str.lower()
 
-individual_df['serial_expanded'] = individual_df['serial']
+#individual_df['serial_expanded'] = individual_df['serial']
 
-individual_df['household_id'] = individual_df['serial_expanded'].map(lambda x: f'h_{x}')
+#individual_df['household_id'] = individual_df['serial_expanded'].map(lambda x: f'h_{x}')
 #individual_df['old_district_id'] = individual_df['geo2_zw2012'].map(lambda x: f'd_{old_new_districts["DIST2012"][x]}')                                          
 #individual_df['new_district_id'] = individual_df['geo2_zw2012'].map(lambda x: f'd_{old_new_districts["NEW_DIST_ID_2"][x]}')
 
