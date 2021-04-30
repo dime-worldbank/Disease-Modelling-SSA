@@ -11,11 +11,12 @@ use "data/raw/census/100_perc/abm_individual_new_092320_final_merged_complete_FI
 
 * it still needs some of the work done down below, but first cut it to 5% sample
 
-sample 0.05, by(new_district_id)
+sample 5, by(new_district_id)
 drop district_id 
 rename new_district_id district_id
 save "data/raw/census/5_perc_sample/5_perc_092320_missingvars.dta", replace
-
+*/
+e
 ** save old dataset key vars for merge as tempfile 
 use "data/raw/census/5_perc_sample/ABM_Simulated_Pop_WardDistributed_UpdatedMay30_school_complete_060520.dta", clear
 
@@ -34,7 +35,7 @@ save `temp1', replace
 use "data/raw/census/5_perc_sample/5_perc_092320_missingvars.dta", clear
 sort district_id
 merge m:1 district_id using `temp1' 
-
+e
 ** save new version of 5 perc dataset
 tab economic_status, nol
 gen economic_status2 = economic_status
@@ -51,10 +52,23 @@ drop economic_status
 rename economic_status2 economic_status
 
 *create the school goers variable (this is just a dummy for now) 
-
 drop _merge
+
+*clean age variable 
+replace age = . if age==999
+
+*rename household id
+rename serial household_id
+
 save "data/raw/census/5_perc_sample/census_sample_5perc_092320.dta", replace
-e
+
+****check variables in this 5 perc sample are all the same as the one in the 1500 below
+
+use "data/raw/census/5_perc_sample/census_sample_5perc_092320.dta", clear
+tab economic_status
+
+
+
 **************************************************************************************************
 
 
