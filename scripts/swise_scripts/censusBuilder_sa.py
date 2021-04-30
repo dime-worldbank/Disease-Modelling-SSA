@@ -19,10 +19,10 @@ from covid19_abm.dir_manager import get_data_dir
 # define the relevant filenames
 
 #census_filename =get_data_dir('raw', 'census', 'census_sample_1500.dta')
-census_filename =get_data_dir('raw', 'census', '5_perc_sample', 'census_sample_5perc.dta')
+census_filename =get_data_dir('raw', 'census', 'census_sample_5perc_092320.dta')#'census_sample_5perc.dta')
 #'ABM_Simulated_Pop_WardDistributed_UpdatedMay30_school_complete_060520.dta'
 district_filename = get_data_dir('raw','district_relation.csv')
-output_filename = get_data_dir('preprocessed', 'census', 'sample_5_perc.csv')#pickle')
+output_filename = get_data_dir('preprocessed', 'census', 'sample_5_perc_092320.csv')#pickle')
 
 # set up mappings between the input data and the values used by the census builder
 
@@ -32,6 +32,7 @@ age_map = {
     '2 years': 2,
     '98': 98,
     'not reported/missing': None,
+    'NaN': None
 }
 # note SA to SW: in stata, these are coded values, so 'not reported/missing' is 999 code
 
@@ -83,6 +84,12 @@ gb.fit(X_tr, individual_df.loc[X_tr.index, 'age'])
 
 # now pull out the individuals with null ages and replace their ages with regressed integer values
 missing_age = X[individual_df['age'].isnull()]
+print("hoho")
+print(missing_age)
+print("hehe")
+for blah in missing_age:
+	print(blah)
+print("haha")
 individual_df.loc[missing_age.index, 'age'] = gb.predict(missing_age).astype(int)
 
 print("\nAll missing ages regressed and predicted successfully...")

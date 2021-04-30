@@ -200,9 +200,9 @@ public class InteractionUtilities {
 		System.out.println();
 
 		// finally, reset the agent
-		for(Person p: world.agents)
-			p.goHome();
-
+//		for(Person p: world.agents)
+//			p.goHome();
+// TODO sort this out better
 		
 /*		String makeTerribleGraphFilename = "/Users/swise/Downloads/rawSocialGraph_latest.csv";
 		try {
