@@ -19,13 +19,13 @@ public class Infection implements Steppable {
 
 	// infection timekeeping
 	// default these to -1 so it's clear when they've been reset
-	public double time_infected = 	-1;
-	public double time_infectious = -1;
-	public double time_start_symptomatic = -1;
-	public double time_start_severe = -1;
-	public double time_start_critical = -1;
-	public double time_recovered = 	-1;
-	public double time_died;
+	public double time_infected = Double.MAX_VALUE;
+	public double time_contagious = Double.MAX_VALUE;
+	public double time_start_symptomatic = Double.MAX_VALUE;
+	public double time_start_severe = Double.MAX_VALUE;
+	public double time_start_critical = Double.MAX_VALUE;
+	public double time_recovered = 	Double.MAX_VALUE;
+	public double time_died = Double.MAX_VALUE;
 	
 	// clinical care
 	double time_start_hospitalised;
@@ -62,6 +62,8 @@ public class Infection implements Steppable {
 		double time = world.schedule.getTime(); // find the current time
 		double myDelta = this.currentBehaviourNode.next(this, time);
 		world.schedule.scheduleOnce(time + myDelta, this);
+		
+		System.out.println("Infection\t" + host.toString() + "\t" + currentBehaviourNode.getTitle() + "\t" + myDelta);
 	}
 
 	public void setBehaviourNode(BehaviourNode bn){

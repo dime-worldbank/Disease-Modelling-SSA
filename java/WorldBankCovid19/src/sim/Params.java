@@ -23,7 +23,9 @@ public class Params {
 	double mild_symptom_movement_prob;
 	
 	// export parameters
-	String [] exportParams = new String [] {"infected_count"};
+	String [] exportParams = new String [] {"time", "infected_count", "num_died",
+			"num_recovered", "num_exposed", 
+			"num_contagious", "num_severe", "num_critical", "num_symptomatic", "num_asymptomatic"};
 
 	// holders for locational data
 	HashMap <String, Location> districts;
@@ -44,24 +46,24 @@ public class Params {
 	HashMap <Location, Integer> lineList;
 	
 	// see Kerr et al 2020 - https://www.medrxiv.org/content/10.1101/2020.05.10.20097469v3.full.pdf
-	public double exposedToInfectious_mean =	4.5;
-	public double exposedToInfectious_std =		1.5;
-	public double infectiousToSymptomatic_mean =1.1;
-	public double infectiousToSymptomatic_std = 0.9;
-	public double symptomaticToSevere_mean = 	6.6;
-	public double symptomaticToSevere_std = 	4.9;
-	public double severeToCritical_mean =		1.5;
-	public double severeToCritical_std =		2.0;
-	public double criticalToDeath_mean =		10.7;
-	public double criticalToDeath_std =			4.8;
-	public double asymptomaticToRecovery_mean =	8.0;
-	public double asymptomaticToRecovery_std =	2.0;
-	public double sympomaticToRecovery_mean =	8.0;
-	public double sympomaticToRecovery_std =	2.0;
-	public double severeToRecovery_mean =		18.1;
-	public double severeToRecovery_std =		6.3;
-	public double criticalToRecovery_mean =		18.1;
-	public double criticalToRecovery_std =		6.3;
+	public double exposedToInfectious_mean =	4.5 * ticks_per_day;
+	public double exposedToInfectious_std =		1.5 * ticks_per_day;
+	public double infectiousToSymptomatic_mean =1.1 * ticks_per_day;
+	public double infectiousToSymptomatic_std = 0.9 * ticks_per_day;
+	public double symptomaticToSevere_mean = 	6.6 * ticks_per_day;
+	public double symptomaticToSevere_std = 	4.9 * ticks_per_day;
+	public double severeToCritical_mean =		1.5 * ticks_per_day;
+	public double severeToCritical_std =		2.0 * ticks_per_day;
+	public double criticalToDeath_mean =		10.7 * ticks_per_day;
+	public double criticalToDeath_std =			4.8 * ticks_per_day;
+	public double asymptomaticToRecovery_mean =	8.0 * ticks_per_day;
+	public double asymptomaticToRecovery_std =	2.0 * ticks_per_day;
+	public double sympomaticToRecovery_mean =	8.0 * ticks_per_day;
+	public double sympomaticToRecovery_std =	2.0 * ticks_per_day;
+	public double severeToRecovery_mean =		18.1 * ticks_per_day;
+	public double severeToRecovery_std =		6.3 * ticks_per_day;
+	public double criticalToRecovery_mean =		18.1 * ticks_per_day;
+	public double criticalToRecovery_std =		6.3 * ticks_per_day;
 	
 	
 	// data files

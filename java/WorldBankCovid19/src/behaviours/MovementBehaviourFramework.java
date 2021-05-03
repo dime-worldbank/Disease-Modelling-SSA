@@ -55,14 +55,14 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 					if(goToWork){ // weekdays
 						p.goToWork(null);
 						p.setActivityNode(workNode);
-						System.out.println("Person " + p.toString() + " going to work!");
+//						System.out.println("Person " + p.toString() + " going to work!");
 						return 2; // 8 hours work
 					}
 					else{ 		// weekends
 						Location target = myWorld.params.getTargetMoveDistrict(p, day, myWorld.random.nextDouble());
 						p.goToCommunity(target);
 						p.setActivityNode(communityNode);
-						System.out.println("Person " + p.toString() + " going out to community " + target.toString());
+//						System.out.println("Person " + p.toString() + " going out to community " + target.toString());
 						return 3; // 12 hours community
 					}
 				}
@@ -87,7 +87,7 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 				if(hour > 5){
 					p.goHome();
 					p.setActivityNode(homeNode);
-					System.out.println("Person " + p.toString() + " going home!");
+//					System.out.println("Person " + p.toString() + " going home!");
 					return 3; // 12 hours at home! These agents are very well-rested
 				}
 				
@@ -98,7 +98,7 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 					else
 						p.goToCommunity(p.getHousehold().getRootSuperLocation());
 					p.setActivityNode(communityNode);
-					System.out.println("Person " + p.toString() + " going out to the community after work!");
+//					System.out.println("Person " + p.toString() + " going out to the community after work!");
 					return 1; // 4 hours in the community
 				}
 
@@ -124,7 +124,7 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 				if(hour >= 5) { // late! Go home!
 					p.goHome();
 					p.setActivityNode(homeNode);
-					System.out.println("Person " + p.toString() + " going home from the community!");
+//					System.out.println("Person " + p.toString() + " going home from the community!");
 
 					return 3; // 12 hours at home!
 				}
