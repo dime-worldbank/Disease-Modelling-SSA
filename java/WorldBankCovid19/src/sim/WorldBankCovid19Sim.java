@@ -37,30 +37,24 @@ public class WorldBankCovid19Sim extends SimState {
 	// record-keeping
 	
 	ArrayList <HashMap <String, Double>> dailyRecord = new ArrayList <HashMap <String, Double>> ();
-	public double record_numInfected = 0, 
-		record_numExposed = 0,
-		record_numContagious = 0,
-		record_numSevere = 0,
-		record_numCritical = 0,
-		record_numSymptomatic = 0;
+	public double record_numInfected = 0,
+			record_numDied = 0,
+			record_numRecovered = 0,
+			record_numExposed = 0,
+			record_numContagious = 0,
+			record_numSevere = 0,
+			record_numCritical = 0,
+			record_numSymptomatic = 0,
+			record_numAsymptomatic = 0;
 	
 	/*
-	 * date
-
-infected_count
-current_exposed_cases
-current_contagious_cases
 current_hospitalized_cases
-current_critical_cases
-asymptomatic_count
-symptomatic_count
 hospitalized_count
-critical_count
-died_count
-recovered_count
+
 new_cases
 new_hospitalized
 new_critical
+
 version
 days
 scenario
@@ -128,15 +122,10 @@ scenario
 					newlyInfected.add(p);
 				
 				// create new person
-				Infection inf = new Infection(p, null, infectiousFramework.getInfectedEntryPoint(p));
+				Infection inf = new Infection(p, null, infectiousFramework.getInfectedEntryPoint());
 				schedule.scheduleOnce(1, 10, inf);
 			}
 		}
-		/*for(int i = 0; i < 5; i++){
-			int personIndex = random.nextInt(agents.size());
-			Infection inf = new Infection(agents.get(personIndex), null, infectiousFramework.getInfectedEntryPoint());
-			schedule.scheduleOnce(1, 10, inf);
-		}*/
 		
 		// everyone starts from home!
 		for(Person p: agents)
@@ -147,35 +136,21 @@ scenario
 			@Override
 			public void step(SimState arg0) {
 				HashMap <String, Double> myRecord = new HashMap <String, Double> ();
-				myRecord.put("date", arg0.schedule.getTime());
+				myRecord.put("time", arg0.schedule.getTime());
 				myRecord.put("infected_count", record_numInfected);
+				myRecord.put("num_died", record_numDied);
+				myRecord.put("num_recovered", record_numRecovered);
+				myRecord.put("num_exposed", record_numExposed);
+				myRecord.put("num_contagious", record_numContagious);
+				myRecord.put("num_severe", record_numSevere);
+				myRecord.put("num_critical", record_numCritical);
+				myRecord.put("num_symptomatic", record_numSymptomatic);
+				myRecord.put("num_asymptomatic", record_numAsymptomatic);
 				dailyRecord.add(myRecord);
-				// TODO Auto-generated method stub
-				/*
-				 * date
-
-infected_count
-current_exposed_cases
-current_contagious_cases
-current_hospitalized_cases
-current_critical_cases
-asymptomatic_count
-symptomatic_count
-hospitalized_count
-critical_count
-died_count
-recovered_count
-new_cases
-new_hospitalized
-new_critical
-version
-days
-scenario
-				 */
 				
 			}
 		};
-		schedule.scheduleRepeating(reporter, params.ticks_per_day);
+		schedule.scheduleRepeating(reporter, 100, params.ticks_per_day);
 	}
 	
 	public void load_population(String agentsFilename){
@@ -337,9 +312,15 @@ scenario
 			// shove it out
 			BufferedWriter exportFile = new BufferedWriter(new FileWriter(filename, true));
 
+			String header = "index\t";
+			for(int p = 0; p < params.exportParams.length; p++){
+				header += params.exportParams[p].toString() + "\t";
+			}
+			exportFile.write(header);
+			
 			for(int i = 0; i < dailyRecord.size(); i++){
 				HashMap <String, Double> myRecord = dailyRecord.get(i);
-				String s = "";
+				String s = this.seed() + "\t";
 				for(String paramName: params.exportParams){
 					s += myRecord.get(paramName).toString() + "\t";
 				}
@@ -351,8 +332,21 @@ scenario
 		}
 	}
 	
+	static double randLognormParam = Math.sqrt(2 * Math.PI);
+	
+	// thanks to THIS FRIEND: https://blogs.sas.com/content/iml/2014/06/04/simulate-lognormal-data-with-specified-mean-and-variance.html <3 to you Rick
 	public double nextRandomLognormal(double mean, double std){
-		return Math.exp(mean + random.nextGaussian() * std);
+
+		// setup
+		double m2 = mean * mean;
+		double phi = Math.sqrt(m2 + std);
+		double mu = Math.log(m2 / phi);
+		double sigma = Math.sqrt(Math.log(phi * phi / m2));
+		
+		double x = random.nextDouble() * sigma + mu;
+		
+		return Math.exp(x);
+		
 	}
 	
 	public static void main(String [] args){
@@ -369,7 +363,7 @@ scenario
 
 		System.out.println("Running...");
 
-		while(mySim.schedule.getTime() < 6 * 60 && !mySim.schedule.scheduleComplete()){
+		while(mySim.schedule.getTime() < 6 * 30 && !mySim.schedule.scheduleComplete()){
 			mySim.schedule.step(mySim);
 			double myTime = mySim.schedule.getTime();
 			System.out.println("*****END TIME: DAY " + (int)(myTime / 6) + " HOUR " + (int)((myTime % 6) * 4) + " RAWTIME: " + myTime);

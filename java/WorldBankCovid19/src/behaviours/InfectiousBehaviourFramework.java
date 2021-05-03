@@ -43,17 +43,18 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				Infection i = (Infection) s;
 				
 				//
-				// it may be that the individual is exposed but not yet infectious - if so, check if it is time yet
+				// it may be that the individual is exposed but not yet contagious - check if time has been set
 				//
 				
-				if(i.time_infectious > 0){
+				if(i.time_contagious < Double.MAX_VALUE){ // if less, it has been changed from default value
 					
 					// maybe we have been triggered too soon - in that case, don't activate again until it is time!
-					if(i.time_infectious < time)
-						return i.time_infectious - time;
+					if(time < i.time_contagious)
+						return i.time_contagious - time;
 
-					// otherwise, the agent is now infectious!
+					// otherwise, the agent is now infected and contagious!
 					myWorld.record_numInfected++;
+					myWorld.record_numContagious++;
 					
 					// The infected agent will either show symptoms or be asymptomatic - choose which at this time
 					
@@ -68,13 +69,18 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				// another case: the agent is newly exposed! Determine whether the infection will take
 				//
 				
+				myWorld.record_numExposed++; // record this exposure event
+				
 				if(myWorld.random.nextDouble() < i.getHost().getSusceptibility()){
+					
+					// timekeep this
+					i.time_infected = time;
 					
 					// the agent has been infected - set the time at which it will become infecTIOUS
 					double timeUntilInfectious = myWorld.nextRandomLognormal(
 							myWorld.params.exposedToInfectious_mean,
 							myWorld.params.exposedToInfectious_std);
-					i.time_infectious = time + timeUntilInfectious;
+					i.time_contagious = time + timeUntilInfectious;
 					
 					return timeUntilInfectious;
 				}
@@ -104,10 +110,11 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 
 				// determine when the infection will proceed to symptoms - this is
 				// only a matter of time in this case
-				if(i.time_start_symptomatic >= time){
+				if(time >= i.time_start_symptomatic){
 					i.setBehaviourNode(mildNode);
+					myWorld.record_numSymptomatic++;
 				}
-				else if(i.time_start_symptomatic < 0){
+				else if(i.time_start_symptomatic == Double.MAX_VALUE ){
 					double time_until_symptoms = myWorld.nextRandomLognormal(
 							myWorld.params.infectiousToSymptomatic_mean, 
 							myWorld.params.infectiousToSymptomatic_std);
@@ -135,14 +142,18 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 
 				// determine when the agent will recover - this is
 				// only a matter of time in this case
-				if(i.time_recovered >= time){
+				if(time >= i.time_recovered){
 					i.setBehaviourNode(recoveredNode);
+					myWorld.record_numAsymptomatic--;
 				}
-				else if(i.time_recovered < 0){ // may not yet have been set
+				else if(i.time_recovered == Double.MAX_VALUE){ // has not been set
+					
+					myWorld.record_numAsymptomatic++;
+					
 					double time_until_recovered = myWorld.nextRandomLognormal(
 							myWorld.params.asymptomaticToRecovery_mean, 
 							myWorld.params.asymptomaticToRecovery_std);
-					i.time_start_symptomatic = time + time_until_recovered;
+					i.time_recovered = time + time_until_recovered;
 				}
 				
 				// update every timestep
@@ -166,19 +177,20 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 
 				// if the agent is scheduled to recover, make sure that it
 				// does so
-				if(i.time_recovered >= time){
+				if(time >= i.time_recovered){
 					i.setBehaviourNode(recoveredNode);
+					myWorld.record_numSymptomatic--;
 				}
 				
 				// otherwise, if it is scheduled to worsen, progress it
-				else if(i.time_start_severe >= time){
+				else if(time >= i.time_start_severe){
 					i.setBehaviourNode(severeNode);
 					// TODO make agent immobile?
 					return 1;
 				}
 				
 				// finally, if the next step has not yet been decided, schedule it
-				else if(i.time_recovered < 0 && i.time_start_severe < 0){
+				else if(i.time_recovered == Double.MAX_VALUE && i.time_start_severe == Double.MAX_VALUE){
 
 					// determine if the patient will become sicker
 					if(myWorld.random.nextDouble() < .5){
@@ -219,19 +231,24 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 
 				// if the agent is scheduled to recover, make sure that it
 				// does so
-				if(i.time_recovered >= time){
+				if(time >= i.time_recovered){
 					i.setBehaviourNode(recoveredNode);
+					myWorld.record_numSevere--;
+					myWorld.record_numSymptomatic--;
 				}
 				
 				// otherwise, if it is scheduled to worsen, progress it
-				else if(i.time_start_critical >= time){
+				else if(time >= i.time_start_critical){
 					i.setBehaviourNode(criticalNode);
+					myWorld.record_numSevere--;
 					return 1;
 				}
 				
 				// finally, if the next step has not yet been decided, schedule it
-				else if(i.time_recovered < 0 && i.time_start_critical < 0){
+				else if(i.time_recovered == Double.MAX_VALUE && i.time_start_critical == Double.MAX_VALUE){
 
+					myWorld.record_numSevere++;
+					
 					// determine if the patient will become sicker
 					if(myWorld.random.nextDouble() < .5){
 						double time_until_critical = myWorld.nextRandomLognormal(
@@ -271,18 +288,24 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 
 				// if the agent is scheduled to recover, make sure that it
 				// does so
-				if(i.time_recovered >= time){
+				if(time >= i.time_recovered ){
 					i.setBehaviourNode(recoveredNode);
+					myWorld.record_numCritical--;
+					myWorld.record_numSymptomatic--;
 				}
 				
 				// otherwise, if it is scheduled to worsen, progress it
-				else if(i.time_died >= time){
+				else if(time >= i.time_died ){
 					i.setBehaviourNode(deadNode);
+					myWorld.record_numCritical--;
+					myWorld.record_numSymptomatic--;
 					return 1;
 				}
 				
 				// finally, if the next step has not yet been decided, schedule it
-				else if(i.time_recovered < 0 && i.time_died < 0){
+				else if(i.time_recovered == Double.MAX_VALUE && i.time_died == Double.MAX_VALUE ){
+
+					myWorld.record_numCritical++;
 
 					// determine if the patient will die
 					if(myWorld.random.nextDouble() < .5){
@@ -318,12 +341,17 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 			public double next(Steppable s, double time) {
 
 				myWorld.record_numInfected--;
+				myWorld.record_numContagious--;
+				myWorld.record_numRecovered++;
+				
+				((Infection)s).time_recovered = time;
 
 				// no need to update again!
 				return Double.MAX_VALUE;
 			}
 			
 		};
+		
 		deadNode = new BehaviourNode(){
 
 			@Override
@@ -333,6 +361,11 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 			public double next(Steppable s, double time) {
 				Infection i = (Infection) s;
 				i.getHost().die();
+				i.time_died = time;
+				
+				myWorld.record_numDied++;
+				myWorld.record_numContagious--;
+				
 				return Double.MAX_VALUE; // no need to run ever again
 			}
 			
@@ -344,8 +377,10 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 	}
 
 	public BehaviourNode getStandardEntryPoint(){ return susceptibleNode; }
-	public BehaviourNode getInfectedEntryPoint(Person host){
+	public BehaviourNode getInfectedEntryPoint(){
 		myWorld.record_numInfected++;
+		myWorld.record_numContagious++;
+				
 		if(myWorld.random.nextDouble() < .5) // TODO make this based on real data
 			return presymptomaticNode;
 		else
