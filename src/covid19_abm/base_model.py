@@ -377,6 +377,7 @@ class EpidemicScheduler(BaseScheduler):
         print(self.model.district_ids[district_out_mover_ids])
         print("\nDISTRICT PROBS")
         print(district_probs)
+        
         target_district_ids = np.less(
             np.random.random((len(district_out_mover_ids), 1)),
             # NOTE: We can use .iloc because we explicitly defined that district_ids are sorted increasingly.
