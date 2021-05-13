@@ -101,7 +101,8 @@ scenario
 			HashSet <Person> newlyInfected = new HashSet <Person> ();
 			
 			// number of people present
-			int numPeopleHere = l.getPeople().size();
+			ArrayList <Person> peopleHere = this.personsToDistrict.get(l);
+			int numPeopleHere = peopleHere.size();//l.getPeople().size();
 			if(numPeopleHere == 0){ // if there is no one there, don't continue
 				System.out.println("WARNING: attempting to initialise infection in Location " + l.getId() + " but there are no People present. Continuing without successful infection...");
 				continue;
@@ -111,7 +112,7 @@ scenario
 
 			// infect until you have met the target number of infections
 			while(newlyInfected.size() < countInfections && collisions > 0){
-				Person p = l.getPeople().get(random.nextInt(numPeopleHere));
+				Person p = peopleHere.get(random.nextInt(numPeopleHere));
 				
 				// check for duplicates!
 				if(newlyInfected.contains(p)){
@@ -126,11 +127,7 @@ scenario
 				schedule.scheduleOnce(1, 10, inf);
 			}
 		}
-		
-		// everyone starts from home!
-		for(Person p: agents)
-			p.goHome();
-		
+				
 		Steppable reporter = new Steppable(){
 
 			@Override
@@ -199,7 +196,7 @@ scenario
 				Household h = rawHouseholds.get(hhName);
 
 				// target district
-				String myDistrictName = bits[5];
+				String myDistrictName = "d_" + bits[5]; // TODO AN ABOMINATION, STANDARDISE IT
 				Location myDistrict = params.districts.get(myDistrictName);
 
 				// if the Household doesn't already exist, create it and save it
@@ -223,8 +220,9 @@ scenario
 				Person p = new Person(Integer.parseInt(bits[1]), // ID 
 						Integer.parseInt(bits[2]), // age
 						bits[3], // sex
-						bits[6],
+						bits[6].toLowerCase(), // lower case all of the job titles
 						econLocation,
+						h,
 						this
 						);
 				h.addPerson(p);
@@ -366,7 +364,7 @@ scenario
 		while(mySim.schedule.getTime() < 6 * 30 && !mySim.schedule.scheduleComplete()){
 			mySim.schedule.step(mySim);
 			double myTime = mySim.schedule.getTime();
-			System.out.println("*****END TIME: DAY " + (int)(myTime / 6) + " HOUR " + (int)((myTime % 6) * 4) + " RAWTIME: " + myTime);
+			System.out.println("\n*****END TIME: DAY " + (int)(myTime / 6) + " HOUR " + (int)((myTime % 6) * 4) + " RAWTIME: " + myTime);
 		}
 		
 		mySim.reportOnInfected();

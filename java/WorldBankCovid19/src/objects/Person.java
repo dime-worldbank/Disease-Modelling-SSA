@@ -38,6 +38,7 @@ public class Person extends MobileAgent {
 	boolean district_mover; // allowed to move between districts?
 	
 	// social attributes
+	Location communityLocation;
 	ArrayList <Person> workBubble;
 	ArrayList <Person> communityBubble;
 	
@@ -72,7 +73,8 @@ public class Person extends MobileAgent {
 	 * @param economic_activity_location Location for weekday economic activity (workplace, school, etc.)
 	 * @param world Copy of the simulation
 	 */
-	public Person(int id, int age, String sex, String economic_status, Location economic_activity_location, WorldBankCovid19Sim world){
+	public Person(int id, int age, String sex, String economic_status, Location economic_activity_location, 
+			Household hh, WorldBankCovid19Sim world){
 		super();
 
 		// demographic characteristics
@@ -86,6 +88,7 @@ public class Person extends MobileAgent {
 		this.economic_activity_location = economic_activity_location;
 
 		// record-keeping
+		myHousehold = hh;
 		myWorld = world;
 		
 		// other characteristics (possibly weighted)
@@ -93,9 +96,11 @@ public class Person extends MobileAgent {
 
 		// agents are initialised uninfected
 		
-	
+		communityLocation = myHousehold.getRootSuperLocation();
 		workBubble = new ArrayList <Person> ();
 		communityBubble = new ArrayList <Person> ();
+		
+		this.currentLocation = hh;
 	}
 	
 	//
@@ -108,43 +113,21 @@ public class Person extends MobileAgent {
 		double time = world.schedule.getTime(); // find the current time
 		double myDelta = this.currentActivityNode.next(this, time);
 		myWorld.schedule.scheduleOnce(time + myDelta, this);
+		if(this.myId % 100 == 0) System.out.print(">");
 	}	
 
 	/**
-	 * A function which moves the Person from wherever they are to their Household.
-	 * @return the amount of time spent travelling to the Household location.
-	 */
-	public double goHome(){
-		
-		// only move the Person if they are not already in the Household
-		if(this.currentLocation != this.myHousehold)
-			transferTo(myHousehold);
-		
-		return 1; // TODO make based on distance travelled!
-	}
-	
-	public double goToWork(Location l){
-		if(l == null || l == economic_activity_location.getRootSuperLocation())
-			transferTo(economic_activity_location);
-		else
-			transferTo(l);
-		return 1;
-	}
-	
-	public double goToCommunity(Location l){
-		if(l == myHousehold.getRootSuperLocation())
-			transferTo(myHousehold.getRootSuperLocation());
-		else
-			transferTo(l);
-		return 0;
-	}
-	
-	public void transferTo(Location l){
+	 * A function which moves the Person from wherever they are to the given Location.
+	 * Also updates the various Locations as appropriate (given possible nulls).
+	 * @return the amount of time spent travelling to the given location.
+	 */	
+	public double transferTo(Location l){
 		if(currentLocation != null)
 			currentLocation.removePerson(this);
 		currentLocation = l;
 		if(l != null)
 			l.addPerson(this);
+		return 1; // TODO make based on distance travelled!
 	}
 	
 	public void die(){
@@ -341,6 +324,9 @@ public class Person extends MobileAgent {
 		return ((Person) o).myId == this.myId;
 	}
 	
+	/** HashCode */
+	public int hashCode(){ return myId; }
+	
 	public void setInfection(Infection i){
 		myInfection = i;
 	}
@@ -359,9 +345,13 @@ public class Person extends MobileAgent {
 		return age;
 	}
 	
+	public Location getCommunityLocation(){ return communityLocation;}
+	public Location getEconomicLocation(){ return this.economic_activity_location; }
+	
 	public int getID(){ return this.myId; }
 	
 	public double getSusceptibility(){
 		return myWorld.params.getSuspectabilityByAge(age); // TODO modify with appropriate parameters
 	}
+	
 }
