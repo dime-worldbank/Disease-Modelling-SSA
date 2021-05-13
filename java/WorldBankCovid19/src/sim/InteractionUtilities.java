@@ -24,18 +24,23 @@ public class InteractionUtilities {
 		HashMap <Location, Map<String, List<Person>>> peoplePerDistrictPerJob = 
 				new HashMap <Location, Map<String, List<Person>>> (); 
 		
+		// some Persons may not have an economic location - so hold them for easy keeping
+		HashMap <Person, Location> holderForEconLocations = new HashMap <Person, Location> ();
+		
+		
 		// position everyone so they can assemble their group of peers
 		for(Person p: world.agents){
 			
 			// extract workplace location
-			p.goToWork(null);
-			Location mySuper;
-			if(p.getLocation() == null){ // if no workplace, use household instead!
+			Location mySuper = p.getEconomicLocation();
+			if(mySuper == null){ // if no workplace, use household instead!
 				mySuper = p.getHousehold().getRootSuperLocation();
-				p.goHome(); // send them home for easier record keeping in the next bit
 			}
 			else
-				mySuper = p.getLocation().getRootSuperLocation();
+				mySuper = mySuper.getRootSuperLocation();
+			
+			// store this for later use
+			holderForEconLocations.put(p, mySuper);
 			
 			// get econ status
 			String myJob = p.getEconStatus();
@@ -67,7 +72,7 @@ public class InteractionUtilities {
 			String myStatus = p.getEconStatus();
 			
 			// Person has been moved either to workplace or to household (if no job etc.)
-			Location myWorkLocation = p.getLocation().getRootSuperLocation();
+			Location myWorkLocation = holderForEconLocations.get(p);//p.getLocation().getRootSuperLocation();
 			
 			// pull out the relevant distributions for friend group membership
 			ArrayList <Double> interDistrib = (ArrayList <Double>)
@@ -89,14 +94,15 @@ public class InteractionUtilities {
 				// (by at least one other person!!)
 				ArrayList <Person> potentialBubblemates = (ArrayList <Person>) binsOfWorkers.get(otherStatus);
 				if((potentialBubblemates == null || potentialBubblemates.size() <= 1) && emergencyBrake > 0){
-					System.out.print(".");
+					//System.out.print(".");
 					i--;
 					emergencyBrake--;
 					continue;
 				}
 				
 				if(emergencyBrake == 0){
-					System.out.println("\nERROR - cannot assemble full bubble for " + p.toString());
+					//System.out.println("\nERROR - cannot assemble full bubble for " + p.toString());
+				//	System.out.print(".");
 					i = bubbleSize;
 					continue;
 				}
@@ -116,7 +122,7 @@ public class InteractionUtilities {
 			p.addToWorkBubble(candidateBubble);
 			
 			// reset the agent
-			p.goHome();
+			//p.goHome();
 		}
 		System.out.println();
 		
@@ -154,9 +160,18 @@ public class InteractionUtilities {
 		
 		// position everyone so they can assemble their group of peers
 		for(Person p: world.agents){
+
+			// extract this Person's location
+			String agentLocation = p.getHousehold().getRootSuperLocation().getId();
 			
-			// extract workplace location
-			p.goToCommunity(p.getHousehold().getRootSuperLocation());		
+			// assemble an arraylist of Persons assocaited with each district 
+			if(peoplePerDistrict.containsKey(agentLocation))
+				peoplePerDistrict.get(agentLocation).add(p);
+			else {
+				ArrayList <Person> peopleInDistrict = new ArrayList <Person> ();
+				peopleInDistrict.add(p);
+				peoplePerDistrict.put(agentLocation, peopleInDistrict);
+			}
 		}
 		
 		System.out.print("Attempting to assemble social bubbles...");
@@ -170,7 +185,7 @@ public class InteractionUtilities {
 			int bubbleSize = world.params.social_bubble_size;
 			
 			// combine these into bubble member candidates and add them to the list of friends
-			ArrayList <Person> candidateBubble = new ArrayList <Person> (myLocation.getPeople());
+			ArrayList <Person> candidateBubble = (ArrayList <Person>) peoplePerDistrict.get(p.getHousehold().getRootSuperLocation().getId());
 			HashSet <Person> myBubble = new HashSet <Person> ();
 			
 			int emergencyBrake = 100; // it's dangerous to screw with for loops - take this!
@@ -178,7 +193,8 @@ public class InteractionUtilities {
 			for(int i = myBubble.size(); i < bubbleSize; i++){ // TODO this should depend on how many friends already exist for this person!
 
 				if(emergencyBrake == 0){
-					System.out.println("\nERROR - cannot assemble full bubble for " + p.toString());
+					//System.out.println("\nERROR - cannot assemble full bubble for " + p.toString());
+					System.out.print(".");
 					i = bubbleSize;
 					continue;
 				}
@@ -232,7 +248,7 @@ public class InteractionUtilities {
 			if(val <= dist.get(i))
 				return i;
 		}
-		System.out.println("\nERROR: no value found");
+//		System.out.println("\nERROR: no value found");
 		return dist.size() - 1;
 //		return -1; // TODO REENABLE
 	}

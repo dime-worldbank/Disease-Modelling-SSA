@@ -69,7 +69,7 @@ public class Params {
 	// data files
 	
 	
-	public String population_filename = "/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/preprocessed/census/census_sample_5perc_042221.csv";//sample_1500.txt";
+	public String population_filename = "/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/preprocessed/census/census_sample_5perc_040521.csv";//census_sample_5perc_042221.csv";//sample_1500.txt";
 	public String district_transition_filename = "/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/preprocessed/mobility/New Files/daily_region_transition_probability-new-district-post-lockdown_i5.csv";	
 	public String district_leaving_filename = "/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/preprocessed/mobility/intra_district_decreased_mobility_rates.csv";
 	
@@ -189,10 +189,11 @@ public class Params {
 			
 			while ((s = econDistribData.readLine()) != null) {
 				String [] bits = splitRawCSVString(s);
+				String myTitle = bits[0].toLowerCase();
 				System.out.println(bits);
 				
 				// save bubble info
-				econBubbleSize.put(bits[0], Integer.parseInt(bits[bubbleIndex]));
+				econBubbleSize.put(myTitle, Integer.parseInt(bits[bubbleIndex]));
 				
 				// save interaction info
 				HashMap <String, Double> interacts = new HashMap <String, Double> ();
@@ -205,11 +206,11 @@ public class Params {
 					cumTotal += val;
 					interactsCum.add(cumTotal);
 				}
-				economicInteractionDistrib.put(bits[0], interacts);
-				economicInteractionCumulativeDistrib.put(bits[0], interactsCum);
+				economicInteractionDistrib.put(myTitle, interacts);
+				economicInteractionCumulativeDistrib.put(myTitle, interactsCum);
 				
 				// save ordering info
-				orderedEconStatuses.add(bits[0]);
+				orderedEconStatuses.add(bits[0].toLowerCase());
 			}
 			
 			econDistribData.close();
@@ -338,7 +339,7 @@ public class Params {
 			// read in the raw data
 			while ((s = econDataFile.readLine()) != null) {
 				String [] bits = splitRawCSVString(s);
-				econData.put(bits[statusIndex], Double.parseDouble(bits[probIndex]));
+				econData.put(bits[statusIndex].toLowerCase(), Double.parseDouble(bits[probIndex]));
 			}
 			
 			// cleanup

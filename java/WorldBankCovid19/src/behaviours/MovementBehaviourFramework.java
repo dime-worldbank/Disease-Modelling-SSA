@@ -53,14 +53,14 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 					
 					// pick a target location to move to
 					if(goToWork){ // weekdays
-						p.goToWork(null);
+						p.transferTo(p.getEconomicLocation());
 						p.setActivityNode(workNode);
 //						System.out.println("Person " + p.toString() + " going to work!");
 						return 2; // 8 hours work
 					}
 					else{ 		// weekends
 						Location target = myWorld.params.getTargetMoveDistrict(p, day, myWorld.random.nextDouble());
-						p.goToCommunity(target);
+						p.transferTo(target);
 						p.setActivityNode(communityNode);
 //						System.out.println("Person " + p.toString() + " going out to community " + target.toString());
 						return 3; // 12 hours community
@@ -85,7 +85,7 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 				
 				// if it's too late, go straight home
 				if(hour > 5){
-					p.goHome();
+					p.transferTo(p.getHousehold());
 					p.setActivityNode(homeNode);
 //					System.out.println("Person " + p.toString() + " going home!");
 					return 3; // 12 hours at home! These agents are very well-rested
@@ -93,10 +93,7 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 				
 				// if there is some time before going home, go out into the community!
 				else if(hour > 3) {
-					if(p.getLocation() != null)
-						p.goToCommunity(p.getLocation().getRootSuperLocation());
-					else
-						p.goToCommunity(p.getHousehold().getRootSuperLocation());
+					p.transferTo(p.getCommunityLocation());
 					p.setActivityNode(communityNode);
 //					System.out.println("Person " + p.toString() + " going out to the community after work!");
 					return 1; // 4 hours in the community
@@ -122,7 +119,7 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 				//int day = (int)(time / Params.ticks_per_day) % 7;
 
 				if(hour >= 5) { // late! Go home!
-					p.goHome();
+					p.transferTo(p.getHousehold());
 					p.setActivityNode(homeNode);
 //					System.out.println("Person " + p.toString() + " going home from the community!");
 
