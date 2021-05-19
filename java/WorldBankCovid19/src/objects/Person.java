@@ -113,7 +113,7 @@ public class Person extends MobileAgent {
 		double time = world.schedule.getTime(); // find the current time
 		double myDelta = this.currentActivityNode.next(this, time);
 		myWorld.schedule.scheduleOnce(time + myDelta, this);
-		if(this.myId % 100 == 0) System.out.print(">");
+		if(this.myId % 10000 == 0) System.out.print(">");
 	}	
 
 	/**

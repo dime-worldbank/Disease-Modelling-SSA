@@ -34,10 +34,12 @@ public class WorldBankCovid19Sim extends SimState {
 	public InfectiousBehaviourFramework infectiousFramework;
 	public Params params;
 	
+	String outputFilename = "outme.txt";
+	
 	// record-keeping
 	
 	ArrayList <HashMap <String, Double>> dailyRecord = new ArrayList <HashMap <String, Double>> ();
-	public double record_numInfected = 0,
+/*	public double record_numInfected = 0,
 			record_numDied = 0,
 			record_numRecovered = 0,
 			record_numExposed = 0,
@@ -123,7 +125,7 @@ scenario
 					newlyInfected.add(p);
 				
 				// create new person
-				Infection inf = new Infection(p, null, infectiousFramework.getInfectedEntryPoint());
+				Infection inf = new Infection(p, null, infectiousFramework.getInfectedEntryPoint(l));
 				schedule.scheduleOnce(1, 10, inf);
 			}
 		}
@@ -132,7 +134,19 @@ scenario
 
 			@Override
 			public void step(SimState arg0) {
-				HashMap <String, Double> myRecord = new HashMap <String, Double> ();
+				
+				String s = "";
+				
+				double time = arg0.schedule.getTime();
+				
+				for(Location l: districts){
+					s += time + "\t" + l.metricsToString() + "\n";
+					l.refreshMetrics();
+				}
+				
+				exportMe(outputFilename, s);
+				
+/*				HashMap <String, Double> myRecord = new HashMap <String, Double> ();
 				myRecord.put("time", arg0.schedule.getTime());
 				myRecord.put("infected_count", record_numInfected);
 				myRecord.put("num_died", record_numDied);
@@ -144,6 +158,7 @@ scenario
 				myRecord.put("num_symptomatic", record_numSymptomatic);
 				myRecord.put("num_asymptomatic", record_numAsymptomatic);
 				dailyRecord.add(myRecord);
+				*/
 				
 			}
 		};
@@ -302,6 +317,18 @@ scenario
 		}
 	}
 	
+	void exportMe(String filename, String output){
+		try {
+			
+			// shove it out
+			BufferedWriter exportFile = new BufferedWriter(new FileWriter(filename, true));
+			exportFile.write(output);
+			exportFile.close();
+		} catch (Exception e) {
+			System.err.println("File input error: " + filename);
+		}
+	}
+	
 	void exportDailyReports(String filename){
 		try {
 			
@@ -348,9 +375,14 @@ scenario
 	}
 	
 	public static void main(String [] args){
+		
+		int numDays = 7; // by default, one week
 		if(args.length < 0){
 			System.out.println("usage error");
 			System.exit(0);
+		}
+		else if(args.length > 0){
+			numDays = Integer.parseInt(args[0]);
 		}
 		
 		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(System.currentTimeMillis(), new Params());
@@ -361,7 +393,7 @@ scenario
 
 		System.out.println("Running...");
 
-		while(mySim.schedule.getTime() < 6 * 30 && !mySim.schedule.scheduleComplete()){
+		while(mySim.schedule.getTime() < 6 * numDays && !mySim.schedule.scheduleComplete()){
 			mySim.schedule.step(mySim);
 			double myTime = mySim.schedule.getTime();
 			System.out.println("\n*****END TIME: DAY " + (int)(myTime / 6) + " HOUR " + (int)((myTime % 6) * 4) + " RAWTIME: " + myTime);

@@ -1,6 +1,7 @@
 package behaviours;
 
 import objects.Infection;
+import objects.Location;
 import objects.Person;
 import sim.WorldBankCovid19Sim;
 import sim.engine.Steppable;
@@ -53,15 +54,23 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 						return i.time_contagious - time;
 
 					// otherwise, the agent is now infected and contagious!
-					myWorld.record_numInfected++;
-					myWorld.record_numContagious++;
+					//myWorld.record_numInfected++;
+					//myWorld.record_numContagious++;
+					
 					
 					// The infected agent will either show symptoms or be asymptomatic - choose which at this time
 					
-					if(myWorld.random.nextDouble() < .5) // TODO make this based on real data
+					if(myWorld.random.nextDouble() < .5){ // TODO make this based on real data
 						i.setBehaviourNode(presymptomaticNode);
-					else
+						i.getHost().getLocation().getRootSuperLocation().param_new_cases_sympt++;
+					}
+					else{
 						i.setBehaviourNode(asymptomaticNode);
+						if(i.getHost() != null && i.getHost().getLocation() != null)
+							i.getHost().getLocation().getRootSuperLocation().param_new_cases_asympt++;
+						else
+							System.out.println("PROBLEM WITH INFECTION HOST OR LOCATION");
+					}
 					return 1;
 				}
 				
@@ -69,7 +78,7 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				// another case: the agent is newly exposed! Determine whether the infection will take
 				//
 				
-				myWorld.record_numExposed++; // record this exposure event
+				//myWorld.record_numExposed++; // record this exposure event
 				
 				if(myWorld.random.nextDouble() < i.getHost().getSusceptibility()){
 					
@@ -112,7 +121,7 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				// only a matter of time in this case
 				if(time >= i.time_start_symptomatic){
 					i.setBehaviourNode(mildNode);
-					myWorld.record_numSymptomatic++;
+					//myWorld.record_numSymptomatic++;
 				}
 				else if(i.time_start_symptomatic == Double.MAX_VALUE ){
 					double time_until_symptoms = myWorld.nextRandomLognormal(
@@ -144,11 +153,11 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				// only a matter of time in this case
 				if(time >= i.time_recovered){
 					i.setBehaviourNode(recoveredNode);
-					myWorld.record_numAsymptomatic--;
+					//myWorld.record_numAsymptomatic--;
 				}
 				else if(i.time_recovered == Double.MAX_VALUE){ // has not been set
 					
-					myWorld.record_numAsymptomatic++;
+				//	myWorld.record_numAsymptomatic++;
 					
 					double time_until_recovered = myWorld.nextRandomLognormal(
 							myWorld.params.asymptomaticToRecovery_mean, 
@@ -179,7 +188,7 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				// does so
 				if(time >= i.time_recovered){
 					i.setBehaviourNode(recoveredNode);
-					myWorld.record_numSymptomatic--;
+				//	myWorld.record_numSymptomatic--;
 				}
 				
 				// otherwise, if it is scheduled to worsen, progress it
@@ -233,21 +242,22 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				// does so
 				if(time >= i.time_recovered){
 					i.setBehaviourNode(recoveredNode);
-					myWorld.record_numSevere--;
-					myWorld.record_numSymptomatic--;
+					//myWorld.record_numSevere--;
+					//myWorld.record_numSymptomatic--;
 				}
 				
 				// otherwise, if it is scheduled to worsen, progress it
 				else if(time >= i.time_start_critical){
 					i.setBehaviourNode(criticalNode);
-					myWorld.record_numSevere--;
+					i.getHost().getLocation().getRootSuperLocation().param_new_critical++;
+					//myWorld.record_numSevere--;
 					return 1;
 				}
 				
 				// finally, if the next step has not yet been decided, schedule it
 				else if(i.time_recovered == Double.MAX_VALUE && i.time_start_critical == Double.MAX_VALUE){
 
-					myWorld.record_numSevere++;
+//					myWorld.record_numSevere++;
 					
 					// determine if the patient will become sicker
 					if(myWorld.random.nextDouble() < .5){
@@ -290,22 +300,25 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				// does so
 				if(time >= i.time_recovered ){
 					i.setBehaviourNode(recoveredNode);
-					myWorld.record_numCritical--;
-					myWorld.record_numSymptomatic--;
+					//myWorld.record_numCritical--;
+					//myWorld.record_numSymptomatic--;
 				}
 				
 				// otherwise, if it is scheduled to worsen, progress it
 				else if(time >= i.time_died ){
 					i.setBehaviourNode(deadNode);
-					myWorld.record_numCritical--;
-					myWorld.record_numSymptomatic--;
+					Location myDistrict = i.getHost().getLocation().getRootSuperLocation();
+					myDistrict.param_died_count++;
+					myDistrict.param_new_deaths++;
+					//myWorld.record_numCritical--;
+					//myWorld.record_numSymptomatic--;
 					return 1;
 				}
 				
 				// finally, if the next step has not yet been decided, schedule it
 				else if(i.time_recovered == Double.MAX_VALUE && i.time_died == Double.MAX_VALUE ){
 
-					myWorld.record_numCritical++;
+				//	myWorld.record_numCritical++;
 
 					// determine if the patient will die
 					if(myWorld.random.nextDouble() < .5){
@@ -340,9 +353,9 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 			@Override
 			public double next(Steppable s, double time) {
 
-				myWorld.record_numInfected--;
-				myWorld.record_numContagious--;
-				myWorld.record_numRecovered++;
+				//myWorld.record_numInfected--;
+				//myWorld.record_numContagious--;
+				//myWorld.record_numRecovered++;
 				
 				((Infection)s).time_recovered = time;
 
@@ -363,8 +376,8 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				i.getHost().die();
 				i.time_died = time;
 				
-				myWorld.record_numDied++;
-				myWorld.record_numContagious--;
+				//myWorld.record_numDied++;
+				//myWorld.record_numContagious--;
 				
 				return Double.MAX_VALUE; // no need to run ever again
 			}
@@ -377,14 +390,18 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 	}
 
 	public BehaviourNode getStandardEntryPoint(){ return susceptibleNode; }
-	public BehaviourNode getInfectedEntryPoint(){
-		myWorld.record_numInfected++;
-		myWorld.record_numContagious++;
+	public BehaviourNode getInfectedEntryPoint(Location l){
+		//myWorld.record_numInfected++;
+		//myWorld.record_numContagious++;
 				
-		if(myWorld.random.nextDouble() < .5) // TODO make this based on real data
+		if(myWorld.random.nextDouble() < .5){ // TODO make this based on real data
+			l.getRootSuperLocation().param_new_cases_sympt++;
 			return presymptomaticNode;
-		else
+		}
+		else{
+			l.getRootSuperLocation().param_new_cases_asympt++;
 			return asymptomaticNode;
+		}
 	} 
 
 }
