@@ -39,28 +39,7 @@ public class WorldBankCovid19Sim extends SimState {
 	// record-keeping
 	
 	ArrayList <HashMap <String, Double>> dailyRecord = new ArrayList <HashMap <String, Double>> ();
-/*	public double record_numInfected = 0,
-			record_numDied = 0,
-			record_numRecovered = 0,
-			record_numExposed = 0,
-			record_numContagious = 0,
-			record_numSevere = 0,
-			record_numCritical = 0,
-			record_numSymptomatic = 0,
-			record_numAsymptomatic = 0;
-	
-	/*
-current_hospitalized_cases
-hospitalized_count
 
-new_cases
-new_hospitalized
-new_critical
-
-version
-days
-scenario
-	 */
 	
 	/**
 	 * Constructor function
@@ -357,8 +336,6 @@ scenario
 		}
 	}
 	
-	static double randLognormParam = Math.sqrt(2 * Math.PI);
-	
 	// thanks to THIS FRIEND: https://blogs.sas.com/content/iml/2014/06/04/simulate-lognormal-data-with-specified-mean-and-variance.html <3 to you Rick
 	public double nextRandomLognormal(double mean, double std){
 
@@ -376,8 +353,11 @@ scenario
 	
 	public static void main(String [] args){
 		
+		// default settings in the absence of commands!
 		int numDays = 7; // by default, one week
 		String dataDir = "data/";
+		
+		
 		if(args.length < 0){
 			System.out.println("usage error");
 			System.exit(0);
