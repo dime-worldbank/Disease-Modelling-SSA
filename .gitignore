@@ -81,7 +81,9 @@
 !/configs/*.txt
 !/configs/*.csv
 
+
 !/data/configs/*.txt
+!/data/configs/*.csv
 
 #######################
 # Include some additional file formats in any output folder. You might have
