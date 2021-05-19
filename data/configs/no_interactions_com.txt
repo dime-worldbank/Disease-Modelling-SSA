@@ -1,0 +1,2 @@
+no_interactions_com,bubble_size
+2,15
