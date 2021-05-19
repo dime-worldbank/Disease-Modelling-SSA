@@ -81,7 +81,7 @@ scenario
 		infectiousFramework = new InfectiousBehaviourFramework(this);
 		
 		// load the population
-		load_population(params.population_filename);
+		load_population(params.dataDir + params.population_filename);
 		
 		// if there are no agents, SOMETHING IS WRONG. Flag this issue!
 		if(agents.size() == 0) {
@@ -377,15 +377,17 @@ scenario
 	public static void main(String [] args){
 		
 		int numDays = 7; // by default, one week
+		String dataDir = "data/";
 		if(args.length < 0){
 			System.out.println("usage error");
 			System.exit(0);
 		}
 		else if(args.length > 0){
 			numDays = Integer.parseInt(args[0]);
+			dataDir = args[1];
 		}
 		
-		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(System.currentTimeMillis(), new Params());
+		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(System.currentTimeMillis(), new Params(dataDir));
 		
 		System.out.println("Loading...");
 

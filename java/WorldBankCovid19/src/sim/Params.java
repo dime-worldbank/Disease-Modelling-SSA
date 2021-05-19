@@ -68,18 +68,20 @@ public class Params {
 	
 	// data files
 	
+	public String dataDir = "";
 	
-	public String population_filename = "/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/preprocessed/census/census_sample_5perc_040521.csv";//census_sample_5perc_042221.csv";//sample_1500.txt";
-	public String district_transition_filename = "/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/preprocessed/mobility/New Files/daily_region_transition_probability-new-district-post-lockdown_i5.csv";	
-	public String district_leaving_filename = "/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/preprocessed/mobility/intra_district_decreased_mobility_rates.csv";
 	
-	public String economic_status_weekday_movement_prob_filename = "/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/configs/ECONOMIC_STATUS_WEEKDAY_MOVEMENT_PROBABILITY.txt";
-	public String economic_status_otherday_movement_prob_filename = "/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/configs/ECONOMIC_STATUS_OTHER_DAY_MOVEMENT_PROBABILITY.txt";
-	public String economic_status_num_daily_interacts_filename = "/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/configs/no_interactions_wk_econ.txt";
+	public String population_filename = "preprocessed/census/census_sample_5perc_040521.csv";//census_sample_5perc_042221.csv";//sample_1500.txt";
+	public String district_transition_filename = "preprocessed/mobility/New Files/daily_region_transition_probability-new-district-post-lockdown_i5.csv";	
+	public String district_leaving_filename = "preprocessed/mobility/intra_district_decreased_mobility_rates.csv";
 	
-	public String econ_interaction_distrib_filename = "/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/configs/interaction_matrix_nld.csv";
+	public String economic_status_weekday_movement_prob_filename = "configs/ECONOMIC_STATUS_WEEKDAY_MOVEMENT_PROBABILITY.txt";
+	public String economic_status_otherday_movement_prob_filename = "configs/ECONOMIC_STATUS_OTHER_DAY_MOVEMENT_PROBABILITY.txt";
+	public String economic_status_num_daily_interacts_filename = "configs/no_interactions_wk_econ.txt";
 	
-	public String line_list_filename = "/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/preprocessed/line_list/line_list_5perc.txt";
+	public String econ_interaction_distrib_filename = "configs/interaction_matrix_nld.csv";
+	
+	public String line_list_filename = "preprocessed/line_list/line_list_5perc.txt";
 	
 	// social qualities
 	public static int social_bubble_size = 30;
@@ -99,17 +101,20 @@ public class Params {
 	public static int time_leisure_weekend = 12;
 	
 	
-	public Params(){
-		load_district_data(district_transition_filename);
-		load_district_leaving_data(district_leaving_filename);
+	public Params(String dirname){
 		
-		economic_status_weekday_movement_prob = readInEconomicData(economic_status_weekday_movement_prob_filename, "economic_status", "movement_probability");
-		economic_status_otherday_movement_prob = readInEconomicData(economic_status_otherday_movement_prob_filename, "economic_status", "movement_probability");
-		economic_num_interactions_weekday = readInEconomicData(economic_status_num_daily_interacts_filename, "economic_status", "interactions");
+		dataDir = dirname;
 		
-		load_econ_distrib();
+		load_district_data(dirname + district_transition_filename);
+		load_district_leaving_data(dirname + district_leaving_filename);
 		
-		load_line_list(line_list_filename);
+		economic_status_weekday_movement_prob = readInEconomicData(dirname + economic_status_weekday_movement_prob_filename, "economic_status", "movement_probability");
+		economic_status_otherday_movement_prob = readInEconomicData(dirname + economic_status_otherday_movement_prob_filename, "economic_status", "movement_probability");
+		economic_num_interactions_weekday = readInEconomicData(dirname + economic_status_num_daily_interacts_filename, "economic_status", "interactions");
+		
+		load_econ_distrib(dirname + econ_interaction_distrib_filename);
+		
+		load_line_list(dirname + line_list_filename);
 	}
 	
 	//
@@ -159,7 +164,7 @@ public class Params {
 	
 	// Economic
 	
-	public void load_econ_distrib(){
+	public void load_econ_distrib(String filename){
 		economicInteractionDistrib = new HashMap <String, Map<String, Double>> ();
 		economicInteractionCumulativeDistrib = new HashMap <String, List<Double>> ();
 		econBubbleSize = new HashMap <String, Integer> ();
@@ -167,10 +172,10 @@ public class Params {
 		
 		try {
 			
-			System.out.println("Reading in econ interaction data from " + econ_interaction_distrib_filename);
+			System.out.println("Reading in econ interaction data from " + filename);
 			
 			// Open the tracts file
-			FileInputStream fstream = new FileInputStream(econ_interaction_distrib_filename);
+			FileInputStream fstream = new FileInputStream(filename);
 
 			// Convert our input stream to a BufferedReader
 			BufferedReader econDistribData = new BufferedReader(new InputStreamReader(fstream));
