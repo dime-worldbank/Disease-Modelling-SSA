@@ -63,7 +63,7 @@ public class Infection implements Steppable {
 		double myDelta = this.currentBehaviourNode.next(this, time);
 		world.schedule.scheduleOnce(time + myDelta, this);
 		
-		System.out.println("Infection\t" + host.toString() + "\t" + currentBehaviourNode.getTitle() + "\t" + myDelta);
+	//	System.out.println("Infection\t" + host.toString() + "\t" + currentBehaviourNode.getTitle() + "\t" + myDelta);
 	}
 
 	public void setBehaviourNode(BehaviourNode bn){

@@ -14,6 +14,14 @@ public class Location {
 	Location mySuperLocation; // the Location within which this Location exists
 	ArrayList <Person> personsHere;
 	
+	// TODO change these to "metric" once I update eclipse and it stops having a mare with every damn refactor
+	public int param_died_count;
+	public int param_new_hospitalized;
+	public int param_new_critical;
+	public int param_new_cases_asympt;
+	public int param_new_cases_sympt;
+	public int param_new_deaths;
+
 	
 	// CONSTRUCTORS
 	
@@ -21,6 +29,13 @@ public class Location {
 		myId = id;
 		mySuperLocation = mySuper;
 		personsHere = new ArrayList <Person> ();
+		
+		param_died_count = 0; 
+		param_new_hospitalized = 0;
+		param_new_critical = 0;
+		param_new_cases_asympt = 0;
+		param_new_cases_sympt = 0;
+		param_new_deaths = 0;
 	}
 	
 	public Location(Location mySuper){
@@ -68,5 +83,25 @@ public class Location {
 	
 	public ArrayList <Person> getPeople(){
 		return personsHere;
+	}
+
+	public void refreshMetrics(){
+		param_new_hospitalized = 0;
+		param_new_critical = 0;
+		param_new_cases_asympt = 0;
+		param_new_cases_sympt = 0;
+		param_new_deaths = 0;
+	}
+	
+	public String metricsToString(){
+		String s = myId;
+		s += "\t";
+		s += param_died_count + "\t";
+		s += param_new_hospitalized + "\t";
+		s += param_new_critical + "\t";
+		s += param_new_cases_asympt + "\t";
+		s += param_new_cases_sympt + "\t";
+		s += param_new_deaths + "\t";
+		return s;
 	}
 }

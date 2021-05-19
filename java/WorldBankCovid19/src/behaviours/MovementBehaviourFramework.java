@@ -47,7 +47,7 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 				if(hour > 1 && hour <= 3){ 
 
 					// define workday
-					boolean goToWork = myWorld.params.isWeekday(day);
+					boolean goToWork = p.getEconomicLocation() != null && myWorld.params.isWeekday(day);
 
 					// TODO students/teachers just don't move
 					
