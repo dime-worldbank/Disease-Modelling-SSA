@@ -10,7 +10,7 @@ public class Household extends Location {
 	
 	public Household(String id, Location l){
 		super();
-		myId = id;
+		myId = "HH_" + id;
 		mySuperLocation = l;
 	}
 	
