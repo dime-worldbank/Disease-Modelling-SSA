@@ -79,7 +79,7 @@ public class Params {
 	public String dataDir = "";
 	
 	
-	public String population_filename = "preprocessed/census/census_1to4.csv";//census_sample_5perc_040521.csv";
+	public String population_filename = "preprocessed/census/census_sample_5perc_040521.csv";
 	public String district_transition_filename = "preprocessed/mobility/New Files/daily_region_transition_probability-new-district-post-lockdown_i5.csv";	
 	public String district_leaving_filename = "preprocessed/mobility/intra_district_decreased_mobility_rates.csv";
 	
