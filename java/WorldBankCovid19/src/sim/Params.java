@@ -212,11 +212,23 @@ public class Params {
 				}
 				infection_age_params.add(maxAge);
 				
-				infection_r_sus_by_age.add(Double.parseDouble(bits[1]));
-				infection_p_sym_by_age.add(Double.parseDouble(bits[2]));
-				infection_p_sev_by_age.add(Double.parseDouble(bits[3]));
-				infection_p_cri_by_age.add(Double.parseDouble(bits[4]));
-				infection_p_dea_by_age.add(Double.parseDouble(bits[5]));
+				double r_sus  = Double.parseDouble(bits[1]),
+						p_sym = Double.parseDouble(bits[2]),
+						p_sev = Double.parseDouble(bits[3]),
+						p_cri = Double.parseDouble(bits[4]),
+						p_dea = Double.parseDouble(bits[5]);
+				
+				// they are read in as ABSOLUTE values - convert to relative values!
+				p_dea /= p_cri;
+				p_cri /= p_sev;
+				p_sev /= p_sym;
+				
+				// store the values
+				infection_r_sus_by_age.add(r_sus);
+				infection_p_sym_by_age.add(p_sym);
+				infection_p_sev_by_age.add(p_sev);
+				infection_p_cri_by_age.add(p_cri);
+				infection_p_dea_by_age.add(p_dea);
 
 			}
 			} catch (Exception e) {

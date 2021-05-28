@@ -338,6 +338,7 @@ public class WorldBankCovid19Sim extends SimState {
 			
 			// shove it out
 			BufferedWriter exportFile = new BufferedWriter(new FileWriter(infections_export_filename, true));
+			exportFile.write("Host\tSource\tTime\tLocOfTransmission\n");
 			
 			// export infection data
 			for(Infection i: infections) {
@@ -413,7 +414,7 @@ public class WorldBankCovid19Sim extends SimState {
 
 		System.out.println("Running...");
 
-		while(mySim.schedule.getTime() < 6 * numDays && !mySim.schedule.scheduleComplete()){
+		while(mySim.schedule.getTime() < 60 * numDays && !mySim.schedule.scheduleComplete()){
 			mySim.schedule.step(mySim);
 			double myTime = mySim.schedule.getTime();
 			System.out.println("\n*****END TIME: DAY " + (int)(myTime / 6) + " HOUR " + (int)((myTime % 6) * 4) + " RAWTIME: " + myTime);
