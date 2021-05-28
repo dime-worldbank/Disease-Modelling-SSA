@@ -14,7 +14,6 @@ public class Location {
 	Location mySuperLocation; // the Location within which this Location exists
 	ArrayList <Person> personsHere;
 	
-	// TODO change these to "metric" once I update eclipse and it stops having a mare with every damn refactor
 	public int metric_died_count;
 	public int metric_new_hospitalized;
 	public int metric_new_critical;
@@ -106,7 +105,7 @@ public class Location {
 	}
 	
 	public static String metricNamesToString(){
-		String s = "myId" + "\t" + "metric_died_count" + "\t" + "metric_new_hospitalized" + "\t" + 
+		String s = "time" + "\t" + "myId" + "\t" + "metric_died_count" + "\t" + "metric_new_hospitalized" + "\t" + 
 				"metric_new_critical" + "\t" + "metric_new_cases_asympt" + "\t" + "metric_new_cases_sympt" + "\t" + 
 				"metric_new_deaths" + "\t\n";
 		return s;

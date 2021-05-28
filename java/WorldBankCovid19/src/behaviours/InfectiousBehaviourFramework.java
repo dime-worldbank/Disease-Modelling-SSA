@@ -190,6 +190,7 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				else if(time >= i.time_start_severe){
 					i.setBehaviourNode(severeNode);
 					i.getHost().setMobility(false);
+					i.getHost().getLocation().getRootSuperLocation().metric_new_hospitalized++;
 					return 1;
 				}
 				
