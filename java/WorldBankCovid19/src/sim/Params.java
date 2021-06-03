@@ -45,7 +45,15 @@ public class Params {
 	
 	HashMap <Location, Integer> lineList;
 	
-	// see Kerr et al 2020 - https://www.medrxiv.org/content/10.1101/2020.05.10.20097469v3.full.pdf
+	// parameters drawn from Kerr et al 2020 - https://www.medrxiv.org/content/10.1101/2020.05.10.20097469v3.full.pdf
+	public ArrayList <Integer> infection_age_params;
+	public ArrayList <Double> infection_r_sus_by_age;
+	public ArrayList <Double> infection_p_sym_by_age;
+	public ArrayList <Double> infection_p_sev_by_age;
+	public ArrayList <Double> infection_p_cri_by_age;
+	public ArrayList <Double> infection_p_dea_by_age;
+
+	// also from Kerr et al 2020, translated from days into ticks 
 	public double exposedToInfectious_mean =	4.5 * ticks_per_day;
 	public double exposedToInfectious_std =		1.5 * ticks_per_day;
 	public double infectiousToSymptomatic_mean =1.1 * ticks_per_day;
@@ -71,7 +79,7 @@ public class Params {
 	public String dataDir = "";
 	
 	
-	public String population_filename = "preprocessed/census/census_sample_5perc_040521.csv";//census_sample_5perc_042221.csv";//sample_1500.txt";
+	public String population_filename = "preprocessed/census/census_sample_5perc_040521.csv";
 	public String district_transition_filename = "preprocessed/mobility/New Files/daily_region_transition_probability-new-district-post-lockdown_i5.csv";	
 	public String district_leaving_filename = "preprocessed/mobility/intra_district_decreased_mobility_rates.csv";
 	
@@ -82,6 +90,7 @@ public class Params {
 	public String econ_interaction_distrib_filename = "configs/interaction_matrix_nld.csv";
 	
 	public String line_list_filename = "preprocessed/line_list/line_list_5perc.txt";
+	public String infection_transition_params_filename = "configs/covasim_infect_transitions.txt";
 	
 	// social qualities
 	public static int social_bubble_size = 30;
@@ -115,6 +124,7 @@ public class Params {
 		load_econ_distrib(dirname + econ_interaction_distrib_filename);
 		
 		load_line_list(dirname + line_list_filename);
+		load_infection_params(dirname + infection_transition_params_filename);
 	}
 	
 	//
@@ -162,6 +172,70 @@ public class Params {
 	
 	
 	
+	public void load_infection_params(String filename){
+		try {
+			
+			System.out.println("Reading in data from " + filename);
+			
+			// Open the tracts file
+			FileInputStream fstream = new FileInputStream(filename);
+
+			// Convert our input stream to a BufferedReader
+			BufferedReader lineListDataFile = new BufferedReader(new InputStreamReader(fstream));
+			String s;
+
+			// extract the header
+			s = lineListDataFile.readLine();
+
+			// map the header into column names relative to location
+			String [] header = splitRawCSVString(s);
+			HashMap <String, Integer> columnNames = parseHeader(header);
+			
+			// set up data container
+			infection_age_params = new ArrayList <Integer> ();
+			infection_r_sus_by_age = new ArrayList <Double> ();
+			infection_p_sym_by_age = new ArrayList <Double> ();
+			infection_p_sev_by_age = new ArrayList <Double> ();
+			infection_p_cri_by_age = new ArrayList <Double> ();
+			infection_p_dea_by_age = new ArrayList <Double> ();
+
+			
+			// read in the raw data
+			while ((s = lineListDataFile.readLine()) != null) {
+				String [] bits = splitRawCSVString(s);
+				
+				// assemble the age data
+				String [] ageRange = bits[0].split("-");
+				int maxAge = Integer.MAX_VALUE;
+				if(ageRange.length > 1){
+					maxAge = Integer.parseInt(ageRange[1]); // take the maximum
+				}
+				infection_age_params.add(maxAge);
+				
+				double r_sus  = Double.parseDouble(bits[1]),
+						p_sym = Double.parseDouble(bits[2]),
+						p_sev = Double.parseDouble(bits[3]),
+						p_cri = Double.parseDouble(bits[4]),
+						p_dea = Double.parseDouble(bits[5]);
+				
+				// they are read in as ABSOLUTE values - convert to relative values!
+				p_dea /= p_cri;
+				p_cri /= p_sev;
+				p_sev /= p_sym;
+				
+				// store the values
+				infection_r_sus_by_age.add(r_sus);
+				infection_p_sym_by_age.add(p_sym);
+				infection_p_sev_by_age.add(p_sev);
+				infection_p_cri_by_age.add(p_cri);
+				infection_p_dea_by_age.add(p_dea);
+
+			}
+			} catch (Exception e) {
+				System.err.println("File input error: " + filename);
+			}
+		}
+
 	// Economic
 	
 	public void load_econ_distrib(String filename){
@@ -529,4 +603,11 @@ public class Params {
 		else return false;
 	}
 	
+	public double getLikelihoodByAge(ArrayList <Double> distrib, int age){
+		for(int i = 0; i < infection_age_params.size(); i++){
+			if(age < infection_age_params.get(i))
+				return distrib.get(i);
+		}
+		return -1; // somehow poorly formatted?
+	}
 }
