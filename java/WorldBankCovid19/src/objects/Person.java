@@ -45,6 +45,7 @@ public class Person extends MobileAgent {
 	// activity
 	BehaviourNode currentActivityNode = null;
 	Infection myInfection = null; // TODO make a hashset of different infections! Allow multiple!!
+	boolean immobilised = false;
 	
 	// copy of world
 	WorldBankCovid19Sim myWorld;
@@ -110,6 +111,8 @@ public class Person extends MobileAgent {
 	@Override
 	public void step(SimState world) {
 		if(isDead) return; // do not run if the Person has already died!
+		else if(immobilised) return; // do not run until the Person is better!
+		
 		double time = world.schedule.getTime(); // find the current time
 		double myDelta = this.currentActivityNode.next(this, time);
 		myWorld.schedule.scheduleOnce(time + myDelta, this);
@@ -159,7 +162,7 @@ public class Person extends MobileAgent {
 				// if the person is not infected, based on the infection beta they may become infected 
 				if(p.myInfection == null 
 						&& myWorld.random.nextDouble() < myWorld.params.infection_beta){
-					Infection i = new Infection(p, this, myWorld.infectiousFramework.getEntryPoint());
+					Infection i = new Infection(p, this, myWorld.infectiousFramework.getEntryPoint(), myWorld);
 					myWorld.schedule.scheduleOnce(i, 10);
 				}
 			}
@@ -185,7 +188,7 @@ public class Person extends MobileAgent {
 				Person p = copyOfCoworkers.remove(j);
 				if(p.myInfection == null 
 						&& myWorld.random.nextDouble() < myWorld.params.infection_beta){
-					Infection inf = new Infection(p, this, myWorld.infectiousFramework.getEntryPoint());
+					Infection inf = new Infection(p, this, myWorld.infectiousFramework.getEntryPoint(), myWorld);
 					myWorld.schedule.scheduleOnce(inf, 10);
 				}
 				
@@ -221,7 +224,7 @@ public class Person extends MobileAgent {
 				Person p = copyOfCommunity.remove(j);
 				if(p.myInfection == null 
 						&& myWorld.random.nextDouble() < myWorld.params.infection_beta){
-					Infection inf = new Infection(p, this, myWorld.infectiousFramework.getEntryPoint());
+					Infection inf = new Infection(p, this, myWorld.infectiousFramework.getEntryPoint(), myWorld);
 					myWorld.schedule.scheduleOnce(inf, 10);
 				}
 				
@@ -354,4 +357,6 @@ public class Person extends MobileAgent {
 		return myWorld.params.getSuspectabilityByAge(age); // TODO modify with appropriate parameters
 	}
 	
+	public void setMobility(boolean mobile){ this.immobilised = !mobile; }
+	public boolean isImmobilised(){ return this.immobilised; }
 }
