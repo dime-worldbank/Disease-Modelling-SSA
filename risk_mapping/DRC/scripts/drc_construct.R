@@ -20,7 +20,7 @@
 
 
 # reading Household Member Recode data from the DHS (Demographic and Health Survey)
-dhs_drc <- readstata13::read.dta13(paste0(directory, "/data/dhs_data/CDHR61FL.DTA"), convert.factors = TRUE, generate.factors = TRUE)
+dhs_drc <- readstata13::read.dta13(paste0(directory, "/input_data/dhs_data/CDHR61FL.DTA"), convert.factors = TRUE, generate.factors = TRUE)
 
 # checking dimensions of the datasets
 dim(dhs_drc)
@@ -72,6 +72,13 @@ sum(is.na(dhs_drc$hw_risk))
 # distribution of index values
 table(dhs_drc$hw_risk)
 
+# Sophie's index defined by do-file: 
+table(dhs_drc$hw_risk2)
+sum(is.na(dhs_drc$hw_risk2))
+
+# normalize risk index between 0 and 1
+dhs_drc$hw_risk2 <- (dhs_drc$hw_risk2 - min(dhs_drc$hw_risk2, na.rm = TRUE))/(max(dhs_drc$hw_risk2, na.rm = TRUE)-min(dhs_drc$hw_risk2, na.rm = TRUE))
+table(dhs_drc$hw_risk2)
 
 
         ##############################
@@ -226,6 +233,7 @@ dhs_drc$total_smoking <- dhs_drc$total_smoking_men + dhs_drc$total_smoking_women
 drc_cluster <- dhs_drc %>% 
   group_by(hv001) %>% 
   summarise(hw_risk = mean(hw_risk, na.rm = TRUE), 
+            hw_risk2 = mean(hw_risk2, na.rm = TRUE),
             total_valid_anemia = sum(total_valid_anemia, na.rm = TRUE),
             total_anemia = sum(total_anemia, na.rm = TRUE),
             total_anemia_women = sum(total_anemia_women, na.rm = TRUE), 
@@ -249,7 +257,10 @@ drc_cluster <- dhs_drc %>%
          ow_prop = ow_total/total_valid_bmi, 
          smoke_prop_women = total_smoking_women/total_valid_smoke_women, 
          smoke_prop_men = total_smoking_men/total_valid_smoke_men, 
-         smoke_prop = total_smoking/total_valid_smoke)
+         smoke_prop = total_smoking/total_valid_smoke, 
+         total_non_smoke = total_valid_smoke - total_smoking, 
+         total_non_obese = total_valid_bmi - obese_total, 
+         total_non_anemia = total_valid_anemia - total_anemia)
 
 
 drc_cluster2 <- dhs_drc %>% 
@@ -258,8 +269,18 @@ drc_cluster2 <- dhs_drc %>%
   summarise(total_valid_hw = n()) %>% 
   mutate(clusterid = hv001)
 
+drc_cluster2 <- dhs_drc %>% 
+  filter(!is.na(dhs_drc$hw_risk2)) %>% 
+  group_by(hv001) %>% 
+  summarise(total_valid_hw2 = n()) %>% 
+  mutate(clusterid = hv001)
+
 drc_cluster <- left_join(x = drc_cluster, y = drc_cluster2[, c("clusterid", "total_valid_hw")], by = "clusterid")
+drc_cluster <- left_join(x = drc_cluster, y = drc_cluster3[, c("clusterid", "total_valid_hw2")], by = "clusterid")
 drc_cluster$total_valid_hw[is.na(drc_cluster$total_valid_hw)] <- 0
+drc_cluster$total_valid_hw2[is.na(drc_cluster$total_valid_hw2)] <- 0
+
+
 
 
         #################################
@@ -267,7 +288,7 @@ drc_cluster$total_valid_hw[is.na(drc_cluster$total_valid_hw)] <- 0
         #################################
 
 
-hiv_cluster <- read.dta13(paste0(directory, "/data/dhs_data/CDAR61FL.DTA"))
+hiv_cluster <- read.dta13(paste0(directory, "/input_data/dhs_data/CDAR61FL.DTA"))
 
 # proportion of HIV positive individuals by cluster 
 
@@ -289,7 +310,7 @@ hiv_cluster <- hiv_cluster[, -1]
 drc_cluster <- left_join(x = drc_cluster, y = hiv_cluster, by = "clusterid")
 
 
-saveRDS(drc_cluster, paste0(directory, "/data/constructed_data/drc_cluster.rds"))
+saveRDS(drc_cluster, paste0(directory, "/input_data/constructed_data/drc_cluster.rds"))
 
 
 
