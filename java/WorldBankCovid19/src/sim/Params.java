@@ -14,8 +14,7 @@ import objects.Person;
 
 public class Params {
 	
-	public double r0 = 3.0;
-	public double infection_beta = 0.116;
+	public double infection_beta = 0.016;
 	
 	public HashMap <String, Double> economic_status_weekday_movement_prob;
 	public HashMap <String, Double> economic_status_otherday_movement_prob;
@@ -531,9 +530,8 @@ public class Params {
 	//
 	
 	// Epidemic data access
-	public double getSuspectabilityByAge(double age){
-		// TODO make specific
-		return infection_beta;
+	public double getSuspectabilityByAge(int age){
+		return infection_beta * getLikelihoodByAge(infection_r_sus_by_age, age);
 	}
 	
 	// Mobility data access

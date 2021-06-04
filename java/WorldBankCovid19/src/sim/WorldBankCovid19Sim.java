@@ -394,6 +394,8 @@ public class WorldBankCovid19Sim extends SimState {
 		
 		// default settings in the absence of commands!
 		int numDays = 7; // by default, one week
+		double myBeta = .016;
+		
 		String dataDir = "data/";
 		
 		
@@ -404,6 +406,8 @@ public class WorldBankCovid19Sim extends SimState {
 		else if(args.length > 0){
 			numDays = Integer.parseInt(args[0]);
 			dataDir = args[1];
+			myBeta = Double.parseDouble(args[2]);
+			
 		}
 		
 		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(System.currentTimeMillis(), new Params(dataDir));
@@ -411,10 +415,11 @@ public class WorldBankCovid19Sim extends SimState {
 		System.out.println("Loading...");
 
 		mySim.start();
+		mySim.params.infection_beta = myBeta;
 
 		System.out.println("Running...");
 
-		while(mySim.schedule.getTime() < 60 * numDays && !mySim.schedule.scheduleComplete()){
+		while(mySim.schedule.getTime() < Params.ticks_per_day * numDays && !mySim.schedule.scheduleComplete()){
 			mySim.schedule.step(mySim);
 			double myTime = mySim.schedule.getTime();
 			System.out.println("\n*****END TIME: DAY " + (int)(myTime / 6) + " HOUR " + (int)((myTime % 6) * 4) + " RAWTIME: " + myTime);
