@@ -20,10 +20,15 @@
 if(!require("pacman")) install.packages("pacman")
 
 pacman::p_load(tidyverse, foreign, readstata13, 
-               htmlwidgets, ggthemes, sf, sp,
-               raster, rgdal, geosphere, rgeos,
-               maptools, leaflet, leaflet.extras, 
-               RColorBrewer,viridis, geojsonio)
+               kableExtra, scales, janitor, 
+               ggthemes, DescTools, sf, sp,
+               raster, sf, tmap,  classInt,
+               geosphere, rgeos, maptools,
+               stargazer, broom,  ggpubr, 
+               leaflet, leaflet.extras, 
+               pastecs, psych, RColorBrewer, 
+               viridis, spatialEco, gstat, 
+               htmlwidgets)
 
 
 
@@ -36,7 +41,10 @@ pacman::p_load(tidyverse, foreign, readstata13,
 directory <- dirname(rstudioapi::getActiveDocumentContext()$path)
 # The code line above determines the directory of this R script
 directory
-# check if the directory is correct?
+# check if the directory is correct
+# or manually define directory
+directory <- "/Users/marinedefranciosi/Documents/GitHub/Disease-Modelling-SSA/risk_mapping/DRC"
+
 
 
 
@@ -71,13 +79,11 @@ analysis <- 0
 
 
 if(construct == 1) {
-  source(paste0(directory, "/drc_construct.R"), local = TRUE, echo = TRUE)
+  source(paste0(directory, "/scripts/drc_construct.R"), local = TRUE, echo = TRUE)
 }
 
 
 if(analysis = 1){
-  source_rmd(paste0(directory, "/drc_risk_mapping.Rmd"), skip_plots = FALSE)
+  source_rmd(paste0(directory, "/scripts/drc_risk_mapping.Rmd"), skip_plots = FALSE)
 }
-# This may take a while, I would suggest to focus on the first few code chunks in the analysis file if the reviewer does not have time to run all the code due to its long running time
-# Furthermore, the tasks performed in the analysis file are similar for each risk factor
 
