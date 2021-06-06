@@ -27,6 +27,7 @@ public class WorldBankCovid19Sim extends SimState {
 	// the objects which make up the system
 	ArrayList <Person> agents;
 	ArrayList <Household> households;
+	public ArrayList <Infection> infections;
 	
 	ArrayList <Location> districts;
 	
@@ -36,31 +37,13 @@ public class WorldBankCovid19Sim extends SimState {
 	public InfectiousBehaviourFramework infectiousFramework;
 	public Params params;
 	
+	String outputFilename;
+	String infections_export_filename;
+	
 	// record-keeping
 	
 	ArrayList <HashMap <String, Double>> dailyRecord = new ArrayList <HashMap <String, Double>> ();
-	public double record_numInfected = 0,
-			record_numDied = 0,
-			record_numRecovered = 0,
-			record_numExposed = 0,
-			record_numContagious = 0,
-			record_numSevere = 0,
-			record_numCritical = 0,
-			record_numSymptomatic = 0,
-			record_numAsymptomatic = 0;
-	
-	/*
-current_hospitalized_cases
-hospitalized_count
 
-new_cases
-new_hospitalized
-new_critical
-
-version
-days
-scenario
-	 */
 	
 	/**
 	 * Constructor function
@@ -81,7 +64,7 @@ scenario
 		infectiousFramework = new InfectiousBehaviourFramework(this);
 		
 		// load the population
-		load_population(params.population_filename);
+		load_population(params.dataDir + params.population_filename);
 		
 		// if there are no agents, SOMETHING IS WRONG. Flag this issue!
 		if(agents.size() == 0) {
@@ -94,6 +77,7 @@ scenario
 		InteractionUtilities.create_social_bubbles(this);
 
 		// set up the infections
+		infections = new ArrayList <Infection> ();
 		for(Location l: params.lineList.keySet()){
 			
 			// number of people to infect
@@ -125,27 +109,32 @@ scenario
 					newlyInfected.add(p);
 				
 				// create new person
-				Infection inf = new Infection(p, null, infectiousFramework.getInfectedEntryPoint());
+				Infection inf = new Infection(p, null, infectiousFramework.getInfectedEntryPoint(l), this);
 				schedule.scheduleOnce(1, 10, inf);
 			}
+						
 		}
-				
+
+		outputFilename = "results_" + this.seed() + ".txt";
+		infections_export_filename = "infections_" + this.seed() + ".txt";
+
+		exportMe(outputFilename, Location.metricNamesToString());
 		Steppable reporter = new Steppable(){
 
 			@Override
 			public void step(SimState arg0) {
-				HashMap <String, Double> myRecord = new HashMap <String, Double> ();
-				myRecord.put("time", arg0.schedule.getTime());
-				myRecord.put("infected_count", record_numInfected);
-				myRecord.put("num_died", record_numDied);
-				myRecord.put("num_recovered", record_numRecovered);
-				myRecord.put("num_exposed", record_numExposed);
-				myRecord.put("num_contagious", record_numContagious);
-				myRecord.put("num_severe", record_numSevere);
-				myRecord.put("num_critical", record_numCritical);
-				myRecord.put("num_symptomatic", record_numSymptomatic);
-				myRecord.put("num_asymptomatic", record_numAsymptomatic);
-				dailyRecord.add(myRecord);
+				
+				String s = "";
+				
+				int time = (int) (arg0.schedule.getTime() / params.ticks_per_day);
+				
+				for(Location l: districts){
+					s += time + "\t" + l.metricsToString() + "\n";
+					l.refreshMetrics();
+				}
+				
+				exportMe(outputFilename, s);
+				
 				
 			}
 		};
@@ -250,7 +239,7 @@ scenario
 	
 
 	void reportOnInfected(){
-		String makeTerribleGraphFilename = "/Users/swise/Downloads/nodes_latest_16.gexf";
+		String makeTerribleGraphFilename = "nodes_latest_16.gexf";
 		try {
 			
 			System.out.println("Printing out infects? from " + makeTerribleGraphFilename);
@@ -305,6 +294,18 @@ scenario
 		}
 	}
 	
+	void exportMe(String filename, String output){
+		try {
+			
+			// shove it out
+			BufferedWriter exportFile = new BufferedWriter(new FileWriter(filename, true));
+			exportFile.write(output);
+			exportFile.close();
+		} catch (Exception e) {
+			System.err.println("File input error: " + filename);
+		}
+	}
+	
 	void exportDailyReports(String filename){
 		try {
 			
@@ -333,7 +334,49 @@ scenario
 		}
 	}
 	
-	static double randLognormParam = Math.sqrt(2 * Math.PI);
+	void exportInfections() {
+		try {
+			
+			System.out.println("Printing out INFECTIONS to " + infections_export_filename);
+			
+			// shove it out
+			BufferedWriter exportFile = new BufferedWriter(new FileWriter(infections_export_filename, true));
+			exportFile.write("Host\tSource\tTime\tLocOfTransmission\n");
+			
+			// export infection data
+			for(Infection i: infections) {
+				
+				String rec = i.getHost().getID() + "\t";
+				
+				Person source = i.getSource();
+				if(source == null)
+					rec += "null";
+				else
+					rec += source.getID();
+				
+				rec += "\t" + i.getStartTime() + "\t";
+				
+				Location loc = i.getInfectedAtLocation();
+				
+				if(loc == null)
+					rec += "SEEDED";
+				else if(loc.getRootSuperLocation() != null)
+					rec += loc.getRootSuperLocation().getId();
+				else
+					rec += loc.getId();
+				
+				rec += "\n";
+				
+				exportFile.write(rec);
+				
+			}
+			
+			exportFile.close();
+		} catch (Exception e) {
+			System.err.println("File input error: " + infections_export_filename);
+		}
+
+	}
 	
 	// thanks to THIS FRIEND: https://blogs.sas.com/content/iml/2014/06/04/simulate-lognormal-data-with-specified-mean-and-variance.html <3 to you Rick
 	public double nextRandomLognormal(double mean, double std){
@@ -351,27 +394,43 @@ scenario
 	}
 	
 	public static void main(String [] args){
+		
+		// default settings in the absence of commands!
+		int numDays = 7; // by default, one week
+		double myBeta = .016;
+		
+		String dataDir = "data/";
+		
+		
 		if(args.length < 0){
 			System.out.println("usage error");
 			System.exit(0);
 		}
+		else if(args.length > 0){
+			numDays = Integer.parseInt(args[0]);
+			dataDir = args[1];
+			myBeta = Double.parseDouble(args[2]);
+			
+		}
 		
-		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(System.currentTimeMillis(), new Params());
+		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(System.currentTimeMillis(), new Params(dataDir));
 		
 		System.out.println("Loading...");
 
 		mySim.start();
+		mySim.params.infection_beta = myBeta;
 
 		System.out.println("Running...");
 
-		while(mySim.schedule.getTime() < 6 * 30 && !mySim.schedule.scheduleComplete()){
+		while(mySim.schedule.getTime() < Params.ticks_per_day * numDays && !mySim.schedule.scheduleComplete()){
 			mySim.schedule.step(mySim);
 			double myTime = mySim.schedule.getTime();
 			System.out.println("\n*****END TIME: DAY " + (int)(myTime / 6) + " HOUR " + (int)((myTime % 6) * 4) + " RAWTIME: " + myTime);
 		}
 		
-		mySim.reportOnInfected();
-		mySim.exportDailyReports("dailyReport.tsv");
+		//mySim.reportOnInfected();
+		mySim.exportInfections();
+		//mySim.exportDailyReports("dailyReport.tsv");
 		
 		mySim.finish();
 		

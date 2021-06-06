@@ -47,7 +47,7 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 				if(hour > 1 && hour <= 3){ 
 
 					// define workday
-					boolean goToWork = myWorld.params.isWeekday(day);
+					boolean goToWork = p.getEconomicLocation() != null && myWorld.params.isWeekday(day);
 
 					// TODO students/teachers just don't move
 					
@@ -56,14 +56,14 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 						p.transferTo(p.getEconomicLocation());
 						p.setActivityNode(workNode);
 //						System.out.println("Person " + p.toString() + " going to work!");
-						return 2; // 8 hours work
+						return 8 / Params.hours_per_tick; // 8 hours work
 					}
 					else{ 		// weekends
 						Location target = myWorld.params.getTargetMoveDistrict(p, day, myWorld.random.nextDouble());
 						p.transferTo(target);
 						p.setActivityNode(communityNode);
 //						System.out.println("Person " + p.toString() + " going out to community " + target.toString());
-						return 3; // 12 hours community
+						return 12 / Params.hours_per_tick; // 12 hours community
 					}
 				}
 				return 1; // otherwise it's not the morning - stay home for now, but check in again later!
@@ -88,7 +88,7 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 					p.transferTo(p.getHousehold());
 					p.setActivityNode(homeNode);
 //					System.out.println("Person " + p.toString() + " going home!");
-					return 3; // 12 hours at home! These agents are very well-rested
+					return 12 / Params.hours_per_tick; // 12 hours at home! These agents are very well-rested
 				}
 				
 				// if there is some time before going home, go out into the community!
@@ -116,14 +116,13 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 				
 				// extract time info
 				int hour = ((int)time) % Params.ticks_per_day;
-				//int day = (int)(time / Params.ticks_per_day) % 7;
 
 				if(hour >= 5) { // late! Go home!
 					p.transferTo(p.getHousehold());
 					p.setActivityNode(homeNode);
 //					System.out.println("Person " + p.toString() + " going home from the community!");
 
-					return 3; // 12 hours at home!
+					return 12 / Params.hours_per_tick; // 12 hours at home!
 				}
 				return 1; // check in again soon, but we have more time!
 			}
