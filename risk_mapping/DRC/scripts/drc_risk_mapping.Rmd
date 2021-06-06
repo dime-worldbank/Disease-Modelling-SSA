@@ -1,0 +1,651 @@
+---
+title: "DRC Risk Factor Mapping"
+author: "Marine"
+date: "1/25/2021"
+output:
+  rmarkdown::html_document:
+    theme: yeti
+    highlight: pygments
+    toc: TRUE
+    toc_float: TRUE
+    number_sections: TRUE
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r}
+# PURPOSE OF .Rmd file: 
+# Merging DHS clusters GPS coordinates with DHS constructed data
+# Define spatial interpolation models: We are using beta geo-additive models with longitude & latitude, population density (and nighttime lights and distance to road). 
+# The choice of predictors to include was informed by previous spatial interpolation models in the literature
+# Run for the 4 risk factors (these commands are quite time-intensive)
+# Produce various maps showing the spatial distribution of the risk factors (mapping is also time-consuming)
+```
+
+
+# Merging GPS Coordinates with DHS Constructed Data 
+
+```{r message=FALSE, warning=FALSE}
+# loading shapefile with GPS coordinates of DHS clusters
+drc_gps <- rgdal::readOGR(dsn = paste0(directory, "/input_data/dhs_data/CDGE61FL"), layer = "CDGE61FL")
+drc_gps2 <- drc_gps
+# loading shapefile of DRC Health Zones 
+drc_health_zones <- rgdal::readOGR(dsn = paste0(directory, "/input_data/shapefiles"), layer = "RDC_Micro_ZonesDeSante_Regroupees")
+
+# loading constructed dhs data
+drc_cluster <- readRDS( paste0(directory, "/input_data/constructed_data/drc_cluster.rds"))
+drc_cluster2 <- readRDS( paste0(directory, "/input_data/constructed_data/drc_cluster2.rds"))
+```
+
+
+```{r}
+# extracting coordinates from drc_gps SpatialPointsDataFrame object 
+drc_coords <- drc_gps@coords
+# turn into dataframe 
+drc_coords <- as.data.frame(drc_coords)
+# creating new column clusterid
+drc_coords$clusterid <- NA
+drc_coords$clusterid <- drc_gps$DHSCLUST
+# renaming columns
+colnames(drc_coords) <- c("long", "lat", "clusterid")
+# removing cluster coordinates that are incorrect/missing (when both lat and long are = to 0)
+drc_coords <- drc_coords[drc_coords$long != 0, ]
+
+# merging coordinates data with the constructed data from the DHS survey
+drc_coords <- left_join(drc_coords, drc_cluster, by = "clusterid")
+
+# now merging the coordinates and constructed DHS data to the original SpatialPointsDataFrame drc_gps
+drc_gps$clusterid <- drc_gps$DHSCLUST
+drc_gps@data <- left_join(x = drc_gps@data, y = drc_coords, by = "clusterid")
+
+# checking that drc_health_zones and drc_gps have the same coordinate reference system (CRS):
+proj4string(drc_health_zones) == proj4string(drc_gps)
+
+# If the above line is false, then we need to transforming one of the object's CRS so that they match:
+#drc_health_zones <- spTransform(x = drc_health_zones, CRSobj = proj4string(drc_gps))
+```
+
+
+
+```{r}
+# extracting coordinates from drc_gps SpatialPointsDataFrame object 
+
+drc_coords2 <- drc_gps2@coords
+# turn into dataframe 
+drc_coords2 <- as.data.frame(drc_coords2)
+# creating new column clusterid
+drc_coords2$clusterid <- NA
+drc_coords2$clusterid <- drc_gps$DHSCLUST
+# renaming columns
+colnames(drc_coords2) <- c("long", "lat", "clusterid")
+# removing cluster coordinates that are incorrect/missing (when both lat and long are = to 0)
+drc_coords2 <- drc_coords2[drc_coords2$long != 0, ]
+
+# merging coordinates data with the constructed data from the DHS survey
+drc_coords2 <- left_join(drc_coords2, drc_cluster2, by = "clusterid")
+
+# now merging the coordinates and constructed DHS data to the original SpatialPointsDataFrame drc_gps
+drc_gps2$clusterid <- drc_gps2$DHSCLUST
+drc_gps2@data <- left_join(x = drc_gps2@data, y = drc_coords2, by = "clusterid")
+
+# checking that drc_health_zones and drc_gps have the same coordinate reference system (CRS):
+proj4string(drc_health_zones) == proj4string(drc_gps2)
+
+# If the above line is false, then we need to transforming one of the object's CRS so that they match:
+#drc_health_zones <- spTransform(x = drc_health_zones, CRSobj = proj4string(drc_gps))
+```
+
+# Loading Raster Predictors 
+
+```{r message=TRUE, warning=FALSE}
+
+# In order to make predictions over the whole DRC surface based on values from the DHS clusters, we need predictors available for the whole country
+# Based on the literature, we are using the following predictors: population density, nighttime lights and distance to road 
+
+# Loading predictor rasters:
+pop_density <- raster(paste0(directory, "/input_data/raster_predictors/cod_pd_2014_1km_UNadj.tif"))
+nighttime_lights2010 <- raster(paste0(directory, "/input_data/raster_predictors/cod_viirs_1km_2014.tif"))
+dist2road2016 <- raster(paste0(directory, "/input_data/raster_predictors/cod_osm_dst_road_1km_2016.tif"))
+population2014 <- raster(paste0(directory, "/input_data/raster_predictors/cod_ppp_2014_1km_Aggregated.tif"))
+
+# creating raster for predictions 
+# Create an empty raster with the same extent and resolution as pop_density (extent and resolution of the DRC)
+latitude_raster <- longitude_raster <-raster(nrows = nrow(pop_density),
+                                       ncols = ncol(pop_density),
+                                                    ext = extent(pop_density))
+
+# Change the values to be latitude and longitude respectively
+longitude_raster[] <- coordinates(longitude_raster)[,1]
+latitude_raster[] <- coordinates(latitude_raster)[,2]
+
+
+# Now create a final prediction stack of the 4 variables (predictors) we need
+pred_stack <- stack(pop_density,
+                    nighttime_lights2010, 
+                    longitude_raster,
+                    latitude_raster)
+
+# Rename to ensure the names of the raster layers in the stack match those used in the model
+names(pred_stack) <- c("pop_density", "nighttime_lights2010", "long", "lat")
+```
+
+
+# Risk Factor 1: Handwashing Risk Score
+
+```{r message=FALSE, warning=FALSE}
+# extracting covariates: we need the values of the covariates at DHS cluster points in order to define the model 
+drc_coords2$pop_density <- raster::extract(pop_density, drc_coords2[, c("long", "lat")], fun = mean, na.rm = TRUE)
+drc_coords2$nighttime_lights2010 <- raster::extract(nighttime_lights2010, drc_coords2[, c("long", "lat")], fun = mean, na.rm = TRUE)
+drc_coords2$dist2road2016 <- raster::extract(dist2road2016, drc_coords2[, c("long", "lat")], fun = mean, na.rm = TRUE)
+
+drc_coords$pop_density <- raster::extract(pop_density, drc_coords[, c("long", "lat")], fun = mean, na.rm = TRUE)
+drc_coords$nighttime_lights2010 <- raster::extract(nighttime_lights2010, drc_coords[, c("long", "lat")], fun = mean, na.rm = TRUE)
+drc_coords$dist2road2016 <- raster::extract(dist2road2016, drc_coords[, c("long", "lat")], fun = mean, na.rm = TRUE)
+
+# beta geo-additive model with population density, nighttime light intensity and distance to nearest OSM road as covariates
+hwr_gam <- mgcv::gam(formula = hw_risk2 ~ s(long, lat, k = 100) + s(pop_density) + s(nighttime_lights2010), family = "betar", data =  drc_coords2, weights = drc_coords2$total_valid_hw2)
+
+# model summary
+summary(hwr_gam)
+```
+
+
+```{r message=FALSE, warning=FALSE}
+  # predictions using stack of raster covariates - gridded surface 
+predicted_hwr <- predict(pred_stack, hwr_gam, type = "response")
+
+  # extracting raster values (predictions + population) 
+pred_hwr <- raster::stack(predicted_hwr, population2014)
+pred_hwr <- raster::extract(pred_hwr, drc_health_zones)
+
+  # and aggregating (weighted mean based on population) at the health zone level
+drc_health_zones$pred_hwr <- unlist(lapply(pred_hwr, FUN = function(x) { weighted.mean(x=x[,1], w=x[,2], na.rm = TRUE) }))
+```
+
+## DHS Clusters: 
+
+```{r message=FALSE, warning=FALSE}
+
+# We are mapping the average proportion at DHS cluster points: 
+
+pal_hwr <- leaflet::colorBin(palette = "inferno", domain= drc_gps2$hw_risk2, bins = 15, reverse = TRUE)
+
+handwashing_cluster_interactive <- leaflet() %>% 
+  addTiles(group = "Esri") %>% 
+  addProviderTiles("CartoDB", group = "Carto") %>%  
+  setView(lng = 22.68245, lat = -3.268139, zoom = 5) %>%
+  addPolygons(data = drc_health_zones, color = "#444444", weight = 0.5, smoothFactor = 0.5, opacity = 1.0, highlightOptions = highlightOptions(color = "white", weight = 2)) %>%
+  addCircleMarkers(data = drc_gps2, radius = 2, color = pal_hwr(drc_gps2$hw_risk2), 
+                   label = paste0("Hand-Washing Risk Index: ", drc_gps2$hw_risk2)) %>% 
+  addLegend("bottomright", pal = pal_hwr, values = drc_gps2$hw_risk2, title = "Hand-Washing Risk Index") %>%
+  addResetMapButton() %>% 
+  addEasyButton(easyButton(icon="fa-crosshairs", title="Locate Me", onClick=JS("function(btn, map){ map.locate({setView: true}); }")))
+
+handwashing_cluster_interactive
+htmlwidgets::saveWidget(handwashing_cluster_interactive, file = paste0(directory, "/outputs/handwashing_cluster_interactive.html"))
+```
+
+
+## Health Zone Level - Static
+
+
+```{r message=FALSE, warning=FALSE}
+
+# transforming drc polygon into dataframe compatible with ggplot2 syntax 
+drc_health_zones@data$id <- 1:315
+drc_health_zones_df <- fortify(drc_health_zones, region='id')
+drc_health_zones$id <- as.character(drc_health_zones$id)
+drc_health_zones_df <-left_join(x = drc_health_zones_df, y = drc_health_zones@data[, c("id", "pred_hwr")], by = "id")
+
+# Mapping Hand-Washing Risk at the Health Zone Level - Static Map 
+ggplot() + theme_map() + labs(title = "DRC Health Zone Hand-Washing Risk Score")  +
+  geom_polygon(data = drc_health_zones_df, aes(x = long, y = lat, group = id, fill = pred_hwr), color = "white", size = 0.8) +
+  scale_fill_viridis(option="magma", direction = -1) + labs(fill = "Hand-Washing Risk") +
+  theme(plot.title = element_text(color = "darkblue", size = 30, face = "bold", hjust = 0.5), 
+        legend.background = element_rect(color = "gray25", fill = "gray95"), 
+        legend.title = element_text(color = "darkblue", size = 20, face = "bold", hjust = 0.5), 
+        legend.text = element_text(color = "darkblue", size = 15, face = "bold", hjust = 0.5), 
+        legend.position = c(0.1, 0.01))
+
+ggsave(paste0(directory, "/outputs/hw_healthzone.jpeg"), height = 8, width = 12, dpi = 1000)
+```
+
+
+## Health Zone Level - Interactive
+
+
+```{r message=FALSE, warning=FALSE}
+# color palette for hand-washing risk score
+pal_hw <- leaflet::colorBin(palette = "magma", domain= drc_health_zones$pred_hwr, bins = 15, reverse = TRUE)
+
+# interactive map using the leaflet package
+handwashing_interactive <- leaflet() %>% 
+  addTiles(group = "Esri") %>% 
+  addProviderTiles("CartoDB", group = "Carto") %>%  
+  setView(lng = 22.68245, lat = -3.268139, zoom = 5) %>%
+  addPolygons(data = drc_health_zones, color = "#444444", weight = 0.5, smoothFactor = 0.5, opacity = 1.0, 
+              fillColor = pal_hw(drc_health_zones$pred_hwr), fillOpacity = 0.95,
+              label = paste0("Nom Département: ", drc_health_zones$NOMDEP), 
+              popup = ~paste0("<b>", "Hand-Wahing Risk Score", "</b>", "<br/>", round(drc_health_zones$pred_hwr, 4)),
+              highlightOptions = highlightOptions(color = "white", weight = 2)) %>%
+  addLayersControl(baseGroups = c("Carto", "Esri")) %>%
+  addLegend(pal = pal_hw, values = drc_health_zones$pred_hwr, title = "Health Zone Hand-Washing Risk") %>%
+  addResetMapButton() %>% 
+  addEasyButton(easyButton(icon="fa-crosshairs", title="Locate Me", onClick=JS("function(btn, map){ map.locate({setView: true}); }")))
+
+handwashing_interactive
+
+htmlwidgets::saveWidget(handwashing_interactive, file = paste0(directory, "/outputs/handwashing_interactive.html"))
+```
+
+
+# Risk Factor 2: Proportion of Anemic Individuals
+
+
+```{r}
+# beta geo-additive model with population density, nighttime light intensity and distance to nearest OSM road as covariates
+anemia_prop_gam <- mgcv::gam(formula = cbind(total_anemia, total_non_anemia) ~ s(long, lat, k = 100) + s(pop_density), family = "binomial", data =  drc_coords)
+
+# model summary
+summary(anemia_prop_gam)
+# longitude & latitude and population density at DHS clusters are significant predictors of the proportion of anemic individuals
+```
+
+
+```{r}
+  # Now create a final prediction stack of the 2 variables we need
+pred_stack2 <- stack(pop_density,
+                    longitude_raster,
+                    latitude_raster)
+  # Rename to ensure the names of the raster layers in the stack match those used in the model
+names(pred_stack2) <- c("pop_density", "long", "lat")
+
+  # predictions over DRC gridded surface using stack of raster covariates - DO NOT RUN --> TIME-CONSUMING - PREDICTIONS HAVE BEEN SAVED
+predicted_anemia_prop <- predict(pred_stack2, anemia_prop_gam, type = "response")
+
+  # extracting raster values - DO NOT RUN --> TIME-CONSUMING - PREDICTIONS HAVE BEEN SAVED
+#drc_health_zones$pred_anemia_prop <- raster::extract(predicted_anemia_prop, drc_health_zones, fun = mean, na.rm = TRUE)  
+#pred_anemia_prop <- drc_health_zones@data[, c("pred_anemia_prop")] 
+
+  # saving predictions aggregated at health zone level 
+#write.csv(pred_anemia_prop, paste0(directory, "/predictions/pred_anemia_prop.csv"), row.names = FALSE)
+
+
+  # predictions using stack of raster covariates - gridded surface 
+predicted_anemia_prop <- predict(pred_stack2, anemia_prop_gam, type = "response")
+
+  # extracting raster values (predictions + population) 
+pred_anemia_prop <- raster::stack(predicted_anemia_prop, population2014)
+pred_anemia_prop <- raster::extract(pred_anemia_prop, drc_health_zones)
+
+  # and aggregating (weighted mean based on population) at the health zone level
+drc_health_zones$pred_anemia_prop <- unlist(lapply(pred_anemia_prop, FUN = function(x) { weighted.mean(x=x[,1], w=x[,2], na.rm = TRUE) }))
+
+```
+
+## DHS Clusters: 
+
+```{r message=FALSE, warning=FALSE}
+
+# We are mapping the average proportion at DHS cluster points: 
+
+pal_anemia <- leaflet::colorBin(palette = "inferno", domain= drc_gps$anemia_prop, bins = 15, reverse = TRUE)
+
+anemia_cluster <- leaflet() %>% 
+  addTiles(group = "Esri") %>% 
+  addProviderTiles("CartoDB", group = "Carto") %>%  
+  setView(lng = 22.68245, lat = -3.268139, zoom = 5) %>%
+  addPolygons(data = drc_health_zones, color = "#444444", weight = 0.5, smoothFactor = 0.5, opacity = 1.0, highlightOptions = highlightOptions(color = "white", weight = 2)) %>%
+  addCircleMarkers(data = drc_gps, radius = 2, color = pal_anemia(drc_gps$anemia_prop), 
+                   label = paste0("Anemia Proportion: ", drc_gps$anemia_prop),
+                   popup = paste0("Valid Observations: ", drc_gps$total_valid_anemia)) %>% 
+  addLegend("bottomright", pal = pal_anemia, values = drc_gps$anemia_prop, title = "Anemia Proportion") %>%
+  addResetMapButton() %>% 
+  addEasyButton(easyButton(icon="fa-crosshairs", title="Locate Me", onClick=JS("function(btn, map){ map.locate({setView: true}); }")))
+
+
+htmlwidgets::saveWidget(anemia_cluster, file = paste0(directory, "/outputs/anemia_cluster.html"))
+```
+
+## Raster of Predictions Interactive 
+
+```{r message=FALSE, warning=FALSE}
+pal_anemia_prop <- leaflet::colorNumeric(palette = "inferno", domain= values(predicted_anemia_prop), reverse = TRUE)
+
+anemia_raster <- leaflet() %>% 
+  addTiles(group = "Esri") %>% 
+  addProviderTiles("CartoDB", group = "Carto") %>%  
+  setView(lng = 22.68245, lat = -3.268139, zoom = 5) %>%
+  addPolygons(data = drc_health_zones, color = "#444444", weight = 0.5, smoothFactor = 0.5, opacity = 1.0, highlightOptions = highlightOptions(color = "white", weight = 2)) %>%
+  addRasterImage(predicted_anemia_prop, colors = pal_anemia_prop, opacity = 0.7) %>% 
+  addLegend("bottomright", pal = pal_anemia_prop, values = values(predicted_anemia_prop), title = "Anemia Proportion") %>%
+  addResetMapButton() %>% 
+  addEasyButton(easyButton(icon="fa-crosshairs", title="Locate Me", onClick=JS("function(btn, map){ map.locate({setView: true}); }")))
+
+anemia_raster
+
+htmlwidgets::saveWidget(anemia_raster, file = paste0(directory, "/outputs/anemia_raster.html"))
+```
+
+
+## Health Zone Level - Static
+
+
+```{r message=FALSE, warning=FALSE}
+
+# transforming drc polygon into dataframe compatible with ggplot2 syntax for static mapping
+drc_health_zones@data$id <- 1:315
+drc_health_zones_df <- fortify(drc_health_zones, region='id')
+drc_health_zones$id <- as.character(drc_health_zones$id)
+drc_health_zones_df <- left_join(x = drc_health_zones_df, y = drc_health_zones@data[, c("id", "pred_anemia_prop")], by = "id")
+
+ggplot() + theme_map() + labs(title = "DRC Health Zone Anemia Prevalence (Proportion)")  +
+  geom_polygon(data = drc_health_zones_df, aes(x = long, y = lat, group = id, fill = pred_anemia_prop), color = "white", size = 0.8) +
+  scale_fill_viridis(option="magma", direction = -1) + labs(fill = "Anemia Proportion") +
+  theme(plot.title = element_text(color = "darkblue", size = 30, face = "bold", hjust = 0.5), 
+        legend.background = element_rect(color = "gray25", fill = "gray95"), 
+        legend.title = element_text(color = "darkblue", size = 20, face = "bold", hjust = 0.5), 
+        legend.text = element_text(color = "darkblue", size = 15, face = "bold", hjust = 0.5), 
+        legend.position = c(0., 0.01))
+
+ggsave(paste0(directory, "/outputs/anemia_prop_healthzones.jpeg"), height = 8, width = 12, dpi = 1000)
+```
+
+
+## Health Zone Level - Interactive
+
+
+```{r message=FALSE, warning=FALSE}
+# creating color palette
+pal_anemia_prop <- leaflet::colorBin(palette = "magma", domain= drc_health_zones$pred_anemia_prop, bins = 15, reverse = TRUE)
+
+anemia_interactive <- leaflet() %>% 
+  addTiles(group = "Esri") %>% 
+  addProviderTiles("CartoDB", group = "Carto") %>%  
+  setView(lng = 22.68245, lat = -3.268139, zoom = 5) %>%
+  addPolygons(data = drc_health_zones, color = "#444444", weight = 0.5, smoothFactor = 0.5, opacity = 1.0, 
+              fillColor = pal_anemia_prop(drc_health_zones$pred_anemia_prop), fillOpacity = 0.95,
+              label = paste0("Nom Département: ", drc_health_zones$Nom), 
+              popup = ~paste0("<b>", "Anemia Prevalence", "</b>", "<br/>", round(drc_health_zones$pred_anemia_prop, 4)),
+              highlightOptions = highlightOptions(color = "white", weight = 2)) %>%
+  addLayersControl(baseGroups = c("Carto", "Esri")) %>%
+  addLegend(pal = pal_anemia_prop, values = drc_health_zones$pred_anemia_prop, title = "Anemia Prevalence (Proportion)") %>%
+  addResetMapButton() %>% 
+  addEasyButton(easyButton(icon="fa-crosshairs", title="Locate Me", onClick=JS("function(btn, map){ map.locate({setView: true}); }")))
+
+anemia_interactive
+
+htmlwidgets::saveWidget(anemia_interactive, file = paste0(directory, "/outputs/anemia_interactive.html"))
+```
+
+
+# Risk Factor 3: Proportion of Obese Individuals
+
+
+```{r message=FALSE, warning=FALSE}
+# binomial geo-additive model with population density, nighttime light intensity and distance to nearest OSM road as covariates
+obese_gam <- mgcv::gam(formula = cbind(obese_total, total_non_obese) ~ s(long, lat, k = 100) + s(pop_density) + s(nighttime_lights2010), family = "binomial", data =  drc_coords)
+
+# model summary
+summary(obese_gam)
+```
+
+
+```{r message=FALSE, warning=FALSE}
+  # Now create a final prediction stack of the 4 variables we need
+pred_stack3 <- stack(pop_density,
+                    nighttime_lights2010, 
+                    longitude_raster,
+                    latitude_raster)
+
+  # Rename to ensure the names of the raster layers in the stack match those used in the model
+names(pred_stack3) <- c("pop_density", "nighttime_lights2010", "long", "lat")
+
+# predictions 
+predicted_obese3 <- predict(pred_stack3, obese_gam, type = "response")
+
+# extracting raster values (predictions + population) 
+pred_obese <- raster::stack(predicted_obese3, population2014)
+pred_obese <- raster::extract(pred_obese, drc_health_zones)
+
+# and aggregating (weighted mean based on population) at the health zone level
+drc_health_zones$pred_obese <- unlist(lapply(pred_obese, FUN = function(x) { weighted.mean(x=x[,1], w=x[,2], na.rm = TRUE) }))
+
+```
+
+
+## DHS Clusters: 
+
+
+```{r message=FALSE, warning=FALSE}
+
+# We are mapping the average proportion at DHS cluster points: 
+
+pal_obese <- leaflet::colorBin(palette = "inferno", domain= drc_gps$obese_prop, bins = 15, reverse = TRUE)
+
+obesity_cluster <- leaflet() %>% 
+  addTiles(group = "Esri") %>% 
+  addProviderTiles("CartoDB", group = "Carto") %>%  
+  setView(lng = 22.68245, lat = -3.268139, zoom = 5) %>%
+  addPolygons(data = drc_health_zones, color = "#444444", weight = 0.5, smoothFactor = 0.5, opacity = 1.0, highlightOptions = highlightOptions(color = "white", weight = 2)) %>%
+  addCircleMarkers(data = drc_gps, radius = 2, color = pal_obese(drc_gps$obese_prop), 
+                   label = paste0("Obesity Proportion: ", drc_gps$obese_prop),
+                   popup = paste0("Valid Observations: ", drc_gps$total_valid_bmi)) %>% 
+  addLegend("bottomright", pal = pal_obese, values = drc_gps$obese_prop, title = "Obesity Proportion") %>%
+  addResetMapButton() %>% 
+  addEasyButton(easyButton(icon="fa-crosshairs", title="Locate Me", onClick=JS("function(btn, map){ map.locate({setView: true}); }")))
+
+
+htmlwidgets::saveWidget(obesity_cluster, file = paste0(directory, "/outputs/obesity_cluster.html"))
+```
+
+
+## Raster of Predictions Interactive 
+
+
+```{r message=FALSE, warning=FALSE}
+pal_obese_prop <- leaflet::colorNumeric(palette = "inferno", domain= values(predicted_obese3), reverse = TRUE)
+
+leaflet() %>% 
+  addTiles(group = "Esri") %>% 
+  addProviderTiles("CartoDB", group = "Carto") %>%  
+  setView(lng = 22.68245, lat = -3.268139, zoom = 5) %>%
+  addPolygons(data = drc_health_zones, color = "#444444", weight = 0.5, smoothFactor = 0.5, opacity = 1.0, highlightOptions = highlightOptions(color = "white", weight = 2)) %>%
+  addRasterImage(predicted_obese3, colors = pal_obese_prop, opacity = 0.7) %>% 
+  addLegend("bottomright", pal = pal_obese_prop, values = values(predicted_obese3), title = "Obesity Proportion") %>%
+  addResetMapButton() %>% 
+  addEasyButton(easyButton(icon="fa-crosshairs", title="Locate Me", onClick=JS("function(btn, map){ map.locate({setView: true}); }")))
+
+htmlwidgets::saveWidget(obesity_interactive, file = paste0(directory, "/outputs/obesity_interactive.html"))
+```
+
+
+## Health Zone-Level - Static
+
+
+```{r message=FALSE, warning=FALSE}
+# transforming drc polygon into dataframe compatible with ggplot2 syntax 
+drc_health_zones@data$id <- 1:315
+drc_health_zones_df <- fortify(drc_health_zones, region='id')
+drc_health_zones$id <- as.character(drc_health_zones$id)
+drc_health_zones_df <-left_join(x = drc_health_zones_df, y = drc_health_zones@data[, c("id", "pred_obese")], by = "id")
+
+## Health Zone-Level - Static
+ggplot() + theme_map() + labs(title = "DRC Health Zone Obesity Prevalence")  +
+  geom_polygon(data = drc_health_zones_df, aes(x = long, y = lat, group = id, fill = pred_obese), color = "white", size = 0.8) +
+  scale_fill_viridis(option="viridis", direction = -1) + labs(fill = "Obesity Prevalence (Proportion)") +
+  theme(plot.title = element_text(color = "darkblue", size = 30, face = "bold", hjust = 0.5), 
+        
+        legend.background = element_rect(color = "gray25", fill = "gray95"), 
+        legend.title = element_text(color = "darkblue", size = 20, face = "bold", hjust = 0.5), 
+        legend.text = element_text(color = "darkblue", size = 15, face = "bold", hjust = 0.5), 
+        legend.position = c(0., 0.01))
+
+ggsave(paste0(directory, "/outputs/obesity_healthzone.jpeg"), height = 8, width = 13, dpi = 1000)
+
+```
+
+
+## Health Zone-Level - Interactive
+
+```{r message=FALSE, warning=FALSE}
+# color palette for obesity/overweight proportion that fits the data distribution:
+pal_obese <- leaflet::colorBin(palette = "viridis", domain= drc_health_zones$pred_obese, bins = c(0.001, 0.0025, 0.005, 0.0075, 0.01, 0.0125, 0.015, 0.020, 0.025, 0.03, 0.04, 0.05, 0.06, 0.075, 0.10, 0.125, 0.155), reverse = TRUE, na.color = "white")
+
+obesity_interactive <- leaflet() %>% 
+  addTiles(group = "Esri") %>% 
+  addProviderTiles("CartoDB", group = "Carto") %>%  
+  setView(lng = 22.68245, lat = -3.268139, zoom = 5) %>%
+  addPolygons(data = drc_health_zones, color = "#444444", weight = 0.5, smoothFactor = 0.5, opacity = 1.0, 
+              fillColor = pal_obese(drc_health_zones$pred_obese), fillOpacity = 0.95,
+              label = paste0("Nom Département: ", drc_health_zones$NOMDEP), 
+              popup = ~paste0("<b>", "Obesity Prevalence", "</b>", "<br/>", round(drc_health_zones$pred_obese, 4)),
+              highlightOptions = highlightOptions(color = "white", weight = 2)) %>%
+  addLayersControl(baseGroups = c("Carto", "Esri")) %>%
+  addLegend(pal = pal_obese, values = drc_health_zones$pred_obese, title = "Obesity & Overweight (Proportion)") %>%
+  addResetMapButton() %>% 
+  addEasyButton(easyButton(icon="fa-crosshairs", title="Locate Me", onClick=JS("function(btn, map){ map.locate({setView: true}); }")))
+
+obesity_interactive
+
+htmlwidgets::saveWidget(obesity_interactive, file = paste0(directory, "/outputs/obesity_interactive.html"))
+```
+
+
+# Risk Factor 4: Smoking (Proportion of Smokers)
+
+
+```{r message=FALSE, warning=FALSE}
+# beta geo-additive model with population density, nighttime light intensity and distance to nearest OSM road as covariates
+smoking_prop_gam <- mgcv::gam(formula = cbind(total_smoking, total_non_smoke) ~ s(long, lat, k = 100) + s(pop_density),
+                              family = "binomial", data =  drc_coords)
+
+# model summary
+summary(smoking_prop_gam)
+```
+
+
+```{r message=FALSE, warning=FALSE}
+  # Now create a final prediction stack of the 2 variables we need
+pred_stack2 <- stack(pop_density,
+                    longitude_raster,
+                    latitude_raster)
+  # Rename to ensure the names of the raster layers in the stack match those used in the model
+names(pred_stack2) <- c("pop_density", "long", "lat")
+
+
+
+# predictions using stack of raster covariates - gridded surface
+predicted_smoking_prop <- predict(pred_stack2, smoking_prop_gam, type = "response")
+
+# extracting raster values
+pred_smoking_prop <- raster::stack(predicted_smoking_prop, population2014)
+pred_smoking_prop <- raster::extract(pred_smoking_prop, drc_health_zones)
+
+# and aggregating (weighted mean based on population) at the health zone level
+drc_health_zones$pred_smoking_prop <- unlist(lapply(pred_smoking_prop, FUN = function(x) { weighted.mean(x=x[,1], w=x[,2], na.rm = TRUE) }))
+
+```
+
+
+
+## DHS Clusters: 
+
+
+```{r message=FALSE, warning=FALSE}
+
+# We are mapping the average proportion at DHS cluster points: 
+
+pal_smoking <- leaflet::colorBin(palette = "inferno", domain= drc_gps$smoke_prop, bins = 15, reverse = TRUE)
+
+smoking_cluster <- leaflet() %>% 
+  addTiles(group = "Esri") %>% 
+  addProviderTiles("CartoDB", group = "Carto") %>%  
+  setView(lng = 22.68245, lat = -3.268139, zoom = 5) %>%
+  addPolygons(data = drc_health_zones, color = "#444444", weight = 0.5, smoothFactor = 0.5, opacity = 1.0, highlightOptions = highlightOptions(color = "white", weight = 2)) %>%
+  addCircleMarkers(data = drc_gps, radius = 2, color = pal_smoking(drc_gps$smoke_prop), 
+                   label = paste0("Smoking Proportion: ", drc_gps$smoke_prop),
+                   popup = paste0("Valid Observations: ", drc_gps$total_valid_smoke)) %>% 
+  addLegend("bottomright", pal = pal_smoking, values = drc_gps$smoke_prop, title = "Smoking Proportion") %>%
+  addResetMapButton() %>% 
+  addEasyButton(easyButton(icon="fa-crosshairs", title="Locate Me", onClick=JS("function(btn, map){ map.locate({setView: true}); }")))
+
+
+htmlwidgets::saveWidget(smoking_cluster, file = paste0(directory, "/outputs/smoking_cluster.html"))
+```
+
+
+## Raster of Predictions Interactive 
+
+
+```{r message=FALSE, warning=FALSE}
+pal_smoking_prop <- leaflet::colorNumeric(palette = "inferno", domain= values(predicted_smoking_prop), reverse = TRUE)
+
+smoking_raster <- leaflet() %>% 
+  addTiles(group = "Esri") %>% 
+  addProviderTiles("CartoDB", group = "Carto") %>%  
+  setView(lng = 22.68245, lat = -3.268139, zoom = 5) %>%
+  addPolygons(data = drc_health_zones, color = "#444444", weight = 0.5, smoothFactor = 0.5, opacity = 1.0, highlightOptions = highlightOptions(color = "white", weight = 2)) %>%
+  addRasterImage(predicted_smoking_prop, colors = pal_smoking_prop, opacity = 0.7) %>% 
+  addLegend("bottomright", pal = pal_smoking_prop, values = values(predicted_smoking_prop), title = "Smoking Proportion") %>%
+  addResetMapButton() %>% 
+  addEasyButton(easyButton(icon="fa-crosshairs", title="Locate Me", onClick=JS("function(btn, map){ map.locate({setView: true}); }")))
+
+htmlwidgets::saveWidget(smoking_raster, file = paste0(directory, "/outputs/smoking_raster.html"))
+```
+
+## Health Zone-Level - Static
+
+
+```{r message=FALSE, warning=FALSE}
+# transforming drc polygon into dataframe compatible with ggplot2 syntax 
+drc_health_zones@data$id <- 1:315
+drc_health_zones_df <- fortify(drc_health_zones, region='id')
+drc_health_zones$id <- as.character(drc_health_zones$id)
+drc_health_zones_df <-left_join(x = drc_health_zones_df, y = drc_health_zones@data[, c("id", "pred_smoking_prop")], by = "id")
+
+
+ggplot() + theme_map() + labs(title = "Smoking Prevalence (Proportion of Smokers)")  +
+  geom_polygon(data = drc_health_zones_df, aes(x = long, y = lat, group = id, fill = pred_smoking_prop), color = "white", size = 0.8) +
+  scale_fill_viridis(option="inferno", direction = -1) + labs(fill = "Proportion of Smokers") +
+  theme(plot.title = element_text(color = "darkblue", size = 30, face = "bold", hjust = 0.5), 
+        legend.background = element_rect(color = "gray25", fill = "gray95"), 
+        legend.title = element_text(color = "darkblue", size = 20, face = "bold", hjust = 0.5), 
+        legend.text = element_text(color = "darkblue", size = 15, face = "bold", hjust = 0.5), 
+        legend.position = c(0.1, 0.01))
+
+ggsave(paste0(directory, "/outputs/smoking_prop_healthzone.jpeg"), height = 8, width = 12, dpi = 600)
+```
+ 
+ 
+## Health Zone-Level - Interactive
+    
+```{r message=FALSE, warning=FALSE}
+# color palette for smoking proportion
+pal_smoking_prop <- leaflet::colorBin(palette = "inferno", domain= drc_health_zones$pred_smoking_prop, bins = 15, reverse = TRUE)
+
+smoking_interactive <- leaflet() %>% 
+  addTiles(group = "Esri") %>% 
+  addProviderTiles("CartoDB", group = "Carto") %>%  
+  setView(lng = 22.68245, lat = -3.268139, zoom = 5) %>%
+  addPolygons(data = drc_health_zones, color = "#444444", weight = 0.5, smoothFactor = 0.5, opacity = 1.0, 
+              fillColor = pal_smoking_prop(drc_health_zones$pred_smoking_prop), fillOpacity = 0.95,
+              label = paste0("Nom Département: ", drc_health_zones$NOMDEP), 
+              popup = ~paste0("<b>", "Smoking Proportion", "</b>", "<br/>", round(drc_health_zones$pred_smoking_prop, 4)),
+              highlightOptions = highlightOptions(color = "white", weight = 2)) %>%
+  addLayersControl(baseGroups = c("Carto", "Esri")) %>%
+  addLegend(pal = pal_smoking_prop, values = drc_health_zones$pred_smoking_prop, title = "Proportion of Smokers") %>%
+  addResetMapButton() %>% 
+  addEasyButton(easyButton(icon="fa-crosshairs", title="Locate Me", onClick=JS("function(btn, map){ map.locate({setView: true}); }")))
+
+smoking_interactive
+
+htmlwidgets::saveWidget(smoking_interactive, file = paste0(directory, "/outputs/smoking_interactive.html"))
+```
+
+

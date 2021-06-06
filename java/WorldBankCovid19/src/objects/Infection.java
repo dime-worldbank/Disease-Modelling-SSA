@@ -1,6 +1,7 @@
 package objects;
 
 import behaviours.BehaviourNode;
+import sim.WorldBankCovid19Sim;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 
@@ -10,6 +11,7 @@ public class Infection implements Steppable {
 	Person host;
 	Person source;
 	Location infectedAtLocation;
+	WorldBankCovid19Sim myWorld;
 	
 	// behaviours
 	BehaviourNode currentBehaviourNode = null;
@@ -37,7 +39,7 @@ public class Infection implements Steppable {
 	 * @param mySource - null implies that they are Patient 0.
 	 * @param initNode
 	 */
-	public Infection(Person myHost, Person mySource, BehaviourNode initNode){
+	public Infection(Person myHost, Person mySource, BehaviourNode initNode, WorldBankCovid19Sim sim){
 		
 		host = myHost;
 		myHost.setInfection(this);
@@ -55,6 +57,8 @@ public class Infection implements Steppable {
 		time_died = Double.MAX_VALUE;
 
 		currentBehaviourNode = initNode;
+		myWorld = sim;
+		myWorld.infections.add(this);
 	}
 
 	@Override
@@ -63,7 +67,7 @@ public class Infection implements Steppable {
 		double myDelta = this.currentBehaviourNode.next(this, time);
 		world.schedule.scheduleOnce(time + myDelta, this);
 		
-		System.out.println("Infection\t" + host.toString() + "\t" + currentBehaviourNode.getTitle() + "\t" + myDelta);
+	//	System.out.println("Infection\t" + host.toString() + "\t" + currentBehaviourNode.getTitle() + "\t" + myDelta);
 	}
 
 	public void setBehaviourNode(BehaviourNode bn){
@@ -78,5 +82,6 @@ public class Infection implements Steppable {
 	public Person getHost() { return host; }
 	public Person getSource() { return source; }
 	public double getStartTime() { return time_infected;}
+	public Location getInfectedAtLocation() { return infectedAtLocation;}
 	
 }
