@@ -14,6 +14,13 @@ public class Location {
 	Location mySuperLocation; // the Location within which this Location exists
 	ArrayList <Person> personsHere;
 	
+	public int metric_died_count;
+	public int metric_new_hospitalized;
+	public int metric_new_critical;
+	public int metric_new_cases_asympt;
+	public int metric_new_cases_sympt;
+	public int metric_new_deaths;
+
 	
 	// CONSTRUCTORS
 	
@@ -21,6 +28,13 @@ public class Location {
 		myId = id;
 		mySuperLocation = mySuper;
 		personsHere = new ArrayList <Person> ();
+		
+		metric_died_count = 0; 
+		metric_new_hospitalized = 0;
+		metric_new_critical = 0;
+		metric_new_cases_asympt = 0;
+		metric_new_cases_sympt = 0;
+		metric_new_deaths = 0;
 	}
 	
 	public Location(Location mySuper){
@@ -68,5 +82,32 @@ public class Location {
 	
 	public ArrayList <Person> getPeople(){
 		return personsHere;
+	}
+
+	public void refreshMetrics(){
+		metric_new_hospitalized = 0;
+		metric_new_critical = 0;
+		metric_new_cases_asympt = 0;
+		metric_new_cases_sympt = 0;
+		metric_new_deaths = 0;
+	}
+	
+	public String metricsToString(){
+		String s = myId;
+		s += "\t";
+		s += metric_died_count + "\t";
+		s += metric_new_hospitalized + "\t";
+		s += metric_new_critical + "\t";
+		s += metric_new_cases_asympt + "\t";
+		s += metric_new_cases_sympt + "\t";
+		s += metric_new_deaths + "\t";
+		return s;
+	}
+	
+	public static String metricNamesToString(){
+		String s = "time" + "\t" + "myId" + "\t" + "metric_died_count" + "\t" + "metric_new_hospitalized" + "\t" + 
+				"metric_new_critical" + "\t" + "metric_new_cases_asympt" + "\t" + "metric_new_cases_sympt" + "\t" + 
+				"metric_new_deaths" + "\t\n";
+		return s;
 	}
 }
