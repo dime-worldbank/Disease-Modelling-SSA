@@ -34,7 +34,7 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 				
 				// extract time info
 				int hour = ((int)time) % Params.ticks_per_day;
-				int day = (int)(time / Params.ticks_per_day) % 7;
+				int day = (int)(time / Params.ticks_per_day) % 7; // because 7 days in a week
 				
 				// TODO do they even go out at all? Ref to ECONOMIC_STATUS_WEEKDAY_MOVEMENT_PROBABILITY.txt
 				// determine likelihood of leaving the home today
