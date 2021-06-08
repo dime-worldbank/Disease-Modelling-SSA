@@ -6,6 +6,7 @@ import sim.engine.SimState;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 
 import behaviours.BehaviourNode;
 import behaviours.MovementBehaviourFramework;
@@ -116,7 +117,7 @@ public class Person extends MobileAgent {
 		double time = world.schedule.getTime(); // find the current time
 		double myDelta = this.currentActivityNode.next(this, time);
 		myWorld.schedule.scheduleOnce(time + myDelta, this);
-		if(this.myId % 10000 == 0) System.out.print(">");
+		//if(this.myId % 10000 == 0) System.out.print(">");
 	}	
 
 	/**
@@ -149,7 +150,7 @@ public class Person extends MobileAgent {
 		}
 		
 		// otherwise, get a list of others in the space
-		ArrayList <Person> currentNeighbours = currentLocation.getPeople();
+		HashSet <Person> currentNeighbours = currentLocation.getPeople();
 
 		// now apply the rules based on the setting
 
@@ -173,8 +174,8 @@ public class Person extends MobileAgent {
 		else if(currentLocation == economic_activity_location){
 			Double d = myWorld.params.economic_num_interactions_weekday.get(this.economic_status);
 			int myNumInteractions = (int) Math.round(d);
-			ArrayList <Person> copyOfCoworkers = (ArrayList <Person>) this.workBubble.clone();
-			copyOfCoworkers.retainAll(currentLocation.personsHere);
+			HashSet <Person> copyOfCoworkers = new HashSet <Person>(this.workBubble);
+			//copyOfCoworkers.retainAll(currentLocation.personsHere);
 			int n = copyOfCoworkers.size();
 			for(int i = 0; i < myNumInteractions; i++){
 				
@@ -185,8 +186,20 @@ public class Person extends MobileAgent {
 				
 				// otherwise choose a random coworker
 				int j = myWorld.random.nextInt(n);
-				Person p = copyOfCoworkers.remove(j);
-				if(p.myInfection == null 
+				Person p = (Person) copyOfCoworkers.toArray()[j];//.remove(j);
+				copyOfCoworkers.remove(p);
+				
+				// they might not be at work today! If so, don't count this and carry on!
+				if(! currentLocation.personsHere.contains(p)) {
+					// HEY ISN'T THIS INEFFICIENT???
+					// Yeah but we're trying something about not "retaining all" and the speedup is *chef's kiss*
+					i--; // this round didn't count
+					n--; // the coworker list is shorter now
+					copyOfCoworkers.remove(p);
+					continue;
+				}
+				
+				else if(p.myInfection == null 
 						&& myWorld.random.nextDouble() < myWorld.params.infection_beta){
 					Infection inf = new Infection(p, this, myWorld.infectiousFramework.getEntryPoint(), myWorld);
 					myWorld.schedule.scheduleOnce(inf, 10);
@@ -199,15 +212,15 @@ public class Person extends MobileAgent {
 		else {
 			int myNumInteractions = myWorld.params.community_interaction_count;
 			Location myHomeCommunity = this.getHousehold().getRootSuperLocation();
-			ArrayList <Person> copyOfCommunity;
+			HashSet <Person> copyOfCommunity;
 			
 			// set up pool of possible interactions
 			if(currentLocation == myHomeCommunity){
-				copyOfCommunity = (ArrayList <Person>) this.communityBubble.clone();
+				copyOfCommunity = new HashSet <Person> (this.communityBubble);
 				copyOfCommunity.retainAll(currentLocation.personsHere);
 			}
 			else
-				copyOfCommunity = (ArrayList <Person>) currentLocation.personsHere.clone();;
+				copyOfCommunity = new HashSet <Person> (currentLocation.personsHere);
 				
 			int n = copyOfCommunity.size(); // break clause checker
 			
@@ -221,7 +234,22 @@ public class Person extends MobileAgent {
 				
 				// otherwise choose a random coworker
 				int j = myWorld.random.nextInt(n);
-				Person p = copyOfCommunity.remove(j);
+				
+				Person p = (Person) copyOfCommunity.toArray()[j];
+				copyOfCommunity.remove(j);
+				
+				// they might not be at work today! If so, don't count this and carry on!
+				if(! currentLocation.personsHere.contains(p)) {
+					// HEY ISN'T THIS INEFFICIENT???
+					// Yeah but "retaining all" of over 40000 people in the same district is wicked slow so
+					// we're not gonna throw around ArrayLists anymore
+					i--; // this round didn't count
+					n--; // the coworker list is shorter now
+					copyOfCommunity.remove(p);
+					continue;
+				}
+
+				
 				if(p.myInfection == null 
 						&& myWorld.random.nextDouble() < myWorld.params.infection_beta){
 					Infection inf = new Infection(p, this, myWorld.infectiousFramework.getEntryPoint(), myWorld);
@@ -354,7 +382,7 @@ public class Person extends MobileAgent {
 	public int getID(){ return this.myId; }
 	
 	public double getSusceptibility(){
-		return myWorld.params.getSuspectabilityByAge(age); // TODO modify with appropriate parameters
+		return myWorld.params.getSuspectabilityByAge(age);
 	}
 	
 	public void setMobility(boolean mobile){ this.immobilised = !mobile; }

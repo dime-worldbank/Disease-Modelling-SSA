@@ -261,7 +261,7 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 						double time_until_critical = myWorld.nextRandomLognormal(
 								myWorld.params.severeToCritical_mean, 
 								myWorld.params.severeToCritical_std);
-						i.time_start_severe = time + time_until_critical;
+						i.time_start_critical = time + time_until_critical;
 					}
 					
 					// if not, they will recover: schedule this instead
@@ -320,7 +320,7 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 						double time_until_death = myWorld.nextRandomLognormal(
 								myWorld.params.criticalToDeath_mean, 
 								myWorld.params.criticalToDeath_std);
-						i.time_start_severe = time + time_until_death;
+						i.time_died = time + time_until_death;
 					}
 					
 					// if not, they will recover: schedule this instead

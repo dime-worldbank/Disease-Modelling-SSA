@@ -37,6 +37,7 @@ public class WorldBankCovid19Sim extends SimState {
 	
 	String outputFilename;
 	String infections_export_filename;
+	int targetDuration = 0;
 	
 	// record-keeping
 	
@@ -113,8 +114,9 @@ public class WorldBankCovid19Sim extends SimState {
 						
 		}
 
-		outputFilename = "results_" + this.seed() + ".txt";
-		infections_export_filename = "infections_" + this.seed() + ".txt";
+		String filenameSuffix = (this.params.ticks_per_day * this.params.infection_beta) + "_" + this.targetDuration + "_" + this.seed() + ".txt";
+		outputFilename = "results_" + filenameSuffix;
+		infections_export_filename = "infections_" + filenameSuffix;
 
 		exportMe(outputFilename, Location.metricNamesToString());
 		Steppable reporter = new Steppable(){
@@ -133,7 +135,7 @@ public class WorldBankCovid19Sim extends SimState {
 				
 				exportMe(outputFilename, s);
 				
-				
+				System.out.println("Day " + time + " finished");
 			}
 		};
 		schedule.scheduleRepeating(reporter, 100, params.ticks_per_day);
@@ -199,7 +201,7 @@ public class WorldBankCovid19Sim extends SimState {
 				
 				// identify the location in which the person, possibly, works
 				
-				String economicActivityLocationName = bits[7];
+				String economicActivityLocationName = "d_" + bits[7];
 				Location econLocation = params.districts.get(economicActivityLocationName);
 				// TODO: they might not work anywhere! Further, they might work in a particular subset of the location!
 				
@@ -410,19 +412,23 @@ public class WorldBankCovid19Sim extends SimState {
 			
 		}
 		
-		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(System.currentTimeMillis(), new Params(dataDir));
+		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(
+				12345, // TODO make sure beta param is actually going through???
+				//System.currentTimeMillis(), 
+				new Params(dataDir));
 		
 		System.out.println("Loading...");
 
+		mySim.params.infection_beta = myBeta / mySim.params.ticks_per_day; // normalised to be per tick
+		mySim.targetDuration = numDays;
 		mySim.start();
-		mySim.params.infection_beta = myBeta;
 
 		System.out.println("Running...");
 
 		while(mySim.schedule.getTime() < Params.ticks_per_day * numDays && !mySim.schedule.scheduleComplete()){
 			mySim.schedule.step(mySim);
 			double myTime = mySim.schedule.getTime();
-			System.out.println("\n*****END TIME: DAY " + (int)(myTime / 6) + " HOUR " + (int)((myTime % 6) * 4) + " RAWTIME: " + myTime);
+			//System.out.println("\n*****END TIME: DAY " + (int)(myTime / 6) + " HOUR " + (int)((myTime % 6) * 4) + " RAWTIME: " + myTime);
 		}
 		
 		//mySim.reportOnInfected();
