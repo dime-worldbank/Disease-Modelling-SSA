@@ -40,8 +40,8 @@ public class Person extends MobileAgent {
 	
 	// social attributes
 	Location communityLocation;
-	ArrayList <Person> workBubble;
-	ArrayList <Person> communityBubble;
+	HashSet <Person> workBubble;
+	HashSet <Person> communityBubble;
 	
 	// activity
 	BehaviourNode currentActivityNode = null;
@@ -99,8 +99,8 @@ public class Person extends MobileAgent {
 		// agents are initialised uninfected
 		
 		communityLocation = myHousehold.getRootSuperLocation();
-		workBubble = new ArrayList <Person> ();
-		communityBubble = new ArrayList <Person> ();
+		workBubble = new HashSet <Person> ();
+		communityBubble = new HashSet <Person> ();
 		
 		this.currentLocation = hh;
 	}
@@ -149,116 +149,104 @@ public class Person extends MobileAgent {
 			return;
 		}
 		
-		// otherwise, get a list of others in the space
-		HashSet <Person> currentNeighbours = currentLocation.getPeople();
-
 		// now apply the rules based on the setting
 
 		// they may be at home
 		if(currentLocation instanceof Household){
 
-			// interact with everyone in the Household
-			for(Person p: currentNeighbours){
-				
-				// if the person is not infected, based on the infection beta they may become infected 
-				if(p.myInfection == null 
-						&& myWorld.random.nextDouble() < myWorld.params.infection_beta){
-					Infection i = new Infection(p, this, myWorld.infectiousFramework.getEntryPoint(), myWorld);
-					myWorld.schedule.scheduleOnce(i, 10);
-				}
-			}
+			interactWithin(currentLocation.personsHere, null, currentLocation.personsHere.size());
 			
 		}
 		
 		// they may be at their economic activity site!
 		else if(currentLocation == economic_activity_location){
+			
+			// set up the stats
 			Double d = myWorld.params.economic_num_interactions_weekday.get(this.economic_status);
 			int myNumInteractions = (int) Math.round(d);
-			HashSet <Person> copyOfCoworkers = new HashSet <Person>(this.workBubble);
-			//copyOfCoworkers.retainAll(currentLocation.personsHere);
-			int n = copyOfCoworkers.size();
-			for(int i = 0; i < myNumInteractions; i++){
-				
-				if(n <= 0){ // break clause if we're run out of coworkers
-					i = myNumInteractions;
-					continue;
-				}
-				
-				// otherwise choose a random coworker
-				int j = myWorld.random.nextInt(n);
-				Person p = (Person) copyOfCoworkers.toArray()[j];//.remove(j);
-				copyOfCoworkers.remove(p);
-				
-				// they might not be at work today! If so, don't count this and carry on!
-				if(! currentLocation.personsHere.contains(p)) {
-					// HEY ISN'T THIS INEFFICIENT???
-					// Yeah but we're trying something about not "retaining all" and the speedup is *chef's kiss*
-					i--; // this round didn't count
-					n--; // the coworker list is shorter now
-					copyOfCoworkers.remove(p);
-					continue;
-				}
-				
-				else if(p.myInfection == null 
-						&& myWorld.random.nextDouble() < myWorld.params.infection_beta){
-					Infection inf = new Infection(p, this, myWorld.infectiousFramework.getEntryPoint(), myWorld);
-					myWorld.schedule.scheduleOnce(inf, 10);
-				}
-				
-				n--; // recordkeeping
-			}
+			
+			// interact
+			interactWithin(workBubble, currentLocation.personsHere, myNumInteractions);
 		}
 		
 		else {
+
+			// set up the holders
 			int myNumInteractions = myWorld.params.community_interaction_count;
 			Location myHomeCommunity = this.getHousehold().getRootSuperLocation();
-			HashSet <Person> copyOfCommunity;
-			
-			// set up pool of possible interactions
-			if(currentLocation == myHomeCommunity){
-				copyOfCommunity = new HashSet <Person> (this.communityBubble);
-				copyOfCommunity.retainAll(currentLocation.personsHere);
-			}
-			else
-				copyOfCommunity = new HashSet <Person> (currentLocation.personsHere);
-				
-			int n = copyOfCommunity.size(); // break clause checker
-			
-			// select the interaction partners
-			for(int i = 0; i < myNumInteractions; i++){
-				
-				if(n <= 0){ // break clause if we're run out of coworkers
-					i = myNumInteractions;
-					continue;
-				}
-				
-				// otherwise choose a random coworker
-				int j = myWorld.random.nextInt(n);
-				
-				Person p = (Person) copyOfCommunity.toArray()[j];
-				copyOfCommunity.remove(j);
-				
-				// they might not be at work today! If so, don't count this and carry on!
-				if(! currentLocation.personsHere.contains(p)) {
-					// HEY ISN'T THIS INEFFICIENT???
-					// Yeah but "retaining all" of over 40000 people in the same district is wicked slow so
-					// we're not gonna throw around ArrayLists anymore
-					i--; // this round didn't count
-					n--; // the coworker list is shorter now
-					copyOfCommunity.remove(p);
-					continue;
-				}
 
-				
-				if(p.myInfection == null 
-						&& myWorld.random.nextDouble() < myWorld.params.infection_beta){
-					Infection inf = new Infection(p, this, myWorld.infectiousFramework.getEntryPoint(), myWorld);
-					myWorld.schedule.scheduleOnce(inf, 10);
-				}
-				
-				n--; // recordkeeping
-			}
+			// will need to check if constrained by own local social bubble
+			boolean inHomeCommunity = currentLocation == myHomeCommunity;
+
+			if(inHomeCommunity)
+				interactWithin(communityBubble, currentLocation.personsHere, myNumInteractions);
+			else
+				interactWithin(currentLocation.personsHere, null, myNumInteractions);
+	
 		}
+	}
+
+	/**
+	 * 
+	 * @param group - the small group to check within
+	 * @param largerCommunity - if this is null, the parameter __group__ represents the set of Persons present. If __largerCommunity__
+	 * 		is not null, it represents the Persons who are physically present and __group__ represents the Persons with whom this Person
+	 * 		might actually interact.
+	 * @param interactNumber - the number of interactions to make
+	 */
+	void interactWithin(HashSet <Person> group, HashSet <Person> largerCommunity, int interactNumber) {
+		
+		// setup
+		Object [] checkWithin = group.toArray();
+		int sizeOfCommunity = group.size();
+		boolean largerCommunityContext = largerCommunity != null;
+		
+		// utilities
+		HashSet <Integer> indicesChecked = new HashSet <Integer> ();
+		
+		// select the interaction partners
+		for(int i = 0; i < interactNumber; i++){
+			
+			// make sure there are people left to add 
+			if(indicesChecked.size() >= sizeOfCommunity) {
+				return; // everyone available has been checked! No need to look any more!
+			}
+
+			// choose a random Person who is also here
+			int j = myWorld.random.nextInt(sizeOfCommunity);
+			
+			// is this someone who hasn't already been checked?
+			if(indicesChecked.contains(j)) { // already checked
+				i--;
+				continue;
+			}
+			else // they're being checked now!
+				indicesChecked.add(j);
+			
+			// pull this Person out
+			Person p = (Person) checkWithin[j];
+			
+			if(p == this) { // make sure it's not us!
+				i--;
+				continue;
+			}
+			
+			// if we are within a larger community, we have to make sure our target interaction is present
+			if(largerCommunityContext) {
+				
+				// make sure that Person is actually here right now!
+				if(!largerCommunity.contains(p))
+					continue;
+			}
+			
+			// check if they are already infected; if they are not, infect with with probability BETA
+			if(p.myInfection == null 
+					&& myWorld.random.nextDouble() < myWorld.params.infection_beta){
+				Infection inf = new Infection(p, this, myWorld.infectiousFramework.getEntryPoint(), myWorld);
+				myWorld.schedule.scheduleOnce(inf, 10);
+			}
+
+		}	
 	}
 	
 	/**
@@ -327,13 +315,13 @@ public class Person extends MobileAgent {
 		workBubble.addAll(newPeople);
 	}
 	
-	public ArrayList <Person> getWorkBubble(){ return workBubble; }
+	public HashSet <Person> getWorkBubble(){ return workBubble; }
 
 	public void addToCommunityBubble(Collection <Person> newPeople){
 		communityBubble.addAll(newPeople);
 	}
 	
-	public ArrayList <Person> getCommunityBubble(){ return communityBubble; }
+	public HashSet <Person> getCommunityBubble(){ return communityBubble; }
 	public boolean isHome(){
 		return currentLocation == myHousehold;
 	}

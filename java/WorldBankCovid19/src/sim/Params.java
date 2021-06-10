@@ -581,8 +581,10 @@ public class Params {
 		
 		// now compare the random roll to the probability distribution.
 		for(int i = 0; i < myTransitionProbs.size(); i++){
-			if(rand <= myTransitionProbs.get(i)) // hooray! We've found the right bucket!
-				return districts.get(districtNames.get(i)); // return the location associated with this position
+			if(rand <= myTransitionProbs.get(i)) {// hooray! We've found the right bucket!
+				Location resultLoc = districts.get(districtNames.get(i));
+				return resultLoc; // return the location associated with this position
+			}
 		}
 		
 		return null; // there has been an error!
