@@ -1,5 +1,3 @@
-// hello Sarah! Is this your equivalent of base_model.py? 
-
 package sim;
 
 import java.io.BufferedReader;
@@ -203,7 +201,9 @@ public class WorldBankCovid19Sim extends SimState {
 				
 				// identify the location in which the person, possibly, works
 				
-				String economicActivityLocationName = "d_" + bits[7];
+				String econLocBase = bits[7];
+				int econLocBaseBits = (int) Double.parseDouble(econLocBase);
+				String economicActivityLocationName = "d_" + econLocBaseBits;
 				Location econLocation = params.districts.get(economicActivityLocationName);
 				// TODO: they might not work anywhere! Further, they might work in a particular subset of the location!
                 // SA to SW : what do you mean they might not work anywhere? Isn't their economic status defining where they are working? Or you are refering to the spatial location which we haven't programmed yet? 
@@ -416,7 +416,7 @@ public class WorldBankCovid19Sim extends SimState {
 		}
 		
 		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(
-				12345, // TODO make sure beta param is actually going through???
+				12345, 
 				//System.currentTimeMillis(), 
 				new Params(dataDir));
 		
