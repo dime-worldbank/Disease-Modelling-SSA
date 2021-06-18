@@ -189,8 +189,15 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				// otherwise, if it is scheduled to worsen, progress it
 				else if(time >= i.time_start_severe){
 					i.setBehaviourNode(severeNode);
-					i.getHost().setMobility(false);
-					i.getHost().getLocation().getRootSuperLocation().metric_new_hospitalized++;
+
+					Person p = (Person) i.getHost();
+					
+					// record this event
+					p.getLocation().getRootSuperLocation().metric_new_hospitalized++;
+					
+					// send them home sick and immobilised
+					p.setMobility(false);
+					p.sendHome(); 
 					return 1;
 				}
 				
@@ -300,11 +307,16 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				}
 				
 				// otherwise, if it is scheduled to worsen, progress it
-				else if(time >= i.time_died ){
+				else if(time >= i.time_died){
 					i.setBehaviourNode(deadNode);
-					Location myDistrict = i.getHost().getLocation().getRootSuperLocation();
-					myDistrict.metric_died_count++;
-					myDistrict.metric_new_deaths++;
+					
+					if(!i.getHost().isDead()) {
+						Location myDistrict = i.getHost().getLocation().getRootSuperLocation();
+						myDistrict.metric_died_count++;
+						myDistrict.metric_new_deaths++;
+					}
+					else
+						System.out.println("hmm how did you get here?");
 					return 1;
 				}
 				
