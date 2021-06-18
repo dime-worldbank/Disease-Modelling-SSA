@@ -8,4 +8,4 @@ economic_status, movement_probability
 "Agriculture Workers",0.8
 "Industry Workers",0.8
 "In the army",0.8
-"Disabled and not working",0
+"Disabled and not working",0.1
