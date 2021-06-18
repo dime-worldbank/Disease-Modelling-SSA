@@ -405,6 +405,7 @@ public class WorldBankCovid19Sim extends SimState {
 		// default settings in the absence of commands!
 		int numDays = 7; // by default, one week
 		double myBeta = .016;
+		long seed = 12345;
 		
 		String dataDir = "data/";
 		
@@ -417,11 +418,12 @@ public class WorldBankCovid19Sim extends SimState {
 			numDays = Integer.parseInt(args[0]);
 			dataDir = args[1];
 			myBeta = Double.parseDouble(args[2]);
-			
+			if(args.length > 3)
+				seed = Long.parseLong(args[3]);
 		}
 		
 		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(
-				12345, 
+				seed, 
 				//System.currentTimeMillis(), 
 				new Params(dataDir));
 		
