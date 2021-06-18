@@ -80,7 +80,7 @@ public class WorldBankCovid19Sim extends SimState {
 		for(Location l: params.lineList.keySet()){
 			
 			// number of people to infect
-			int countInfections = params.lineList.get(l);
+			int countInfections = params.lineList.get(l) * params.lineListWeightingFactor;
 			
 			// list of infected people
 			HashSet <Person> newlyInfected = new HashSet <Person> ();
@@ -114,7 +114,10 @@ public class WorldBankCovid19Sim extends SimState {
 						
 		}
 
-		String filenameSuffix = (this.params.ticks_per_day * this.params.infection_beta) + "_" + this.targetDuration + "_" + this.seed() + ".txt";
+		String filenameSuffix = (this.params.ticks_per_day * this.params.infection_beta) + "_" 
+				+ this.params.lineListWeightingFactor + "_"
+				+ this.targetDuration + "_"
+				+ this.seed() + ".txt";
 		outputFilename = "results_" + filenameSuffix;
 		infections_export_filename = "infections_" + filenameSuffix;
 
@@ -190,6 +193,8 @@ public class WorldBankCovid19Sim extends SimState {
 				String myDistrictName = "d_" + bits[5]; // TODO AN ABOMINATION, STANDARDISE IT
 				Location myDistrict = params.districts.get(myDistrictName);
 
+				boolean schoolGoer = bits[8].equals("1");
+				
 				// if the Household doesn't already exist, create it and save it
 				if(h == null){
 					
@@ -201,12 +206,12 @@ public class WorldBankCovid19Sim extends SimState {
 				
 				// identify the location in which the person, possibly, works
 				
-				String econLocBase = bits[7];
+				/*String econLocBase = bits[7];
 				int econLocBaseBits = (int) Double.parseDouble(econLocBase);
 				String economicActivityLocationName = "d_" + econLocBaseBits;
 				Location econLocation = params.districts.get(economicActivityLocationName);
-				// TODO: they might not work anywhere! Further, they might work in a particular subset of the location!
-                // SA to SW : what do you mean they might not work anywhere? Isn't their economic status defining where they are working? Or you are refering to the spatial location which we haven't programmed yet? 
+				// TODO: they might not work anywhere! Further, they might work in a particular subset of the location! Specify here further!
+				*/
 				
 				// set up the person
 
@@ -215,13 +220,13 @@ public class WorldBankCovid19Sim extends SimState {
 						Integer.parseInt(bits[2]), // age
 						bits[3], // sex
 						bits[6].toLowerCase(), // lower case all of the job titles
-						econLocation,
+						schoolGoer,
 						h,
 						this
 						);
 				h.addPerson(p);
 				//p.setLocation(myDistrict);
-				p.setActivityNode(movementFramework.getEntryPoint());
+				p.setActivityNode(movementFramework.getHomeNode());
 				agents.add(p);
 				personsToDistrict.get(myDistrict).add(p);
 				
