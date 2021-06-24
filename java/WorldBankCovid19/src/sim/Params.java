@@ -15,6 +15,8 @@ import objects.Person;
 public class Params {
 	
 	public double infection_beta = 0.016;
+	public int lineListWeightingFactor = 1; // the line list contains only detected instances, which can be biased 
+											// - weight this if we suspect it's undercounting
 	
 	public HashMap <String, Double> economic_status_weekday_movement_prob;
 	public HashMap <String, Double> economic_status_otherday_movement_prob;
@@ -99,14 +101,17 @@ public class Params {
 	public static int hours_per_tick = 4; // the number of hours each tick represents
 	public static int ticks_per_day = 24 / hours_per_tick;
 	
-	public static int hour_start_day_weekday = 8;
-	public static int hour_start_day_otherday = 8;
+	public static int hour_start_day_weekday = 8 / hours_per_tick;
+	public static int hour_start_day_otherday = 8 / hours_per_tick;
 	
-	public static int hour_end_day_weekday = 16;
-	public static int hour_end_day_otherday = 16;
+	public static int hour_end_day_weekday = 16 / hours_per_tick;
+	public static int hour_end_day_otherday = 16 / hours_per_tick;
 	
-	public static int time_leisure_weekday = 4;
-	public static int time_leisure_weekend = 12;
+	public static int time_leisure_weekday = 4 / hours_per_tick;
+	public static int time_leisure_weekend = 12 / hours_per_tick;
+	
+	public static int hours_at_work_weekday = 8 / hours_per_tick;
+	public static int hours_sleeping = 8 / hours_per_tick;
 	
 	
 	public Params(String dirname){
@@ -581,8 +586,10 @@ public class Params {
 		
 		// now compare the random roll to the probability distribution.
 		for(int i = 0; i < myTransitionProbs.size(); i++){
-			if(rand <= myTransitionProbs.get(i)) // hooray! We've found the right bucket!
-				return districts.get(districtNames.get(i)); // return the location associated with this position
+			if(rand <= myTransitionProbs.get(i)) {// hooray! We've found the right bucket!
+				Location resultLoc = districts.get(districtNames.get(i));
+				return resultLoc; // return the location associated with this position
+			}
 		}
 		
 		return null; // there has been an error!
