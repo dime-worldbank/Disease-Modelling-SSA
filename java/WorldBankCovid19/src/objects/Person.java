@@ -3,9 +3,11 @@ package objects;
 import sim.Params;
 import sim.WorldBankCovid19Sim;
 import sim.engine.SimState;
+import sim.engine.Steppable;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 
 import behaviours.BehaviourNode;
 import behaviours.MovementBehaviourFramework;
@@ -31,21 +33,24 @@ public class Person extends MobileAgent {
 
 	// economic attributes
 	String economic_status;
-	Location economic_activity_location; // treating districts as ints
 	
 	// locational attributes
 	Location currentLocation;
-	boolean district_mover; // allowed to move between districts?
+	boolean schoolGoer = false; // allowed to move between districts?
 	
 	// social attributes
 	Location communityLocation;
-	ArrayList <Person> workBubble;
-	ArrayList <Person> communityBubble;
+	HashSet <Person> workBubble;
+	HashSet <Person> communityBubble;
 	
 	// activity
 	BehaviourNode currentActivityNode = null;
 	Infection myInfection = null; // TODO make a hashset of different infections! Allow multiple!!
+	
+	// behaviours
 	boolean immobilised = false;
+	boolean visiting = false;
+	boolean atWork = false;
 	
 	// copy of world
 	WorldBankCovid19Sim myWorld;
@@ -56,7 +61,6 @@ public class Person extends MobileAgent {
 	
 	// health
 	boolean isDead = false;
-	int clinical_state;
 	
 	double severe_disease_risk;
 	
@@ -74,8 +78,7 @@ public class Person extends MobileAgent {
 	 * @param economic_activity_location Location for weekday economic activity (workplace, school, etc.)
 	 * @param world Copy of the simulation
 	 */
-	public Person(int id, int age, String sex, String economic_status, Location economic_activity_location, 
-			Household hh, WorldBankCovid19Sim world){
+	public Person(int id, int age, String sex, String economic_status, boolean schoolGoer, Household hh, WorldBankCovid19Sim world){
 		super();
 
 		// demographic characteristics
@@ -86,7 +89,10 @@ public class Person extends MobileAgent {
 		
 		// economic characteristics
 		this.economic_status = economic_status;
-		this.economic_activity_location = economic_activity_location;
+		
+		//this.economic_activity_location = economic_activity_location;
+		
+		this.schoolGoer = schoolGoer;
 
 		// record-keeping
 		myHousehold = hh;
@@ -98,8 +104,8 @@ public class Person extends MobileAgent {
 		// agents are initialised uninfected
 		
 		communityLocation = myHousehold.getRootSuperLocation();
-		workBubble = new ArrayList <Person> ();
-		communityBubble = new ArrayList <Person> ();
+		workBubble = new HashSet <Person> ();
+		communityBubble = new HashSet <Person> ();
 		
 		this.currentLocation = hh;
 	}
@@ -116,9 +122,66 @@ public class Person extends MobileAgent {
 		double time = world.schedule.getTime(); // find the current time
 		double myDelta = this.currentActivityNode.next(this, time);
 		myWorld.schedule.scheduleOnce(time + myDelta, this);
-		if(this.myId % 10000 == 0) System.out.print(">");
+		
+		// HACK TO ENSURE INTERACTION AWAY FROM HOME DISTRICT
+		// check if out of home district
+		if(visiting) {
+			
+			// if this Person is not infected, check if they catch anything from their neighbours!
+			if(this.myInfection == null)
+				myWorld.schedule.scheduleOnce(new Steppable() {
+
+					@Override
+					public void step(SimState arg0) {
+						
+						// set up: not at home, so out in the community!
+						Object [] checkWithin = currentLocation.personsHere.toArray();
+						int myNumInteractions = myWorld.params.community_interaction_count;
+						int sizeOfCommunity = checkWithin.length;
+						
+						// utilities
+						HashSet <Integer> indicesChecked = new HashSet <Integer> ();
+						
+						// select the interaction partners
+						for(int i = 0; i < myNumInteractions; i++){
+							
+							// make sure there are people left to add 
+							if(indicesChecked.size() >= sizeOfCommunity) {
+								return; // everyone available has been checked! No need to look any more!
+							}
+
+							// choose a random Person who is also here
+							int j = myWorld.random.nextInt(sizeOfCommunity);
+							
+							// is this someone who hasn't already been checked?
+							if(indicesChecked.contains(j)) { // already checked
+								i--;
+								continue;
+							}
+							else // they're being checked now!
+								indicesChecked.add(j);
+							
+							// pull this Person out
+							Person p = (Person) checkWithin[j];
+							
+							// check if they are already infected; if they are are, this Person is infected with with probability BETA
+							if(p.myInfection != null 
+									&& myWorld.random.nextDouble() < myWorld.params.infection_beta){
+								
+								Infection inf = new Infection(myWrapper(), p, myWorld.infectiousFramework.getHomeNode(), myWorld);
+								myWorld.schedule.scheduleOnce(inf, 10);
+							}
+						}
+						
+					}
+				
+				});
+		}
+		//if(this.myId % 10000 == 0) System.out.print(">");
 	}	
 
+	Person myWrapper() { return this; }
+	
 	/**
 	 * A function which moves the Person from wherever they are to the given Location.
 	 * Also updates the various Locations as appropriate (given possible nulls).
@@ -148,141 +211,117 @@ public class Person extends MobileAgent {
 			return;
 		}
 		
-		// otherwise, get a list of others in the space
-		ArrayList <Person> currentNeighbours = currentLocation.getPeople();
-
 		// now apply the rules based on the setting
 
 		// they may be at home
 		if(currentLocation instanceof Household){
 
-			// interact with everyone in the Household
-			for(Person p: currentNeighbours){
-				
-				// if the person is not infected, based on the infection beta they may become infected 
-				if(p.myInfection == null 
-						&& myWorld.random.nextDouble() < myWorld.params.infection_beta){
-					Infection i = new Infection(p, this, myWorld.infectiousFramework.getEntryPoint(), myWorld);
-					myWorld.schedule.scheduleOnce(i, 10);
-				}
-			}
+			interactWithin(currentLocation.personsHere, null, currentLocation.personsHere.size());
 			
 		}
 		
 		// they may be at their economic activity site!
-		else if(currentLocation == economic_activity_location){
+		else if(atWork){
+			
+			// set up the stats
 			Double d = myWorld.params.economic_num_interactions_weekday.get(this.economic_status);
 			int myNumInteractions = (int) Math.round(d);
-			ArrayList <Person> copyOfCoworkers = (ArrayList <Person>) this.workBubble.clone();
-			copyOfCoworkers.retainAll(currentLocation.personsHere);
-			int n = copyOfCoworkers.size();
-			for(int i = 0; i < myNumInteractions; i++){
-				
-				if(n <= 0){ // break clause if we're run out of coworkers
-					i = myNumInteractions;
-					continue;
-				}
-				
-				// otherwise choose a random coworker
-				int j = myWorld.random.nextInt(n);
-				Person p = copyOfCoworkers.remove(j);
-				if(p.myInfection == null 
-						&& myWorld.random.nextDouble() < myWorld.params.infection_beta){
-					Infection inf = new Infection(p, this, myWorld.infectiousFramework.getEntryPoint(), myWorld);
-					myWorld.schedule.scheduleOnce(inf, 10);
-				}
-				
-				n--; // recordkeeping
-			}
+			
+			// interact
+			interactWithin(workBubble, currentLocation.personsHere, myNumInteractions);
 		}
 		
 		else {
+
+			// set up the holders
 			int myNumInteractions = myWorld.params.community_interaction_count;
 			Location myHomeCommunity = this.getHousehold().getRootSuperLocation();
-			ArrayList <Person> copyOfCommunity;
-			
-			// set up pool of possible interactions
-			if(currentLocation == myHomeCommunity){
-				copyOfCommunity = (ArrayList <Person>) this.communityBubble.clone();
-				copyOfCommunity.retainAll(currentLocation.personsHere);
-			}
+
+			// will need to check if constrained by own local social bubble
+			boolean inHomeCommunity = currentLocation == myHomeCommunity;
+
+			if(inHomeCommunity)
+				interactWithin(communityBubble, currentLocation.personsHere, myNumInteractions);
 			else
-				copyOfCommunity = (ArrayList <Person>) currentLocation.personsHere.clone();;
-				
-			int n = copyOfCommunity.size(); // break clause checker
-			
-			// select the interaction partners
-			for(int i = 0; i < myNumInteractions; i++){
-				
-				if(n <= 0){ // break clause if we're run out of coworkers
-					i = myNumInteractions;
-					continue;
-				}
-				
-				// otherwise choose a random coworker
-				int j = myWorld.random.nextInt(n);
-				Person p = copyOfCommunity.remove(j);
-				if(p.myInfection == null 
-						&& myWorld.random.nextDouble() < myWorld.params.infection_beta){
-					Infection inf = new Infection(p, this, myWorld.infectiousFramework.getEntryPoint(), myWorld);
-					myWorld.schedule.scheduleOnce(inf, 10);
-				}
-				
-				n--; // recordkeeping
-			}
+				interactWithin(currentLocation.personsHere, null, myNumInteractions);
+	
 		}
 	}
-	
+
 	/**
-	 * Based on the Person's economic status, attempt to leave the Household. The destination selected will
-	 * be drawn from their economic_activity_location.
-	 * @param weekday The Person will pick different destinations based on the day of the week.
-	 * @return
+	 * A helper function for infectNeighbours().
+	 *
+	 * Utility function to help the individual interact with up to interactNumber individuals, as constrained by
+	 * both the group and the largerCommunity. If largerCommunity is non-null, the Person will only interact with 
+	 * members of "group" who are also present in largerCommunity.
+	 * 
+	 * @param group - the small group to check within
+	 * @param largerCommunity - if this is null, the parameter __group__ represents the set of Persons present. 
+	 * 		If __largerCommunity__ is not null, it represents the Persons who are physically present and __group__ 
+	 * 		represents the Persons with whom this Person might actually interact.
+	 * @param interactNumber - the number of interactions to make
 	 */
-/*	double goOut(int weekday){
-	
+	void interactWithin(HashSet <Person> group, HashSet <Person> largerCommunity, int interactNumber) {
 		
-		// First, check that the Person is currently in their Household
-		// TODO refine with more nuanced movement model
-		if(this.currentLocation != this.myHousehold){
-			System.out.println("WARNING: Person " + this.myId + " is not at home.");
-		}
+		// setup
+		Object [] checkWithin = group.toArray();
+		int sizeOfCommunity = group.size();
+		boolean largerCommunityContext = largerCommunity != null;
 		
-
+		// utilities
+		HashSet <Integer> indicesChecked = new HashSet <Integer> ();
 		
-		if(Params.isWeekday(weekday)){
+		// select the interaction partners
+		for(int i = 0; i < interactNumber; i++){
 			
-		}
-		
-		// if the Person has a workplace and is not there, consider going!
-		if(this.economic_activity_location != null && this.currentLocation != this.economic_activity_location){
-			
-			// extract the appropriate economic status mobility data given the day
-			double myEconStatProb = myWorld.params.getEconProbByDay(weekday, economic_status);
-			
-			// make sure that the the Parameters has a valid record for movement for this economic_status type
-			if(myEconStatProb < 0){
-				System.out.println("WARNING: no recorded movement probability for economic_status type \"" + 
-						this.economic_status + "\". Person " + myId + " will never move.");
-				return -1;
+			// make sure there are people left to add 
+			if(indicesChecked.size() >= sizeOfCommunity) {
+				return; // everyone available has been checked! No need to look any more!
 			}
 
-			// TODO add symptomatic aspects (when appropriate)
-
-			// randomly determine whether the Person is going to work today
-			double activityProb = myWorld.random.nextDouble();
-			if(activityProb < myEconStatProb){
-				//System.out.print(myId + " IS GOING OUT\t");
-				this.currentLocation = this.economic_activity_location;
+			// choose a random Person who is also here
+			int j = myWorld.random.nextInt(sizeOfCommunity);
+			
+			// is this someone who hasn't already been checked?
+			if(indicesChecked.contains(j)) { // already checked
+				i--;
+				continue;
+			}
+			else // they're being checked now!
+				indicesChecked.add(j);
+			
+			// pull this Person out
+			Person p = (Person) checkWithin[j];
+			
+			if(p == this) { // make sure it's not us!
+				i--;
+				continue;
+			}
+			
+			// if we are within a larger community, we have to make sure our target interaction is present
+			if(largerCommunityContext) {
 				
-			}			
-		}
-		return 1; // TODO base this on distance travelled!!
+				// make sure that Person is actually here right now!
+				if(!largerCommunity.contains(p))
+					continue;
+			}
+			
+			// check if they are already infected; if they are not, infect with with probability BETA
+			if(p.myInfection == null 
+					&& myWorld.random.nextDouble() < myWorld.params.infection_beta){
+				Infection inf = new Infection(p, this, myWorld.infectiousFramework.getHomeNode(), myWorld);
+				myWorld.schedule.scheduleOnce(inf, 10);
+			}
+
+		}	
 	}
-*/
+	
+
 	//
-	// UTILITIES
+	// GETTERS AND SETTERS
 	//
+
+	// LOCATIONAL 
 	
 	public void setLocation(Location l){
 		if(this.currentLocation != null)
@@ -291,72 +330,58 @@ public class Person extends MobileAgent {
 		l.addPerson(this);
 	}
 	
-	public Location getLocation(){
-		return currentLocation;
-	}
-	
-	public void addToWorkBubble(Collection <Person> newPeople){
-		workBubble.addAll(newPeople);
-	}
-	
-	public ArrayList <Person> getWorkBubble(){ return workBubble; }
+	public Location getLocation(){ return currentLocation;}
+	public boolean isHome(){ return currentLocation == myHousehold;}
 
-	public void addToCommunityBubble(Collection <Person> newPeople){
-		communityBubble.addAll(newPeople);
-	}
+	public Location getCommunityLocation(){ return communityLocation;}
+	public boolean atWorkNow(){ return this.atWork; }
+	public void setAtWork(boolean atWork) { this.atWork = atWork; }
 	
-	public ArrayList <Person> getCommunityBubble(){ return communityBubble; }
-	public boolean isHome(){
-		return currentLocation == myHousehold;
-	}
+	public boolean visitingNow() { return this.visiting; }
+	public void setVisiting(boolean visiting) { this.visiting = visiting; }
 
-	public String toString(){
-		return "P_" + this.myId;
+	public void sendHome() {
+		this.transferTo(myHousehold);
+		this.setActivityNode(myWorld.movementFramework.getHomeNode());
 	}
 	
-	public void setActivityNode(BehaviourNode bn){
-		currentActivityNode = bn;
-	}
+	// BUBBLE MANAGEMENT
 	
+	public void addToWorkBubble(Collection <Person> newPeople){ workBubble.addAll(newPeople);}	
+	public HashSet <Person> getWorkBubble(){ return workBubble; }
+
+	public void addToCommunityBubble(Collection <Person> newPeople){ communityBubble.addAll(newPeople);}
+	public HashSet <Person> getCommunityBubble(){ return communityBubble; }
+
+	// ATTRIBUTES
+
+	public double getSusceptibility(){ return myWorld.params.getSuspectabilityByAge(age); } // TODO make more nuanced
+	
+	public void setActivityNode(BehaviourNode bn){ currentActivityNode = bn; }
+	
+	public int getAge(){ return age;}
 	public String getEconStatus(){ return economic_status;}
-	
 	public Location getHousehold(){ return myHousehold; }
+		
+	public void setInfection(Infection i){ myInfection = i; }
+	public Infection getInfection(){ return myInfection; }
+	
+	public void setMobility(boolean mobile){ this.immobilised = !mobile; }
+	public boolean isImmobilised(){ return this.immobilised; }
+	public boolean isDead() { return this.isDead; }
+	public boolean isSchoolGoer() { return this.schoolGoer; }
+
+	// UTILS
+	
+	public String toString(){ return "P_" + this.myId;}
+	public int getID(){ return this.myId; }
+
+	// for use in the HashCode!!
+	public int hashCode(){ return myId; }
 	
 	public boolean equals(Object o){
 		if(! (o instanceof Person)) return false;
 		return ((Person) o).myId == this.myId;
 	}
 	
-	/** HashCode */
-	public int hashCode(){ return myId; }
-	
-	public void setInfection(Infection i){
-		myInfection = i;
-	}
-	
-	public Infection getInfection(){
-		return myInfection;
-	}
-	
-	public String getInfectStatus(){
-		if(myInfection == null)
-			return "";
-		return myInfection.currentBehaviourNode.getTitle();
-	}
-	
-	public int getAge(){
-		return age;
-	}
-	
-	public Location getCommunityLocation(){ return communityLocation;}
-	public Location getEconomicLocation(){ return this.economic_activity_location; }
-	
-	public int getID(){ return this.myId; }
-	
-	public double getSusceptibility(){
-		return myWorld.params.getSuspectabilityByAge(age); // TODO modify with appropriate parameters
-	}
-	
-	public void setMobility(boolean mobile){ this.immobilised = !mobile; }
-	public boolean isImmobilised(){ return this.immobilised; }
 }

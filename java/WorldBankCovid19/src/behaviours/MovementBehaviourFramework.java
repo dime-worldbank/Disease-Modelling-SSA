@@ -32,38 +32,55 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 				
 				Person p = (Person) s;
 				
+				// the Person may have been sent home immobilised: update everything and don't schedule
+				// to run again until it has been un-immobilised!
+				if(p.isImmobilised()) {
+					p.setVisiting(false);
+					p.setAtWork(false);
+					return Double.MAX_VALUE; 
+				}
+				
 				// extract time info
 				int hour = ((int)time) % Params.ticks_per_day;
-				int day = (int)(time / Params.ticks_per_day) % 7;
+				int day = (int)(time / Params.ticks_per_day) % 7; // because 7 days in a week
 				
-				// TODO do they even go out at all? Ref to ECONOMIC_STATUS_WEEKDAY_MOVEMENT_PROBABILITY.txt
 				// determine likelihood of leaving the home today
-				//double myEconStatProb = myWorld.params.getEconProbByDay(day, p.getEconStatus());
-				//if(myWorld.random.nextDouble() > myEconStatProb)
-				//	return 6; // rest until the same time tomorrow
+				double myEconStatProb = myWorld.params.getEconProbByDay(day, p.getEconStatus());
+				if(myWorld.random.nextDouble() > myEconStatProb)
+					return myWorld.params.ticks_per_day; // rest until tomorrow
 
 				
 				// if it's morning, go out for the day
-				if(hour > 1 && hour <= 3){ 
+				if(hour >= myWorld.params.hour_start_day_weekday){ 
 
-					// define workday
-					boolean goToWork = p.getEconomicLocation() != null && myWorld.params.isWeekday(day);
-
-					// TODO students/teachers just don't move
+					Location target;
+					target = myWorld.params.getTargetMoveDistrict(p, day, myWorld.random.nextDouble());
 					
-					// pick a target location to move to
-					if(goToWork){ // weekdays
-						p.transferTo(p.getEconomicLocation());
+					// define workday
+					boolean goToWork = (p.isSchoolGoer() || target == p.getCommunityLocation()) // schoolgoer or going to own district
+							&& myWorld.params.isWeekday(day);				// it's a weekday
+
+					p.transferTo(target);
+					
+					// update appropriately
+					if(goToWork){ // working
 						p.setActivityNode(workNode);
-//						System.out.println("Person " + p.toString() + " going to work!");
-						return 8 / Params.hours_per_tick; // 8 hours work
+						p.setAtWork(true);
+						p.setVisiting(false);
+						return myWorld.params.hours_at_work_weekday;
 					}
-					else{ 		// weekends
-						Location target = myWorld.params.getTargetMoveDistrict(p, day, myWorld.random.nextDouble());
-						p.transferTo(target);
+					
+					else if(target == p.getCommunityLocation()) { // in home district, not working
 						p.setActivityNode(communityNode);
-//						System.out.println("Person " + p.toString() + " going out to community " + target.toString());
-						return 12 / Params.hours_per_tick; // 12 hours community
+						p.setAtWork(false);						
+						return myWorld.params.hour_end_day_otherday - hour; // stay out until time to go home!
+					}
+					
+					else{ // travelling to another district!
+						p.setActivityNode(communityNode);
+						p.setAtWork(false);
+						p.setVisiting(true);
+						return myWorld.params.hour_end_day_otherday - hour; // stay out until time to go home!
 					}
 				}
 				return 1; // otherwise it's not the morning - stay home for now, but check in again later!
@@ -84,22 +101,22 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 				int hour = ((int)time) % Params.ticks_per_day;
 				
 				// if it's too late, go straight home
-				if(hour > 5){
+				if(hour > myWorld.params.hour_end_day_weekday){
 					p.transferTo(p.getHousehold());
 					p.setActivityNode(homeNode);
-//					System.out.println("Person " + p.toString() + " going home!");
-					return 12 / Params.hours_per_tick; // 12 hours at home! These agents are very well-rested
+					p.setAtWork(false);
+					return myWorld.params.hours_sleeping;
 				}
 				
 				// if there is some time before going home, go out into the community!
-				else if(hour > 3) {
+				else if(hour <= myWorld.params.hour_end_day_weekday) {
 					p.transferTo(p.getCommunityLocation());
 					p.setActivityNode(communityNode);
-//					System.out.println("Person " + p.toString() + " going out to the community after work!");
+					p.setAtWork(false);
 					return 1; // 4 hours in the community
 				}
 
-				return 1; // otherwise, another 4 hours at work
+				return 1; // otherwise, stay at work
 			}
 			
 		};
@@ -117,12 +134,12 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 				// extract time info
 				int hour = ((int)time) % Params.ticks_per_day;
 
-				if(hour >= 5) { // late! Go home!
+				if(hour >= myWorld.params.hour_end_day_otherday) { // late! Go home!
 					p.transferTo(p.getHousehold());
 					p.setActivityNode(homeNode);
-//					System.out.println("Person " + p.toString() + " going home from the community!");
+					p.setVisiting(false);
 
-					return 12 / Params.hours_per_tick; // 12 hours at home!
+					return myWorld.params.hours_sleeping;
 				}
 				return 1; // check in again soon, but we have more time!
 			}
@@ -132,7 +149,7 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 		entryPoint = homeNode;
 	}
 	
-	public BehaviourNode getEntryPoint(){
+	public BehaviourNode getHomeNode(){
 		return entryPoint;
 	}
 }

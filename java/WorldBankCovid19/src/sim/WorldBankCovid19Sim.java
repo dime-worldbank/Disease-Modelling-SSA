@@ -1,5 +1,3 @@
-// hello Sarah! Is this your equivalent of base_model.py? 
-
 package sim;
 
 import java.io.BufferedReader;
@@ -39,6 +37,7 @@ public class WorldBankCovid19Sim extends SimState {
 	
 	String outputFilename;
 	String infections_export_filename;
+	int targetDuration = 0;
 	
 	// record-keeping
 	
@@ -81,7 +80,7 @@ public class WorldBankCovid19Sim extends SimState {
 		for(Location l: params.lineList.keySet()){
 			
 			// number of people to infect
-			int countInfections = params.lineList.get(l);
+			int countInfections = params.lineList.get(l) * params.lineListWeightingFactor;
 			
 			// list of infected people
 			HashSet <Person> newlyInfected = new HashSet <Person> ();
@@ -115,8 +114,12 @@ public class WorldBankCovid19Sim extends SimState {
 						
 		}
 
-		outputFilename = "results_" + this.seed() + ".txt";
-		infections_export_filename = "infections_" + this.seed() + ".txt";
+		String filenameSuffix = (this.params.ticks_per_day * this.params.infection_beta) + "_" 
+				+ this.params.lineListWeightingFactor + "_"
+				+ this.targetDuration + "_"
+				+ this.seed() + ".txt";
+		outputFilename = "results_" + filenameSuffix;
+		infections_export_filename = "infections_" + filenameSuffix;
 
 		exportMe(outputFilename, Location.metricNamesToString());
 		Steppable reporter = new Steppable(){
@@ -135,7 +138,7 @@ public class WorldBankCovid19Sim extends SimState {
 				
 				exportMe(outputFilename, s);
 				
-				
+				System.out.println("Day " + time + " finished");
 			}
 		};
 		schedule.scheduleRepeating(reporter, 100, params.ticks_per_day);
@@ -190,6 +193,8 @@ public class WorldBankCovid19Sim extends SimState {
 				String myDistrictName = "d_" + bits[5]; // TODO AN ABOMINATION, STANDARDISE IT
 				Location myDistrict = params.districts.get(myDistrictName);
 
+				boolean schoolGoer = bits[8].equals("1");
+				
 				// if the Household doesn't already exist, create it and save it
 				if(h == null){
 					
@@ -201,10 +206,12 @@ public class WorldBankCovid19Sim extends SimState {
 				
 				// identify the location in which the person, possibly, works
 				
-				String economicActivityLocationName = bits[7];
+				/*String econLocBase = bits[7];
+				int econLocBaseBits = (int) Double.parseDouble(econLocBase);
+				String economicActivityLocationName = "d_" + econLocBaseBits;
 				Location econLocation = params.districts.get(economicActivityLocationName);
-				// TODO: they might not work anywhere! Further, they might work in a particular subset of the location!
-                // SA to SW : what do you mean they might not work anywhere? Isn't their economic status defining where they are working? Or you are refering to the spatial location which we haven't programmed yet? 
+				// TODO: they might not work anywhere! Further, they might work in a particular subset of the location! Specify here further!
+				*/
 				
 				// set up the person
 
@@ -213,13 +220,13 @@ public class WorldBankCovid19Sim extends SimState {
 						Integer.parseInt(bits[2]), // age
 						bits[3], // sex
 						bits[6].toLowerCase(), // lower case all of the job titles
-						econLocation,
+						schoolGoer,
 						h,
 						this
 						);
 				h.addPerson(p);
 				//p.setLocation(myDistrict);
-				p.setActivityNode(movementFramework.getEntryPoint());
+				p.setActivityNode(movementFramework.getHomeNode());
 				agents.add(p);
 				personsToDistrict.get(myDistrict).add(p);
 				
@@ -398,6 +405,7 @@ public class WorldBankCovid19Sim extends SimState {
 		// default settings in the absence of commands!
 		int numDays = 7; // by default, one week
 		double myBeta = .016;
+		long seed = 12345;
 		
 		String dataDir = "data/";
 		
@@ -410,22 +418,27 @@ public class WorldBankCovid19Sim extends SimState {
 			numDays = Integer.parseInt(args[0]);
 			dataDir = args[1];
 			myBeta = Double.parseDouble(args[2]);
-			
+			if(args.length > 3)
+				seed = Long.parseLong(args[3]);
 		}
 		
-		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(System.currentTimeMillis(), new Params(dataDir));
+		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(
+				seed, 
+				//System.currentTimeMillis(), 
+				new Params(dataDir));
 		
 		System.out.println("Loading...");
 
+		mySim.params.infection_beta = myBeta / mySim.params.ticks_per_day; // normalised to be per tick
+		mySim.targetDuration = numDays;
 		mySim.start();
-		mySim.params.infection_beta = myBeta;
 
 		System.out.println("Running...");
 
 		while(mySim.schedule.getTime() < Params.ticks_per_day * numDays && !mySim.schedule.scheduleComplete()){
 			mySim.schedule.step(mySim);
 			double myTime = mySim.schedule.getTime();
-			System.out.println("\n*****END TIME: DAY " + (int)(myTime / 6) + " HOUR " + (int)((myTime % 6) * 4) + " RAWTIME: " + myTime);
+			//System.out.println("\n*****END TIME: DAY " + (int)(myTime / 6) + " HOUR " + (int)((myTime % 6) * 4) + " RAWTIME: " + myTime);
 		}
 		
 		//mySim.reportOnInfected();

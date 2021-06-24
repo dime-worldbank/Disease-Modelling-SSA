@@ -1,6 +1,7 @@
 package objects;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * A generic holder for spatial data. Locations keep track of the spatial location within which they exist.
@@ -12,7 +13,7 @@ public class Location {
 	
 	String myId;
 	Location mySuperLocation; // the Location within which this Location exists
-	ArrayList <Person> personsHere;
+	HashSet <Person> personsHere;
 	
 	public int metric_died_count;
 	public int metric_new_hospitalized;
@@ -27,7 +28,7 @@ public class Location {
 	public Location(String id, Location mySuper){
 		myId = id;
 		mySuperLocation = mySuper;
-		personsHere = new ArrayList <Person> ();
+		personsHere = new HashSet <Person> ();
 		
 		metric_died_count = 0; 
 		metric_new_hospitalized = 0;
@@ -80,7 +81,7 @@ public class Location {
 		return l;
 	}
 	
-	public ArrayList <Person> getPeople(){
+	public HashSet <Person> getPeople(){
 		return personsHere;
 	}
 

@@ -32,12 +32,7 @@ public class InteractionUtilities {
 		for(Person p: world.agents){
 			
 			// extract workplace location
-			Location mySuper = p.getEconomicLocation();
-			if(mySuper == null){ // if no workplace, use household instead!
-				mySuper = p.getHousehold().getRootSuperLocation();
-			}
-			else
-				mySuper = mySuper.getRootSuperLocation();
+			Location mySuper = p.getHousehold().getRootSuperLocation(); // TODO WE ASSUME THEY WORK IN THEIR OWN DISTRICT - correct???
 			
 			// store this for later use
 			holderForEconLocations.put(p, mySuper);
