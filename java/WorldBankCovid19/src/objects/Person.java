@@ -121,7 +121,11 @@ public class Person extends MobileAgent {
 		
 		double time = world.schedule.getTime(); // find the current time
 		double myDelta = this.currentActivityNode.next(this, time);
-		myWorld.schedule.scheduleOnce(time + myDelta, this);
+		if(myDelta >= 0)
+			myWorld.schedule.scheduleOnce(time + myDelta, this);
+		else
+			myWorld.schedule.scheduleOnce(this);
+			
 		
 		// HACK TO ENSURE INTERACTION AWAY FROM HOME DISTRICT
 		// check if out of home district

@@ -48,9 +48,10 @@ public class WorldBankCovid19Sim extends SimState {
 	 * Constructor function
 	 * @param seed
 	 */
-	public WorldBankCovid19Sim(long seed, Params params) {
+	public WorldBankCovid19Sim(long seed, Params params, String outputFilename) {
 		super(seed);
 		this.params = params;
+		this.outputFilename = outputFilename;
 	}
 	
 	public void start(){
@@ -118,7 +119,7 @@ public class WorldBankCovid19Sim extends SimState {
 				+ this.params.lineListWeightingFactor + "_"
 				+ this.targetDuration + "_"
 				+ this.seed() + ".txt";
-		outputFilename = "results_" + filenameSuffix;
+		//outputFilename = "results_" + filenameSuffix;
 		infections_export_filename = "infections_" + filenameSuffix;
 
 		exportMe(outputFilename, Location.metricNamesToString());
@@ -406,9 +407,8 @@ public class WorldBankCovid19Sim extends SimState {
 		int numDays = 7; // by default, one week
 		double myBeta = .016;
 		long seed = 12345;
-		
 		String dataDir = "data/";
-		
+		String outputFilename = "dailyReport.tsv";
 		
 		if(args.length < 0){
 			System.out.println("usage error");
@@ -420,19 +420,21 @@ public class WorldBankCovid19Sim extends SimState {
 			myBeta = Double.parseDouble(args[2]);
 			if(args.length > 3)
 				seed = Long.parseLong(args[3]);
+			if(args.length > 4)
+				outputFilename = args[4];
 		}
 		
 		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(
 				seed, 
 				//System.currentTimeMillis(), 
-				new Params(dataDir));
+				new Params(dataDir), outputFilename);
 		
 		System.out.println("Loading...");
 
 		mySim.params.infection_beta = myBeta / mySim.params.ticks_per_day; // normalised to be per tick
 		mySim.targetDuration = numDays;
 		mySim.start();
-
+		
 		System.out.println("Running...");
 
 		while(mySim.schedule.getTime() < Params.ticks_per_day * numDays && !mySim.schedule.scheduleComplete()){
@@ -442,8 +444,8 @@ public class WorldBankCovid19Sim extends SimState {
 		}
 		
 		//mySim.reportOnInfected();
-		mySim.exportInfections();
-		//mySim.exportDailyReports("dailyReport.tsv");
+		//mySim.exportInfections();
+		//mySim.exportDailyReports(outputFilename);
 		
 		mySim.finish();
 		
