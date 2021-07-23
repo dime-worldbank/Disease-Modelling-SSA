@@ -15,7 +15,7 @@ import objects.Person;
 public class Params {
 	
 	public double infection_beta = 0.016;
-	public int lineListWeightingFactor = 1; // the line list contains only detected instances, which can be biased 
+	public int lineListWeightingFactor = 2; // the line list contains only detected instances, which can be biased 
 											// - weight this if we suspect it's undercounting
 	
 	public HashMap <String, Double> economic_status_weekday_movement_prob;
@@ -90,7 +90,7 @@ public class Params {
 	
 	public String econ_interaction_distrib_filename = "configs/interaction_matrix_nld.csv";
 	
-	public String line_list_filename = "preprocessed/line_list/line_list_5perc.txt";
+	public String line_list_filename = "preprocessed/line_list/line_list_5perc_gold.txt";
 	public String infection_transition_params_filename = "configs/covasim_infect_transitions.txt";
 	
 	// social qualities
