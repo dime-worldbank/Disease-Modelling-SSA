@@ -54,7 +54,7 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 				if(hour >= myWorld.params.hour_start_day_weekday){ 
 
 					Location target;
-					target = myWorld.params.getTargetMoveDistrict(p, day, myWorld.random.nextDouble());
+					target = myWorld.params.getTargetMoveDistrict(p, day, myWorld.random.nextDouble(), myWorld.lockedDown);
 					
 					// define workday
 					boolean goToWork = (p.isSchoolGoer() || target == p.getCommunityLocation()) // schoolgoer or going to own district
