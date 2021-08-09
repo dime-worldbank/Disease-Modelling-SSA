@@ -34,6 +34,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public MovementBehaviourFramework movementFramework;
 	public InfectiousBehaviourFramework infectiousFramework;
 	public Params params;
+	public boolean lockedDown = false;
 	
 	String outputFilename;
 	String infections_export_filename;
@@ -115,6 +116,25 @@ public class WorldBankCovid19Sim extends SimState {
 						
 		}
 
+		// SCHEDULE LOCKDOWNS
+		Steppable lockdownTrigger = new Steppable() {
+
+			@Override
+			public void step(SimState arg0) {
+				double currentTime = arg0.schedule.getTime();
+				if(params.lockdownChangeList.size() == 0)
+					return;
+				double nextChange = params.lockdownChangeList.get(0);
+				if(currentTime >= nextChange) {
+					params.lockdownChangeList.remove(0);
+					lockedDown = !lockedDown;
+				}
+				
+			}
+			
+		};
+		schedule.scheduleRepeating(lockdownTrigger);
+		
 		String filenameSuffix = (this.params.ticks_per_day * this.params.infection_beta) + "_" 
 				+ this.params.lineListWeightingFactor + "_"
 				+ this.targetDuration + "_"
@@ -408,7 +428,7 @@ public class WorldBankCovid19Sim extends SimState {
 		double myBeta = .016;
 		long seed = 12345;
 		String dataDir = "data/";
-		String outputFilename = "dailyReport.tsv";
+		String outputFilename = "dailyReport" + seed + ".tsv";
 		
 		if(args.length < 0){
 			System.out.println("usage error");
@@ -418,8 +438,10 @@ public class WorldBankCovid19Sim extends SimState {
 			numDays = Integer.parseInt(args[0]);
 			dataDir = args[1];
 			myBeta = Double.parseDouble(args[2]);
-			if(args.length > 3)
+			if(args.length > 3) {
 				seed = Long.parseLong(args[3]);
+				outputFilename = "dailyReport" + seed + ".tsv";
+			}
 			if(args.length > 4)
 				outputFilename = args[4];
 		}
