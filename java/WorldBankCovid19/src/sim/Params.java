@@ -20,6 +20,7 @@ public class Params {
 	
 	public HashMap <String, Double> economic_status_weekday_movement_prob;
 	public HashMap <String, Double> economic_status_otherday_movement_prob;
+	
 	public HashMap <String, Double> economic_num_interactions_weekday;
 	double mild_symptom_movement_prob;
 	
@@ -29,9 +30,11 @@ public class Params {
 			"num_contagious", "num_severe", "num_critical", "num_symptomatic", "num_asymptomatic"};
 
 	// holders for locational data
+	
 	HashMap <String, Location> districts;
 	ArrayList <String> districtNames;
-	ArrayList <Map<String, List<Double>>> dailyTransitionProbs;
+	ArrayList <Map<String, List<Double>>> dailyTransitionPrelockdownProbs;
+	ArrayList <Map<String, List<Double>>> dailyTransitionLockdownProbs;
 
 	HashMap <Location, Double> districtLeavingProb;
 	
@@ -45,6 +48,7 @@ public class Params {
 	// holders for epidemic-related data
 	
 	HashMap <Location, Integer> lineList;
+	ArrayList <Double> lockdownChangeList;
 	
 	// parameters drawn from Kerr et al 2020 - https://www.medrxiv.org/content/10.1101/2020.05.10.20097469v3.full.pdf
 	public ArrayList <Integer> infection_age_params;
@@ -81,7 +85,8 @@ public class Params {
 	
 	
 	public String population_filename = "preprocessed/census/census_sample_5perc_040521.csv";
-	public String district_transition_filename = "preprocessed/mobility/New Files/daily_region_transition_probability-new-district-post-lockdown_i5.csv";	
+	public String district_transition_LOCKDOWN_filename = "preprocessed/mobility/New Files/daily_region_transition_probability-new-district-post-lockdown_i5.csv";
+	public String district_transition_PRELOCKDOWN_filename = "preprocessed/mobility/New Files/daily_region_transition_probability-new-district-pre-lockdown_i5.csv";
 	public String district_leaving_filename = "preprocessed/mobility/intra_district_decreased_mobility_rates.csv";
 	
 	public String economic_status_weekday_movement_prob_filename = "configs/ECONOMIC_STATUS_WEEKDAY_MOVEMENT_PROBABILITY.txt";
@@ -92,6 +97,8 @@ public class Params {
 	
 	public String line_list_filename = "preprocessed/line_list/line_list_5perc_gold.txt";
 	public String infection_transition_params_filename = "configs/covasim_infect_transitions.txt";
+	public String lockdown_changeList_filename = "configs/lockdownChangelist.txt";
+	
 	
 	// social qualities
 	public static int social_bubble_size = 30;
@@ -118,7 +125,8 @@ public class Params {
 		
 		dataDir = dirname;
 		
-		load_district_data(dirname + district_transition_filename);
+		dailyTransitionLockdownProbs = load_district_data(dirname + district_transition_LOCKDOWN_filename);
+		dailyTransitionPrelockdownProbs = load_district_data(dirname + district_transition_PRELOCKDOWN_filename);
 		load_district_leaving_data(dirname + district_leaving_filename);
 		
 		economic_status_weekday_movement_prob = readInEconomicData(dirname + economic_status_weekday_movement_prob_filename, "economic_status", "movement_probability");
@@ -128,6 +136,7 @@ public class Params {
 		load_econ_distrib(dirname + econ_interaction_distrib_filename);
 		
 		load_line_list(dirname + line_list_filename);
+		load_lockdown_changelist(dirname +  lockdown_changeList_filename);
 		load_infection_params(dirname + infection_transition_params_filename);
 	}
 	
@@ -174,7 +183,50 @@ public class Params {
 		}
 	}
 	
-	
+	public void load_lockdown_changelist(String lockdownChangelistFilename) {
+		try {
+			
+			System.out.println("Reading in data from " + lockdownChangelistFilename);
+			
+			// Open the tracts file
+			FileInputStream fstream = new FileInputStream(lockdownChangelistFilename);
+
+			// Convert our input stream to a BufferedReader
+			BufferedReader lineListDataFile = new BufferedReader(new InputStreamReader(fstream));
+			String s;
+
+			// extract the header
+			s = lineListDataFile.readLine();
+
+			// map the header into column names relative to location
+			String [] header = splitRawCSVString(s);
+			HashMap <String, Integer> columnNames = parseHeader(header);
+			int dayIndex = columnNames.get("day");
+			int levelIndex = columnNames.get("level");
+			
+			// set up data container
+			lockdownChangeList = new ArrayList <Double> ();
+			
+			// read in the raw data
+			boolean started = false;
+			while ((s = lineListDataFile.readLine()) != null) {
+				String [] bits = splitRawCSVString(s);
+				int dayVal = Integer.parseInt(bits[dayIndex]);
+				Integer myLevel = Integer.parseInt(bits[levelIndex]);
+				if(!started && myLevel > 0) {
+					lockdownChangeList.add((double)dayVal);
+					started = true;
+				}
+				else if(started) {
+					lockdownChangeList.add((double)dayVal);
+					started = false;
+				}
+			}
+
+		} catch (Exception e) {
+			System.err.println("File input error: " + lockdownChangelistFilename);
+		}
+	}
 	
 	public void load_infection_params(String filename){
 		try {
@@ -302,12 +354,12 @@ public class Params {
 		}
 	}
 	
-	public void load_district_data(String districtFilename){
+	public ArrayList <Map<String, List<Double>>> load_district_data(String districtFilename){
 		
 		// set up structure to hold transition probability
-		dailyTransitionProbs = new ArrayList <Map<String, List<Double>>> ();
+		ArrayList <Map<String, List<Double>>> probHolder = new ArrayList <Map<String, List<Double>>> ();
 		for(int i = 0; i < 7; i++){
-			dailyTransitionProbs.add(new HashMap <String, List<Double>> ());
+			probHolder.add(new HashMap <String, List<Double>> ());
 		}
 		districtNames = new ArrayList <String> ();
 
@@ -371,7 +423,7 @@ public class Params {
 
 				// save the transitions
 //				dailyTransitionProbs.get(dayOfWeek).put( districtName, transferFromDistrict);
-				dailyTransitionProbs.get(dayOfWeek).put( districtName, cumulativeProbTransfer);
+				probHolder.get(dayOfWeek).put( districtName, cumulativeProbTransfer);
 			}
 			
 			// create Locations for each district
@@ -382,8 +434,10 @@ public class Params {
 			
 			// clean up after ourselves
 			districtData.close();
+			return probHolder;
 		} catch (Exception e) {
 			System.err.println("File input error: " + districtFilename);
+			return null;
 		}
 	}
 
@@ -573,7 +627,7 @@ public class Params {
 		return districtLeavingProb.get(dummy);
 	}
 	
-	public Location getTargetMoveDistrict(Person p, int day, double rand){
+	public Location getTargetMoveDistrict(Person p, int day, double rand, boolean lockedDown){
 		
 		// extract current District from the location
 		Location l = p.getLocation();
@@ -582,8 +636,11 @@ public class Params {
 			dummy = dummy.getSuper();
 
 		// get the transition probability for the given district on the given day
-		ArrayList <Double> myTransitionProbs = (ArrayList <Double>) dailyTransitionProbs.get(day).get(dummy.getId());
-		
+		ArrayList <Double> myTransitionProbs;
+		if(lockedDown)
+			myTransitionProbs = (ArrayList <Double>) dailyTransitionLockdownProbs.get(day).get(dummy.getId());
+		else
+			myTransitionProbs = (ArrayList <Double>) dailyTransitionPrelockdownProbs.get(day).get(dummy.getId());
 		// now compare the random roll to the probability distribution.
 		for(int i = 0; i < myTransitionProbs.size(); i++){
 			if(rand <= myTransitionProbs.get(i)) {// hooray! We've found the right bucket!
