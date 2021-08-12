@@ -1,0 +1,16 @@
+dataDir: data/
+
+population_filename: preprocessed/census/census_sample_5perc_040521.csv
+
+district_transition_LOCKDOWN_filename: preprocessed/mobility/New Files/daily_region_transition_probability-new-district-post-lockdown_i5.csv
+district_transition_PRELOCKDOWN_filename: preprocessed/mobility/New Files/daily_region_transition_probability-new-district-pre-lockdown_i5.csv
+district_leaving_filename: preprocessed/mobility/intra_district_decreased_mobility_rates.csv
+
+economic_status_weekday_movement_prob_filename: configs/ECONOMIC_STATUS_WEEKDAY_MOVEMENT_PROBABILITY.txt
+economic_status_otherday_movement_prob_filename: configs/ECONOMIC_STATUS_OTHER_DAY_MOVEMENT_PROBABILITY.txt
+economic_status_num_daily_interacts_filename: configs/no_interactions_wk_econ.txt
+econ_interaction_distrib_filename: configs/interaction_matrix_nld.csv
+
+line_list_filename: preprocessed/line_list/line_list_5perc_gold.txt
+infection_transition_params_filename: configs/covasim_infect_transitions.txt
+lockdown_changeList_filename: configs/lockdownChangelist.txt

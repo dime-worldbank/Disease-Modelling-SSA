@@ -2,7 +2,9 @@ package sim;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -84,20 +86,20 @@ public class Params {
 	public String dataDir = "";
 	
 	
-	public String population_filename = "preprocessed/census/census_sample_5perc_040521.csv";
-	public String district_transition_LOCKDOWN_filename = "preprocessed/mobility/New Files/daily_region_transition_probability-new-district-post-lockdown_i5.csv";
-	public String district_transition_PRELOCKDOWN_filename = "preprocessed/mobility/New Files/daily_region_transition_probability-new-district-pre-lockdown_i5.csv";
-	public String district_leaving_filename = "preprocessed/mobility/intra_district_decreased_mobility_rates.csv";
+	public String population_filename = "";
+	public String district_transition_LOCKDOWN_filename = "";
+	public String district_transition_PRELOCKDOWN_filename = "";
+	public String district_leaving_filename = "";
 	
-	public String economic_status_weekday_movement_prob_filename = "configs/ECONOMIC_STATUS_WEEKDAY_MOVEMENT_PROBABILITY.txt";
-	public String economic_status_otherday_movement_prob_filename = "configs/ECONOMIC_STATUS_OTHER_DAY_MOVEMENT_PROBABILITY.txt";
-	public String economic_status_num_daily_interacts_filename = "configs/no_interactions_wk_econ.txt";
+	public String economic_status_weekday_movement_prob_filename = "";
+	public String economic_status_otherday_movement_prob_filename = "";
+	public String economic_status_num_daily_interacts_filename = "";
 	
-	public String econ_interaction_distrib_filename = "configs/interaction_matrix_nld.csv";
+	public String econ_interaction_distrib_filename = "";
 	
-	public String line_list_filename = "preprocessed/line_list/line_list_5perc_gold.txt";
-	public String infection_transition_params_filename = "configs/covasim_infect_transitions.txt";
-	public String lockdown_changeList_filename = "configs/lockdownChangelist.txt";
+	public String line_list_filename = "";
+	public String infection_transition_params_filename = "";
+	public String lockdown_changeList_filename = "";
 	
 	
 	// social qualities
@@ -123,6 +125,8 @@ public class Params {
 	
 	public Params(String dirname){
 		
+		readInParamFile(dirname + "configs/params.txt");
+		
 		dataDir = dirname;
 		
 		dailyTransitionLockdownProbs = load_district_data(dirname + district_transition_LOCKDOWN_filename);
@@ -143,6 +147,38 @@ public class Params {
 	//
 	// DATA IMPORT UTILITIES
 	//
+	
+	public void readInParamFile(String paramFilename) {
+		System.out.println("Reading in data from " + paramFilename);
+		
+		// Open the tracts file
+		FileInputStream fstream;
+		try {
+			fstream = new FileInputStream(paramFilename);
+
+			// Convert our input stream to a BufferedReader
+			BufferedReader paramFile = new BufferedReader(new InputStreamReader(fstream));
+			String s;
+
+			while ((s = paramFile.readLine()) != null) {
+				
+				// skip comments
+				if(s.length() == 0 || s.charAt(0) == '#')
+					continue;
+				
+				// extract all other parameters
+				String [] bits = s.split(":");
+				Field f = this.getClass().getDeclaredField(bits[0].trim());
+				f.setAccessible(true);
+				f.set(this, bits[1].trim());
+			}			
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+
+	}
 	
 	// Epidemic
 	

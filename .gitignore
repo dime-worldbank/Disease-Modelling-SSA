@@ -80,7 +80,7 @@
 # Including some of the input data which corresponds to important parameters
 !/configs/*.txt
 !/configs/*.csv
-
+/dataForSophie/*
 
 !/data/configs/*.txt
 !/data/configs/*.csv
