@@ -23,6 +23,7 @@ public class Household extends Location {
 	public boolean addPerson(Person p){
 		boolean result = super.addPerson(p);
 		p.myHousehold = this;
+		updatePersonsHere();
 		return result;
 	}
 	
