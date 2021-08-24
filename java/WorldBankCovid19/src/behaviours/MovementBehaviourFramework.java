@@ -4,7 +4,6 @@ import objects.Location;
 import objects.Person;
 import sim.Params;
 import sim.WorldBankCovid19Sim;
-import sim.engine.SimState;
 import sim.engine.Steppable;
 
 /**

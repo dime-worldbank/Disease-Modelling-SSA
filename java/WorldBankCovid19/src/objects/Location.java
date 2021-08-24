@@ -14,6 +14,8 @@ public class Location {
 	String myId;
 	Location mySuperLocation; // the Location within which this Location exists
 	HashSet <Person> personsHere;
+	Object [] personsHere_list;
+	boolean active = false;
 	
 	public int metric_died_count;
 	public int metric_new_hospitalized;
@@ -29,6 +31,7 @@ public class Location {
 		myId = id;
 		mySuperLocation = mySuper;
 		personsHere = new HashSet <Person> ();
+		updatePersonsHere();
 		
 		metric_died_count = 0; 
 		metric_new_hospitalized = 0;
@@ -64,6 +67,14 @@ public class Location {
 	
 	public boolean removePerson(Person p){
 		return personsHere.remove(p);
+	}
+	
+	public void updatePersonsHere() {
+		personsHere_list = personsHere.toArray();
+	}
+	
+	public Object [] getPersonsHere() {
+		return personsHere_list;
 	}
 	
 	public Location getSuper(){
@@ -111,4 +122,9 @@ public class Location {
 				"metric_new_deaths" + "\t\n";
 		return s;
 	}
+	
+	public void setActive(boolean b) {
+		active = b;
+	}
+	public boolean getActive() { return active; }
 }
