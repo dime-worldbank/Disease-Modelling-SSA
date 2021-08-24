@@ -7,7 +7,9 @@ import sim.engine.Steppable;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 
 import behaviours.BehaviourNode;
 import behaviours.MovementBehaviourFramework;
@@ -122,9 +124,9 @@ public class Person extends MobileAgent {
 		double time = world.schedule.getTime(); // find the current time
 		double myDelta = this.currentActivityNode.next(this, time);
 		if(myDelta >= 0)
-			myWorld.schedule.scheduleOnce(time + myDelta, this);
+			myWorld.schedule.scheduleOnce(time + myDelta, myWorld.param_schedule_movement, this);
 		else
-			myWorld.schedule.scheduleOnce(this);
+			myWorld.schedule.scheduleOnce(this, myWorld.param_schedule_movement);
 			
 		
 		// HACK TO ENSURE INTERACTION AWAY FROM HOME DISTRICT
@@ -139,9 +141,10 @@ public class Person extends MobileAgent {
 					public void step(SimState arg0) {
 						
 						// set up: not at home, so out in the community!
-						Object [] checkWithin = currentLocation.personsHere.toArray();
+						Object [] checkWithin = currentLocation.personsHere_list;
 						int myNumInteractions = myWorld.params.community_interaction_count;
 						int sizeOfCommunity = checkWithin.length;
+						myNumInteractions = Math.min(myNumInteractions, sizeOfCommunity);
 						
 						// utilities
 						HashSet <Integer> indicesChecked = new HashSet <Integer> ();
@@ -175,11 +178,12 @@ public class Person extends MobileAgent {
 								Infection inf = new Infection(myWrapper(), p, myWorld.infectiousFramework.getHomeNode(), myWorld);
 								myWorld.schedule.scheduleOnce(inf, 10);
 							}
+
 						}
-						
+												
 					}
 				
-				});
+				}, myWorld.param_schedule_infecting);
 		}
 		//if(this.myId % 10000 == 0) System.out.print(">");
 	}	
@@ -314,7 +318,7 @@ public class Person extends MobileAgent {
 			if(p.myInfection == null 
 					&& myWorld.random.nextDouble() < myWorld.params.infection_beta){
 				Infection inf = new Infection(p, this, myWorld.infectiousFramework.getHomeNode(), myWorld);
-				myWorld.schedule.scheduleOnce(inf, 10);
+				myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting);
 			}
 
 		}	
