@@ -40,6 +40,13 @@ public class WorldBankCovid19Sim extends SimState {
 	String infections_export_filename;
 	int targetDuration = 0;
 	
+	// ordering information
+	public static int param_schedule_lockdown = 0;
+	public static int param_schedule_movement = 1;
+	public static int param_schedule_updating_locations = 5;
+	public static int param_schedule_infecting = 10;
+	public static int param_schedule_reporting = 100;
+	
 	// record-keeping
 	
 	ArrayList <HashMap <String, Double>> dailyRecord = new ArrayList <HashMap <String, Double>> ();
@@ -79,7 +86,12 @@ public class WorldBankCovid19Sim extends SimState {
 
 		// set up the infections
 		infections = new ArrayList <Infection> ();
+		ArrayList <Location> unactivatedDistricts = new ArrayList <Location> (districts);
 		for(Location l: params.lineList.keySet()){
+			
+			// activate this location
+			l.setActive(true);
+			unactivatedDistricts.remove(l);
 			
 			// number of people to infect
 			int countInfections = params.lineList.get(l) * params.lineListWeightingFactor;
@@ -94,6 +106,10 @@ public class WorldBankCovid19Sim extends SimState {
 				System.out.println("WARNING: attempting to initialise infection in Location " + l.getId() + " but there are no People present. Continuing without successful infection...");
 				continue;
 			}
+
+			// schedule people here
+			//for(Person p: peopleHere)
+			//	schedule.scheduleRepeating(0, p);
 			
 			int collisions = 100; // to escape while loop in case of troubles
 
@@ -111,11 +127,24 @@ public class WorldBankCovid19Sim extends SimState {
 				
 				// create new person
 				Infection inf = new Infection(p, null, infectiousFramework.getInfectedEntryPoint(l), this);
-				schedule.scheduleOnce(1, 10, inf);
+				schedule.scheduleOnce(1, param_schedule_infecting, inf);
 			}
 						
 		}
 
+		// SCHEDULE UPDATING OF LOCATIONS
+		Steppable updateLocationLists = new Steppable() {
+
+			@Override
+			public void step(SimState arg0) {
+				for(Location l: districts)
+					l.updatePersonsHere();
+				
+			}
+			
+		};
+		schedule.scheduleRepeating(0, this.param_schedule_updating_locations, updateLocationLists);
+		
 		// SCHEDULE LOCKDOWNS
 		Steppable lockdownTrigger = new Steppable() {
 
@@ -133,7 +162,7 @@ public class WorldBankCovid19Sim extends SimState {
 			}
 			
 		};
-		schedule.scheduleRepeating(lockdownTrigger);
+		schedule.scheduleRepeating(0, this.param_schedule_lockdown, lockdownTrigger);
 		
 		String filenameSuffix = (this.params.ticks_per_day * this.params.infection_beta) + "_" 
 				+ this.params.lineListWeightingFactor + "_"
@@ -162,7 +191,7 @@ public class WorldBankCovid19Sim extends SimState {
 				System.out.println("Day " + time + " finished");
 			}
 		};
-		schedule.scheduleRepeating(reporter, 100, params.ticks_per_day);
+		schedule.scheduleRepeating(reporter, this.param_schedule_reporting, params.ticks_per_day);
 	}
 	
 	public void load_population(String agentsFilename){
@@ -252,7 +281,7 @@ public class WorldBankCovid19Sim extends SimState {
 				personsToDistrict.get(myDistrict).add(p);
 				
 				// schedule the agent to run at the beginning of the simulation
-				this.schedule.scheduleOnce(0, p);
+				this.schedule.scheduleOnce(0, this.param_schedule_movement, p);
 				//this.schedule.scheduleRepeating(p);
 			}
 			
@@ -261,6 +290,7 @@ public class WorldBankCovid19Sim extends SimState {
 							
 			System.out.println("FINISHED READING PEOPLE");
 		} catch (Exception e) {
+			e.printStackTrace();
 			System.err.println("File input error: " + agentsFilename);
 		}
 	}

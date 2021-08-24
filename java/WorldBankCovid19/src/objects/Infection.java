@@ -65,7 +65,7 @@ public class Infection implements Steppable {
 	public void step(SimState world) {
 		double time = world.schedule.getTime(); // find the current time
 		double myDelta = this.currentBehaviourNode.next(this, time);
-		world.schedule.scheduleOnce(time + myDelta, this);
+		world.schedule.scheduleOnce(time + myDelta, myWorld.param_schedule_infecting, this);
 		
 	//	System.out.println("Infection\t" + host.toString() + "\t" + currentBehaviourNode.getTitle() + "\t" + myDelta);
 	}
