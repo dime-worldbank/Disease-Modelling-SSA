@@ -49,7 +49,7 @@ drop economic_status
 rename economic_status2 economic_status
 
 *create the school goers variable (this is just a dummy for now) 
-drop _merge
+*drop _merge
 
 *clean age variable 
 replace age = . if age==999
@@ -64,7 +64,7 @@ rename serial household_id
 *order 
 order district_id district_name_shpfile 
 save "data/raw/census/20_perc_sample/census_sample_20perc_070921.dta", replace
-
+export delimited using "data\raw\census\20_perc_sample\census_sample_20perc_070921.csv", replace
 ****check variables in this 20 perc sample are all the same as the one in the 1500 below
 
 use "data/raw/census/20_perc_sample/census_sample_20perc_070921.dta", clear
