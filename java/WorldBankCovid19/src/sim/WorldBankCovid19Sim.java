@@ -51,6 +51,8 @@ public class WorldBankCovid19Sim extends SimState {
 	
 	ArrayList <HashMap <String, Double>> dailyRecord = new ArrayList <HashMap <String, Double>> ();
 
+	// meta
+	public long timer = -1;
 	
 	/**
 	 * Constructor function
@@ -357,6 +359,8 @@ public class WorldBankCovid19Sim extends SimState {
 			
 			// shove it out
 			BufferedWriter exportFile = new BufferedWriter(new FileWriter(filename, true));
+			if(timer > 0)
+				exportFile.write(timer + "\n");
 			exportFile.write(output);
 			exportFile.close();
 		} catch (Exception e) {
@@ -476,6 +480,7 @@ public class WorldBankCovid19Sim extends SimState {
 				outputFilename = args[4];
 		}
 		
+		long startTime = System.currentTimeMillis();
 		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(
 				seed, 
 				//System.currentTimeMillis(), 
@@ -498,7 +503,8 @@ public class WorldBankCovid19Sim extends SimState {
 		//mySim.reportOnInfected();
 		//mySim.exportInfections();
 		//mySim.exportDailyReports(outputFilename);
-		
+		long endTime = System.currentTimeMillis();
+		mySim.timer = endTime - startTime;
 		mySim.finish();
 		
 		System.out.println("...run finished");
