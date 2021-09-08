@@ -90,8 +90,8 @@
 # to change the name of the Output folder to whatever it is called in your
 # project, but we strongly recommend that you only include these files in
 # a subset of the folders where you are certain no private data is ever stored.
-!/**/Output/**/*.txt
-!/**/Output/**/*.csv
+##!/**/Output/**/*.txt ## there are a few too many of these right now so commenting out
+##!/**/Output/**/*.csv ## there are a few too many of these right now so commenting out
 !/**/Output/**/*.xml
 !/**/Output/**/*.eps
 !/**/Output/**/*.svg
