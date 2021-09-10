@@ -8,7 +8,6 @@ from collections import Counter
 import os.path
 import sys
 from pathlib import Path
-from covid19_abm.dir_manager import get_data_dir
 
 #sys.exit()
 # This is how to set the directory - 
@@ -19,10 +18,11 @@ from covid19_abm.dir_manager import get_data_dir
 # define the relevant filenames
 
 #census_filename =get_data_dir('raw', 'census', 'census_sample_1500.dta')
-census_filename =get_data_dir('raw', 'census', '5_perc_sample', 'census_sample_5perc_040521.dta')#'census_sample_5perc.dta')
+dataDir = "../data/"
+census_filename =dataDir + "raw/census/5_perc_sample/census_sample_5perc_040521.dta"
 #'ABM_Simulated_Pop_WardDistributed_UpdatedMay30_school_complete_060520.dta'
-district_filename = get_data_dir('raw','district_relation.csv')
-output_filename = get_data_dir('preprocessed', 'census', 'census_sample_5perc_040521.csv')#pickle')
+district_filename = dataDir + "raw/district_relation.csv"
+output_filename = dataDir + "preprocessed/census/census_sample_5perc_040521.csv"
 
 # set up mappings between the input data and the values used by the census builder
 
