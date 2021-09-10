@@ -6,42 +6,34 @@ cap cd "\Users\wb488473\OneDrive - WBG\Documents\GitHub\Disease-Modelling-SSA"
 tempfile temp1 temp2
 
 
-** check other version that Billy shared -- if it has all right vars, am just going to use this instead
-
+** take the 100 perc dataset with missing vars to sample on
+/*
 use "data/raw/census/100_perc/abm_individual_new_092320_final_merged_complete_FINAL.dta", clear
 
-* it still needs some of the work done down below, but first cut it to 5% sample
+* it still needs some of the work done down below, but first cut it to the sample size i want
 
 sample 20, by(new_district_id)
 save "data/raw/census/20_perc_sample/20_perc_092320_missingvars.dta", replace
 */
 
-** save old dataset geo vars for merge as tempfile 
-use "data/raw/census/5_perc_sample/ABM_Simulated_Pop_WardDistributed_UpdatedMay30_school_complete_060520.dta", clear
-
-
-keep new_district_id district_id geo1_zw2012 geo2_zw2012 
-// district_id (old version) is coded the same as geo2_zw2012
-sort district_id 
-duplicates drop
-drop if district_id <1
-isid district_id
+***** use 20 percent version as created in commented out code above 
+tempfile temp1
+use "data/raw/census/20_perc_sample/20_perc_092320_missingvars.dta", clear
+sort district_id
+rename district_id dist_id_88
 
 save `temp1', replace
 
+import delimited "data/raw/district_relation_plus_mapcode.csv", clear
 
-***** replicate for updated version from Billy 
-
-use "data/raw/census/20_perc_sample/20_perc_092320_missingvars.dta", clear
-sort district_id
-merge m:1 district_id using `temp1' 
+merge 1:m dist_id_88 using `temp1'
+drop _merge
 
 *change the old to new district id
-drop district_id
 rename new_district_id district_id
 
 
-** save new version of 5 perc dataset
+** save new version of 20 perc dataset
 tab economic_status, nol
 gen economic_status2 = economic_status
 
@@ -57,7 +49,7 @@ drop economic_status
 rename economic_status2 economic_status
 
 *create the school goers variable (this is just a dummy for now) 
-drop _merge
+*drop _merge
 
 *clean age variable 
 replace age = . if age==999
@@ -72,8 +64,8 @@ rename serial household_id
 *order 
 order district_id district_name_shpfile 
 save "data/raw/census/20_perc_sample/census_sample_20perc_070921.dta", replace
-
-****check variables in this 5 perc sample are all the same as the one in the 1500 below
+export delimited using "data\raw\census\20_perc_sample\census_sample_20perc_070921.csv", replace
+****check variables in this 20 perc sample are all the same as the one in the 1500 below
 
 use "data/raw/census/20_perc_sample/census_sample_20perc_070921.dta", clear
 tab economic_status
