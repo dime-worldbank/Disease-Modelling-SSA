@@ -223,7 +223,8 @@ public class WorldBankCovid19Sim extends SimState {
 			String s;
 
 			// get rid of the header
-			s = agentData.readLine(); // TODO use header to specify where everything is, just in case!!!
+			s = agentData.readLine();
+			//Params.parseHeader(s.split(',')); TODO fix meeee
 			
 			System.out.print("BEGIN READING IN PEOPLE...");
 			
