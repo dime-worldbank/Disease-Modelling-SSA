@@ -1,6 +1,6 @@
 dataDir: data/
 
-population_filename: preprocessed/census/20_perc_sample/census_sample_20perc_070921.csv
+population_filename: preprocessed/census/50_perc_sample/census_sample_50perc_070921.csv
 
 district_transition_LOCKDOWN_filename: preprocessed/mobility/New Files/daily_region_transition_probability-new-district-pre-lockdown_i5.csv
 district_transition_PRELOCKDOWN_filename: preprocessed/mobility/New Files/daily_region_transition_probability-new-district-pre-lockdown_i5.csv
@@ -11,6 +11,6 @@ economic_status_otherday_movement_prob_filename: configs/ECONOMIC_STATUS_OTHER_D
 economic_status_num_daily_interacts_filename: configs/no_interactions_wk_econ.txt
 econ_interaction_distrib_filename: configs/interaction_matrix_nld.csv
 
-line_list_filename: preprocessed/line_list/line_list_20perc.txt
+line_list_filename: preprocessed/line_list/line_list_50perc.txt
 infection_transition_params_filename: configs/covasim_infect_transitions.txt
 lockdown_changeList_filename: configs/lockdownChangelist.txt
