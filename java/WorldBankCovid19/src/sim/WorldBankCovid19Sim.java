@@ -463,7 +463,7 @@ public class WorldBankCovid19Sim extends SimState {
 		double myBeta = .016;
 		long seed = 12345;
 		String dataDir = "data/";
-		String outputFilename = "dailyReport" + seed + ".tsv";
+		String outputFilename = "dailyReport_" + myBeta + "_" + numDays + "_" + seed + ".tsv";
 		
 		if(args.length < 0){
 			System.out.println("usage error");
@@ -475,7 +475,7 @@ public class WorldBankCovid19Sim extends SimState {
 			myBeta = Double.parseDouble(args[2]);
 			if(args.length > 3) {
 				seed = Long.parseLong(args[3]);
-				outputFilename = "dailyReport" + seed + ".tsv";
+				outputFilename = "dailyReport_" + myBeta + "_" + numDays + "_" + seed + ".tsv";
 			}
 			if(args.length > 4)
 				outputFilename = args[4];
