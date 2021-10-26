@@ -1,4 +1,4 @@
-************ recreate the dummy subsamples and the same 5% and 20% and 50%
+************ recreate the dummy subsamples and the same 5% and 20% and 50% and 75% and 100%
 clear all
 
 cap cd "/Users/sophieayling/Documents/GitHub/Disease-Modelling-SSA"
@@ -7,18 +7,18 @@ tempfile temp1 temp2
 
 
 ** take the 100 perc dataset with missing vars to sample on
-/*
-use "data/raw/census/100_perc/abm_individual_new_092320_final_merged_complete_FINAL.dta", clear
+
+use "data/raw/census/100_perc_sample/abm_individual_new_092320_final_merged_complete_FINAL.dta", clear
 
 * it still needs some of the work done down below, but first cut it to the sample size i want
 
-sample 50, by(new_district_id)
-save "data/raw/census/50_perc_sample/50_perc_092320_missingvars.dta", replace
+sample 75, by(new_district_id)
+save "data/raw/census/75_perc_sample/75_perc_092320_missingvars.dta", replace
 */
 
-***** use 50 percent version as created in commented out code above 
+***** use 75 percent version as created in commented out code above 
 tempfile temp1
-use "data/raw/census/50_perc_sample/50_perc_092320_missingvars.dta", clear
+*use "data/raw/census/100_perc_sample/100_perc_092320_missingvars.dta", clear
 sort district_id
 rename district_id dist_id_88
 
@@ -33,7 +33,7 @@ drop _merge
 rename new_district_id district_id
 
 
-** save new version of 50 perc dataset
+** save new version of 75 perc dataset
 tab economic_status, nol
 gen economic_status2 = economic_status
 
@@ -63,11 +63,11 @@ rename serial household_id
 
 *order 
 order district_id district_name_shpfile 
-save "data/raw/census/50_perc_sample/census_sample_50perc_070921.dta", replace
-export delimited using "data\raw\census\50_perc_sample\census_sample_50perc_070921.csv", replace
-****check variables in this 50 perc sample are all the same as the one in the 1500 below
-
-use "data/raw/census/50_perc_sample/census_sample_50perc_070921.dta", clear
+save "data/raw/census/75_perc_sample/census_sample_75perc_070921.dta", replace
+export delimited using "data\raw\census\75_perc_sample\census_sample_75perc_070921.csv", replace
+****check variables in this 75 perc sample are all the same as the one in the 1500 below
+e
+*use "data/raw/census/100_perc_sample/census_sample_100perc_070921.dta", clear
 tab economic_status
 
 
