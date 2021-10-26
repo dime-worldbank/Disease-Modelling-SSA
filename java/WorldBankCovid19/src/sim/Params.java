@@ -123,25 +123,25 @@ public class Params {
 	public static int hours_sleeping = 8 / hours_per_tick;
 	
 	
-	public Params(String dirname){
+	public Params(String paramsFilename){
 		
-		readInParamFile(dirname + "configs/params.txt");
+		readInParamFile(paramsFilename);
 		
-		dataDir = dirname;
+		//dataDir = dirname;
 		
-		dailyTransitionLockdownProbs = load_district_data(dirname + district_transition_LOCKDOWN_filename);
-		dailyTransitionPrelockdownProbs = load_district_data(dirname + district_transition_PRELOCKDOWN_filename);
-		load_district_leaving_data(dirname + district_leaving_filename);
+		dailyTransitionLockdownProbs = load_district_data(dataDir + district_transition_LOCKDOWN_filename);
+		dailyTransitionPrelockdownProbs = load_district_data(dataDir + district_transition_PRELOCKDOWN_filename);
+		load_district_leaving_data(dataDir + district_leaving_filename);
 		
-		economic_status_weekday_movement_prob = readInEconomicData(dirname + economic_status_weekday_movement_prob_filename, "economic_status", "movement_probability");
-		economic_status_otherday_movement_prob = readInEconomicData(dirname + economic_status_otherday_movement_prob_filename, "economic_status", "movement_probability");
-		economic_num_interactions_weekday = readInEconomicData(dirname + economic_status_num_daily_interacts_filename, "economic_status", "interactions");
+		economic_status_weekday_movement_prob = readInEconomicData(dataDir + economic_status_weekday_movement_prob_filename, "economic_status", "movement_probability");
+		economic_status_otherday_movement_prob = readInEconomicData(dataDir + economic_status_otherday_movement_prob_filename, "economic_status", "movement_probability");
+		economic_num_interactions_weekday = readInEconomicData(dataDir  + economic_status_num_daily_interacts_filename, "economic_status", "interactions");
 		
-		load_econ_distrib(dirname + econ_interaction_distrib_filename);
+		load_econ_distrib(dataDir  + econ_interaction_distrib_filename);
 		
-		load_line_list(dirname + line_list_filename);
-		load_lockdown_changelist(dirname +  lockdown_changeList_filename);
-		load_infection_params(dirname + infection_transition_params_filename);
+		load_line_list(dataDir  + line_list_filename);
+		load_lockdown_changelist(dataDir +  lockdown_changeList_filename);
+		load_infection_params(dataDir  + infection_transition_params_filename);
 	}
 	
 	//
