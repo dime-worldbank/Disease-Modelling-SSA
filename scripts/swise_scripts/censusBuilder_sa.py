@@ -19,10 +19,10 @@ from pathlib import Path
 
 #census_filename =get_data_dir('raw', 'census', 'census_sample_1500.dta')
 dataDir ="/home/wb488473/Disease-Modelling-SSA/data/"
-census_filename =dataDir + "raw/census/20_perc_sample/census_sample_20perc_070921.dta"
+census_filename =dataDir + "raw/census/50_perc_sample/census_sample_50perc_070921.dta"
 #'ABM_Simulated_Pop_WardDistributed_UpdatedMay30_school_complete_060520.dta'
 district_filename = dataDir + "raw/district_relation.csv"
-output_filename = dataDir + "preprocessed/census/20_perc_sample/census_sample_20perc_070921.csv"
+output_filename = dataDir + "preprocessed/census/50_perc_sample/census_sample_50perc_070921.csv"
 
 # set up mappings between the input data and the values used by the census builder
 
