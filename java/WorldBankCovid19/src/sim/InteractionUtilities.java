@@ -81,6 +81,7 @@ public class InteractionUtilities {
 			// combine these into bubble member candidates and add them to the list of friends
 			HashSet <Person> candidateBubble = new HashSet <Person> (p.getWorkBubble());
 			int emergencyBrake = 100; // it's dangerous to screw with for loops - take this!
+			
 			for(int i = candidateBubble.size(); i < bubbleSize; i++){ // TODO this should depend on how many friends already exist for this person!
 				int indexOfInteract = indexOfCumulativeDist(world.random.nextDouble(), interDistrib);
 				String otherStatus = world.params.orderedEconStatuses.get(indexOfInteract);

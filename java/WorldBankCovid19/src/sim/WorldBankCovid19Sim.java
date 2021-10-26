@@ -129,6 +129,7 @@ public class WorldBankCovid19Sim extends SimState {
 				
 				// create new person
 				Infection inf = new Infection(p, null, infectiousFramework.getInfectedEntryPoint(l), this);
+				inf.time_contagious = 0;
 				schedule.scheduleOnce(1, param_schedule_infecting, inf);
 			}
 						
@@ -404,12 +405,16 @@ public class WorldBankCovid19Sim extends SimState {
 			
 			// shove it out
 			BufferedWriter exportFile = new BufferedWriter(new FileWriter(infections_export_filename, true));
-			exportFile.write("Host\tSource\tTime\tLocOfTransmission\n");
+			exportFile.write("Host\tSource\tTime\tLocOfTransmission" + 
+					"\tContagiousAt\tSymptomaticAt\tSevereAt\tCriticalAt\tRecoveredAt\tDiedAt"
+					+ "\n");
 			
 			// export infection data
 			for(Infection i: infections) {
 				
 				String rec = i.getHost().getID() + "\t";
+				
+				// infected by:
 				
 				Person source = i.getSource();
 				if(source == null)
@@ -419,6 +424,8 @@ public class WorldBankCovid19Sim extends SimState {
 				
 				rec += "\t" + i.getStartTime() + "\t";
 				
+				// infected at:
+				
 				Location loc = i.getInfectedAtLocation();
 				
 				if(loc == null)
@@ -427,6 +434,11 @@ public class WorldBankCovid19Sim extends SimState {
 					rec += loc.getRootSuperLocation().getId();
 				else
 					rec += loc.getId();
+				
+				// progress of disease
+				
+				rec += "\t" + i.time_contagious + "\t" + i.time_start_symptomatic + "\t" + i.time_start_severe + "\t" + 
+						i.time_start_critical + "\t" + i.time_recovered + "\t" + i.time_died;
 				
 				rec += "\n";
 				
@@ -456,22 +468,27 @@ public class WorldBankCovid19Sim extends SimState {
 		
 	}
 	
+	/**
+	 * In an ideal scenario, there would be multiple ways to run this with arguments. EITHER: <ul>
+	 * 	<li> pass along a parameter file which contains all of these values or;
+	 *  <li> pass along the minimal metrics required (e.g. beta, length of run).
+	 *  </ul>
+	 * @param args
+	 */
 	public static void main(String [] args){
 		
 		// default settings in the absence of commands!
 		int numDays = 7; // by default, one week
 		double myBeta = .016;
 		long seed = 12345;
-		String dataDir = "data/";
 		String outputFilename = "dailyReport_" + myBeta + "_" + numDays + "_" + seed + ".tsv";
-		
+		String paramsFilename = "data/configs/params.txt";
 		if(args.length < 0){
 			System.out.println("usage error");
 			System.exit(0);
 		}
 		else if(args.length > 0){
 			numDays = Integer.parseInt(args[0]);
-			dataDir = args[1];
 			myBeta = Double.parseDouble(args[2]);
 			if(args.length > 3) {
 				seed = Long.parseLong(args[3]);
@@ -479,13 +496,17 @@ public class WorldBankCovid19Sim extends SimState {
 			}
 			if(args.length > 4)
 				outputFilename = args[4];
+			if(args.length > 5)
+				paramsFilename = args[5];
 		}
 		
-		long startTime = System.currentTimeMillis();
+		
+		long startTime = System.currentTimeMillis(); // wallclock measurement of time - embarrassing.
+		
 		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(
 				seed, 
 				//System.currentTimeMillis(), 
-				new Params(dataDir), outputFilename);
+				new Params(paramsFilename), outputFilename);
 		
 		System.out.println("Loading...");
 
@@ -504,11 +525,13 @@ public class WorldBankCovid19Sim extends SimState {
 		//mySim.reportOnInfected();
 		//mySim.exportInfections();
 		//mySim.exportDailyReports(outputFilename);
+		
+		// end of wallclock determination of time
 		long endTime = System.currentTimeMillis();
 		mySim.timer = endTime - startTime;
-		mySim.finish();
+		//mySim.finish();
+		mySim.exportInfections();
 		
 		System.out.println("...run finished");
-		//System.exit(0);
 	}
 }

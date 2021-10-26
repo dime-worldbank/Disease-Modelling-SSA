@@ -98,6 +98,7 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				// the final case is that the agent was exposed, but the infectious has not taken. 
 				// In this case the agents just goes back to being susceptible.
 				// 
+				i.time_recovered = time;
 				i.setBehaviourNode(susceptibleNode);
 				return Double.MAX_VALUE;
 			}
