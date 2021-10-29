@@ -21,6 +21,19 @@ public class InteractionUtilities {
 	 */
 	public static void create_work_bubbles(WorldBankCovid19Sim world){
 		
+		// in perfect mixing, just give a copy of everyone
+		if(world.params.setting_perfectMixing) {
+			
+			HashSet <Person> copyOfAllAgents = new HashSet<Person> (world.agents);
+			
+			for(Person p: world.agents)
+				p.setWorkBubble(copyOfAllAgents);
+			
+			return;
+		}
+		
+		// OTHERWISE, set this up based on actual subsets
+		
 		HashMap <Location, Map<String, List<Person>>> peoplePerDistrictPerJob = 
 				new HashMap <Location, Map<String, List<Person>>> (); 
 		
@@ -149,7 +162,20 @@ public class InteractionUtilities {
 	/**
 	 * Cluster agents into work bubbles.
 	 */
-	public static void create_social_bubbles(WorldBankCovid19Sim world){
+	public static void create_community_bubbles(WorldBankCovid19Sim world){
+		
+		// in perfect mixing, just give a copy of everyone
+		if(world.params.setting_perfectMixing) {
+			
+			HashSet <Person> copyOfAllAgents = new HashSet<Person> (world.agents);
+			
+			for(Person p: world.agents)
+				p.setCommunityBubble(copyOfAllAgents);
+			
+			return;
+		}
+		
+		// OTHERWISE, set this up based on actual subsets
 		
 		HashMap <String, List<Person>> peoplePerDistrict = 
 				new HashMap <String, List<Person>> (); 
@@ -170,7 +196,7 @@ public class InteractionUtilities {
 			}
 		}
 		
-		System.out.print("Attempting to assemble social bubbles...");
+		System.out.print("Attempting to assemble community bubbles...");
 		
 		// for each person, draw their interaction probabilities from the distribution
 		for(Person p: world.agents){
@@ -178,7 +204,7 @@ public class InteractionUtilities {
 			// Person has been moved either to workplace or to household (if no job etc.)
 			Location myLocation = p.getLocation();
 			
-			int bubbleSize = world.params.social_bubble_size;
+			int bubbleSize = world.params.community_bubble_size;
 			
 			// combine these into bubble member candidates and add them to the list of friends
 			ArrayList <Person> candidateBubble = (ArrayList <Person>) peoplePerDistrict.get(p.getHousehold().getRootSuperLocation().getId());

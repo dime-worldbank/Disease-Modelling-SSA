@@ -23,8 +23,8 @@ import sim.engine.Steppable;
 public class WorldBankCovid19Sim extends SimState {
 
 	// the objects which make up the system
-	ArrayList <Person> agents;
-	ArrayList <Household> households;
+	public ArrayList <Person> agents;
+	public ArrayList <Household> households;
 	public ArrayList <Infection> infections;
 	
 	ArrayList <Location> districts;
@@ -35,7 +35,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public InfectiousBehaviourFramework infectiousFramework;
 	public Params params;
 	public boolean lockedDown = false;
-	
+		
 	String outputFilename;
 	String infections_export_filename;
 	int targetDuration = 0;
@@ -84,7 +84,7 @@ public class WorldBankCovid19Sim extends SimState {
 
 		// set up the social networks
 		InteractionUtilities.create_work_bubbles(this);
-		InteractionUtilities.create_social_bubbles(this);
+		InteractionUtilities.create_community_bubbles(this);
 
 		// set up the infections
 		infections = new ArrayList <Infection> ();
