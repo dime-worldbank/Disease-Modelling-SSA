@@ -17,8 +17,11 @@ import objects.Person;
 public class Params {
 	
 	public double infection_beta = 0.016;
-	public int lineListWeightingFactor = 2; // the line list contains only detected instances, which can be biased 
+	public int lineListWeightingFactor = 1; // the line list contains only detected instances, which can be biased 
 											// - weight this if we suspect it's undercounting
+	public boolean setting_perfectMixing = false; // if TRUE: there are no work or social bubbles; individuals have
+	// equal chance of interacting with anyone else in the simulation
+
 	
 	public HashMap <String, Double> economic_status_weekday_movement_prob;
 	public HashMap <String, Double> economic_status_otherday_movement_prob;
@@ -103,7 +106,7 @@ public class Params {
 	
 	
 	// social qualities
-	public static int social_bubble_size = 30;
+	public static int community_bubble_size = 30;
 	public static int community_interaction_count = 5;
 	
 	// time
@@ -170,7 +173,15 @@ public class Params {
 				String [] bits = s.split(":");
 				Field f = this.getClass().getDeclaredField(bits[0].trim());
 				f.setAccessible(true);
-				f.set(this, bits[1].trim());
+				String myVal = bits[1].trim();
+				try {
+					f.set(this, Integer.parseInt(myVal));
+				} catch (Exception e){
+					if(myVal.equals("true") || myVal.equals("false"))
+						f.set(this, Boolean.parseBoolean(myVal));
+					else
+						f.set(this, myVal);	
+				}
 			}			
 
 		} catch (Exception e) {

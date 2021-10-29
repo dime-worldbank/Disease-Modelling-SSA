@@ -243,6 +243,29 @@ public class Person extends MobileAgent {
 
 			// set up the holders
 			int myNumInteractions = myWorld.params.community_interaction_count;
+			
+			if(myWorld.params.setting_perfectMixing) {
+				
+				int numPeople = myWorld.agents.size();
+				for(int i = 0; i < myNumInteractions; i++) {
+					Person otherPerson = myWorld.agents.get(myWorld.random.nextInt(numPeople));
+					if(otherPerson == this) {
+						i--;
+						continue;
+					}
+					
+					// check if they are already infected; if they are not, infect with with probability BETA
+					if(otherPerson.myInfection == null 
+							&& myWorld.random.nextDouble() < myWorld.params.infection_beta){
+						Infection inf = new Infection(otherPerson, this, myWorld.infectiousFramework.getHomeNode(), myWorld);
+						myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting);
+					}
+
+				}
+				
+				return;
+			}
+			
 			Location myHomeCommunity = this.getHousehold().getRootSuperLocation();
 
 			// will need to check if constrained by own local social bubble
@@ -269,7 +292,7 @@ public class Person extends MobileAgent {
 	 * 		represents the Persons with whom this Person might actually interact.
 	 * @param interactNumber - the number of interactions to make
 	 */
-	void interactWithin(HashSet <Person> group, HashSet <Person> largerCommunity, int interactNumber) {
+	void OLDinteractWithin(HashSet <Person> group, HashSet <Person> largerCommunity, int interactNumber) {
 		
 		// setup
 		Object [] checkWithin = group.toArray();
@@ -324,7 +347,53 @@ public class Person extends MobileAgent {
 		}	
 	}
 	
+	void interactWithin(HashSet <Person> group, HashSet <Person> largerCommunity, int interactNumber) {
+	
+		// set up parameters
+		boolean largerCommunityContext = largerCommunity != null;
 
+		// set up the probabilities
+		double d = group.size();
+		double n = interactNumber;
+		double cutOff = n / d;
+
+		// create the iterator and iterate over the set elements
+		Iterator myIt = group.iterator();
+		while(myIt.hasNext() && n > 0) {
+			
+			// generate the likelihood of selecting this particular element
+			double prob = myWorld.random.nextDouble();
+			
+			if(prob <= cutOff) { // INTERACT WITH THE PERSON
+				
+				// pull them out!
+				Person p = (Person) myIt.next();
+				
+				if(p == this) // oops! It might be this person - if so, continue!
+					continue;
+				
+				// if it's someone else, make sure they're here!
+				else if (largerCommunityContext && !largerCommunity.contains(p))
+					continue;
+				
+				// if neither of the above are true, the interaction can take place!
+				n -= 1;
+				
+				// check if they are already infected; if they are not, infect with with probability BETA
+				if(p.myInfection == null 
+						&& myWorld.random.nextDouble() < myWorld.params.infection_beta){
+					Infection inf = new Infection(p, this, myWorld.infectiousFramework.getHomeNode(), myWorld);
+					myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting);
+				}
+
+			}
+			else // just pass over it
+				myIt.next();
+			d -= 1;
+			cutOff = n / d;
+		}
+	}
+	
 	//
 	// GETTERS AND SETTERS
 	//
@@ -357,9 +426,11 @@ public class Person extends MobileAgent {
 	
 	public void addToWorkBubble(Collection <Person> newPeople){ workBubble.addAll(newPeople);}	
 	public HashSet <Person> getWorkBubble(){ return workBubble; }
+	public void setWorkBubble(HashSet <Person> newBubble) { workBubble = newBubble; }
 
 	public void addToCommunityBubble(Collection <Person> newPeople){ communityBubble.addAll(newPeople);}
 	public HashSet <Person> getCommunityBubble(){ return communityBubble; }
+	public void setCommunityBubble(HashSet <Person> newBubble) { communityBubble = newBubble; }
 
 	// ATTRIBUTES
 
