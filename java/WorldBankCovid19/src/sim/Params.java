@@ -119,9 +119,6 @@ public class Params {
 	public static int hour_end_day_weekday = 16 / hours_per_tick;
 	public static int hour_end_day_otherday = 16 / hours_per_tick;
 	
-	public static int time_leisure_weekday = 4 / hours_per_tick;
-	public static int time_leisure_weekend = 12 / hours_per_tick;
-	
 	public static int hours_at_work_weekday = 8 / hours_per_tick;
 	public static int hours_sleeping = 8 / hours_per_tick;
 	

@@ -530,8 +530,8 @@ public class WorldBankCovid19Sim extends SimState {
 		long endTime = System.currentTimeMillis();
 		mySim.timer = endTime - startTime;
 		//mySim.finish();
-		mySim.exportInfections();
+		//mySim.exportInfections();
 		
-		System.out.println("...run finished");
+		System.out.println("...run finished after " + mySim.timer + " ms");
 	}
 }

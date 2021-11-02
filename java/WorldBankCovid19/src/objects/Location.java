@@ -23,6 +23,8 @@ public class Location {
 	public int metric_new_cases_asympt;
 	public int metric_new_cases_sympt;
 	public int metric_new_deaths;
+	public int metric_new_recovered;
+	public int metric_currently_infected;
 
 	
 	// CONSTRUCTORS
@@ -39,6 +41,8 @@ public class Location {
 		metric_new_cases_asympt = 0;
 		metric_new_cases_sympt = 0;
 		metric_new_deaths = 0;
+		metric_new_recovered = 0;
+		metric_currently_infected = 0;
 	}
 	
 	public Location(Location mySuper){
@@ -97,11 +101,15 @@ public class Location {
 	}
 
 	public void refreshMetrics(){
+		metric_currently_infected = metric_currently_infected + metric_new_cases_asympt + metric_new_cases_sympt 
+				- metric_new_deaths - metric_new_recovered;
+		
 		metric_new_hospitalized = 0;
 		metric_new_critical = 0;
 		metric_new_cases_asympt = 0;
 		metric_new_cases_sympt = 0;
 		metric_new_deaths = 0;
+		metric_new_recovered = 0;
 	}
 	
 	public String metricsToString(){
@@ -113,13 +121,15 @@ public class Location {
 		s += metric_new_cases_asympt + "\t";
 		s += metric_new_cases_sympt + "\t";
 		s += metric_new_deaths + "\t";
+		s += metric_new_recovered + "\t";
+		s += metric_currently_infected + "\t";
 		return s;
 	}
 	
 	public static String metricNamesToString(){
 		String s = "time" + "\t" + "myId" + "\t" + "metric_died_count" + "\t" + "metric_new_hospitalized" + "\t" + 
 				"metric_new_critical" + "\t" + "metric_new_cases_asympt" + "\t" + "metric_new_cases_sympt" + "\t" + 
-				"metric_new_deaths" + "\t\n";
+				"metric_new_deaths" + "\t" + "metric_new_recovered"  + "\t" + "metric_currently_infected" + "\t\n";
 		return s;
 	}
 	
