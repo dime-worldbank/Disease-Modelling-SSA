@@ -364,6 +364,8 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				Infection i = (Infection) s;
 				i.time_recovered = time;
 				
+				i.getHost().getLocation().getRootSuperLocation().metric_new_recovered++;
+
 				// the Person may have stopped moving when ill - reactivate!
 				if(i.getHost().isImmobilised()){
 					i.getHost().setMobility(true);
