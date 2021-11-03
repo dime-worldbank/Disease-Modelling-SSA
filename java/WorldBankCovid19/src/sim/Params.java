@@ -127,11 +127,9 @@ public class Params {
 		
 		readInParamFile(paramsFilename);
 		
-		//dataDir = dirname;
-		
 		dailyTransitionLockdownProbs = load_district_data(dataDir + district_transition_LOCKDOWN_filename);
 		dailyTransitionPrelockdownProbs = load_district_data(dataDir + district_transition_PRELOCKDOWN_filename);
-		load_district_leaving_data(dataDir + district_leaving_filename);
+		load_district_leaving_data(dataDir + district_leaving_filename); // TODO get rid of this OR ELSE formalise variant for use
 		
 		economic_status_weekday_movement_prob = readInEconomicData(dataDir + economic_status_weekday_movement_prob_filename, "economic_status", "movement_probability");
 		economic_status_otherday_movement_prob = readInEconomicData(dataDir + economic_status_otherday_movement_prob_filename, "economic_status", "movement_probability");
@@ -664,12 +662,12 @@ public class Params {
 	 * finds the "District" super-Location of the Location and returns the associated chance of leaving.
 	 * @return
 	 */
-	public double getProbToLeaveDistrict(Location l){
+	/*public double getProbToLeaveDistrict(Location l){
 		Location dummy = l;
 		while(districtLeavingProb.get(dummy) == null && dummy.getSuper() != null)
 			dummy = dummy.getSuper();
 		return districtLeavingProb.get(dummy);
-	}
+	} */
 	
 	public Location getTargetMoveDistrict(Person p, int day, double rand, boolean lockedDown){
 		
