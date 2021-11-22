@@ -84,8 +84,8 @@ public class WorldBankCovid19Sim extends SimState {
 		}
 
 		// set up the social networks
-		InteractionUtilities.create_work_bubbles(this);
-		InteractionUtilities.create_community_bubbles(this);
+		//InteractionUtilities.create_work_bubbles(this);
+		//InteractionUtilities.create_community_bubbles(this);
 
 		// RESET SEED
 		random = new MersenneTwisterFast(this.seed());
@@ -440,10 +440,37 @@ public class WorldBankCovid19Sim extends SimState {
 				else
 					rec += loc.getId();
 				
-				// progress of disease
+				// progress of disease: get rid of max vals
 				
-				rec += "\t" + i.time_contagious + "\t" + i.time_start_symptomatic + "\t" + i.time_start_severe + "\t" + 
-						i.time_start_critical + "\t" + i.time_recovered + "\t" + i.time_died;
+				if(i.time_contagious == Double.MAX_VALUE)
+					rec += "\t-";
+				else
+					rec += "\t" + (int) i.time_contagious;
+				
+				if(i.time_start_symptomatic == Double.MAX_VALUE)
+					rec += "\t-";
+				else
+					rec += "\t" + (int) i.time_start_symptomatic;
+				
+				if(i.time_start_severe == Double.MAX_VALUE)
+					rec += "\t-";
+				else
+					rec += "\t" + (int) i.time_start_severe;
+				
+				if(i.time_start_critical == Double.MAX_VALUE)
+					rec += "\t-";
+				else
+					rec += "\t" + (int) i.time_start_critical;
+				
+				if(i.time_recovered == Double.MAX_VALUE)
+					rec += "\t-";
+				else
+					rec += "\t" + (int) i.time_recovered;
+				
+				if(i.time_died == Double.MAX_VALUE)
+					rec += "\t-";
+				else
+					rec += "\t" + (int) i.time_died;
 				
 				rec += "\n";
 				
