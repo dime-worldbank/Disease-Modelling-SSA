@@ -37,8 +37,8 @@ public class WorldBankCovid19Sim extends SimState {
 	public Params params;
 	public boolean lockedDown = false;
 		
-	String outputFilename;
-	String infections_export_filename;
+	public String outputFilename;
+	public String infections_export_filename;
 	int targetDuration = 0;
 	
 	// ordering information
@@ -47,6 +47,8 @@ public class WorldBankCovid19Sim extends SimState {
 	public static int param_schedule_updating_locations = 5;
 	public static int param_schedule_infecting = 10;
 	public static int param_schedule_reporting = 100;
+	
+	public ArrayList <Integer> testingAgeDist = new ArrayList <Integer> ();
 	
 	// record-keeping
 	
