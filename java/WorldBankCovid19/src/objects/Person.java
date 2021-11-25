@@ -129,7 +129,7 @@ public class Person extends MobileAgent {
 		
 		// HACK TO ENSURE INTERACTION AWAY FROM HOME DISTRICT
 		// check if out of home district
-		if(visiting) {
+/*		if(visiting) {
 			
 			// if this Person is not infected, check if they catch anything from their neighbours!
 			if(this.myInfection == null)
@@ -184,6 +184,8 @@ public class Person extends MobileAgent {
 				}, myWorld.param_schedule_infecting);
 		}
 		//if(this.myId % 10000 == 0) System.out.print(">");
+		 * 
+		 */
 	}	
 
 	Person myWrapper() { return this; }
@@ -282,22 +284,42 @@ public class Person extends MobileAgent {
 			int numPeople = peopleHere.length;
 			int myNumInteractions = Math.min(numPeople - 1, myWorld.params.community_interaction_count);
 			
+//			System.out.print("OUTPUT\t" + myWorld.schedule.getTime() + "\t");
+//			System.out.print(this.toString() + "\tintwith\t" + myNumInteractions + "\t" + numPeople + "\t");
+//			System.out.print(currentLocation.toString());
+//			System.out.print(">>>" + currentLocation.getRootSuperLocation().toString() + "\t");
+//			String infecteds = "";
+			
+			// don't interact with the same person twice
+			HashSet <Person> otherPeople = new HashSet <Person> ();
+			otherPeople.add(this);
+			
 			for(int i = 0; i < myNumInteractions; i++) {
 				Person otherPerson = (Person) peopleHere[myWorld.random.nextInt(numPeople)];
-				if(otherPerson == this) {
-					i--;
+				
+				// don't interact with the same person multiple times
+				if(otherPeople.contains(otherPerson)) {
+					i -= 1;
 					continue;
 				}
+				else
+					otherPeople.add(otherPerson);
+				
+
+				//System.out.print(", " + otherPerson.age);
+				myWorld.testingAgeDist.add(otherPerson.age);
 				
 				// check if they are already infected; if they are not, infect with with probability BETA
+				double myProb = myWorld.random.nextDouble();
 				if(otherPerson.myInfection == null 
-						&& myWorld.random.nextDouble() < myWorld.params.infection_beta){
+						&& myProb < myWorld.params.infection_beta){
 					Infection inf = new Infection(otherPerson, this, myWorld.infectiousFramework.getHomeNode(), myWorld);
 					myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting);
+//					infecteds += otherPerson.toString() + " infected with prob " + myProb + "; ";
 				}
 
 			}
-			
+//			System.out.println("\t" + infecteds);
 			return;
 		}
 		else
