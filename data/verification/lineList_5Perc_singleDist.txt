@@ -1,2 +1,2 @@
 district, count
-d_1, 20
+d_1, 12
