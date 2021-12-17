@@ -26,7 +26,12 @@ public class Params {
 	public HashMap <String, Double> economic_status_weekday_movement_prob;
 	public HashMap <String, Double> economic_status_otherday_movement_prob;
 	
-	public HashMap <String, Double> economic_num_interactions_weekday;
+	public HashMap <String, Double> economic_num_interactions_weekday_perTick;
+	public static int community_num_interaction_perTick = 3;
+
+	public static int community_bubble_size = 30;
+	
+	
 	double mild_symptom_movement_prob;
 	
 	// export parameters
@@ -105,9 +110,6 @@ public class Params {
 	public String lockdown_changeList_filename = "";
 	
 	
-	// social qualities
-	public static int community_bubble_size = 30;
-	public static int community_interaction_count = 5;
 	
 	// time
 	public static int hours_per_tick = 4; // the number of hours each tick represents
@@ -134,7 +136,7 @@ public class Params {
 		economic_status_weekday_movement_prob = readInEconomicData(dataDir + economic_status_weekday_movement_prob_filename, "economic_status", "movement_probability");
 		economic_status_otherday_movement_prob = readInEconomicData(dataDir + economic_status_otherday_movement_prob_filename, "economic_status", "movement_probability");
 		
-		economic_num_interactions_weekday = readInEconomicData(dataDir  + economic_status_num_daily_interacts_filename, "economic_status", "interactions");
+		economic_num_interactions_weekday_perTick = readInEconomicData(dataDir  + economic_status_num_daily_interacts_filename, "economic_status", "interactions");
 		//HashMap <String, Double> econBubbleHolder =
 		// TODO: not reading in bubbles in any meaningful way. Must readd.
 		

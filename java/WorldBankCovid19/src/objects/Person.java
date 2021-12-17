@@ -282,7 +282,22 @@ public class Person extends MobileAgent {
 			
 			Object [] peopleHere = this.currentLocation.getPersonsHere();
 			int numPeople = peopleHere.length;
-			int myNumInteractions = Math.min(numPeople - 1, myWorld.params.community_interaction_count);
+			
+			double someInteractions = myWorld.params.community_num_interaction_perTick;
+			if(this.atWork)
+				someInteractions = myWorld.params.economic_num_interactions_weekday_perTick.get(this.economic_status);
+			
+			double myNumInteractions = Math.min(numPeople - 1, someInteractions);
+			
+			// this number may be probabilistic - e.g. 3.5. In this case, in 50% of ticks they should
+			// interact with 4 people, and in 50% of ticks they should interact with only 3.
+			
+			// Thus, we calculate the probability of the extra person
+			double diff = myNumInteractions - Math.floor(myNumInteractions); // number between 0 and 1
+			
+			// if the random number is less than this, we bump the number up to the higher number this tick
+			if(myWorld.random.nextDouble() < diff)
+					myNumInteractions = Math.ceil(myNumInteractions);
 			
 //			System.out.print("OUTPUT\t" + myWorld.schedule.getTime() + "\t");
 //			System.out.print(this.toString() + "\tintwith\t" + myNumInteractions + "\t" + numPeople + "\t");
