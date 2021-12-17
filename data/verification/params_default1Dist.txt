@@ -12,7 +12,7 @@ econ_interaction_distrib_filename: interactionMatrixByStatus_default.txt
 
 lockdown_changeList_filename: lockdownChangelist_empty.txt
 
-community_interaction_count: 5
+community_num_interaction_perTick: 5
 lineListWeightingFactor: 1
 setting_perfectMixing: true
 

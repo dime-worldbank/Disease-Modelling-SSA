@@ -515,13 +515,17 @@ public class WorldBankCovid19Sim extends SimState {
 		int numDays = 7; // by default, one week
 		double myBeta = .016;
 		long seed = 12345;
-		String outputFilename = "dailyReport_" + myBeta + "_" + numDays + "_" + seed + ".tsv";
+		String outputFilename = "dailyReport_" + myBeta + "_" + numDays + "_" + seed + ".txt";
+		String infectionsOutputFilename = ""; 
 		String paramsFilename = "data/configs/params.txt";
+		
+		// read in any extra settings from the command line
 		if(args.length < 0){
 			System.out.println("usage error");
 			System.exit(0);
 		}
 		else if(args.length > 0){
+			
 			numDays = Integer.parseInt(args[0]);
 			myBeta = Double.parseDouble(args[2]);
 			if(args.length > 3) {
@@ -532,39 +536,45 @@ public class WorldBankCovid19Sim extends SimState {
 				outputFilename = args[4];
 			if(args.length > 5)
 				paramsFilename = args[5];
+			if(args.length > 6)
+				infectionsOutputFilename = args[6];
 		}
 		
-		
 		long startTime = System.currentTimeMillis(); // wallclock measurement of time - embarrassing.
-		
-		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(
-				seed, 
-				//System.currentTimeMillis(), 
-				new Params(paramsFilename), outputFilename);
-		
+				
+		/*
+				String paramFilename = filenameBase + s + filenameSuffix;
+				String outputFilename = s + outputPrefix + i + outputSuffix;
+				
+		 */
+
+		// set up the simulation
+		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim( seed, new Params(paramsFilename), outputFilename);
+
+
 		System.out.println("Loading...");
 
+		// ensure that all parameters are set
 		mySim.params.infection_beta = myBeta / mySim.params.ticks_per_day; // normalised to be per tick
 		mySim.targetDuration = numDays;
-		mySim.start();
+		
+		mySim.start(); // start the simulation
+		
+		mySim.infections_export_filename = infectionsOutputFilename; // overwrite the export filename
 		
 		System.out.println("Running...");
 
+		// run the simulation
 		while(mySim.schedule.getTime() < Params.ticks_per_day * numDays && !mySim.schedule.scheduleComplete()){
 			mySim.schedule.step(mySim);
 			double myTime = mySim.schedule.getTime();
-			//System.out.println("\n*****END TIME: DAY " + (int)(myTime / 6) + " HOUR " + (int)((myTime % 6) * 4) + " RAWTIME: " + myTime);
 		}
 		
-		//mySim.reportOnInfected();
 		mySim.exportInfections();
-		//mySim.exportDailyReports(outputFilename);
 		
 		// end of wallclock determination of time
 		long endTime = System.currentTimeMillis();
 		mySim.timer = endTime - startTime;
-		//mySim.finish();
-		//mySim.exportInfections();
 		
 		System.out.println("...run finished after " + mySim.timer + " ms");
 	}

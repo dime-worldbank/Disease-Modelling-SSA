@@ -9,15 +9,15 @@ public class BulkRun {
 		
 		String filenameBase = "/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/verification/", 
 				filenameSuffix = ".txt";
-		String [] paramsFilenames = {"params_default1Dist", "params_defaultMultiDist", "params_multiStatusMultiDist"};   
-		double myBeta = .1;
+		String [] paramsFilenames = {"params_default1Dist"};//, "params_defaultMultiDist", "params_multiStatusMultiDist"};   
+		double myBeta = .2;
 		int numDays = 30;
 
 		String outputPrefix = "_bulkTest_" + myBeta + "_" + numDays + "_", outputSuffix = ".txt";
 
 		for(String s: paramsFilenames) {
 			
-			for(int i = 0; i < 5; i++) {
+			for(int i = 0; i < 1; i++) {
 				
 				String paramFilename = filenameBase + s + filenameSuffix;
 				String outputFilename = s + outputPrefix + i + outputSuffix;
