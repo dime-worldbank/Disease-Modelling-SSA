@@ -19,10 +19,10 @@ from pathlib import Path
 
 #census_filename =get_data_dir('raw', 'census', 'census_sample_1500.dta')
 dataDir ="/home/wb488473/Disease-Modelling-SSA/data/"
-census_filename =dataDir + "raw/census/50_perc_sample/census_sample_50perc_070921.dta"
+census_filename =dataDir + "raw/census/75_perc_sample/census_sample_75perc_070921.dta"
 #'ABM_Simulated_Pop_WardDistributed_UpdatedMay30_school_complete_060520.dta'
 district_filename = dataDir + "raw/district_relation.csv"
-output_filename = dataDir + "preprocessed/census/50_perc_sample/census_sample_50perc_070921.csv"
+output_filename = dataDir + "preprocessed/census/75_perc_sample/census_sample_75perc_070921.csv"
 
 # set up mappings between the input data and the values used by the census builder
 
@@ -130,7 +130,7 @@ relevant_cols = [
     'economic_status', 'economic_activity_location_id',
     #'Schoolnumber',#'school_id_district', 
     'school_goers',
-    'manufacturing_workers',
+    #'manufacturing_workers',
     # 'mining_district_id'
     # 'household', 'district'
 ]
@@ -138,6 +138,8 @@ relevant_cols = [
 mining_df = expanded_individual_df.copy()
 
 p = mining_df['economic_status']
+
+
 
 mining_df.loc[p == 'Disabled and not working', 'economic_activity_location_id'] = mining_df.loc[p == 'Disabled and not working', 'household_id']
 mining_df.loc[p != 'Disabled and not working', 'economic_activity_location_id'] = mining_df.loc[p != 'Disabled and not working', 'district_id']
@@ -147,12 +149,18 @@ try:
 except KeyError:
     pass
 
+
+
 mining_df['person_id'] = mining_df.index
+print('flag1')
 mining_df['age'] = mining_df['age'].astype(int)
+print('flag2')
 mining_df['economic_status'] = mining_df['economic_status'].str.strip()
+print('flag3')
 raw_output = mining_df[relevant_cols]
 #raw_output.rename(columns={'new_district_id': 'district_id'}, inplace=True)
-raw_output.rename(columns={'Schoolnumber': 'school_id'}, inplace=True)
+#raw_output.rename(columns={'Schoolnumber': 'school_id'}, inplace=True)
+print('flag_4')
 
 #print(mining_df[relevant_cols].head())
 
