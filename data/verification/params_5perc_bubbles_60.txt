@@ -1,4 +1,4 @@
-dataDir: /Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/verification/
+dataDir: ../data/verification/
 
 population_filename: census_5.csv
 
