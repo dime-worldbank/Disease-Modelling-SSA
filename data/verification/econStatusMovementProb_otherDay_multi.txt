@@ -1,0 +1,11 @@
+economic_status, movement_probability
+"Not working, inactive, not in universe",0.8
+"Current Students",0.8
+"Homemakers/Housework",0.8
+"Office workers",0.8
+"Teachers",0.8
+"Service Workers",0.8
+"Agriculture Workers",0.8
+"Industry Workers",0.8
+"In the army",0.8
+"Disabled and not working",0.1

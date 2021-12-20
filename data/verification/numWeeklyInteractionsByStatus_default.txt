@@ -1,0 +1,2 @@
+economic_status,interactions,bubble_size
+Default,5,30

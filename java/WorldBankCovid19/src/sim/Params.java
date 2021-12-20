@@ -26,7 +26,12 @@ public class Params {
 	public HashMap <String, Double> economic_status_weekday_movement_prob;
 	public HashMap <String, Double> economic_status_otherday_movement_prob;
 	
-	public HashMap <String, Double> economic_num_interactions_weekday;
+	public HashMap <String, Double> economic_num_interactions_weekday_perTick;
+	public static int community_num_interaction_perTick = 3;
+
+	public static int community_bubble_size = 30;
+	
+	
 	double mild_symptom_movement_prob;
 	
 	// export parameters
@@ -105,9 +110,6 @@ public class Params {
 	public String lockdown_changeList_filename = "";
 	
 	
-	// social qualities
-	public static int community_bubble_size = 30;
-	public static int community_interaction_count = 5;
 	
 	// time
 	public static int hours_per_tick = 4; // the number of hours each tick represents
@@ -127,17 +129,18 @@ public class Params {
 		
 		readInParamFile(paramsFilename);
 		
-		//dataDir = dirname;
-		
 		dailyTransitionLockdownProbs = load_district_data(dataDir + district_transition_LOCKDOWN_filename);
 		dailyTransitionPrelockdownProbs = load_district_data(dataDir + district_transition_PRELOCKDOWN_filename);
-		load_district_leaving_data(dataDir + district_leaving_filename);
+		load_district_leaving_data(dataDir + district_leaving_filename); // TODO get rid of this OR ELSE formalise variant for use
 		
 		economic_status_weekday_movement_prob = readInEconomicData(dataDir + economic_status_weekday_movement_prob_filename, "economic_status", "movement_probability");
 		economic_status_otherday_movement_prob = readInEconomicData(dataDir + economic_status_otherday_movement_prob_filename, "economic_status", "movement_probability");
-		economic_num_interactions_weekday = readInEconomicData(dataDir  + economic_status_num_daily_interacts_filename, "economic_status", "interactions");
 		
-		load_econ_distrib(dataDir  + econ_interaction_distrib_filename);
+		economic_num_interactions_weekday_perTick = readInEconomicData(dataDir  + economic_status_num_daily_interacts_filename, "economic_status", "interactions");
+		//HashMap <String, Double> econBubbleHolder =
+		// TODO: not reading in bubbles in any meaningful way. Must readd.
+		
+		load_econStatus_distrib(dataDir  + econ_interaction_distrib_filename);
 		
 		load_line_list(dataDir  + line_list_filename);
 		load_lockdown_changelist(dataDir +  lockdown_changeList_filename);
@@ -338,7 +341,7 @@ public class Params {
 
 	// Economic
 	
-	public void load_econ_distrib(String filename){
+	public void load_econStatus_distrib(String filename){
 		economicInteractionDistrib = new HashMap <String, Map<String, Double>> ();
 		economicInteractionCumulativeDistrib = new HashMap <String, List<Double>> ();
 		econBubbleSize = new HashMap <String, Integer> ();
@@ -364,7 +367,7 @@ public class Params {
 			for(int i = 0; i < header.length; i++){
 				rawColumnNames.put(header[i], new Integer(i));
 			}
-			int bubbleIndex = rawColumnNames.get("Bubble");
+			//int bubbleIndex = rawColumnNames.get("Bubble");
 			
 			while ((s = econDistribData.readLine()) != null) {
 				String [] bits = splitRawCSVString(s);
@@ -372,13 +375,14 @@ public class Params {
 				System.out.println(bits);
 				
 				// save bubble info
-				econBubbleSize.put(myTitle, Integer.parseInt(bits[bubbleIndex]));
+				//econBubbleSize.put(myTitle, Integer.parseInt(bits[bubbleIndex]));
 				
 				// save interaction info
 				HashMap <String, Double> interacts = new HashMap <String, Double> ();
 				ArrayList <Double> interactsCum = new ArrayList <Double> ();
 				double cumTotal = 0;
-				for(int i = bubbleIndex + 1; i < bits.length; i++){
+				for(int i = 1;//bubbleIndex + 1; 
+						i < bits.length; i++){
 					Double val = Double.parseDouble(bits[i]);
 					interacts.put(header[i], val);
 					
@@ -664,12 +668,12 @@ public class Params {
 	 * finds the "District" super-Location of the Location and returns the associated chance of leaving.
 	 * @return
 	 */
-	public double getProbToLeaveDistrict(Location l){
+	/*public double getProbToLeaveDistrict(Location l){
 		Location dummy = l;
 		while(districtLeavingProb.get(dummy) == null && dummy.getSuper() != null)
 			dummy = dummy.getSuper();
 		return districtLeavingProb.get(dummy);
-	}
+	} */
 	
 	public Location getTargetMoveDistrict(Person p, int day, double rand, boolean lockedDown){
 		
