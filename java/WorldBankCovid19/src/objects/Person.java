@@ -64,8 +64,6 @@ public class Person extends MobileAgent {
 	// health
 	boolean isDead = false;
 	
-	double severe_disease_risk;
-	
 
 	
 	/**
@@ -100,9 +98,6 @@ public class Person extends MobileAgent {
 		myHousehold = hh;
 		myWorld = world;
 		
-		// other characteristics (possibly weighted)
-		severe_disease_risk = 1;
-
 		// agents are initialised uninfected
 		
 		communityLocation = myHousehold.getRootSuperLocation();
@@ -118,11 +113,14 @@ public class Person extends MobileAgent {
 	
 	@Override
 	public void step(SimState world) {
+		
 		if(isDead) return; // do not run if the Person has already died!
-		else if(immobilised) return; // do not run until the Person is better!
+		
+		else if(immobilised) return; // do not move while the Person is immobilised!
 		
 		double time = world.schedule.getTime(); // find the current time
 		double myDelta = this.currentActivityNode.next(this, time);
+		
 		if(myDelta >= 0)
 			myWorld.schedule.scheduleOnce(time + myDelta, myWorld.param_schedule_movement, this);
 		else
@@ -131,7 +129,7 @@ public class Person extends MobileAgent {
 		
 		// HACK TO ENSURE INTERACTION AWAY FROM HOME DISTRICT
 		// check if out of home district
-		if(visiting) {
+/*		if(visiting) {
 			
 			// if this Person is not infected, check if they catch anything from their neighbours!
 			if(this.myInfection == null)
@@ -186,6 +184,8 @@ public class Person extends MobileAgent {
 				}, myWorld.param_schedule_infecting);
 		}
 		//if(this.myId % 10000 == 0) System.out.print(">");
+		 * 
+		 */
 	}	
 
 	Person myWrapper() { return this; }
@@ -222,7 +222,7 @@ public class Person extends MobileAgent {
 		// now apply the rules based on the setting
 
 		// they may be at home
-		if(currentLocation instanceof Household){
+/*		if(currentLocation instanceof Household){
 
 			interactWithin(currentLocation.personsHere, null, currentLocation.personsHere.size());
 			
@@ -244,8 +244,7 @@ public class Person extends MobileAgent {
 			// set up the holders
 			int myNumInteractions = myWorld.params.community_interaction_count;
 			
-			if(myWorld.params.setting_perfectMixing) {
-				
+			if(myWorld.params.setting_perfectMixing) {			
 				int numPeople = myWorld.agents.size();
 				for(int i = 0; i < myNumInteractions; i++) {
 					Person otherPerson = myWorld.agents.get(myWorld.random.nextInt(numPeople));
@@ -277,21 +276,72 @@ public class Person extends MobileAgent {
 				interactWithin(currentLocation.personsHere, null, myNumInteractions);
 	
 		}
+		*/
+		
+		if(myWorld.params.setting_perfectMixing) {
+			
+			Object [] peopleHere = this.currentLocation.getPersonsHere();
+			int numPeople = peopleHere.length;
+			
+			double someInteractions = myWorld.params.community_num_interaction_perTick;
+			if(this.atWork)
+				someInteractions = myWorld.params.economic_num_interactions_weekday_perTick.get(this.economic_status);
+			
+			double myNumInteractions = Math.min(numPeople - 1, someInteractions);
+			
+			// this number may be probabilistic - e.g. 3.5. In this case, in 50% of ticks they should
+			// interact with 4 people, and in 50% of ticks they should interact with only 3.
+			
+			// Thus, we calculate the probability of the extra person
+			double diff = myNumInteractions - Math.floor(myNumInteractions); // number between 0 and 1
+			
+			// if the random number is less than this, we bump the number up to the higher number this tick
+			if(myWorld.random.nextDouble() < diff)
+					myNumInteractions = Math.ceil(myNumInteractions);
+			
+//			System.out.print("OUTPUT\t" + myWorld.schedule.getTime() + "\t");
+//			System.out.print(this.toString() + "\tintwith\t" + myNumInteractions + "\t" + numPeople + "\t");
+//			System.out.print(currentLocation.toString());
+//			System.out.print(">>>" + currentLocation.getRootSuperLocation().toString() + "\t");
+//			String infecteds = "";
+			
+			// don't interact with the same person twice
+			HashSet <Person> otherPeople = new HashSet <Person> ();
+			otherPeople.add(this);
+			
+			for(int i = 0; i < myNumInteractions; i++) {
+				Person otherPerson = (Person) peopleHere[myWorld.random.nextInt(numPeople)];
+				
+				// don't interact with the same person multiple times
+				if(otherPeople.contains(otherPerson)) {
+					i -= 1;
+					continue;
+				}
+				else
+					otherPeople.add(otherPerson);
+				
+
+				//System.out.print(", " + otherPerson.age);
+				myWorld.testingAgeDist.add(otherPerson.age);
+				
+				// check if they are already infected; if they are not, infect with with probability BETA
+				double myProb = myWorld.random.nextDouble();
+				if(otherPerson.myInfection == null 
+						&& myProb < myWorld.params.infection_beta){
+					Infection inf = new Infection(otherPerson, this, myWorld.infectiousFramework.getHomeNode(), myWorld);
+					myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting);
+//					infecteds += otherPerson.toString() + " infected with prob " + myProb + "; ";
+				}
+
+			}
+//			System.out.println("\t" + infecteds);
+			return;
+		}
+		else
+			System.out.println("ERROR: structured mixing under revision");
 	}
 
-	/**
-	 * A helper function for infectNeighbours().
-	 *
-	 * Utility function to help the individual interact with up to interactNumber individuals, as constrained by
-	 * both the group and the largerCommunity. If largerCommunity is non-null, the Person will only interact with 
-	 * members of "group" who are also present in largerCommunity.
-	 * 
-	 * @param group - the small group to check within
-	 * @param largerCommunity - if this is null, the parameter __group__ represents the set of Persons present. 
-	 * 		If __largerCommunity__ is not null, it represents the Persons who are physically present and __group__ 
-	 * 		represents the Persons with whom this Person might actually interact.
-	 * @param interactNumber - the number of interactions to make
-	 */
+
 	void OLDinteractWithin(HashSet <Person> group, HashSet <Person> largerCommunity, int interactNumber) {
 		
 		// setup
@@ -347,6 +397,19 @@ public class Person extends MobileAgent {
 		}	
 	}
 	
+	/**
+	 * A helper function for infectNeighbours().
+	 *
+	 * Utility function to help the individual interact with up to interactNumber individuals, as constrained by
+	 * both the group and the largerCommunity. If largerCommunity is non-null, the Person will only interact with 
+	 * members of "group" who are also present in largerCommunity.
+	 * 
+	 * @param group - the small group to check within
+	 * @param largerCommunity - if this is null, the parameter __group__ represents the set of Persons present. 
+	 * 		If __largerCommunity__ is not null, it represents the Persons who are physically present and __group__ 
+	 * 		represents the Persons with whom this Person might actually interact.
+	 * @param interactNumber - the number of interactions to make
+	 */
 	void interactWithin(HashSet <Person> group, HashSet <Person> largerCommunity, int interactNumber) {
 	
 		// set up parameters

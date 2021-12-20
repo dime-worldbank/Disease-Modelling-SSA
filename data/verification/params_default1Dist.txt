@@ -1,0 +1,21 @@
+dataDir: /Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/verification/
+
+population_filename: census_5perc_default1Dist.csv
+
+district_transition_LOCKDOWN_filename: dailyDistrictTransitionsProb_1Dist.csv
+district_transition_PRELOCKDOWN_filename: dailyDistrictTransitionsProb_1Dist.csv
+district_leaving_filename: decreasedTransitionMobilityRates_default.csv
+
+economic_status_weekday_movement_prob_filename: econStatusMovementProb_weekday_default.txt
+economic_status_otherday_movement_prob_filename: econStatusMovementProb_otherDay_default.txt
+econ_interaction_distrib_filename: interactionMatrixByStatus_default.txt
+
+lockdown_changeList_filename: lockdownChangelist_empty.txt
+
+community_num_interaction_perTick: 5
+lineListWeightingFactor: 1
+setting_perfectMixing: true
+
+economic_status_num_daily_interacts_filename: numWeeklyInteractionsByStatus_default.txt
+line_list_filename: lineList_5perc_singleDist.txt
+infection_transition_params_filename: covasim_infect_transitions.txt
