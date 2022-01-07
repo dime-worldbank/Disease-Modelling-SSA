@@ -85,7 +85,7 @@
 !/data/configs/*.txt
 !/data/configs/*.csv
 !/data/verification/*.txt
-/data/verification/census*
+/data/verification/census_20.csv
 
 #######################
 # Include some additional file formats in any output folder. You might have
