@@ -4,6 +4,7 @@ import sim.Params;
 import sim.WorldBankCovid19Sim;
 import sim.engine.SimState;
 import sim.engine.Steppable;
+import swise.main.agents.MobileAgent;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,8 +14,6 @@ import java.util.Iterator;
 
 import behaviours.BehaviourNode;
 import behaviours.MovementBehaviourFramework;
-
-import swise.agents.MobileAgent;
 
 
 public class Person extends MobileAgent {

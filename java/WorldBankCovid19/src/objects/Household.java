@@ -2,7 +2,7 @@ package objects;
 
 import java.util.ArrayList;
 
-import swise.agents.SpatialAgent;
+import swise.main.agents.SpatialAgent;
 
 public class Household extends Location {
 	
