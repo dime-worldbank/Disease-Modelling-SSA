@@ -1,0 +1,504 @@
+---
+title: "Disease severity risk mapping"
+output: html_document
+---
+
+```{r setup, include=FALSE, echo=FALSE, eval=F}
+library(sf)
+library(mgcv)
+library(raster)
+library(lubridate)
+library(gtools)
+library(RColorBrewer)
+library(leaflet)
+library(wesanderson)
+library(knitr)
+library(DT)
+opts_chunk$set(fig.width=12, fig.height=8)
+
+setwd("~/Documents/Work/Lnl/GitRepos/fn-covid19-prev-pred")
+source('R/prevalence_predictor_mgcv_st_grid.R')
+zwe_adm2 <- readRDS('/Users/sturrockh/Documents/Work/Lnl/covid_modeling_ZWE/gadm36_ZWE_2_sp.rds')
+zwe_adm2 <- st_as_sf(zwe_adm2)
+# zwe_adm3 <- st_read('/Users/sturrockh/Documents/Work/Lnl/covid_modeling_ZWE/data/admin3_shapefiles/zwe_admbnda_adm3_zimstat_ocha_20180911.shp')
+zwe_adm3 <- st_read('/Users/sturrockh/Dropbox/Data to be shared/poverty data/poverty_adminzones/zwe_adm3_2002_v2_utm.shp')
+zwe_adm3 <- st_transform(zwe_adm3, st_crs(zwe_adm2))
+zwe_adm3 <- st_simplify(zwe_adm3, dTolerance=0.005)
+#zwe_adm2 <- st_simplify(zwe_adm2, dTolerance=0.01)
+pop_dens_raw <- raster('~/Documents/Work/Lnl/covid_modeling_ZWE/data/pop_dens_1km.tif')
+pop_dens <- focal(pop_dens_raw, w=matrix(1,5,5), fun=mean, na.rm=TRUE)
+pop_dens[is.na(pop_dens[])] <- 0
+names(pop_dens) <- 'pop_dens'
+
+# Testing prevalence_predictor_mgcv_st_grid
+risk_factors <- read.csv("/Users/sturrockh/Documents/Work/Lnl/covid_modeling_ZWE/data/spatial_risk_041720.csv")
+
+# Organize data
+## HIV
+df_hiv <- data.frame(lng = risk_factors$LONGNUM,
+                      lat = risk_factors$LATNUM,
+                      n_positive = round(risk_factors$c_hiv,0), 
+                      n_trials = risk_factors$total_hiv)
+
+res_hiv <- prevalence_predictor_mgcv_st_grid(df_hiv,
+                                             covariates = pop_dens,
+                                                     boundary = '~/Documents/Work/Lnl/covid_modeling_ZWE/data/ZWE_boundary.geojson',
+                                                     ncol_pred_grid = 500)
+res_hiv <- resample(res_hiv, pop_dens)
+plot(res_hiv)
+
+# Create pop-weighted district means
+zwe_adm2$total_pop <- extract(pop_dens_raw, zwe_adm2, sum, na.rm=T)
+weighted_sum_hiv <- extract(res_hiv*pop_dens_raw, zwe_adm2, sum, na.rm=T)
+zwe_adm2$mean_hiv_pop_weighted <- weighted_sum_hiv / zwe_adm2$total_pop
+plot(zwe_adm2['mean_hiv_pop_weighted'])
+
+# Create pop-weighted ward means
+zwe_adm3$total_pop <- extract(pop_dens_raw, zwe_adm3, sum, na.rm=T)
+weighted_sum_hiv_ward <- extract(res_hiv*pop_dens_raw, zwe_adm3, sum, na.rm=T)
+zwe_adm3$mean_hiv_pop_weighted <- weighted_sum_hiv_ward / zwe_adm3$total_pop
+plot(zwe_adm3['mean_hiv_pop_weighted'])
+
+###### Anaemia
+df_anaemia <- data.frame(lng = risk_factors$LONGNUM,
+                            lat = risk_factors$LATNUM,
+                            n_positive = risk_factors$m_c_anemia_1 + risk_factors$m_c_anemia_2 +
+                           risk_factors$w_c_anemia_2 + risk_factors$w_c_anemia_1,
+                            n_trials = risk_factors$m_total_ane + risk_factors$w_total_ane)
+
+res_anaemia <- prevalence_predictor_mgcv_st_grid(df_anaemia,
+                                                 covariates = pop_dens,
+                                                    boundary = '~/Documents/Work/Lnl/covid_modeling_ZWE/data/ZWE_boundary.geojson',
+                                                    ncol_pred_grid = 500)
+res_anaemia <- resample(res_anaemia, pop_dens)
+plot(res_anaemia)
+
+# Create pop-weighted district means
+weighted_sum_anaemia <- extract(res_anaemia*pop_dens_raw, zwe_adm2, sum, na.rm=T)
+zwe_adm2$mean_anaemia_pop_weighted <- weighted_sum_anaemia / zwe_adm2$total_pop
+plot(zwe_adm2['mean_anaemia_pop_weighted'])
+
+# Create pop-weighted ward means
+weighted_sum_anaemia_ward <- extract(res_anaemia*pop_dens_raw, zwe_adm3, sum, na.rm=T)
+zwe_adm3$mean_anaemia_pop_weighted <- weighted_sum_anaemia_ward / zwe_adm3$total_pop
+plot(zwe_adm3['mean_anaemia_pop_weighted'])
+
+###### Overweight
+df_overweight <- data.frame(lng = risk_factors$LONGNUM,
+                            lat = risk_factors$LATNUM,
+                            n_positive = risk_factors$m_c_overweight + risk_factors$w_c_overweight +
+                              risk_factors$m_c_obese + risk_factors$w_c_obese,
+                            n_trials = risk_factors$m_total_bmi + risk_factors$w_total_bmi)
+
+res_overweight <- prevalence_predictor_mgcv_st_grid(df_overweight,
+                                             boundary = '~/Documents/Work/Lnl/covid_modeling_ZWE/data/ZWE_boundary.geojson',
+                                             covariates = pop_dens,
+                                             ncol_pred_grid = 500)
+res_overweight <- resample(res_overweight, pop_dens)
+plot(res_overweight)
+
+# Create pop-weighted district means
+weighted_sum_overweight <- extract(res_overweight*pop_dens_raw, zwe_adm2, sum, na.rm=T)
+zwe_adm2$mean_overweight_pop_weighted <- weighted_sum_overweight / zwe_adm2$total_pop
+#plot(zwe_adm2['mean_overweight_pop_weighted'])
+
+# Create pop-weighted ward means
+weighted_sum_overweight_ward <- extract(res_overweight*pop_dens_raw, zwe_adm3, sum, na.rm=T)
+zwe_adm3$mean_overweight_pop_weighted <- weighted_sum_overweight_ward / zwe_adm3$total_pop
+
+###### Smoking
+df_smoker <- data.frame(lng = risk_factors$LONGNUM,
+                            lat = risk_factors$LATNUM,
+                            n_positive = risk_factors$m_c_smoker + risk_factors$w_c_smoker,
+                            n_trials = risk_factors$m_total_smoker + risk_factors$w_total_smoker)
+
+res_smoker <- prevalence_predictor_mgcv_st_grid(df_smoker,
+                                                covariates = pop_dens,
+                                                    boundary = '~/Documents/Work/Lnl/covid_modeling_ZWE/data/ZWE_boundary.geojson',
+                                                    ncol_pred_grid = 500)
+res_smoker <- resample(res_smoker, pop_dens)
+plot(res_smoker)
+
+# Create pop-weighted district means
+weighted_sum_smoker <- extract(res_smoker*pop_dens_raw, zwe_adm2, sum, na.rm=T)
+zwe_adm2$mean_smoker_pop_weighted <- weighted_sum_smoker / zwe_adm2$total_pop
+#plot(zwe_adm2['mean_smoker_pop_weighted'])
+
+# Create pop-weighted ward means
+weighted_sum_smoker_ward <- extract(res_smoker*pop_dens_raw, zwe_adm3, sum, na.rm=T)
+zwe_adm3$mean_smoker_pop_weighted <- weighted_sum_smoker_ward / zwe_adm3$total_pop
+
+###### Respirator illness
+resp_per_dist <- read.csv("~/Documents/Work/Lnl/covid_modeling_ZWE/outputs/district_resp_risk.csv")
+resp_per_ward <- read.csv("~/Documents/Work/Lnl/covid_modeling_ZWE/outputs/ward_resp_risk.csv")
+zwe_adm2 <- merge(zwe_adm2, resp_per_dist[,c('GID_2', 'mean_resp_risk_pop_weighted', 'mean_resp_risk_improved_1_pop_weighted', 'mean_resp_risk_improved_2_pop_weighted')],
+                  by = "GID_2")
+zwe_adm3 <- merge(zwe_adm3, resp_per_ward,
+                  by = "wardpcode0")
+
+#### Create 'risk' using quintiles
+risks <- c('mean_hiv_pop_weighted', 'mean_anaemia_pop_weighted', 'mean_overweight_pop_weighted', 'mean_smoker_pop_weighted', 'mean_resp_risk_pop_weighted')
+
+# for(risk in risks){
+#   zwe_adm2[paste0(risk, '_cat')] <- as.numeric(quantcut(unlist(st_drop_geometry(zwe_adm2)[risk]), 5))
+# }
+
+#zwe_adm2$severe_covid_risk <- apply(st_drop_geometry(zwe_adm2[paste0(risks, '_cat')]), 1, sum)
+write.csv(st_drop_geometry(zwe_adm2), "~/Documents/Work/Lnl/covid_modeling_ZWE/outputs/severe_disease_risk_district.csv")
+write.csv(st_drop_geometry(zwe_adm3), "~/Documents/Work/Lnl/covid_modeling_ZWE/outputs/severe_disease_risk_ward.csv")
+
+save(zwe_adm2, zwe_adm3, risks,
+     file="~/Documents/Work/Lnl/covid_modeling_ZWE/outputs/zwe_disease_severity.RData")
+```
+
+In order to estimate how risk of severe COVID-19 (i.e. requires hospitalization) varies across Zimbabwe, we examined the variation in age-structure by district, as well as prevalence of key risk factors. For age, well understood to be an indepdendent risk factor, we used probability of hospitalization per age-group as used by Imperial College (see [here](https://mrc-ide.github.io/global-lmic-reports/parameters.html )), which themselves are based on estimates from [Verity et al.](https://www.thelancet.com/pdfs/journals/laninf/PIIS1473-3099(20)30243-7.pdf). To adjust these probabilities of hospitalization to reflect the probability among symptomatic cases, we mutiplied these estimates by 1.667 (equal to assuming 60% of infections are symptomatic).
+
+We then adjusted the age-specific probability hospitalization by district according to prevalence of underlying risk factors in the population. These risk factors included prevalence of HIV+ without viral load suppression (VLS), anaemia, smoking, respiratory illness (symptoms in children) and being overweight. To estimate prevalence of risk factors at the district level, spatial binomial models were fit to georeferenced Demographic and Health Survey data for each risk factor. Each model was used to predict prevalence of that risk factor across a common 1km grid. District level population-weighted means were calculated using the Facebook population density raster aggregated to 1km resolution. To estimate the prevalence of being HIV+ without VLS, we predicted prevalence of HIV at district level as per other risk factors combined with estimates of viral load supression at the provincial level from the 2016 Zimbabwe population-based HIV impact assessment.
+
+In order to combine these underlying risk factors into a single estimate of risk of hospitalization (not accounting for age), we applied risk factor effect estimates as reported by [Ma et al](https://www.medrxiv.org/content/10.1101/2020.03.17.20037572v1.full.pdf). These risk factors reflect risk among symptomatic cases. Specifially smokers and those with comorbidities were estimated to have increased risk (ORs 1.6 and 2.7 respectively). We assumed any one of being HIV+ without VLS, anaemia, respiratory illness and being overweight constituted a comorbidity and that the mean proportion of symptomatic COVID-19 cases that are severe is 10.5% (equal to the mean risk per age-group). 
+
+The resulting predicted probability of hospitalization across age-groups per district was calculated using this model. We took this to reflect the variation in the mean risk of hospitalization across age-groups and used it to adjusted age-sepcific probabilities. For example, if the probability of hospitalization was predicted to be 11% on the basis of underlying risk factors, this was 1.048 times (4.8%) higher than the mean (10.5%). Age-specific probabilities for that district were then inflated by 4.8%. 
+
+```{r, echo=FALSE, warning=FALSE}
+library(RColorBrewer)
+library(leaflet)
+library(wesanderson)
+library(sf)
+library(DT)
+library(knitr)
+opts_chunk$set(fig.width=12, fig.height=8)
+load("~/Documents/Work/Lnl/covid_modeling_ZWE/outputs/zwe_disease_severity.RData")
+#risks[1] <- "prop_HIV_no_vls"
+
+# Get prob of hospitalization by age
+age_breakdow_dist <- read.csv("~/Documents/Work/Lnl/covid_modeling_ZWE/abm_district_age_052920.csv")
+age_breakdow_dist <- merge(age_breakdow_dist, zwe_adm2[,c("NAME_2", "severe_covid_risk")],
+                           by = "NAME_2")
+#age_breakdow_ward <- COMING
+age_risk <- read.csv("~/Documents/Work/Lnl/covid_modeling_ZWE/abm_hosp_risk_age.csv")
+age_risk$Proportion.of.Symptomatics.Hospitalised <- age_risk$Proportion.of.Infections.Hospitalised*1.6666
+#age_breakdow_dist <- age_breakdow_dist[,-c(1:9)]
+
+## Calculate probability of co-morbidity
+# vls <- read.csv("~/Documents/Work/Lnl/covid_modeling_ZWE/data/vls_province.csv")
+# zwe_adm2 <- merge(zwe_adm2, vls, by.x="NAME_1", by.y="Province")
+# zwe_adm2$not_vls <- (100 - zwe_adm2$VLS) / 100
+# zwe_adm2$prop_HIV_no_vls <- zwe_adm2$mean_hiv_pop_weighted * zwe_adm2$not_vls
+# zwe_adm2$prop_comorbidities <- 1 - ((1 - zwe_adm2$mean_anaemia_pop_weighted) *
+#                              (1 - zwe_adm2$prop_HIV_no_vls) *
+#                              (1 - zwe_adm2$mean_anaemia_pop_weighted) *
+#                              (1 - zwe_adm2$mean_overweight_pop_weighted) *
+#                              (1 - zwe_adm2$mean_resp_risk_pop_weighted))
+  
+logit_risk <- log(2.6)*zwe_adm2$prop_comorbidities +
+              log(1.7)*zwe_adm2$mean_smoker_pop_weighted - 2.755
+zwe_adm2$severe_covid_risk <- exp(logit_risk) / (1 + exp(logit_risk))
+
+# Modify age risk values per district according to underlying risk
+# For each district, calculate the mean prob of hospitalization
+mean_risk_dist <- NULL
+mean_risk_dist_only_age <- NULL
+for(dist in 1:nrow(age_breakdow_dist)){
+  
+    age_risk_dist <- age_risk$Proportion.of.Symptomatics.Hospitalised * (age_breakdow_dist$severe_covid_risk[dist] / mean(age_breakdow_dist$severe_covid_risk))
+    
+    # Now calc age-weighted mean risk
+    mean_risk_dist <- c(mean_risk_dist, sum(age_risk_dist * age_breakdow_dist[dist,10:24]) / 
+      sum(age_breakdow_dist[dist,10:24]))
+    mean_risk_dist_only_age <- c(mean_risk_dist_only_age, sum(age_risk$Proportion.of.Symptomatics.Hospitalised * age_breakdow_dist[dist,10:24]) / 
+       sum(age_breakdow_dist[dist,10:24]))
+}
+mean_risk_dist <- data.frame(NAME_2 = age_breakdow_dist$NAME_2,
+                             severe_covid_risk_with_age = mean_risk_dist)
+
+zwe_adm2 <- merge(zwe_adm2, mean_risk_dist, by = "NAME_2")
+
+# Simplify polygon
+zwe_adm2 <- st_simplify(zwe_adm2, dTolerance = 0.01)
+
+basemap <- leaflet(width="100%") %>% addProviderTiles("CartoDB.Positron") %>% 
+  setView(lat = -19.293432, lng = 30.149663, zoom = 6)
+
+scr_risk_range <- c(0.0212, 0.0378)
+
+hiv_pal <- colorNumeric((brewer.pal(5,"Greens")), zwe_adm2$prop_HIV_no_vls)
+smo_pal <- colorNumeric((brewer.pal(5,"Blues")), zwe_adm2$mean_smoker_pop_weighted)
+ove_pal <- colorNumeric((brewer.pal(5,"OrRd")), zwe_adm2$mean_overweight_pop_weighted)
+ane_pal <- colorNumeric((brewer.pal(5,"Purples")), zwe_adm2$mean_anaemia_pop_weighted)
+rsp_pal <- colorNumeric((brewer.pal(5,"Greys")), zwe_adm2$mean_resp_risk_pop_weighted)
+scr_pal <- colorNumeric(wes_palette(15, name = "Zissou1", type = "continuous")[1:15], 
+                        scr_risk_range)
+
+basemap %>% addPolygons(data = zwe_adm2,
+                        col = "black",
+                        fillOpacity = 1,
+                        weight = 2,
+                        popup = zwe_adm2$NAME_2,
+                        fillColor = hiv_pal(zwe_adm2$prop_HIV_no_vls),
+                        group = "HIV+ without VLS prevalence") %>%
+  
+  addPolygons(data = zwe_adm2,
+                        col = "black",
+                        fillOpacity = 1,
+                        weight = 2,
+                        popup = zwe_adm2$NAME_2,
+                        fillColor = ane_pal(zwe_adm2$mean_anaemia_pop_weighted),
+                        group = "Anaemia prevalence") %>%
+  
+    addPolygons(data = zwe_adm2,
+                        col = "black",
+                        fillOpacity = 1,
+                        weight = 2,
+                        popup = zwe_adm2$NAME_2,
+                        fillColor = rsp_pal(zwe_adm2$mean_resp_risk_pop_weighted),
+                        group = "Respiratory illness prevalence") %>%
+  
+  addPolygons(data = zwe_adm2,
+                        col = "black",
+                        fillOpacity = 1,
+                        weight = 2,
+                        popup = zwe_adm2$NAME_2,
+                        fillColor = ove_pal(zwe_adm2$mean_overweight_pop_weighted),
+                        group = "Overweight prevalence") %>%
+  
+    addPolygons(data = zwe_adm2,
+                        col = "black",
+                        fillOpacity = 1,
+                        weight = 2,
+                        fillColor = smo_pal(zwe_adm2$mean_smoker_pop_weighted),
+                        popup = zwe_adm2$NAME_2,
+                        group = "Smoking prevalence") %>%
+  
+      addPolygons(data = zwe_adm2,
+                        col = "black",
+                        fillOpacity = 1,
+                        weight = 2,
+                        fillColor = scr_pal(zwe_adm2$severe_covid_risk_with_age),
+                        popup = zwe_adm2$NAME_2,
+                        group = "Severe COVID-19 risk") %>% 
+  
+  addLegend(title = "Severe COVID-19 risk",
+            position = 'topleft',
+            pal = scr_pal,
+            values = scr_risk_range,
+            group = "Severe COVID-19 risk") %>% 
+
+      addLegend(title = "Respiratory illness prevalence",
+              position = 'topleft',
+            pal = rsp_pal,
+            values = zwe_adm2$mean_resp_risk_pop_weighted,
+            group = "Respiratory illness prevalence") %>% 
+  
+    addLegend(title = "Smoking prevalence",
+              position = 'topleft',
+            pal = smo_pal,
+            values = zwe_adm2$mean_smoker_pop_weighted,
+            group = "Smoking prevalence") %>% 
+  
+      addLegend(title = "Anaemia prevalence",
+                position = 'topleft',
+            pal = ane_pal,
+            values = zwe_adm2$mean_anaemia_pop_weighted,
+            group = "Anaemia prevalence") %>% 
+  
+      addLegend(title = "Overweight prevalence",
+                position = 'topleft',
+            pal = ove_pal,
+            values = zwe_adm2$mean_overweight_pop_weighted,
+            group = "Overweight prevalence") %>% 
+  
+        addLegend(title = "Prevalence of HIV+ <br> without viral load <br> supression (VLS)",
+                  position = 'topleft',
+            pal = hiv_pal,
+            values = zwe_adm2$prop_HIV_no_vls,
+            group = "HIV+ without VLS prevalence") %>% 
+  
+  addLayersControl(overlayGroups = c("HIV+ without VLS prevalence", "Anaemia prevalence",
+                                     "Respiratory illness prevalence",
+                                     "Overweight prevalence", "Smoking prevalence",
+                                     "Severe COVID-19 risk"), 
+                   options = layersControlOptions(collapsed = F)) %>%
+  hideGroup(c("HIV+ without VLS prevalence", "Anaemia prevalence", "Respiratory illness prevalence", "Overweight prevalence", "Smoking prevalence"))
+```
+
+We also estimated the probability of severe disease under a scenario of reduced prevalence of respiratory illness via improved handwashing (reduced handwashing risk). In this scenario, we explored the impact of 2 scenarios i) reducing handwashing risk to 0.24 (the minimum observed district level risk), ii) reducing handwashing risk to 0.036 (minimum observed cluster level risk) and iii) reducing handwashing risk to 0. We estimate that these reductions in handwashing risk would lead to a reduction in prevalence of respiratory illness from 40.5% to 33.6%, 15.6% and 13.8% respectively. 
+```{r, echo=FALSE}
+opts_chunk$set(fig.width=12, fig.height=8)
+
+# Scenario 1
+zwe_adm2$prop_comorbidities_improved_1 <- 1 - ((1 - zwe_adm2$mean_anaemia_pop_weighted) *
+                             (1 - zwe_adm2$prop_HIV_no_vls) *
+                             (1 - zwe_adm2$mean_anaemia_pop_weighted) *
+                             (1 - zwe_adm2$mean_overweight_pop_weighted) *
+                             (1 - zwe_adm2$mean_resp_risk_improved_1_pop_weighted))
+  
+logit_risk_improved_1 <- log(2.6)*zwe_adm2$prop_comorbidities_improved_1 +
+              log(1.7)*zwe_adm2$mean_smoker_pop_weighted - 2.75
+zwe_adm2$severe_covid_risk_improved_1 <- exp(logit_risk_improved_1) / (1 + exp(logit_risk_improved_1))
+
+#Scenario 2
+zwe_adm2$prop_comorbidities_improved_2 <- 1 - ((1 - zwe_adm2$mean_anaemia_pop_weighted) *
+                             (1 - zwe_adm2$prop_HIV_no_vls) *
+                             (1 - zwe_adm2$mean_anaemia_pop_weighted) *
+                             (1 - zwe_adm2$mean_overweight_pop_weighted) *
+                             (1 - zwe_adm2$mean_resp_risk_improved_2_pop_weighted))
+  
+logit_risk_improved_2 <- log(2.6)*zwe_adm2$prop_comorbidities_improved_2 +
+              log(1.7)*zwe_adm2$mean_smoker_pop_weighted - 2.755
+zwe_adm2$severe_covid_risk_improved_2 <- exp(logit_risk_improved_2) / (1 + exp(logit_risk_improved_2))
+
+#Scenario 3
+zwe_adm2$prop_comorbidities_improved_3 <- 1 - ((1 - zwe_adm2$mean_anaemia_pop_weighted) *
+                             (1 - zwe_adm2$prop_HIV_no_vls) *
+                             (1 - zwe_adm2$mean_anaemia_pop_weighted) *
+                             (1 - zwe_adm2$mean_overweight_pop_weighted) *
+                             (1 - zwe_adm2$mean_resp_risk_improved_3_pop_weighted))
+  
+logit_risk_improved_3 <- log(2.6)*zwe_adm2$prop_comorbidities_improved_3 +
+              log(1.7)*zwe_adm2$mean_smoker_pop_weighted - 2.755
+zwe_adm2$severe_covid_risk_improved_3 <- exp(logit_risk_improved_3) / (1 + exp(logit_risk_improved_3))
+
+# Modify the age-risk profiles and calc age adjusted risk per dist
+mean_risk_dist_imp1 <- NULL
+mean_risk_dist_imp2 <- NULL
+mean_risk_dist_imp3 <- NULL
+for(dist in 1:nrow(age_breakdow_dist)){
+  
+    age_risk_dist_imp1 <- age_risk$Proportion.of.Symptomatics.Hospitalised * (zwe_adm2$severe_covid_risk_improved_1[dist] / mean(zwe_adm2$severe_covid_risk))
+    
+        age_risk_dist_imp2 <- age_risk$Proportion.of.Symptomatics.Hospitalised * (zwe_adm2$severe_covid_risk_improved_2[dist] / mean(zwe_adm2$severe_covid_risk))
+        
+                age_risk_dist_imp3 <- age_risk$Proportion.of.Symptomatics.Hospitalised * (zwe_adm2$severe_covid_risk_improved_3[dist] / mean(zwe_adm2$severe_covid_risk))
+    
+    # Now calc age-weighted mean risk
+    mean_risk_dist_imp1 <- c(mean_risk_dist_imp1, sum(age_risk_dist_imp1 * age_breakdow_dist[dist,10:24]) / sum(age_breakdow_dist[dist,10:24]))
+    
+        mean_risk_dist_imp2 <- c(mean_risk_dist_imp2, sum(age_risk_dist_imp2 * age_breakdow_dist[dist,10:24]) / 
+      sum(age_breakdow_dist[dist,10:24]))
+        
+                mean_risk_dist_imp3 <- c(mean_risk_dist_imp3, sum(age_risk_dist_imp3 * age_breakdow_dist[dist,10:24]) / 
+      sum(age_breakdow_dist[dist,10:24]))
+}
+
+zwe_adm2$severe_covid_risk_improved_1 <- mean_risk_dist_imp1
+zwe_adm2$severe_covid_risk_improved_2 <- mean_risk_dist_imp2
+zwe_adm2$severe_covid_risk_improved_3 <- mean_risk_dist_imp3
+
+
+write.csv(st_drop_geometry(zwe_adm2), "~/Documents/Work/Lnl/covid_modeling_ZWE/outputs/severe_disease_risk_district.csv")
+
+basemap %>% addPolygons(data = zwe_adm2,
+                        col = "black",
+                        fillOpacity = 1,
+                        weight = 2,
+                        fillColor = scr_pal(zwe_adm2$severe_covid_risk_improved_1),
+                        popup = zwe_adm2$NAME_2,
+                        group = "Severe COVID-19 risk <br> (improved handwashing scenario 1)") %>%
+  
+  addPolygons(data = zwe_adm2,
+                        col = "black",
+                        fillOpacity = 1,
+                        weight = 2,
+                        fillColor = scr_pal(zwe_adm2$severe_covid_risk_improved_2),
+                        popup = zwe_adm2$NAME_2,
+                        group = "Severe COVID-19 risk <br> (improved handwashing scenario 2)") %>%
+  
+    addPolygons(data = zwe_adm2,
+                        col = "black",
+                        fillOpacity = 1,
+                        weight = 2,
+                        fillColor = scr_pal(zwe_adm2$severe_covid_risk_improved_3),
+                        popup = zwe_adm2$NAME_2,
+                        group = "Severe COVID-19 risk <br> (improved handwashing scenario 3)") %>%
+    
+  addLegend(title = "Severe COVID-19 risk",
+            position = 'topleft',
+            pal = scr_pal,
+            values = scr_risk_range,
+            group = "Severe COVID-19 risk (improved handwashing)") %>%
+  
+   addLayersControl(baseGroups = c("Severe COVID-19 risk <br> (improved handwashing scenario 1)",
+                                   "Severe COVID-19 risk <br> (improved handwashing scenario 2)",
+                                   "Severe COVID-19 risk <br> (improved handwashing scenario 3)"), 
+                   options = layersControlOptions(collapsed = F))
+```
+
+
+Below is a table showing the risk category per district.
+
+```{r, echo=FALSE}
+cols <- c('NAME_2', risks, 'severe_covid_risk_with_age')
+table_show <- st_drop_geometry(zwe_adm2[cols])
+table_show <- table_show[rev(order(table_show$severe_covid_risk_with_age)),]
+table_show[,-1] <- round(table_show[,-1], 2)
+row.names(table_show) <- NULL
+names(table_show) <- c("District", "HIV+ without VLS prevalence", "Anaemia prevalence",
+                                     "Overweight prevalence", 
+                                      "Smoking prevalence",
+                                      "Respiratory illness prevalence",
+                                     "Severe COVID-19 risk")
+datatable(table_show, options = list(pageLength = 25))
+```
+
+
+We repeated these analyses at the Ward (admin 3) level.
+```{r, echo=F}
+
+# First, get province boundaries to facilitate merging in VLS data
+zwe_adm1 <- st_as_sf(raster::getData("GADM", level=1, country="ZWE"))
+zwe_adm3_centroids <- st_centroid(zwe_adm3)
+zwe_adm3$NAME_1 <- zwe_adm1$NAME_1[unlist(st_intersects(zwe_adm3_centroids, zwe_adm1))]
+
+zwe_adm3 <- merge(zwe_adm3, vls, by.x="NAME_1", by.y="Province")
+zwe_adm3$not_vls <- (100 - zwe_adm3$VLS) / 100
+zwe_adm3$prop_HIV_no_vls <- zwe_adm3$mean_hiv_pop_weighted * zwe_adm3$not_vls
+zwe_adm3$prop_comorbidities <- 1 - ((1 - zwe_adm3$mean_anaemia_pop_weighted) *
+                             (1 - zwe_adm3$prop_HIV_no_vls) *
+                             (1 - zwe_adm3$mean_anaemia_pop_weighted) *
+                             (1 - zwe_adm3$mean_overweight_pop_weighted) *
+                             (1 - zwe_adm3$mean_resp_risk_pop_weighted))
+  
+logit_risk <- log(2.6)*zwe_adm3$prop_comorbidities +
+              log(1.7)*zwe_adm3$mean_smoker_pop_weighted - 2.755
+zwe_adm3$severe_covid_risk <- exp(logit_risk) / (1 + exp(logit_risk))
+```
+
+We explored the improved handwashing scenarios at the ward level as per district
+```{r, echo=FALSE}
+# Scenario 1
+zwe_adm3$prop_comorbidities_improved_1 <- 1 - ((1 - zwe_adm3$mean_anaemia_pop_weighted) *
+                             (1 - zwe_adm3$prop_HIV_no_vls) *
+                             (1 - zwe_adm3$mean_anaemia_pop_weighted) *
+                             (1 - zwe_adm3$mean_overweight_pop_weighted) *
+                             (1 - zwe_adm3$mean_resp_risk_improved_1_pop_weighted))
+  
+ward_logit_risk_improved_1 <- log(2.6)*zwe_adm3$prop_comorbidities_improved_1 +
+              log(1.7)*zwe_adm3$mean_smoker_pop_weighted - 2.75
+zwe_adm3$severe_covid_risk_improved_1 <- exp(ward_logit_risk_improved_1) / (1 + exp(ward_logit_risk_improved_1))
+
+#Scenario 2
+zwe_adm3$prop_comorbidities_improved_2 <- 1 - ((1 - zwe_adm3$mean_anaemia_pop_weighted) *
+                             (1 - zwe_adm3$prop_HIV_no_vls) *
+                             (1 - zwe_adm3$mean_anaemia_pop_weighted) *
+                             (1 - zwe_adm3$mean_overweight_pop_weighted) *
+                             (1 - zwe_adm3$mean_resp_risk_improved_2_pop_weighted))
+  
+ward_logit_risk_improved_2 <- log(2.6)*zwe_adm3$prop_comorbidities_improved_2 +
+              log(1.7)*zwe_adm3$mean_smoker_pop_weighted - 2.75
+zwe_adm3$severe_covid_risk_improved_2 <- exp(ward_logit_risk_improved_2) / (1 + exp(ward_logit_risk_improved_2))
+
+#Scenario 3
+zwe_adm3$prop_comorbidities_improved_3 <- 1 - ((1 - zwe_adm3$mean_anaemia_pop_weighted) *
+                             (1 - zwe_adm3$prop_HIV_no_vls) *
+                             (1 - zwe_adm3$mean_anaemia_pop_weighted) *
+                             (1 - zwe_adm3$mean_overweight_pop_weighted) *
+                             (1 - zwe_adm3$mean_resp_risk_improved_3_pop_weighted))
+  
+ward_logit_risk_improved_3 <- log(2.6)*zwe_adm3$prop_comorbidities_improved_3 +
+              log(1.7)*zwe_adm3$mean_smoker_pop_weighted - 2.75
+zwe_adm3$severe_covid_risk_improved_3 <- exp(ward_logit_risk_improved_3) / (1 + exp(ward_logit_risk_improved_3))
+
+# Save
+write.csv(st_drop_geometry(zwe_adm3), "~/Documents/Work/Lnl/covid_modeling_ZWE/outputs/severe_disease_risk_ward.csv")
+```
+
