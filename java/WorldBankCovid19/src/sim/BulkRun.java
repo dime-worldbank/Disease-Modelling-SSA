@@ -7,7 +7,7 @@ public class BulkRun {
 	
 	public static void main(String [] args) {
 		
-		String filenameBase = "/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/verification/", 
+		String filenameBase = "/Users/robbiework/eclipse-workspace/Disease-Modelling-SSA/data/verification/", 
 				filenameSuffix = ".txt";
 		String [] paramsFilenames = {"params_default1Dist"};//, "params_defaultMultiDist", "params_multiStatusMultiDist"};   
 		double myBeta = .2;
@@ -18,13 +18,13 @@ public class BulkRun {
 		for(String s: paramsFilenames) {
 			
 			for(int i = 0; i < 1; i++) {
-				
+
 				String paramFilename = filenameBase + s + filenameSuffix;
 				String outputFilename = s + outputPrefix + i + outputSuffix;
 				String infectionsOutputFilename = "infections_" + s + outputPrefix + i + outputSuffix;
 				
 				WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(i, new Params(paramFilename), outputFilename);
-				
+
 				System.out.println("Loading...");
 
 				mySim.params.infection_beta = myBeta / mySim.params.ticks_per_day; // normalised to be per tick
