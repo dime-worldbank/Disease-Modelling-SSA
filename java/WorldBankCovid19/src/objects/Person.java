@@ -4,7 +4,7 @@ import sim.Params;
 import sim.WorldBankCovid19Sim;
 import sim.engine.SimState;
 import sim.engine.Steppable;
-import swise.main.agents.MobileAgent;
+import swise.agents.MobileAgent;
 
 import java.util.ArrayList;
 import java.util.Collection;
