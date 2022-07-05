@@ -39,6 +39,7 @@ public class WorldBankCovid19Sim extends SimState {
 		
 	public String outputFilename;
 	public String infections_export_filename;
+	public String sim_info_filename;
 	int targetDuration = 0;
 	
 	// ordering information
@@ -475,7 +476,8 @@ public class WorldBankCovid19Sim extends SimState {
 					rec += "\t" + (int) i.time_died;
 				// create variables to calculate DALYs, set to YLD zero as default
 				double yld = 0.0;
-				// DALY weights are taken from https://www.ssph-journal.org/articles/10.3389/ijph.2022.1604699/full
+				// DALY weights are taken from https://www.ssph-journal.org/articles/10.3389/ijph.2022.1604699/full , exact same DALY weights used 
+				// here https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8212397/ and here https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8844028/ , seems like these are common
 				// TODO: check if these would be representative internationally
 				// TODO: Find DALYs from long COVID
 				double critical_daly_weight = 0.655;
@@ -628,5 +630,35 @@ public class WorldBankCovid19Sim extends SimState {
 		mySim.timer = endTime - startTime;
 		
 		System.out.println("...run finished after " + mySim.timer + " ms");
+	}
+
+	void exportSimInformation() {
+		// Write the following information to a .txt file: Seed, number of agents, simulation duration
+		// TODO: discuss what else would be useful for the output here
+		try {
+		System.out.println("Printing out SIMULATION INFORMATION to " + sim_info_filename);
+		
+		// Create new buffered writer to store this information in
+		BufferedWriter exportFile = new BufferedWriter(new FileWriter(sim_info_filename, true));
+		// write a new heading 
+		exportFile.write("Seed\tNumberOfAgents\tSimuilationDuration"
+				+ "\n");
+		// Create variable rec to store the information
+		String rec = "";
+		// get and record the simulation seed
+		rec += this.seed() + "\t";
+		// get and record the number of agents
+		rec += this.agents.size() + "\t";
+		// get and record the simulation duration
+		rec += this.targetDuration + "\t";
+		
+		exportFile.write(rec);
+		exportFile.close();
+		
+		} catch (Exception e) {
+			System.err.println("File input error: " + sim_info_filename);
+		}
+
+		
 	}
 }

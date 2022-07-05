@@ -22,7 +22,7 @@ public class BulkRun {
 				String paramFilename = filenameBase + s + filenameSuffix;
 				String outputFilename = s + outputPrefix + i + outputSuffix;
 				String infectionsOutputFilename = "infections_" + s + outputPrefix + i + outputSuffix;
-				
+				String sim_info_filename = "sim_info_" + s + outputPrefix + i + outputSuffix;
 				WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(i, new Params(paramFilename), outputFilename);
 
 				System.out.println("Loading...");
@@ -31,6 +31,7 @@ public class BulkRun {
 				mySim.targetDuration = numDays;
 				mySim.start();
 				mySim.infections_export_filename = infectionsOutputFilename;
+				mySim.sim_info_filename = sim_info_filename;
 				
 				System.out.println("Running...");
 
@@ -42,6 +43,7 @@ public class BulkRun {
 				
 				//mySim.reportOnInfected();
 				mySim.exportInfections();
+				mySim.exportSimInformation();
 				
 				/*
 				String agesOutputFilename = "ages_" + s + "_" + i + outputSuffix;
