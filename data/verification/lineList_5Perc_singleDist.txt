@@ -1,2 +1,0 @@
-district, count
-d_1, 12

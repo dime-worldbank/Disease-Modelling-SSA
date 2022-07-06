@@ -1,2 +1,0 @@
-economic_status, movement_probability
-"Default",.8
