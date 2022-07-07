@@ -8,7 +8,7 @@ public class SingleRun {
 	
 	public static void main(String [] args) {
 		// set the number of days the simulation will run
-		int numDays = 100;
+		int numDays = 365;
 		// get current time, use to time stamp the results file, first format date time
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");  
 		// name current time 'timestamp'

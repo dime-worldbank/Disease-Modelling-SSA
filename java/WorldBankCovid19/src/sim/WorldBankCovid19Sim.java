@@ -641,7 +641,7 @@ public class WorldBankCovid19Sim extends SimState {
 		// Create new buffered writer to store this information in
 		BufferedWriter exportFile = new BufferedWriter(new FileWriter(sim_info_filename, true));
 		// write a new heading 
-		exportFile.write("Seed\tNumberOfAgents\tSimuilationDuration"
+		exportFile.write("Seed\tNumberOfAgents\tSimulationDuration"
 				+ "\n");
 		// Create variable rec to store the information
 		String rec = "";
