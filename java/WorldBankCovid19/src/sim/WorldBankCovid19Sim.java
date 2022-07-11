@@ -57,7 +57,7 @@ public class WorldBankCovid19Sim extends SimState {
 
 	// meta
 	public long timer = -1;
-	
+	public int initial_population_size;
 	/**
 	 * Constructor function
 	 * @param seed
@@ -85,7 +85,7 @@ public class WorldBankCovid19Sim extends SimState {
 			System.out.println("ERROR *** NO AGENTS LOADED");
 			System.exit(0);
 		}
-
+		initial_population_size = agents.size();
 		// set up the social networks
 		//InteractionUtilities.create_work_bubbles(this);
 		//InteractionUtilities.create_community_bubbles(this);
@@ -648,7 +648,7 @@ public class WorldBankCovid19Sim extends SimState {
 		// get and record the simulation seed
 		rec += this.seed() + "\t";
 		// get and record the number of agents
-		rec += this.agents.size() + "\t";
+		rec += this.initial_population_size + "\t";
 		// get and record the simulation duration
 		rec += this.targetDuration + "\t";
 		
