@@ -12,7 +12,7 @@
 # WRITTEN BY:         Marine
 
 
-
+library(readstata13)
 
       ###########################################
       ##########SET-UP: READING DATA ############
@@ -21,7 +21,7 @@
 setwd("~/GitHub/Disease-Modelling-SSA/risk_mapping/DRC/")
 
 # reading Household Member Recode data from the DHS (Demographic and Health Survey)
-dhs_drc <- readstata13::read.dta13(paste0(directory, "/input_data/dhs_data/CDHR61FL.DTA"), convert.factors = TRUE, generate.factors = TRUE)
+dhs_drc <- read.dta13(("input_data/dhs_data/CDHR61FL.DTA"),  convert.factors = TRUE, generate.factors = TRUE)
 
 # checking dimensions of the datasets
 dim(dhs_drc)
@@ -78,13 +78,14 @@ table(dhs_drc$hw_risk2)
 sum(is.na(dhs_drc$hw_risk2))
 
 # normalize risk index between 0 and 1
-dhs_drc$hw_risk2 <- (dhs_drc$hw_risk2 - min(dhs_drc$hw_risk2, na.rm = TRUE))/(max(dhs_drc$hw_risk2, na.rm = TRUE)-min(dhs_drc$hw_risk2, na.rm = TRUE))
-table(dhs_drc$hw_risk2)
+$hw_risk2 <- (dhs_drc$hw_risk2 - min(dhs_drc$hw_risk2, na.rm = TRUE))s_drc$hw_risk2)
 
 
         ##############################
         ### RISK FACTOR 2: ANEMIA ####
-        ##############################
+        #####
+dhs_drc$hw_risk2 <- (dhs_drc$hw_risk2 - min(dhs_drc$hw_risk2, na.rm = TRUE))/(max(dhs_drc$hw_risk2, na.rm = TRUE)-min(dhs_drc$hw_risk2, na.rm = TRUE))
+table(dhdhs_drc#########################
 
 # An observation represents one household in the DHS dataset
 # However, some variables are specific to individuals within the household
