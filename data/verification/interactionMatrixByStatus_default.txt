@@ -1,2 +1,0 @@
-economic_status,Default
-Default,1.0

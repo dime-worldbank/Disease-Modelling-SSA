@@ -1,3 +1,34 @@
+/* ******************************************
+
+Program name: ABM scale up
+Author: SA
+Date last modified: 
+Project:  ABM
+Purpose:   scale back up from original 5%
+
+****************************************** */
+
+***0. SET STATA 
+clear matrix
+clear
+set more off
+
+************ recreate the subsamples by taking the original IPUMS 5% and then scale back UP to 20% and 50% for the paper. Creating different versions:
+
+/*
+
+1. No age, all households of 6 (synthetic) (variation -1)
+2. With real age and households (variation 1)
+3. With real age, household, multi district (variation 3)
+
+Multiply each by 4  to create 20% 
+(consider 50% later)
+
+*/
+
+
+** Keep only the core variables from IPUMS That is: 	person_id	age	sex	household_id	district_id	economic_status	economic_activity_location_id	school_goers	manufacturing_workers
+
 ************ recreate the dummy subsamples and the same 5% and 20% and 50% and 75% and 100%
 clear all
 
@@ -10,185 +41,92 @@ tempfile temp1 temp2
 
 use "data/raw/census/100_perc_sample/abm_individual_new_092320_final_merged_complete_FINAL.dta", clear
 
-* it still needs some of the work done down below, but first cut it to the sample size i want
+* it still needs some of the work done down below, but first cut it to the sample size i want - using new method from Billy using cycle 
 
-sample 75, by(new_district_id)
-save "data/raw/census/75_perc_sample/75_perc_092320_missingvars.dta", replace
-*/
-
-***** use 75 percent version as created in commented out code above 
-tempfile temp1
-*use "data/raw/census/100_perc_sample/100_perc_092320_missingvars.dta", clear
-sort district_id
-rename district_id dist_id_88
-
-save `temp1', replace
-
-import delimited "data/raw/district_relation_plus_mapcode.csv", clear
-
-merge 1:m dist_id_88 using `temp1'
-drop _merge
-
-*change the old to new district id
-rename new_district_id district_id
+keep pernum age sex serial new_district_id economic_status school_goers manufacturing_workers cycle serial_cycle serial_cycle_pernum
 
 
-** save new version of 75 perc dataset
-tab economic_status, nol
-gen economic_status2 = economic_status
-
-*** gen teachers var 
-
-replace economic_status2=9 if teachers !=0
-
-la define economic_stat 0 "Not working, inactive, not in universe" 1 "Current Students" 2 "Homemakers/Housework" 3 "Office workers" 4 "Service workers" 5 "Agriculture workers" 6 "Industry Workers" 7 "In the army" 8 "Disabled and not working" 9 "Teachers"
-
-label values economic_status2 economic_stat
-tab economic_status2,m
-drop economic_status 
-rename economic_status2 economic_status
-
-*create the school goers variable (this is just a dummy for now) 
-*drop _merge
-
-*clean age variable 
-replace age = . if age==999
-
-*temporary solve to python code issue
-drop if age ==. 
-
-*rename household id
 rename serial household_id
-
-
-*order 
-order district_id district_name_shpfile 
-save "data/raw/census/75_perc_sample/census_sample_75perc_070921.dta", replace
-export delimited using "data\raw\census\75_perc_sample\census_sample_75perc_070921.csv", replace
-****check variables in this 75 perc sample are all the same as the one in the 1500 below
-e
-*use "data/raw/census/100_perc_sample/census_sample_100perc_070921.dta", clear
-tab economic_status
-
-
-
-**************************************************************************************************
-
-/*
-***same thing with 091720 version
-
-use "data/raw/census/5_perc_sample/abm_individual_new_091720.dta", clear
-sort district_id
-merge m:1 district_id using `temp1' 
-
-drop district_id 
+rename serial_cycle household_id_cycle
+rename serial_cycle_pernum person_id_cycle
+rename pernum person_id 
 rename new_district_id district_id
 
+// keep person_id	age sex	household_id district_id economic_status school_goers manufacturing_workers --  economic activity location id 
 
-** save new version of 5 perc dataset
-tab economic_status, nol
-gen economic_status2 = economic_status
+*** CHECKS BEFORE
 
-*** gen teachers var 
-
-replace economic_status2=9 if teachers !=0
-
-la define economic_stat 0 "Not working, inactive, not in universe" 1 "Current Students" 2 "Homemakers/Housework" 3 "Office workers" 4 "Service workers" 5 "Agriculture workers" 6 "Industry Workers" 7 "In the army" 8 "Disabled and not working" 9 "Teachers"
-
-label values economic_status2 economic_stat
-tab economic_status2,m
-drop economic_status 
-rename economic_status2 economic_status
-
-*create the school goers variable (this is just a dummy for now) 
-gen school_goers = 0
-replace school_goers=1 if economic_status==1 
-
-gen manufacturing_workers=0
-replace manufacturing_workers=1 if economic_status==6
-
-drop _merge
-save "data/raw/census/5_perc_sample/census_sample_5perc.dta", replace
+tabout age using "data/raw/census/checks/age_100p.xls", c(col freq) replace
+tabout sex using "data/raw/census/checks/sex_100p.xls", c(col freq) replace
+tabout school_goers using "data/raw/census/checks/school_goers_100p.xls", c(col freq)  replace
+tabout economic_status using "data/raw/census/checks/econ_status_100p.xls", c(col freq) replace
+tabout manufacturing_workers using "data/raw/census/checks/manu_workers_100p.xls", c(col freq) replace
+tabout district_id using "data/raw/census/checks/district_id_100p.xls", c(col freq)  replace
 
 
+** to keep the 75 percent sample 
+destring cycle, replace
+tab cycle
+keep if inrange(cycle, 1,18 )  // through 18
 
-************ create more characteristics for dummy dataset for PhD work
+save "data/raw/census/75_perc_sample/abm_individual_new_092320_75_perc_080222.dta", replace
+
+*** CHECKS AFTER
+
+tabout age using "data/raw/census/checks/age_75p.xls", c(col freq) replace
+tabout sex using "data/raw/census/checks/sex_75p.xls", c(col freq) replace
+tabout school_goers using "data/raw/census/checks/school_goers_75p.xls", c(col freq)  replace
+tabout economic_status using "data/raw/census/checks/econ_status_75p.xls", c(col freq) replace
+tabout manufacturing_workers using "data/raw/census/checks/manu_workers_75p.xls", c(col freq) replace
+tabout district_id using "data/raw/census/checks/district_id_75p.xls", c(col freq)  replace
 
 
 
-use "other_practice/census_dummy_0.001_pct.dta", clear
+** to keep the 50 percent sample 
+destring cycle, replace
+tab cycle
+keep if inrange(cycle, 1,12 )  // through 12
 
-gen infection_status="S"
+save "data/raw/census/50_perc_sample/abm_individual_new_092320_50_perc_080222.dta", replace
 
-*randomly assign 10 agents to be infected
-set seed 111220
-gen rand = runiform()
-sort rand
-generate d_infected = _n <=10
-sort pid new_district_id
+*** CHECKS AFTER
 
-*clean up age var 
-label drop age
-replace age=50 if age==999
-tab age
+tabout age using "data/raw/census/checks/age_50p.xls", c(col freq) replace
+tabout sex using "data/raw/census/checks/sex_50p.xls", c(col freq) replace
+tabout school_goers using "data/raw/census/checks/school_goers_50p.xls", c(col freq)  replace
+tabout economic_status using "data/raw/census/checks/econ_status_50p.xls", c(col freq) replace
+tabout manufacturing_workers using "data/raw/census/checks/manu_workers_50p.xls", c(col freq) replace
+tabout district_id using "data/raw/census/checks/district_id_50p.xls", c(col freq)  replace
 
 
-save "other_practice/census_dummy_edited.dta", replace
-export delimited using "other_practice/census_dummy_edited.csv", replace
+***to keep the 25 percent sample 
 
-*keep the subset of vars age, sex, econ status, pid, d_infected 
-keep age sex economic_status pid d_infected
-order pid sex age d_infected economic_status
+keep if inrange(cycle, 1,6)  // through 6
+tab cycle
+save "data/raw/census/25_perc_sample/abm_individual_new_092320_25_perc_080222.dta", replace
 
-save "other_practice/census_dummy_subset.dta", replace
-export delimited using "other_practice/census_dummy_subset.csv", replace
-
-/*
-************ add back in missing variables from other census version -- province = geo1_zw2012
-
-** save old dataset key vars for merge as tempfile 
-use "data/raw/census/versions/ABM_Simulated_Pop_WardDistributed_UpdatedMay30_school_complete_060520.dta", clear
-
-keep district_id geo1_zw2012 geo2_zw2012
-sort district_id 
-duplicates drop
-isid district_id
+*** CHECKS AFTER
+tabout age using "data/raw/census/checks/age_25p.xls", c(col freq) replace
+tabout sex using "data/raw/census/checks/sex_25p.xls", c(col freq)  replace
+tabout school_goers using "data/raw/census/checks/school_goers_25p.xls", c(col freq) replace
+tabout economic_status using "data/raw/census/checks/econ_status_25p.xls", c(col freq) replace
+tabout manufacturing_workers using "data/raw/census/checks/manu_workers_25p.xls", c(col freq) replace
+tabout district_id using "data/raw/census/checks/district_id_25p.xls", c(col freq) replace
 
 
 
-save `temp1', replace
+** to keep the original IPUMS 5 percent
 
-use "data/raw/census/census_sample_1500.dta", clear
-sort district_id
-merge m:1 district_id using `temp1' 
+keep if cycle == 1
+tab cycle
+save "data/raw/census/5_perc_sample/abm_individual_new_092320_5_perc_080222.dta", replace
 
-drop district_id 
-rename new_district_id district_id
-
-** save new version of 1500 data set
-
-drop _merge
-save "data/raw/census/census_sample_1507.dta", replace
-
-** this file has been MANUALLY renamed to _1500. It is the version created 5 feb 2021 16:03
-
-*/
-************ For 5% sample: add back in missing variables from other census version -- province = geo1_zw2012
+*** CHECKS AFTER
+tabout age using "data/raw/census/checks/age_5p.xls", c(col freq) replace
+tabout sex using "data/raw/census/checks/sex_5p.xls", c(col freq)  replace
+tabout school_goers using "data/raw/census/checks/school_goers_5p.xls", c(col freq) replace
+tabout economic_status using "data/raw/census/checks/econ_status_5p.xls", c(col freq) replace
+tabout manufacturing_workers using "data/raw/census/checks/manu_workers_5p.xls", c(col freq) replace
+tabout district_id using "data/raw/census/checks/district_id_5p.xls", c(col freq) replace
 
 
-
-/* Some old code
-
-
-use "covid19-agent-based-model/data/raw/census/abm_individual_new_092220_final_merged_complete_FINAL_orig.dta"
-
-
-* extracting my ~100 sample from census 
-sample 0.001, by(new_district_id)
-
-* extracting my ~1000 sample from census, making sure there are roughly similar number of obs per district
-
-sample 0.01, by(new_district_id). // 1,507 obs
-
-save census_sample_1,500.dta, replace
-*/
