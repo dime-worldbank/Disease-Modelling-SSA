@@ -1,0 +1,5 @@
+district, count
+d_1, 1
+d_2, 4
+d_18, 4
+d_48, 1

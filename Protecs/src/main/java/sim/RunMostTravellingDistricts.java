@@ -12,17 +12,17 @@ public class RunMostTravellingDistricts {
 	public static void main(String [] args) {
 		
 		double myBeta = .03;
-		int numDays = 90;
+		int numDays = 100;
 		String outputfilefolder= "/Users/robbiework/eclipse-workspace/Disease-Modelling-SSA/java/WorldBankCovid19/outputs/different_district_start_points/";
 		
 		// get current time, use to time stamp the results file, first format date time
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");  
 		// name current time 'timestamp'
-		String [] paramFilenameList = {"params_d2_start", "params_d18_start", "params_d23_start", "params_d26_start", "params_d31_start"};
+		String [] paramFilenameList = {"params_d2_start", "params_d18_start", "params_d23_start", "params_d26_start", "params_d31_start"}; // "params_d2_start", "params_d18_start", "params_d23_start"
 
 		for (String s: paramFilenameList) {
 			String [] parts = s.split("_");
-			for(int i = 0; i < 15; i++) {
+			for(int i = 0; i < 30; i++) {
 				String paramFilename = "/Users/robbiework/eclipse-workspace/Disease-Modelling-SSA/data/verification/" + s + ".txt";
 
 				LocalDateTime timestamp = LocalDateTime.now();  
@@ -40,7 +40,6 @@ public class RunMostTravellingDistricts {
 	
 				System.out.println("Loading...");
 	
-				mySim.params.infection_beta = myBeta / mySim.params.ticks_per_day; // normalised to be per tick
 				mySim.targetDuration = numDays;
 				mySim.start();
 				mySim.infections_export_filename = infectionsOutputFilename;

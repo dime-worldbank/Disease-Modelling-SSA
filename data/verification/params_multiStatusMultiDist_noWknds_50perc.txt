@@ -1,0 +1,21 @@
+dataDir: /home/wb488473/Disease-Modelling-SSA/data/verification/
+
+population_filename:  census_sample_50perc_070921.csv
+
+district_transition_LOCKDOWN_filename: dailyDistrictTransitionProb_preLockdown_multiDist.csv
+district_transition_PRELOCKDOWN_filename: dailyDistrictTransitionProb_preLockdown_multiDist.csv
+district_leaving_filename: decreasedTransitionMobilityRates_multiDist.csv
+
+economic_status_weekday_movement_prob_filename: econStatusMovementProb_weekday_multi.txt
+economic_status_otherday_movement_prob_filename: econStatusMovementProb_weekday_multi.txt
+econ_interaction_distrib_filename: interactionMatrixByStatus_nld_multi.txt
+
+lockdown_changeList_filename: lockdownChangelist_empty.txt
+
+community_num_interaction_perTick: 5
+lineListWeightingFactor: 1
+setting_perfectMixing: true
+
+economic_status_num_daily_interacts_filename: numWeeklyInteractionsByStatus_multi.txt
+line_list_filename: line_list_50perc.txt
+infection_transition_params_filename: covasim_infect_transitions.txt
