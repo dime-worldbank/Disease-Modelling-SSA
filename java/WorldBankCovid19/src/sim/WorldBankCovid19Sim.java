@@ -13,6 +13,7 @@ import java.util.Map;
 
 import behaviours.InfectiousBehaviourFramework;
 import behaviours.MovementBehaviourFramework;
+import behaviours.AllOtherDeathFramework;
 import ec.util.MersenneTwisterFast;
 import objects.Household;
 import objects.Infection;
@@ -34,6 +35,7 @@ public class WorldBankCovid19Sim extends SimState {
 	
 	public MovementBehaviourFramework movementFramework;
 	public InfectiousBehaviourFramework infectiousFramework;
+	public AllOtherDeathFramework otherCauseDeathFramework;
 	public Params params;
 	public boolean lockedDown = false;
 	public boolean additionalDeaths = false;
@@ -76,6 +78,8 @@ public class WorldBankCovid19Sim extends SimState {
 		// set up the behavioural framework
 		movementFramework = new MovementBehaviourFramework(this);
 		infectiousFramework = new InfectiousBehaviourFramework(this);
+		
+		otherCauseDeathFramework = new AllOtherDeathFramework(this);
 		
 		// load the population
 		load_population(params.dataDir + params.population_filename);
@@ -154,6 +158,30 @@ public class WorldBankCovid19Sim extends SimState {
 			
 		};
 		schedule.scheduleRepeating(0, this.param_schedule_updating_locations, updateLocationLists);
+		
+		// SCHEDULE CHECKS ON MORTALITY
+		
+		Steppable checkMortality = new Steppable() {
+			@Override
+			public void step(SimState arg0) {
+				
+				String s = "";
+				
+				int time = (int) (arg0.schedule.getTime() / params.ticks_per_day);
+				
+				for(Location l: districts){
+					s += time + "\t" + l.metricsToString() + "\n";
+					l.refreshMetrics();
+				}
+				
+				exportMe(outputFilename, s);
+				
+				System.out.println("Day " + time + " finished mortality idiot");
+			}
+		};
+		
+		schedule.scheduleRepeating(checkMortality, this.param_schedule_reporting, params.ticks_per_day);
+
 		
 		// SCHEDULE LOCKDOWNS
 		Steppable lockdownTrigger = new Steppable() {
@@ -502,6 +530,7 @@ public class WorldBankCovid19Sim extends SimState {
 		return Math.exp(x);
 		
 	}
+	
 	
 	/**
 	 * In an ideal scenario, there would be multiple ways to run this with arguments. EITHER: <ul>

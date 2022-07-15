@@ -125,7 +125,8 @@ public class Person extends MobileAgent {
 		else
 			myWorld.schedule.scheduleOnce(this, myWorld.param_schedule_movement);
 		
-		System.out.print("step");
+		
+		
 			
 		
 		// HACK TO ENSURE INTERACTION AWAY FROM HOME DISTRICT
@@ -503,6 +504,7 @@ public class Person extends MobileAgent {
 	public void setActivityNode(BehaviourNode bn){ currentActivityNode = bn; }
 	
 	public int getAge(){ return age;}
+	public String getSex() {return sex;}
 	public String getEconStatus(){ return economic_status;}
 	public Location getHousehold(){ return myHousehold; }
 		
