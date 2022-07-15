@@ -124,6 +124,8 @@ public class Person extends MobileAgent {
 			myWorld.schedule.scheduleOnce(time + myDelta, myWorld.param_schedule_movement, this);
 		else
 			myWorld.schedule.scheduleOnce(this, myWorld.param_schedule_movement);
+		
+		System.out.print("step");
 			
 		
 		// HACK TO ENSURE INTERACTION AWAY FROM HOME DISTRICT

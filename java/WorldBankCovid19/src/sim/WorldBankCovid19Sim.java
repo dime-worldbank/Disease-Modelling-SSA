@@ -36,6 +36,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public InfectiousBehaviourFramework infectiousFramework;
 	public Params params;
 	public boolean lockedDown = false;
+	public boolean additionalDeaths = false;
 		
 	public String outputFilename;
 	public String infections_export_filename;

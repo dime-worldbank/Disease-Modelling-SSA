@@ -7,7 +7,7 @@ public class BulkRun {
 	
 	public static void main(String [] args) {
 		
-		String filenameBase = "/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/verification/", 
+		String filenameBase = "/Users/robbiework/eclipse-workspace/Disease-Modelling-SSA/data/verification/", 
 				filenameSuffix = ".txt";
 		String [] paramsFilenames = {"params_default1Dist"};//, "params_defaultMultiDist", "params_multiStatusMultiDist"};   
 		double myBeta = .2;
