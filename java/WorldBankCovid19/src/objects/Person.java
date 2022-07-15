@@ -61,7 +61,8 @@ public class Person extends MobileAgent {
 	//
 	
 	// health
-	boolean isDead = false;
+	boolean isDeadFromCovid = false;
+	boolean isDeadFromOther = false;
 	
 
 	
@@ -113,7 +114,7 @@ public class Person extends MobileAgent {
 	@Override
 	public void step(SimState world) {
 		
-		if(isDead) return; // do not run if the Person has already died!
+		if(isDeadFromCovid | isDeadFromOther) return; // do not run if the Person has already died!
 		
 		else if(immobilised) return; // do not move while the Person is immobilised!
 		
@@ -206,10 +207,15 @@ public class Person extends MobileAgent {
 		return 1; // TODO make based on distance travelled!
 	}
 	
-	public void die(){
-		isDead = true;
+	public void die(String cause){
+		if (cause == "covid") {
+			isDeadFromCovid = true;
+		}
+		else {
+			isDeadFromOther = true;
+		}
 		transferTo(null);
-		System.out.println(this.toString() + " has DIED :(");
+		System.out.println(this.toString() + " has DIED from " + cause + " :(");
 	}
 	
 	public void infectNeighbours(){
@@ -513,7 +519,7 @@ public class Person extends MobileAgent {
 	
 	public void setMobility(boolean mobile){ this.immobilised = !mobile; }
 	public boolean isImmobilised(){ return this.immobilised; }
-	public boolean isDead() { return this.isDead; }
+	public boolean isDead() { return this.isDeadFromCovid; }
 	public boolean isSchoolGoer() { return this.schoolGoer; }
 
 	// UTILS

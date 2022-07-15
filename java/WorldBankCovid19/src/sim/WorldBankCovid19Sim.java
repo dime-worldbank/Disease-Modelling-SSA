@@ -165,18 +165,33 @@ public class WorldBankCovid19Sim extends SimState {
 			@Override
 			public void step(SimState arg0) {
 				
-				String s = "";
+				double myMortalityLikelihood = 0.0;
 				
 				int time = (int) (arg0.schedule.getTime() / params.ticks_per_day);
 				
-				for(Location l: districts){
-					s += time + "\t" + l.metricsToString() + "\n";
-					l.refreshMetrics();
+				for(Person p: agents){
+					String sex = p.getSex();
+					int age = p.getAge();
+
+					if(sex == "male") {
+						myMortalityLikelihood = params.getAllCauseLikelihoodByAge(
+								params.prob_death_by_age_male, age);
+					}
+					else {
+						myMortalityLikelihood = params.getAllCauseLikelihoodByAge(
+								params.prob_death_by_age_female, age);
+					}
+					if(random.nextDouble() < myMortalityLikelihood) {
+//						System.out.println("person " + p + "should die on day" + time);
+						p.die("other");
+
+					}
+					
+
 				}
 				
-				exportMe(outputFilename, s);
+//				exportMe(outputFilename, s);
 				
-				System.out.println("Day " + time + " finished mortality idiot");
 			}
 		};
 		

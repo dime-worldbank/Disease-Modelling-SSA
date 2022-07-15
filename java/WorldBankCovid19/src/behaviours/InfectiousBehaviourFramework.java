@@ -386,7 +386,7 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 			@Override
 			public double next(Steppable s, double time) {
 				Infection i = (Infection) s;
-				i.getHost().die();
+				i.getHost().die("covid");
 				i.time_died = time;
 								
 				return Double.MAX_VALUE; // no need to run ever again
