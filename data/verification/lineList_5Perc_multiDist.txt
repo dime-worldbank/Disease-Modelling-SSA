@@ -1,5 +1,0 @@
-district,count
-d_1,1
-d_19,1
-d_2,8
-d_36,2

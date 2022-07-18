@@ -18,6 +18,7 @@
       ##########SET-UP: READING DATA ############
       ###########################################
 
+setwd("~/GitHub/Disease-Modelling-SSA/risk_mapping/DRC/")
 
 # reading Household Member Recode data from the DHS (Demographic and Health Survey)
 dhs_drc <- readstata13::read.dta13(paste0(directory, "/input_data/dhs_data/CDHR61FL.DTA"), convert.factors = TRUE, generate.factors = TRUE)
