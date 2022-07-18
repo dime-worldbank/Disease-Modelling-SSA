@@ -18,7 +18,7 @@ public class RunMostTravellingDistricts {
 		// get current time, use to time stamp the results file, first format date time
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");  
 		// name current time 'timestamp'
-		String [] paramFilenameList = {"params_d2_start", "params_d18_start", "params_d23_start", "params_d26_start", "params_d31_start"}; // "params_d2_start", "params_d18_start", "params_d23_start"
+		String [] paramFilenameList = {"params_d23_start", "params_d26_start", "params_d31_start"}; // "params_d2_start", "params_d18_start", "params_d23_start"
 
 		for (String s: paramFilenameList) {
 			String [] parts = s.split("_");
