@@ -11,7 +11,7 @@ public class BulkRun {
 				filenameSuffix = ".txt";
 		String [] paramsFilenames = {"params_robbie_test"};//, "params_defaultMultiDist", "params_multiStatusMultiDist"};   
 		double myBeta = .2;
-		int numDays = 30;
+		int numDays = 100;
 
 		String outputPrefix = "_bulkTest_" + myBeta + "_" + numDays + "_", outputSuffix = ".txt";
 

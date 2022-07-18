@@ -311,7 +311,7 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				else if(time >= i.time_died){
 					i.setBehaviourNode(deadNode);
 					
-					if(!i.getHost().isDead()) {
+					if(!i.getHost().isDeadFromCovid()) {
 						Location myDistrict = i.getHost().getLocation().getRootSuperLocation();
 						myDistrict.metric_died_count++;
 						myDistrict.metric_new_deaths++;

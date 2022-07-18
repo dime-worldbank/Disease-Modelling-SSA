@@ -519,7 +519,7 @@ public class Person extends MobileAgent {
 	
 	public void setMobility(boolean mobile){ this.immobilised = !mobile; }
 	public boolean isImmobilised(){ return this.immobilised; }
-	public boolean isDead() { return this.isDeadFromCovid; }
+	public boolean isDeadFromCovid() { return this.isDeadFromCovid; }
 	public boolean isSchoolGoer() { return this.schoolGoer; }
 
 	// UTILS
