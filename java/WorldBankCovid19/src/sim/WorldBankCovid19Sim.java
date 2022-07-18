@@ -39,6 +39,7 @@ public class WorldBankCovid19Sim extends SimState {
 		
 	public String outputFilename;
 	public String infections_export_filename;
+	public String sim_info_filename;
 	int targetDuration = 0;
 	
 	// ordering information
@@ -413,7 +414,7 @@ public class WorldBankCovid19Sim extends SimState {
 			// shove it out
 			BufferedWriter exportFile = new BufferedWriter(new FileWriter(infections_export_filename, true));
 			exportFile.write("Host\tSource\tTime\tLocOfTransmission" + 
-					"\tContagiousAt\tSymptomaticAt\tSevereAt\tCriticalAt\tRecoveredAt\tDiedAt"
+					"\tContagiousAt\tSymptomaticAt\tSevereAt\tCriticalAt\tRecoveredAt\tDiedAt\tYLD\tYLL\tDALYs"
 					+ "\n");
 			
 			// export infection data
@@ -473,6 +474,58 @@ public class WorldBankCovid19Sim extends SimState {
 					rec += "\t-";
 				else
 					rec += "\t" + (int) i.time_died;
+				// create variables to calculate DALYs, set to YLD zero as default
+				double yld = 0.0;
+				// DALY weights are taken from https://www.ssph-journal.org/articles/10.3389/ijph.2022.1604699/full , exact same DALY weights used 
+				// here https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8212397/ and here https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8844028/ , seems like these are common
+				// TODO: check if these would be representative internationally
+				// TODO: Find DALYs from long COVID
+				double critical_daly_weight = 0.655;
+				double severe_daly_weight = 0.133;
+				double mild_daly_weight = 0.051;
+
+				// calculate DALYs part 1: YLD working from the most serious level of infection
+				// YLD = fraction of year with condition * DALY weight
+				if (i.time_start_critical < Double.MAX_VALUE)
+					// calculate yld between the onset of critical illness to death or recovery
+					if (i.time_died < Double.MAX_VALUE)
+						yld += ((i.time_died - i.time_start_critical) / 365) * critical_daly_weight;
+					else if (i.time_recovered < Double.MAX_VALUE)
+						yld += ((i.time_recovered - i.time_start_critical) / 365) * critical_daly_weight;
+				if (i.time_start_severe < Double.MAX_VALUE)
+					// calculate yld between the progression from a severe case to a critical case or recovery
+					if (i.time_start_critical < Double.MAX_VALUE)
+						yld += ((i.time_start_critical - i.time_start_severe) / 365) * severe_daly_weight;
+					else if (i.time_recovered < Double.MAX_VALUE)
+						yld += ((i.time_recovered - i.time_start_severe) / 365) * severe_daly_weight;
+				if (i.time_start_symptomatic < Double.MAX_VALUE)
+					// calculate yld between the onset of symptoms to progression to severe case or recovery
+					if (i.time_start_severe < Double.MAX_VALUE)
+						yld += ((i.time_start_severe - i.time_start_symptomatic) / 365) * mild_daly_weight;
+					else if (i.time_recovered < Double.MAX_VALUE)
+						yld += ((i.time_recovered - i.time_start_symptomatic) / 365) * mild_daly_weight;
+				if(yld == 0.0)
+					rec += "\t-";
+				else
+					rec += "\t" + (double) yld;
+				// calculate YLL (basic)
+				// YLL = Life expectancy in years - age at time of death, if age at death < Life expectancy else 0
+				int lifeExpectancy = 62;  // according to world bank estimate https://data.worldbank.org/indicator/SP.DYN.LE00.IN?locations=ZW
+				double yll = 0;
+				if(i.time_died == Double.MAX_VALUE)
+					rec += "\t-";
+				else {
+					yll = lifeExpectancy - i.getHost().getAge();
+					// If this person's age is greater than the life expectancy of Zimbabwe, then assume there are no years of life lost
+					if (yll < 0)
+						yll = 0;
+					rec += "\t" + (double) yll;
+				}
+				// Recored DALYs (YLL + YLD)
+				if (yll + yld == 0.0)
+					rec += "\t-";
+				else
+					rec += "\t" + (double) (yll + yld);
 				
 				rec += "\n";
 				
@@ -577,5 +630,35 @@ public class WorldBankCovid19Sim extends SimState {
 		mySim.timer = endTime - startTime;
 		
 		System.out.println("...run finished after " + mySim.timer + " ms");
+	}
+
+	void exportSimInformation() {
+		// Write the following information to a .txt file: Seed, number of agents, simulation duration
+		// TODO: discuss what else would be useful for the output here
+		try {
+		System.out.println("Printing out SIMULATION INFORMATION to " + sim_info_filename);
+		
+		// Create new buffered writer to store this information in
+		BufferedWriter exportFile = new BufferedWriter(new FileWriter(sim_info_filename, true));
+		// write a new heading 
+		exportFile.write("Seed\tNumberOfAgents\tSimuilationDuration"
+				+ "\n");
+		// Create variable rec to store the information
+		String rec = "";
+		// get and record the simulation seed
+		rec += this.seed() + "\t";
+		// get and record the number of agents
+		rec += this.agents.size() + "\t";
+		// get and record the simulation duration
+		rec += this.targetDuration + "\t";
+		
+		exportFile.write(rec);
+		exportFile.close();
+		
+		} catch (Exception e) {
+			System.err.println("File input error: " + sim_info_filename);
+		}
+
+		
 	}
 }
