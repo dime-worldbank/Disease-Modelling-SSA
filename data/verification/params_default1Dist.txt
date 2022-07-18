@@ -1,4 +1,4 @@
-dataDir: /home/wb488473/Disease-Modelling-SSA/data/verification/
+dataDir: /Users/swise/workspace/worldbank/Disease-Modelling-SSA/data/verification/
 
 population_filename: census_5perc_default1Dist.csv
 

@@ -107,3 +107,5 @@ password.*
 passwords.*
 password/
 passwords/
+
+.DS_Store
