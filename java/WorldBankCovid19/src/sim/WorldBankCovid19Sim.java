@@ -38,7 +38,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public AllOtherDeathFramework otherCauseDeathFramework;
 	public Params params;
 	public boolean lockedDown = false;
-	public boolean additionalDeaths = false;
+	public boolean additionalDeaths;
 		
 	public String outputFilename;
 	public String infections_export_filename;
@@ -64,10 +64,11 @@ public class WorldBankCovid19Sim extends SimState {
 	 * Constructor function
 	 * @param seed
 	 */
-	public WorldBankCovid19Sim(long seed, Params params, String outputFilename) {
+	public WorldBankCovid19Sim(long seed, Params params, String outputFilename, boolean additionalDeaths) {
 		super(seed);
 		this.params = params;
 		this.outputFilename = outputFilename;
+		this.additionalDeaths = additionalDeaths;
 	}
 	
 	public void start(){
@@ -194,8 +195,9 @@ public class WorldBankCovid19Sim extends SimState {
 				
 			}
 		};
-		
+		if (this.additionalDeaths){
 		schedule.scheduleRepeating(checkMortality, this.param_schedule_reporting, params.ticks_per_day);
+		}
 
 		
 		// SCHEDULE LOCKDOWNS
@@ -563,7 +565,7 @@ public class WorldBankCovid19Sim extends SimState {
 		String outputFilename = "dailyReport_" + myBeta + "_" + numDays + "_" + seed + ".txt";
 		String infectionsOutputFilename = ""; 
 		String paramsFilename = "data/configs/params.txt";
-		
+		boolean additionalDeaths = false;
 		// read in any extra settings from the command line
 		if(args.length < 0){
 			System.out.println("usage error");
@@ -594,7 +596,7 @@ public class WorldBankCovid19Sim extends SimState {
 		 */
 
 		// set up the simulation
-		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim( seed, new Params(paramsFilename), outputFilename);
+		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim( seed, new Params(paramsFilename), outputFilename, additionalDeaths);
 
 
 		System.out.println("Loading...");
