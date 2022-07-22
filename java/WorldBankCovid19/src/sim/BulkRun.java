@@ -11,7 +11,7 @@ public class BulkRun {
 				filenameSuffix = ".txt";
 		String [] paramsFilenames = {"params_robbie_test"};//, "params_defaultMultiDist", "params_multiStatusMultiDist"};   
 		double myBeta = .2;
-		int numDays = 100;
+		int numDays = 30;
 		boolean additionalDeath = true;
 
 		String outputPrefix = "_bulkTest_" + myBeta + "_" + numDays + "_", outputSuffix = ".txt";
@@ -22,9 +22,11 @@ public class BulkRun {
 				
 				String paramFilename = filenameBase + s + filenameSuffix;
 				String outputFilename = s + outputPrefix + i + outputSuffix;
+				String covidInc = s + "_covid_inc_death" + outputPrefix + i + outputSuffix;
+				String otherInc = s + "_other_inc_death" + outputPrefix + i + outputSuffix;
 				String infectionsOutputFilename = "infections_" + s + outputPrefix + i + outputSuffix;
 				
-				WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(i, new Params(paramFilename), outputFilename, additionalDeath);
+				WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(i, new Params(paramFilename), outputFilename, covidInc, otherInc, additionalDeath);
 				
 				System.out.println("Loading...");
 

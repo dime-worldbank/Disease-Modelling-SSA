@@ -42,7 +42,9 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 			@Override
 			public double next(Steppable s, double time) {
 				Infection i = (Infection) s;
-				
+				if (i.getHost().isDeadFromOther()) {
+					return Double.MAX_VALUE;
+				}
 				//
 				// it may be that the individual is exposed but not yet contagious - check if time has been set
 				//
@@ -116,6 +118,9 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				
 				// while presympotmatic, the agent is still infectious
 				Infection i = (Infection) s;
+				if (i.getHost().isDeadFromOther()) {
+					return Double.MAX_VALUE;
+				}
 				i.getHost().infectNeighbours();
 
 				// determine when the infection will proceed to symptoms - this is
@@ -147,6 +152,9 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				
 				// although asympotmatic, the agent is still infectious
 				Infection i = (Infection) s;
+				if (i.getHost().isDeadFromOther()) {
+					return Double.MAX_VALUE;
+				}
 				i.getHost().infectNeighbours();
 
 				// determine when the agent will recover - this is
@@ -179,6 +187,9 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				
 				// the agent is infectious
 				Infection i = (Infection) s;
+				if (i.getHost().isDeadFromOther()) {
+					return Double.MAX_VALUE;
+				}
 				i.getHost().infectNeighbours();
 
 				// if the agent is scheduled to recover, make sure that it
@@ -243,6 +254,9 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				
 				// the agent is infectious
 				Infection i = (Infection) s;
+				if (i.getHost().isDeadFromOther()) {
+					return Double.MAX_VALUE;
+				}
 				i.getHost().infectNeighbours();
 
 				// if the agent is scheduled to recover, make sure that it
@@ -299,6 +313,9 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				
 				// the agent is infectious
 				Infection i = (Infection) s;
+				if (i.getHost().isDeadFromOther()) {
+					return Double.MAX_VALUE;
+				}
 				i.getHost().infectNeighbours();
 
 				// if the agent is scheduled to recover, make sure that it
@@ -362,6 +379,9 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 			public double next(Steppable s, double time) {
 
 				Infection i = (Infection) s;
+				if (i.getHost().isDeadFromOther()) {
+					return Double.MAX_VALUE;
+				}
 				i.time_recovered = time;
 				
 				i.getHost().getLocation().getRootSuperLocation().metric_new_recovered++;

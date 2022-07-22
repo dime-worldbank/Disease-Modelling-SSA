@@ -11,6 +11,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import behaviours.BehaviourNode;
 import behaviours.MovementBehaviourFramework;
@@ -61,8 +64,10 @@ public class Person extends MobileAgent {
 	//
 	
 	// health
+	boolean isAlive = true;
 	boolean isDeadFromCovid = false;
 	boolean isDeadFromOther = false;
+	boolean deathLogged = false;
 	
 
 	
@@ -214,8 +219,9 @@ public class Person extends MobileAgent {
 		else {
 			isDeadFromOther = true;
 		}
+		isAlive = false;
 		transferTo(null);
-		System.out.println(this.toString() + " has DIED from " + cause + " :(");
+		System.out.println(this.toString() + " has DIED from " + cause + " :( ");
 	}
 	
 	public void infectNeighbours(){
@@ -510,7 +516,7 @@ public class Person extends MobileAgent {
 	public void setActivityNode(BehaviourNode bn){ currentActivityNode = bn; }
 	
 	public int getAge(){ return age;}
-	public String getSex() {return sex;}
+	public String getSex() { return sex; }
 	public String getEconStatus(){ return economic_status;}
 	public Location getHousehold(){ return myHousehold; }
 		
@@ -519,9 +525,11 @@ public class Person extends MobileAgent {
 	
 	public void setMobility(boolean mobile){ this.immobilised = !mobile; }
 	public boolean isImmobilised(){ return this.immobilised; }
+	public boolean getAlive() { return this.isAlive;}
 	public boolean isDeadFromCovid() { return this.isDeadFromCovid; }
+	public boolean isDeadFromOther() { return this.isDeadFromOther; }
 	public boolean isSchoolGoer() { return this.schoolGoer; }
-
+	public boolean getDeathLogged () { return this.deathLogged; }
 	// UTILS
 	
 	public String toString(){ return "P_" + this.myId;}
@@ -534,5 +542,7 @@ public class Person extends MobileAgent {
 		if(! (o instanceof Person)) return false;
 		return ((Person) o).myId == this.myId;
 	}
+	public void confirmDeathLogged() { this.deathLogged = true; }
+
 	
 }
