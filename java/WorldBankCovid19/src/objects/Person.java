@@ -68,7 +68,8 @@ public class Person extends MobileAgent {
 	boolean isDeadFromCovid = false;
 	boolean isDeadFromOther = false;
 	boolean deathLogged = false;
-	
+	boolean gaveBirthLastYear = false;
+	Integer dayGaveBirth = Integer.MAX_VALUE;
 
 	
 	/**
@@ -215,13 +216,13 @@ public class Person extends MobileAgent {
 	public void die(String cause){
 		if (cause == "covid") {
 			isDeadFromCovid = true;
+			System.out.println(this.toString() + " has DIED from " + cause + " :( ");
 		}
 		else {
 			isDeadFromOther = true;
 		}
 		isAlive = false;
 		transferTo(null);
-		System.out.println(this.toString() + " has DIED from " + cause + " :( ");
 	}
 	
 	public void infectNeighbours(){
@@ -519,6 +520,7 @@ public class Person extends MobileAgent {
 	public String getSex() { return sex; }
 	public String getEconStatus(){ return economic_status;}
 	public Location getHousehold(){ return myHousehold; }
+	public Household getHouseholdAsType() {return myHousehold; }
 		
 	public void setInfection(Infection i){ myInfection = i; }
 	public Infection getInfection(){ return myInfection; }
@@ -530,6 +532,8 @@ public class Person extends MobileAgent {
 	public boolean isDeadFromOther() { return this.isDeadFromOther; }
 	public boolean isSchoolGoer() { return this.schoolGoer; }
 	public boolean getDeathLogged () { return this.deathLogged; }
+	public boolean gaveBirthLastYear() { return this.gaveBirthLastYear; }
+	public int getDateGaveBirth() { return this.dayGaveBirth; }
 	// UTILS
 	
 	public String toString(){ return "P_" + this.myId;}
@@ -543,6 +547,13 @@ public class Person extends MobileAgent {
 		return ((Person) o).myId == this.myId;
 	}
 	public void confirmDeathLogged() { this.deathLogged = true; }
-
+	public void gaveBirth(int time) { 
+		this.gaveBirthLastYear = true; 
+		this.dayGaveBirth = time;
+	}
+	public void ableToGiveBirth() { 
+		this.gaveBirthLastYear = false; 
+		this.dayGaveBirth = Integer.MAX_VALUE;
+	}
 	
 }

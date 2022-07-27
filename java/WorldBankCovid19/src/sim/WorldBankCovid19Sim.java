@@ -164,7 +164,83 @@ public class WorldBankCovid19Sim extends SimState {
 		};
 		schedule.scheduleRepeating(0, this.param_schedule_updating_locations, updateLocationLists);
 		
-		// SCHEDULE CHECKS ON MORTALITY
+		// SCHEDULE BIRTHS AND LOG BIRTHS
+		Steppable createBirths = new Steppable() {
+			
+			@Override
+			public void step(SimState arg0) {
+				// create a list of babies
+				ArrayList<Person> newBirths = new ArrayList <Person> ();
+				//	get a reference to the current simulaiton day		
+				int time = (int) (arg0.schedule.getTime() / params.ticks_per_day);
+				// create an id_offset variable to assign the babies a unique id
+				int id_offset = 0;
+				// iterate over all people (would make sense to do this for woman only)
+				for(Person p:agents) {
+					// create a variable to predict the likelihood of pregnancy
+					double myPregnancyLikelihood = 0.0;
+					// get this person's sex
+					String sex = p.getSex();
+					// if this person is female and gave birth over a year ago the 9 months pregnancy period reset their 
+					//ability to give birth
+					if (sex.equals("female") & (p.getDateGaveBirth() < time - 365 - 9 * 30)) {
+						p.ableToGiveBirth();
+					}
+					// get a reference to their age
+					int age = p.getAge();
+					// if they are a woman, are alive and didn't give birth within the last year consider whether they
+					// will give birth today
+					if(sex.equals("female") & p.getAlive() & !(p.gaveBirthLastYear())){
+						// get the probability of giving birth at this age
+						myPregnancyLikelihood = params.getBirthLikelihoodByAge(
+								params.prob_birth_by_age, age);
+						if(random.nextDouble() < myPregnancyLikelihood) {
+							// this woman has given birth, update their birth status and note the time of birth
+							p.gaveBirth(time);
+							// create attributed for the newborn, id, age, sex, occupation status (lol), their 
+							// household (assume this is the mothers), where the baby is, that it's not going to school
+							// and a copy of the simulation, then create the person
+							int new_id = agents.size() + 1 + id_offset;
+							int baby_age = 0;
+							List<String> sexList = Arrays.asList("male", "female");
+							String sexAssigned = sexList.get(random.nextInt(sexList.size()));
+							String babiesJob = "Not working, inactive, not in universe".toLowerCase();
+							Household babyHousehold = p.getHouseholdAsType();
+							Location babyDistrict = p.getLocation();
+							boolean babySchooling = false;
+							Person baby = new Person(new_id, // ID 
+									baby_age, // age
+									sexAssigned, // sex
+									babiesJob, // lower case all of the job titles
+									babySchooling,
+									babyHousehold, // household
+									returnSim()
+									);				
+							// update the household and location to include the baby
+							babyHousehold.addPerson(baby);
+							baby.setLocation(babyDistrict);
+							// the baby has decided to go home
+							baby.setActivityNode(movementFramework.getHomeNode());
+							// store the baby in the newBirths array
+							newBirths.add(baby);
+							// Add the person to the district
+							personsToDistrict.get(babyDistrict.getRootSuperLocation()).add(baby);
+							// ++ the id_offset so the next baby will have an id
+							id_offset ++;
+						}
+					}
+				}
+				// store the newborns in the population
+				for (Person baby:newBirths) {
+					agents.add(baby);
+					}
+				
+			}
+			
+		};
+		schedule.scheduleRepeating(createBirths, this.param_schedule_updating_locations, params.ticks_per_day);
+
+		// SCHEDULE CHECKS ON MORTALITY AND LOGGING
 		
 		Steppable checkMortality = new Steppable() {
 			@Override
@@ -178,7 +254,7 @@ public class WorldBankCovid19Sim extends SimState {
 					String sex = p.getSex();
 					int age = p.getAge();
 
-					if(sex == "male") {
+					if(sex.equals("male")) {
 						myMortalityLikelihood = params.getAllCauseLikelihoodByAge(
 								params.prob_death_by_age_male, age);
 					}
@@ -417,7 +493,10 @@ public class WorldBankCovid19Sim extends SimState {
 				
 			}
 		};
+		
+		if (this.additionalDeaths) {
 		schedule.scheduleRepeating(reportIncidenceOfDeath, this.param_schedule_reporting, params.ticks_per_day);
+		}
 		
 		// SCHEDULE LOCKDOWNS
 		Steppable lockdownTrigger = new Steppable() {
@@ -766,7 +845,7 @@ public class WorldBankCovid19Sim extends SimState {
 		return Math.exp(x);
 		
 	}
-	
+	public WorldBankCovid19Sim returnSim() {return this;}
 	
 	/**
 	 * In an ideal scenario, there would be multiple ways to run this with arguments. EITHER: <ul>
