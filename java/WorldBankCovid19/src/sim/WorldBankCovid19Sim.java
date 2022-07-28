@@ -311,13 +311,12 @@ public class WorldBankCovid19Sim extends SimState {
 							catch (Exception e) {
 								// age wasn't present in the population, skip
 							}
-						
+					}
 					// store what we have found in the lists we created
 					female_alive_ages.add(female_count);
 					female_pregnancy_ages.add(female_gave_birth_count);
 					// update the idx variable for the next iteration
 					idx++;
-				}
 				}
 				// calculate incidence of covid death this day
 				int time = (int) (arg0.schedule.getTime() / params.ticks_per_day);
@@ -326,16 +325,16 @@ public class WorldBankCovid19Sim extends SimState {
 				String t = "\t";
 				String age_categories = t + "15_19" + t + "20_24" + t + "25_29" + t + "30_34" + t + "35_39" + t + "40_44" + t + "45_49" + "\n";
 				if (time == 0) {
-					age_dependent_birth_rate += "day" + female_alive_ages + String.valueOf(time);
+					age_dependent_birth_rate += "day" + age_categories + String.valueOf(time);
 				}
 				else {
 					age_dependent_birth_rate += String.valueOf(time);
 				}
-				age_dependent_birth_rate += t + "m";
+				age_dependent_birth_rate += t;
 				for (int x = 0; x <female_pregnancy_ages.size(); x++){
 					double births_in_age = female_pregnancy_ages.get(x);
 					double female_alive_in_age = female_alive_ages.get(x);
-					double result =  births_in_age / female_alive_in_age;
+					double result = births_in_age / female_alive_in_age;
 	                result *= 1000;
 	                age_dependent_birth_rate += t + String.valueOf(result);
 				}
@@ -346,6 +345,11 @@ public class WorldBankCovid19Sim extends SimState {
 				// get the day
 				
 				exportMe(birthRateOutputFilename, age_dependent_birth_rate);
+				for (Person p: agents) {
+					if(p.gaveBirthLastYear()) {
+						p.confirmBirthlogged();
+						}
+					}
 				
 			}
 			};
