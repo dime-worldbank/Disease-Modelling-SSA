@@ -69,6 +69,7 @@ public class Person extends MobileAgent {
 	boolean isDeadFromOther = false;
 	boolean deathLogged = false;
 	boolean gaveBirthLastYear = false;
+	boolean birthLogged = false;
 	Integer dayGaveBirth = Integer.MAX_VALUE;
 
 	
@@ -534,6 +535,7 @@ public class Person extends MobileAgent {
 	public boolean getDeathLogged () { return this.deathLogged; }
 	public boolean gaveBirthLastYear() { return this.gaveBirthLastYear; }
 	public int getDateGaveBirth() { return this.dayGaveBirth; }
+	public boolean getBirthLogged() { return this.birthLogged; }
 	// UTILS
 	
 	public String toString(){ return "P_" + this.myId;}
@@ -555,5 +557,6 @@ public class Person extends MobileAgent {
 		this.gaveBirthLastYear = false; 
 		this.dayGaveBirth = Integer.MAX_VALUE;
 	}
+	public void confirmBirthlogged() { this.birthLogged = true; }
 	
 }
