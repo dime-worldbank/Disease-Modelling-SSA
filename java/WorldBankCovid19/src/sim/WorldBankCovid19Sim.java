@@ -365,7 +365,7 @@ public class WorldBankCovid19Sim extends SimState {
 			public void step(SimState arg0) {
 				
 				double myMortalityLikelihood = 0.0;
-				
+				// TODO something is going wrong in either causing the deaths or calculating the logging
 				int time = (int) (arg0.schedule.getTime() / params.ticks_per_day);
 				
 				for(Person p: agents){
@@ -471,6 +471,7 @@ public class WorldBankCovid19Sim extends SimState {
 					Integer female_other_death_count = 0;
 					// iterate over the ages set in the age ranges (lower value from lower_age_range, upper from upper_age_range)
 					for (int age = lower_age_range.get(idx); age < val; age++) {
+						
 						try {
 							// try function necessary as some ages won't be present in the population
 							// use the functions created earlier to calculate the number of people of each age group who fall
@@ -583,7 +584,6 @@ public class WorldBankCovid19Sim extends SimState {
 					double male_other_deaths_in_age = male_other_deaths_by_ages.get(x);
 					double male_alive_in_age = male_alive_ages.get(x);
 					double result = male_other_deaths_in_age / male_alive_in_age;
-//	                float result = male_other_deaths_by_ages.get(x) / male_alive_ages.get(x);
 	                result *= 100000;
 	                other_inc_death += t + String.valueOf(result);
 				}
