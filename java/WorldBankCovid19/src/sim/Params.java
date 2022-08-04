@@ -837,8 +837,8 @@ public class Params {
 		return -1; // somehow poorly formatted?
 	}
 	public double getAllCauseLikelihoodByAge(ArrayList <Double> distrib, int age){
-		for(int i = 0; i < infection_age_params.size(); i++){
-			if(age < infection_age_params.get(i))
+		for(int i = 0; i < all_cause_death_age_params.size(); i++){
+			if(age < all_cause_death_age_params.get(i))
 				return distrib.get(i);
 		}
 		return -1; // somehow poorly formatted?
