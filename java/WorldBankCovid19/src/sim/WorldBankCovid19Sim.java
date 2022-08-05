@@ -613,9 +613,8 @@ public class WorldBankCovid19Sim extends SimState {
 			}
 		};
 		
-		if (this.demography) {
 		schedule.scheduleRepeating(reportIncidenceOfDeath, this.param_schedule_reporting, params.ticks_per_day);
-		}
+		
 		
 		// SCHEDULE LOCKDOWNS
 		Steppable lockdownTrigger = new Steppable() {
