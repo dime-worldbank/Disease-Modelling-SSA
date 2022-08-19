@@ -17,6 +17,14 @@ cap cd "/Users/sophieayling/Documents/GitHub/Disease-Modelling-SSA/data/"
 
 tempfile temp1 temp2 temp3 temp4 temp5 temp6 temp7
 
+*checks to add more stuff 
+
+import delimited "output/dist_mobility_output/start_at_d31_output.csv", clear
+
+*create the cumulative aggregate on cases at different cut offs as per Robbie's at day 30, 60 and 90 of the simulation
+
+
+
  ************************** Replicate in a loop *********************
 // Most travelled 
 foreach x in 2 26 23 18 31 {
