@@ -1,11 +1,3 @@
-*Purpose: this is creating plots of the simulation data only (have now replicated this in python)
-
-
-*cd "C:\Users\wb488473\WBG\Data analysis to inform Global Water Operations - WB Group - Documents\Zim COVID - via Teams\08_Data\files for Sarah\outputs_gitignored\"
-
-cap cd "C:\Users\wb488473\OneDrive - WBG\Documents\GitHub\Disease-Modelling-SSA\data\output\"
-
-tempfile temp1
 
 *********************import file  and assign local*********************
 
