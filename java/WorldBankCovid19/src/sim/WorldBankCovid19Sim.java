@@ -41,6 +41,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public boolean demography;
 		
 	public String outputFilename;
+	public String covidIncOutputFilename; 
 	public String covidIncDeathOutputFilename;
 	public String otherIncDeathOutputFilename;
 	public String birthRateOutputFilename;
@@ -68,10 +69,11 @@ public class WorldBankCovid19Sim extends SimState {
 	 * Constructor function
 	 * @param seed
 	 */
-	public WorldBankCovid19Sim(long seed, Params params, String outputFilename, String covidIncDeathOutputFilename, String otherIncDeathOutputFilename, String birthRateOutputFilename, boolean demography) {
+	public WorldBankCovid19Sim(long seed, Params params, String outputFilename, String covidIncOutputFilename, String covidIncDeathOutputFilename, String otherIncDeathOutputFilename, String birthRateOutputFilename, boolean demography) {
 		super(seed);
 		this.params = params;
 		this.outputFilename = outputFilename;
+		this.covidIncOutputFilename = covidIncOutputFilename;
 		this.covidIncDeathOutputFilename = covidIncDeathOutputFilename;
 		this.otherIncDeathOutputFilename = otherIncDeathOutputFilename;
 		this.birthRateOutputFilename = birthRateOutputFilename;
@@ -615,6 +617,159 @@ public class WorldBankCovid19Sim extends SimState {
 		
 		schedule.scheduleRepeating(reportIncidenceOfDeath, this.param_schedule_reporting, params.ticks_per_day);
 		
+		Steppable reportIncidenceOfCovid = new Steppable(){
+			
+			@Override
+			public void step(SimState arg0) {
+				//	calculate incidence of Covid in each age group
+				//	covid incidence in age groups 0-1, 1-4, 5-9, 10-14, ..., 95+
+				//	create a list to define our age group search ranges
+				List <Integer> upper_age_range = Arrays.asList(1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 120);
+				List <Integer> lower_age_range = Arrays.asList(0, 1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95);
+				// create list to store the counts of the number of males and females alive in each age range and
+				// the number of covid cases in each age range 
+				ArrayList <Integer> male_alive_ages = new ArrayList<Integer>();
+				ArrayList <Integer> male_covid_by_ages = new ArrayList<Integer>();
+				ArrayList <Integer> female_alive_ages = new ArrayList<Integer>();
+				ArrayList <Integer> female_covid_by_ages = new ArrayList<Integer>();
+				// create a function to group the population by sex, age and whether they are alive
+				Map<String, Map<Integer, Map<Boolean, Long>>> age_sex_alive_map = agents.stream().collect(
+						Collectors.groupingBy(
+								Person::getSex, 
+								Collectors.groupingBy(
+										Person::getAge, 
+										Collectors.groupingBy(
+												Person::getAlive,
+										Collectors.counting()
+										)
+								)
+						)
+						);
+				// create a function to group the population by sex, age and whether they have covid
+				Map<String, Map<Integer, Map<Boolean, Map<Boolean, Long>>>> age_sex_map_has_covid = agents.stream().collect(
+						Collectors.groupingBy(
+								Person::getSex, 
+								Collectors.groupingBy(
+										Person::getAge, 
+										Collectors.groupingBy(
+												Person::hasCovid,
+												Collectors.groupingBy(
+														Person::getCovidLogged,
+														Collectors.counting()
+										)
+								)
+						)
+						)
+						);
+						
+				//	We now iterate over the age ranges, create a variable to keep track of the iterations
+				Integer idx = 0;
+				for (Integer val: upper_age_range) {
+					// for each age group we begin to count the number of people who fall into each category, create variables
+					// to store this information in
+					Integer male_count = 0;
+					Integer male_covid_count = 0;
+					Integer female_count = 0;
+					Integer female_covid_count = 0;
+					// iterate over the ages set in the age ranges (lower value from lower_age_range, upper from upper_age_range)
+					for (int age = lower_age_range.get(idx); age < val; age++) {
+						
+						try {
+							// try function necessary as some ages won't be present in the population
+							// use the functions created earlier to calculate the number of people of each age group who fall
+							// into the categories we are interested in (alive, died from covid, died from other)
+							male_count += age_sex_alive_map.get("male").get(age).get(true).intValue();
+						}
+							catch (Exception e) {
+								// age wasn't present in the population, skip
+							}
+						try {
+							// try function necessary as some ages won't be present in the population
+							// use the functions created earlier to calculate the number of people of each age group who fall
+							// into the categories we are interested in (alive, died from covid, died from other)
+							female_count += age_sex_alive_map.get("female").get(age).get(true).intValue();
+						}
+							catch (Exception e) {
+								// age wasn't present in the population, skip
+							}
+					
+						try {
+							// try function necessary as some ages won't be present in the population
+							// use the functions created earlier to calculate the number of people of each age group who fall
+							// into the categories we are interested in (alive, died from covid, died from other)
+							male_covid_count += age_sex_map_has_covid.get("male").get(age).get(true).get(false).intValue();
+						}
+							catch (Exception e) {
+							// age wasn't present in the population, skip
+							}
+						try {
+							// try function necessary as some ages won't be present in the population
+							// use the functions created earlier to calculate the number of people of each age group who fall
+							// into the categories we are interested in (alive, died from covid, died from other)
+							female_covid_count += age_sex_map_has_covid.get("female").get(age).get(true).get(false).intValue();
+						}
+							catch (Exception e) {
+							// age wasn't present in the population, skip
+							}
+					}
+						
+					// store what we have found in the lists we created
+					male_alive_ages.add(male_count);
+					female_alive_ages.add(female_count);
+					male_covid_by_ages.add(male_covid_count);
+					female_covid_by_ages.add(female_covid_count);
+					// update the idx variable for the next iteration
+					idx++;
+					
+				}
+				// calculate incidence of covid death this day
+				int time = (int) (arg0.schedule.getTime() / params.ticks_per_day);
+				String covid_inc = "";
+
+				String t = "\t";
+				String age_sex_categories = t + "sex" + t + "<1" + t + "1_4" + t + "5_9" + t + "10_14" + t + "15_19" + t + "20_24" + 
+						t + "25_29" + t + "30_34" + t + "35_39" + t + "40_44" + t + "45_49" + t + "50_54" + t + "55_59" + t + 
+						"60_64" + t + "65_69" + t + "70_74" + t + "75_79" + t + "80_84" + t + "85_89" + t + "90_94" + t + "95<" + "\n";
+				if (time == 0) {
+					covid_inc += "day" + age_sex_categories + String.valueOf(time);
+				}
+				else {
+					covid_inc += String.valueOf(time);
+				}
+				covid_inc += t + "m";
+				for (int x = 0; x <male_covid_by_ages.size(); x++){
+					double male_covid_deaths_in_age = male_covid_by_ages.get(x);
+					double male_alive_in_age = male_alive_ages.get(x);
+					double result =  male_covid_deaths_in_age / male_alive_in_age;
+	                result *= 100000;
+	                covid_inc += t + String.valueOf(result);
+				}
+				covid_inc += "\n";
+				covid_inc += String.valueOf(time) + t + "f";
+
+				for (int x =0; x <female_covid_by_ages.size(); x++){
+					double female_covid_deaths_in_age = female_covid_by_ages.get(x);
+					double female_alive_in_age = female_alive_ages.get(x);
+					double result = female_covid_deaths_in_age / female_alive_in_age;	                
+					result *= 100000;
+	                covid_inc += t + String.valueOf(result);
+				}
+				covid_inc += "\n";
+				
+				for (Person p: agents) {
+					if (p.hasCovid()) {
+						p.confirmCovidLogged();
+						}
+					}
+				// create a string to store this information in
+				// get the day
+				
+				exportMe(covidIncOutputFilename, covid_inc);
+				
+			}
+		};
+		
+		schedule.scheduleRepeating(reportIncidenceOfCovid, this.param_schedule_reporting, params.ticks_per_day);
 		
 		// SCHEDULE LOCKDOWNS
 		Steppable lockdownTrigger = new Steppable() {
@@ -1032,6 +1187,7 @@ public class WorldBankCovid19Sim extends SimState {
 		long seed = 12345;
 		String outputFilename = "dailyReport_" + myBeta + "_" + numDays + "_" + seed + ".txt";
 		String incCovidDeathFilename = "";
+		String incCovidFilename = "";
 		String incOtherDeathFilename = "";
 		String birthOutputFileneame = "";
 		String infectionsOutputFilename = ""; 
@@ -1067,7 +1223,7 @@ public class WorldBankCovid19Sim extends SimState {
 		 */
 
 		// set up the simulation
-		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim( seed, new Params(paramsFilename), outputFilename, incCovidDeathFilename, incOtherDeathFilename, birthOutputFileneame, demography);
+		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim( seed, new Params(paramsFilename), outputFilename, incCovidFilename, incCovidDeathFilename, incOtherDeathFilename, birthOutputFileneame, demography);
 
 
 		System.out.println("Loading...");

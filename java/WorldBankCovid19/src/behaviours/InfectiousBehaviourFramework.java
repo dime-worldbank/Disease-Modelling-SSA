@@ -54,7 +54,8 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 					// maybe we have been triggered too soon - in that case, don't activate again until it is time!
 					if(time < i.time_contagious)
 						return i.time_contagious - time;
-
+					// update the person's properties to show they have covid
+					i.getHost().storeCovid();
 					// The infected agent will either show symptoms or be asymptomatic - choose which at this time
 
 					// moderate this based on the age of the host
@@ -92,7 +93,8 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 							myWorld.params.exposedToInfectious_mean,
 							myWorld.params.exposedToInfectious_std);
 					i.time_contagious = time + timeUntilInfectious;
-					
+					// update the person's properties to show they have covid
+					i.getHost().storeCovid();
 					return timeUntilInfectious;
 				}
 				
@@ -101,6 +103,8 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				// In this case the agents just goes back to being susceptible.
 				// 
 				i.time_recovered = time;
+				// update the person's properties to show they don't have covid
+				i.getHost().removeCovid();
 				i.setBehaviourNode(susceptibleNode);
 				return Double.MAX_VALUE;
 			}
@@ -383,7 +387,9 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 					return Double.MAX_VALUE;
 				}
 				i.time_recovered = time;
-				
+				// remove covid from person object
+				i.getHost().removeCovid();
+
 				i.getHost().getLocation().getRootSuperLocation().metric_new_recovered++;
 
 				// the Person may have stopped moving when ill - reactivate!
@@ -406,6 +412,8 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 			@Override
 			public double next(Steppable s, double time) {
 				Infection i = (Infection) s;
+				// remove covid from person object
+				i.getHost().removeCovid();
 				i.getHost().die("covid");
 				i.time_died = time;
 								
