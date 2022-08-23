@@ -72,7 +72,8 @@ print(full_individual_df['economic_status'].value_counts()[l])
 individual_df = full_individual_df
 
 # extra the columns on which age will be predicted
-age_cols = ['geo1_zw2012', 'urban', 'persons', 'sex', 'marst', 'citizen', 'race', 'disabled', 'economic_status']
+#age_cols = ['geo1_zw2012', 'urban', 'persons', 'sex', 'marst', 'citizen', 'race', 'disabled', 'economic_status']
+age_cols = ['sex']
 # missing_val = 'not reported/missing'
 X = pd.get_dummies(individual_df[age_cols], drop_first=True)
 
@@ -101,8 +102,8 @@ print("\nAll missing ages regressed and predicted successfully...")
 relevant_cols = [
     'person_id', 'age', 'sex',
     'household_id', 'district_id',
-    'economic_status', 'economic_activity_location_id',
-    # 'household', 'district'
+    'economic_status', 
+    # 'economic_activity_location_id','household', 'district'
 ]
 
 #old_new_districts = pd.read_csv(district_filename, index_col=0)
