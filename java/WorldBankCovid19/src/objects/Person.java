@@ -61,7 +61,16 @@ public class Person extends MobileAgent {
 	//
 	
 	// health
+	boolean isAlive = true;
 	boolean isDead = false;
+	boolean hasCovid = false;
+	boolean deathLogged = false;
+	boolean asymptomatic = false;
+	boolean mild = false;
+	boolean severe = false;
+	boolean critical = false;
+	boolean recovered = false;
+
 	
 
 	
@@ -205,6 +214,7 @@ public class Person extends MobileAgent {
 	
 	public void die(){
 		isDead = true;
+		isAlive = false;
 		transferTo(null);
 		System.out.println(this.toString() + " has DIED :(");
 	}
@@ -501,16 +511,27 @@ public class Person extends MobileAgent {
 	public void setActivityNode(BehaviourNode bn){ currentActivityNode = bn; }
 	
 	public int getAge(){ return age;}
+	public boolean getAlive() { return this.isAlive; }
 	public String getEconStatus(){ return economic_status;}
 	public Location getHousehold(){ return myHousehold; }
 		
 	public void setInfection(Infection i){ myInfection = i; }
+	public boolean hasCovid() { return this.hasCovid; }
+	public boolean hasAsymptCovid() { return this.asymptomatic; }
+	public boolean hasMild() { return this.mild; }
+	public boolean hasSevere() { return this.severe; }
+	public boolean hasCritical() { return this.critical; }
+	public boolean hasRecovered() { return this.recovered; }
+
+
 	public Infection getInfection(){ return myInfection; }
 	
 	public void setMobility(boolean mobile){ this.immobilised = !mobile; }
 	public boolean isImmobilised(){ return this.immobilised; }
 	public boolean isDead() { return this.isDead; }
 	public boolean isSchoolGoer() { return this.schoolGoer; }
+	public boolean getDeathLogged () { return this.deathLogged; }
+
 
 	// UTILS
 	
@@ -524,5 +545,22 @@ public class Person extends MobileAgent {
 		if(! (o instanceof Person)) return false;
 		return ((Person) o).myId == this.myId;
 	}
-	
+	public void confirmDeathLogged() { this.deathLogged = true; }
+	public void storeCovid() { this.hasCovid = true ; }
+	public void setAsympt() { this.asymptomatic = true; }
+	public void setMild() { this.mild = true; }
+	public void removeMild() { this.mild = false; }
+	public void setSevere() { this.severe = true; }
+	public void removeSevere() { this.severe = false; }
+	public void setCritical() { this.critical = true; }
+	public void setRecovered() { this.recovered = true; }
+	public void removeCovid() { 
+		this.asymptomatic = false;
+		this.mild = false;
+		this.severe = false;
+		this.critical = false;
+		this.hasCovid = false; 
+		}
+	public String getCurrentDistrict() {return this.getHousehold().getRootSuperLocation().myId;}
+
 }

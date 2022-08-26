@@ -17,13 +17,14 @@ public class BulkRun {
 
 		for(String s: paramsFilenames) {
 			
-			for(int i = 0; i < 5; i++) {
+			for(int i = 0; i < 1; i++) {
 
 				String paramFilename = filenameBase + s + filenameSuffix;
 				String outputFilename = s + outputPrefix + i + outputSuffix;
+				String testOutputFilename = s + "_new_logging_" + outputPrefix + i + outputSuffix;
 				String infectionsOutputFilename = "infections_" + s + outputPrefix + i + outputSuffix;
 				String sim_info_filename = "sim_info_" + s + outputPrefix + i + outputSuffix;
-				WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(i, new Params(paramFilename), outputFilename);
+				WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(i, new Params(paramFilename), outputFilename, testOutputFilename);
 
 				System.out.println("Loading...");
 

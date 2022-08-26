@@ -52,6 +52,9 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 					// maybe we have been triggered too soon - in that case, don't activate again until it is time!
 					if(time < i.time_contagious)
 						return i.time_contagious - time;
+					
+					// Store covid infection in person object 
+					i.getHost().storeCovid();
 
 					// The infected agent will either show symptoms or be asymptomatic - choose which at this time
 
@@ -90,7 +93,8 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 							myWorld.params.exposedToInfectious_mean,
 							myWorld.params.exposedToInfectious_std);
 					i.time_contagious = time + timeUntilInfectious;
-					
+					// Store the covid case
+					i.getHost().storeCovid();
 					return timeUntilInfectious;
 				}
 				
@@ -99,6 +103,8 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				// In this case the agents just goes back to being susceptible.
 				// 
 				i.time_recovered = time;
+				// update the person's properties to show they don't have covid
+				i.getHost().removeCovid();
 				i.setBehaviourNode(susceptibleNode);
 				return Double.MAX_VALUE;
 			}
@@ -148,6 +154,7 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				// although asympotmatic, the agent is still infectious
 				Infection i = (Infection) s;
 				i.getHost().infectNeighbours();
+				i.getHost().setAsympt();
 
 				// determine when the agent will recover - this is
 				// only a matter of time in this case
@@ -180,6 +187,9 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				// the agent is infectious
 				Infection i = (Infection) s;
 				i.getHost().infectNeighbours();
+				if (!i.getHost().hasMild()) {
+					i.getHost().setMild();
+					}
 
 				// if the agent is scheduled to recover, make sure that it
 				// does so
@@ -244,7 +254,12 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				// the agent is infectious
 				Infection i = (Infection) s;
 				i.getHost().infectNeighbours();
-
+				if (i.getHost().hasMild()) {
+					i.getHost().removeMild();
+					}
+				if (!i.getHost().hasSevere()) {
+					i.getHost().setSevere();
+				}
 				// if the agent is scheduled to recover, make sure that it
 				// does so
 				if(time >= i.time_recovered){
@@ -300,7 +315,12 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				// the agent is infectious
 				Infection i = (Infection) s;
 				i.getHost().infectNeighbours();
-
+				if (i.getHost().hasSevere()) {
+					i.getHost().removeSevere();
+				}
+				if (!i.getHost().hasCritical()) {
+					i.getHost().setCritical();
+				}
 				// if the agent is scheduled to recover, make sure that it
 				// does so
 				if(time >= i.time_recovered ){
@@ -363,7 +383,9 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 
 				Infection i = (Infection) s;
 				i.time_recovered = time;
-				
+				// update person's properties
+				i.getHost().setRecovered();
+				i.getHost().removeCovid();
 				i.getHost().getLocation().getRootSuperLocation().metric_new_recovered++;
 
 				// the Person may have stopped moving when ill - reactivate!
@@ -386,6 +408,7 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 			@Override
 			public double next(Steppable s, double time) {
 				Infection i = (Infection) s;
+				i.getHost().removeCovid();
 				i.getHost().die();
 				i.time_died = time;
 								
