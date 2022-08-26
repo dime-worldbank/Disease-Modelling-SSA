@@ -33,6 +33,7 @@ public class Person extends MobileAgent {
 
 	// personal/demographic attributes
 	int age;
+	int birthday;
 	String sex;
 
 	// economic attributes
@@ -87,13 +88,14 @@ public class Person extends MobileAgent {
 	 * @param economic_activity_location Location for weekday economic activity (workplace, school, etc.)
 	 * @param world Copy of the simulation
 	 */
-	public Person(int id, int age, String sex, String economic_status, boolean schoolGoer, Household hh, WorldBankCovid19Sim world){
+	public Person(int id, int age, int birthday, String sex, String economic_status, boolean schoolGoer, Household hh, WorldBankCovid19Sim world){
 		super();
 
 		// demographic characteristics
 		
 		this.myId = id;
 		this.age = age;
+		this.birthday = birthday;
 		this.sex = sex;
 		
 		// economic characteristics
@@ -520,6 +522,7 @@ public class Person extends MobileAgent {
 	public void setActivityNode(BehaviourNode bn){ currentActivityNode = bn; }
 	
 	public int getAge(){ return age;}
+	public int getBirthday() {return birthday; }
 	public String getSex() { return sex; }
 	public String getEconStatus(){ return economic_status;}
 	public Location getHousehold(){ return myHousehold; }
@@ -557,6 +560,9 @@ public class Person extends MobileAgent {
 		this.gaveBirthLastYear = true; 
 		this.dayGaveBirth = time;
 	}
+	public void updateAge(){
+		this.age += 1;
+	}
 	public void ableToGiveBirth() { 
 		this.gaveBirthLastYear = false; 
 		this.dayGaveBirth = Integer.MAX_VALUE;
@@ -565,5 +571,7 @@ public class Person extends MobileAgent {
 	public void storeCovid() { this.hasCovid = true ;}
 	public void removeCovid() { this.hasCovid = false;}
 	public void confirmCovidLogged() { this.covidLogged = true; }
+	
+	public String getCurrentDistrict() {return this.getHousehold().getRootSuperLocation().myId;}
 	
 }
