@@ -68,9 +68,11 @@ public class runWithWithoutDemography {
 				String infectionsOutputFilename = outputPath_2 + "infections_" + s + outputPrefix_2 + i + outputSuffix;
 				String populationStructureFilename = outputPath_2 + "popstructure" + s + outputPrefix_2 + i + outputSuffix;
 				String distPopulationStructureFilename = outputPath_2 + "dist_popstructure" + s + outputPrefix_2 + i + outputSuffix;
+				String percinfFilename = outputPath_2 + "perc_inf" + s + outputPrefix_2 + i + outputSuffix;
+
 
 				WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(i, new Params(paramFilename), outputFilename, covidInc, covidIncDeath,
-						otherInc, birthRate, populationStructureFilename, distPopulationStructureFilename, demography_off);
+						otherInc, birthRate, populationStructureFilename, distPopulationStructureFilename, percinfFilename, demography_off);
 				
 				System.out.println("Loading...");
 

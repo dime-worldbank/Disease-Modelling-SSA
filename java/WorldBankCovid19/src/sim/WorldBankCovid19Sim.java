@@ -50,6 +50,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public String birthRateOutputFilename;
 	public String distPopSizeOutputFilename;
 	public String infections_export_filename;
+	public String distCovidPrevalenceOutputFilename;
 	public String sim_info_filename;
 	int targetDuration = 0;
 	
@@ -73,7 +74,7 @@ public class WorldBankCovid19Sim extends SimState {
 	 * Constructor function
 	 * @param seed
 	 */
-	public WorldBankCovid19Sim(long seed, Params params, String outputFilename, String covidIncOutputFilename, String covidIncDeathOutputFilename, String otherIncDeathOutputFilename, String birthRateOutputFilename, String populationOutputFilename, String distPopSizeOutputFilename, boolean demography) {
+	public WorldBankCovid19Sim(long seed, Params params, String outputFilename, String covidIncOutputFilename, String covidIncDeathOutputFilename, String otherIncDeathOutputFilename, String birthRateOutputFilename, String populationOutputFilename, String distPopSizeOutputFilename, String distCovidPrevalenceOutputFilename, boolean demography) {
 		super(seed);
 		this.params = params;
 		this.outputFilename = outputFilename;
@@ -83,6 +84,7 @@ public class WorldBankCovid19Sim extends SimState {
 		this.birthRateOutputFilename = birthRateOutputFilename;
 		this.distPopSizeOutputFilename = distPopSizeOutputFilename;
 		this.populationOutputFilename = populationOutputFilename;
+		this.distCovidPrevalenceOutputFilename = distCovidPrevalenceOutputFilename;
 		this.demography = demography;
 	}
 
@@ -415,6 +417,18 @@ public class WorldBankCovid19Sim extends SimState {
 										)
 						)
 						);
+				
+				Map<Boolean, Map<String, Map<Boolean, List<Person>>>> covidAtLocation = agents.stream().collect(
+						Collectors.groupingBy(
+								Person::getAlive,
+								Collectors.groupingBy(
+										Person::getCurrentDistrict,
+										Collectors.groupingBy(
+												Person::hasCovid
+										)
+						)
+						)
+						);
 				int time = (int) (arg0.schedule.getTime() / params.ticks_per_day);
 				List <String> districts = Arrays.asList(
 						"d_1", "d_2", "d_3", "d_4", "d_5", "d_6", "d_7", "d_8", "d_9", "d_10", "d_11", "d_12", "d_13", "d_14", "d_15", 
@@ -423,10 +437,17 @@ public class WorldBankCovid19Sim extends SimState {
 						"d_44", "d_45", "d_46", "d_47", "d_48", "d_49", "d_50", "d_51", "d_52", "d_53", "d_54", "d_55", "d_56", "d_57", 
 						"d_58", "d_59", "d_60");
 				ArrayList <Integer> districtPopCounts = new ArrayList<Integer>();
+				ArrayList <Integer> districtCovidCounts = new ArrayList<Integer>();
 				for (String place: districts) {
 					districtPopCounts.add(aliveAtLocation.get(true).get(place).size());
+					try {
+					districtCovidCounts.add(covidAtLocation.get(true).get(place).get(true).size());
+					}
+					catch (Exception e) {
+					// age wasn't present in the population, skip
+					districtCovidCounts.add(0);
+					}
 				}
-				
 				String pop_size_in_district = "";
 				
 				String t = "\t";
@@ -446,6 +467,25 @@ public class WorldBankCovid19Sim extends SimState {
 				
 				
 				exportMe(distPopSizeOutputFilename, pop_size_in_district);
+				
+				String percent_with_covid = "";
+				if (time == 0) {
+					percent_with_covid += "day" + t;
+					for (String place: districts) {
+						percent_with_covid += place + t;
+					}
+					percent_with_covid += "\n" + String.valueOf(time);
+				}
+				else {
+					percent_with_covid += "\n" + String.valueOf(time);
+				}
+				int idx = 0;
+				for (float count: districtCovidCounts) {
+					float perc_with_covid = count / districtPopCounts.get(idx);
+					pop_size_in_district += t + perc_with_covid;
+					idx++;
+				}
+				exportMe(distCovidPrevalenceOutputFilename, percent_with_covid);
 
 //				exportMe(outputFilename, s);
 				
@@ -1388,6 +1428,7 @@ public class WorldBankCovid19Sim extends SimState {
 		String popStructureFilename = "";
 		String PopSizeOutputFilename = "";
 		String paramsFilename = "data/configs/params.txt";
+		String distCovidPrevalenceOutputFilename = "";
 		boolean demography = false;
 		// read in any extra settings from the command line
 		if(args.length < 0){
@@ -1419,7 +1460,7 @@ public class WorldBankCovid19Sim extends SimState {
 		 */
 
 		// set up the simulation
-		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim( seed, new Params(paramsFilename), outputFilename, incCovidFilename, incCovidDeathFilename, incOtherDeathFilename, birthOutputFileneame, popStructureFilename, PopSizeOutputFilename, demography);
+		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim( seed, new Params(paramsFilename), outputFilename, incCovidFilename, incCovidDeathFilename, incOtherDeathFilename, birthOutputFileneame, popStructureFilename, PopSizeOutputFilename, distCovidPrevalenceOutputFilename, demography);
 
 
 		System.out.println("Loading...");

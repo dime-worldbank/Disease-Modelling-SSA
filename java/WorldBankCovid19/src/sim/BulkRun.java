@@ -10,15 +10,15 @@ public class BulkRun {
 		String filenameBase = "/Users/robbiework/eclipse-workspace/Disease-Modelling-SSA/data/verification/", 
 				filenameSuffix = ".txt";
 		String [] paramsFilenames = {"params_robbie_test"};//, "params_defaultMultiDist", "params_multiStatusMultiDist"};   
-		double myBeta = 0.15;
-		int numDays = 400;
+		double myBeta = 0.3;
+		int numDays = 100;
 		boolean demography = true;
 
 		String outputPrefix = "_bulkTest_" + myBeta + "_" + numDays + "_", outputSuffix = ".txt";
 
 		for(String s: paramsFilenames) {
 			
-			for(int i = 0; i < 1; i++) {
+			for(int i = 0; i < 3; i++) {
 				
 				String paramFilename = filenameBase + s + filenameSuffix;
 				String outputFilename = s + outputPrefix + i + outputSuffix;
@@ -29,9 +29,10 @@ public class BulkRun {
 				String infectionsOutputFilename = "infections_" + s + outputPrefix + i + outputSuffix;
 				String populationOutputFilename = "population_" + s + outputPrefix + i + outputSuffix;
 				String distPopSizeOutputFilename = "dist_population_" + s + outputPrefix + i + outputSuffix;
+				String distCovidPrevalenceOutputFilename = "perc_inf" + s + outputPrefix + i + outputSuffix;
 
 				WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(i, new Params(paramFilename), outputFilename, covidInc, covidIncDeath, 
-						otherInc, birthRate, populationOutputFilename, distPopSizeOutputFilename, demography);
+						otherInc, birthRate, populationOutputFilename, distPopSizeOutputFilename, distPopSizeOutputFilename, demography);
 				
 				System.out.println("Loading...");
 
