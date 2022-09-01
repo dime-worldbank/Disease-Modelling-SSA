@@ -9,15 +9,15 @@ public class BulkRun {
 		
 		String filenameBase = "/Users/robbiework/eclipse-workspace/Disease-Modelling-SSA/data/verification/", 
 				filenameSuffix = ".txt";
-		String [] paramsFilenames = {"params_d2_start.txt"};//, "params_defaultMultiDist", "params_multiStatusMultiDist"};   params_default1Dist
-		double myBeta = .3;
+		String [] paramsFilenames = {"params_d2_start", "params_d25_start", "params_d39_start"};//, "params_defaultMultiDist", "params_multiStatusMultiDist"};   params_default1Dist
+		double myBeta = 0.3;
 		int numDays = 100;
 
 		String outputPrefix = "_bulkTest_" + myBeta + "_" + numDays + "_", outputSuffix = ".txt";
 
 		for(String s: paramsFilenames) {
 			
-			for(int i = 0; i < 5; i++) {
+			for(int i = 0; i < 3; i++) {
 
 				String paramFilename = filenameBase + s + filenameSuffix;
 				String outputFilename = s + outputPrefix + i + outputSuffix;
@@ -28,7 +28,7 @@ public class BulkRun {
 
 				System.out.println("Loading...");
 
-				mySim.params.infection_beta = myBeta / mySim.params.ticks_per_day; // normalised to be per tick
+				mySim.params.infection_beta = myBeta; // normalised to be per tick
 				mySim.targetDuration = numDays;
 				mySim.start();
 				mySim.infections_export_filename = infectionsOutputFilename;

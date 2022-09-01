@@ -70,7 +70,8 @@ public class Person extends MobileAgent {
 	boolean severe = false;
 	boolean critical = false;
 	boolean recovered = false;
-
+	boolean hadCovid = false;
+	boolean covidLogged = false;
 	
 
 	
@@ -531,7 +532,8 @@ public class Person extends MobileAgent {
 	public boolean isDead() { return this.isDead; }
 	public boolean isSchoolGoer() { return this.schoolGoer; }
 	public boolean getDeathLogged () { return this.deathLogged; }
-
+	public boolean covidLogCheck () { return this.covidLogged; }
+	public boolean hadCovid() {return this.hadCovid; }
 
 	// UTILS
 	
@@ -546,7 +548,8 @@ public class Person extends MobileAgent {
 		return ((Person) o).myId == this.myId;
 	}
 	public void confirmDeathLogged() { this.deathLogged = true; }
-	public void storeCovid() { this.hasCovid = true ; }
+	public void storeCovid() { this.hasCovid = true ; this.hadCovid = true; }
+	public void confirmLogged() { this.covidLogged = true; }
 	public void setAsympt() { this.asymptomatic = true; }
 	public void setMild() { this.mild = true; }
 	public void removeMild() { this.mild = false; }
