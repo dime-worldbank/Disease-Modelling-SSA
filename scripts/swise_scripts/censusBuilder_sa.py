@@ -18,11 +18,11 @@ from pathlib import Path
 # define the relevant filenames
 
 #census_filename =get_data_dir('raw', 'census', 'census_sample_1500.dta')
-dataDir ="/home/wb488473/Disease-Modelling-SSA/data/"
-census_filename =dataDir + "raw/census/75_perc_sample/census_sample_75perc_070921.dta"
+dataDir ="/home/ucfu056/Disease-Modelling-SSA/data/"
+census_filename =dataDir + "raw/census/75_perc_sample/abm_092320_75_perc_080222_ver1.dta"
 #'ABM_Simulated_Pop_WardDistributed_UpdatedMay30_school_complete_060520.dta'
 district_filename = dataDir + "raw/district_relation.csv"
-output_filename = dataDir + "preprocessed/census/75_perc_sample/census_sample_75perc_070921.csv"
+output_filename = dataDir + "preprocessed/census/75_perc_sample/abm_092320_75_perc_080222_ver1.csv"
 
 # set up mappings between the input data and the values used by the census builder
 
@@ -72,7 +72,8 @@ print(full_individual_df['economic_status'].value_counts()[l])
 individual_df = full_individual_df
 
 # extra the columns on which age will be predicted
-age_cols = ['geo1_zw2012', 'urban', 'persons', 'sex', 'marst', 'citizen', 'race', 'disabled', 'economic_status']
+#age_cols = ['geo1_zw2012', 'urban', 'persons', 'sex', 'marst', 'citizen', 'race', 'disabled', 'economic_status']
+age_cols = ['sex']
 # missing_val = 'not reported/missing'
 X = pd.get_dummies(individual_df[age_cols], drop_first=True)
 
@@ -101,8 +102,8 @@ print("\nAll missing ages regressed and predicted successfully...")
 relevant_cols = [
     'person_id', 'age', 'sex',
     'household_id', 'district_id',
-    'economic_status', 'economic_activity_location_id',
-    # 'household', 'district'
+    'economic_status', 
+    # 'economic_activity_location_id','household', 'district'
 ]
 
 #old_new_districts = pd.read_csv(district_filename, index_col=0)
