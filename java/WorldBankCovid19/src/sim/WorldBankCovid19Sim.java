@@ -38,10 +38,9 @@ public class WorldBankCovid19Sim extends SimState {
 	public InfectiousBehaviourFramework infectiousFramework;
 	public Params params;
 	public boolean lockedDown = false;
+	// create a variable to determine whether the model will cause additional births and deaths	
 	public boolean demography;
-	// Create variable to log the population structure over time
-	public boolean logPopStructure;
-		
+	// the names of file names of each output filename		
 	public String outputFilename;
 	public String covidIncOutputFilename; 
 	public String populationOutputFilename;
@@ -49,9 +48,10 @@ public class WorldBankCovid19Sim extends SimState {
 	public String otherIncDeathOutputFilename;
 	public String birthRateOutputFilename;
 	public String distPopSizeOutputFilename;
-	public String newLoggingFilename;
+	public String newLoggingFilename; 
 	public String infections_export_filename;
 	public String distCovidPrevalenceOutputFilename;
+	public String distPopBreakdownOutputFilename;
 	public String sim_info_filename;
 	int targetDuration = 0;
 	
@@ -75,19 +75,22 @@ public class WorldBankCovid19Sim extends SimState {
 	 * Constructor function
 	 * @param seed
 	 */
-	public WorldBankCovid19Sim(long seed, Params params, String outputFilename, String covidIncOutputFilename, String covidIncDeathOutputFilename, String otherIncDeathOutputFilename, String birthRateOutputFilename, String populationOutputFilename, String distPopSizeOutputFilename, String distCovidPrevalenceOutputFilename, String newLoggingFilename, boolean demography) {
+	public WorldBankCovid19Sim(long seed, Params params, String outputFilename, boolean demography) {
 		super(seed);
 		this.params = params;
-		this.outputFilename = outputFilename;
-		this.covidIncOutputFilename = covidIncOutputFilename;
-		this.covidIncDeathOutputFilename = covidIncDeathOutputFilename;
-		this.otherIncDeathOutputFilename = otherIncDeathOutputFilename;
-		this.birthRateOutputFilename = birthRateOutputFilename;
-		this.distPopSizeOutputFilename = distPopSizeOutputFilename;
-		this.populationOutputFilename = populationOutputFilename;
-		this.distCovidPrevalenceOutputFilename = distCovidPrevalenceOutputFilename;
+		this.outputFilename = outputFilename + ".txt";
 		this.demography = demography;
-		this.newLoggingFilename = newLoggingFilename;
+		this.covidIncOutputFilename = outputFilename + "_Incidence_Of_Covid_" + ".txt"; 
+		this.populationOutputFilename = outputFilename + "_Overall_Demographics_" + ".txt";
+		this.covidIncDeathOutputFilename = outputFilename + "_Incidence_Of_Covid_Death_" + ".txt";
+		this.otherIncDeathOutputFilename = outputFilename + "_Incidence_Of_Other_Death_" + ".txt";
+		this.birthRateOutputFilename = outputFilename + "_Birth_Rate_" + ".txt";
+		this.distPopSizeOutputFilename = outputFilename + "_District_Level_Population_Size_" + ".txt";
+		this.newLoggingFilename = outputFilename + "_Cases_Per_District_" + ".txt"; 
+		this.infections_export_filename = outputFilename + "_Infections_" + ".txt";
+		this.distCovidPrevalenceOutputFilename = outputFilename + "_Percent_In_District_With_Covid_" + ".txt";
+		this.distPopBreakdownOutputFilename = outputFilename + "_Overall_Demographics_" + ".txt";
+		this.sim_info_filename = outputFilename + "_Sim_Information_" + ".txt";
 	}
 	
 	public void start(){
@@ -161,6 +164,7 @@ public class WorldBankCovid19Sim extends SimState {
 				// update this person's properties
 				
 				inf.time_contagious = 0;
+				// update this person's properties so we can keep track of the number of cases etc				
 				p.storeCovid();
 				if (inf.getBehaviourName().equals("asymptomatic")) {
 					p.setAsympt();
@@ -186,14 +190,14 @@ public class WorldBankCovid19Sim extends SimState {
 		};
 		schedule.scheduleRepeating(0, this.param_schedule_updating_locations, updateLocationLists);
 		
-		// SCHEDULE BIRTHS AND LOG BIRTHS
+		// Create a function to create births in the population
 		Steppable createBirths = new Steppable() {
 			
 			@Override
 			public void step(SimState arg0) {
 				// create a list of babies
 				ArrayList<Person> newBirths = new ArrayList <Person> ();
-				//	get a reference to the current simulaiton day		
+				//	get a reference to the current simulation day		
 				int time = (int) (arg0.schedule.getTime() / params.ticks_per_day);
 				// create an id_offset variable to assign the babies a unique id
 				int id_offset = 0;
@@ -263,8 +267,10 @@ public class WorldBankCovid19Sim extends SimState {
 			}
 			
 		};
+		if (this.demography) {
 		schedule.scheduleRepeating(createBirths, this.param_schedule_updating_locations, params.ticks_per_day);
-		
+		}
+		// create a function to report on birth rates
 		Steppable reportBirthRates = new Steppable() {
 			
 			@Override
@@ -319,7 +325,7 @@ public class WorldBankCovid19Sim extends SimState {
 						try {
 							// try function necessary as some ages won't be present in the population
 							// use the functions created earlier to calculate the number of people of each age group who fall
-							// into the categories we are interested in (alive, died from covid, died from other)
+							// into the categories we are interested in (female, alive)
 							female_count += age_sex_alive_map.get("female").get(age).get(true).intValue();
 						}
 							catch (Exception e) {
@@ -328,7 +334,7 @@ public class WorldBankCovid19Sim extends SimState {
 						try {
 							// try function necessary as some ages won't be present in the population
 							// use the functions created earlier to calculate the number of people of each age group who fall
-							// into the categories we are interested in (alive, died from covid, died from other)
+							// into the categories we are interested in (female, alive and gave birth)
 							female_gave_birth_count += age_sex_map_gave_birth.get("female").get(age).get(true).get(false).intValue();
 						}
 							catch (Exception e) {
@@ -341,7 +347,7 @@ public class WorldBankCovid19Sim extends SimState {
 					// update the idx variable for the next iteration
 					idx++;
 				}
-				// calculate incidence of covid death this day
+				// calculate the birth rate per 1000 this day
 				int time = (int) (arg0.schedule.getTime() / params.ticks_per_day);
 				String age_dependent_birth_rate = "";
 
@@ -368,6 +374,7 @@ public class WorldBankCovid19Sim extends SimState {
 				// get the day
 				
 				exportMe(birthRateOutputFilename, age_dependent_birth_rate);
+				// to make sure that births aren't counted more than once, update this person's properties
 				for (Person p: agents) {
 					if(p.gaveBirthLastYear()) {
 						p.confirmBirthlogged();
@@ -381,38 +388,38 @@ public class WorldBankCovid19Sim extends SimState {
 		schedule.scheduleRepeating(reportBirthRates, this.param_schedule_reporting, params.ticks_per_day);
 		}
 		
+		// to maintain population structure over time, create a function that will update the age of the population
 		Steppable updateAges = new Steppable() {
 			@Override
 			public void step(SimState arg0) {
-				// create a function to group the population by sex, age and whether they are alive
-				Map<Integer, List<Person>> birthday_map = agents.stream().collect(
+				// create a function to group the population by those who are alive and those who's birthday it is
+				Map<Boolean, Map<Integer, List<Person>>> birthday_map = agents.stream().collect(
 						Collectors.groupingBy(
-								Person::getBirthday
+								Person::getAlive,
+								Collectors.groupingBy(
+										Person::getBirthday
+						)
 						)
 						);
 				int time = (int) (arg0.schedule.getTime() / params.ticks_per_day);
 				
-				List<Person> birthdays = birthday_map.get(time + 1 % 365);
+				List<Person> birthdays = birthday_map.get(true).get(time + 1 % 365);
 				try {
 					for(Person p: birthdays){
-//						System.out.print("person " + p.getID() + " is going from age " + p.getAge() + " to ");
-							p.updateAge();
-//						System.out.print(p.getAge() + "\n");
+						// update the person's age
+						p.updateAge();
 					}
 				}
 				catch (Exception e) {
 						// No one had a birthday today, skip.
 				}
-				
-				
-//				exportMe(outputFilename, s);
-				
 			}
 		};
 		
 		if (this.demography){
 		schedule.scheduleRepeating(updateAges, this.param_schedule_reporting, params.ticks_per_day);
 		}
+		
 		Steppable testLoggingCases = new Steppable() {
 			
 			@Override
@@ -424,11 +431,10 @@ public class WorldBankCovid19Sim extends SimState {
 						"d_30", "d_31", "d_32", "d_33", "d_34", "d_35", "d_36", "d_37", "d_38", "d_39", "d_40", "d_41", "d_42", "d_43", 
 						"d_44", "d_45", "d_46", "d_47", "d_48", "d_49", "d_50", "d_51", "d_52", "d_53", "d_54", "d_55", "d_56", "d_57", 
 						"d_58", "d_59", "d_60");
-				// create list to store the counts of each category of interest. The number of cases, the number of cases by type, the
-				// number of recoveries, the number of deaths etc... 
+				// create list to store the counts of each category of interest. The number of cases, the cumulative number of cases, 
+				// the number of cases by type, the number of recoveries, the number of deaths etc... 
 				ArrayList <Integer> covidCountArray = new ArrayList<Integer>();
 				ArrayList <Integer> cumCovidCountArray = new ArrayList<Integer>();
-
 				ArrayList <Integer> asymptCovidCountArray = new ArrayList<Integer>();
 				ArrayList <Integer> mildCovidCountArray = new ArrayList<Integer>();
 				ArrayList <Integer> severeCovidCountArray = new ArrayList<Integer>();
@@ -437,7 +443,7 @@ public class WorldBankCovid19Sim extends SimState {
 				ArrayList<Integer> covidCumulativeDeathCount = new ArrayList<Integer>();
 				ArrayList<Integer> covidNewDeathCount = new ArrayList<Integer>();
 
-				// create a function to group the population by location, whether they are alive and if they have covid
+				// create a function to group the population by location, whether they are alive and if they have covid and if this is a new case
 				Map<String, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>> location_alive_hasCovid_map = agents.stream().collect(
 						Collectors.groupingBy(
 								Person::getCurrentDistrict, 
@@ -453,19 +459,17 @@ public class WorldBankCovid19Sim extends SimState {
 						)
 						)
 						);
-				Map<String, Map<Boolean, Map<Boolean, Long>>> location_alive_recovered_map = agents.stream().collect(
+				// create a map to count the number of people who have recovered from covid in that district
+				Map<String, Map<Boolean, Long>> location_alive_recovered_map = agents.stream().collect(
 						Collectors.groupingBy(
 								Person::getCurrentDistrict, 
-									Collectors.groupingBy(
-												Person::getAlive,
-												Collectors.groupingBy(
-														Person::hasRecovered,
+											Collectors.groupingBy(
+													Person::hasRecovered,
 										Collectors.counting()
 										)
 								)
-						)
 						);
-				// create a function to group the population by location, whether they are alive and if they have asymptomatic covid
+				// create a function to group the population by location, whether they are alive and which type of covid infection they have
 				Map<String, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>>>>>> location_covid_type_map = agents.stream().collect(
 						Collectors.groupingBy(
 								Person::getCurrentDistrict, 
@@ -498,7 +502,7 @@ public class WorldBankCovid19Sim extends SimState {
 						Collectors.groupingBy(
 								Person::getCurrentDistrict, 
 											Collectors.groupingBy(
-													Person::isDead,
+													Person::isDeadFromCovid,
 										Collectors.counting()
 										)
 								)
@@ -518,7 +522,7 @@ public class WorldBankCovid19Sim extends SimState {
 						Collectors.groupingBy(
 								Person::getCurrentDistrict, 
 											Collectors.groupingBy(
-													Person::isDead,
+													Person::isDeadFromCovid,
 													Collectors.groupingBy(
 															Person::getDeathLogged,
 										Collectors.counting()
@@ -526,7 +530,7 @@ public class WorldBankCovid19Sim extends SimState {
 									)
 								)
 						);
-				//	We now iterate over the districts, to find the number of covid cases
+				//	We now iterate over the districts, to find the current state of the epidemic
 				for (String district: districtList) {
 					// get the current number of cases in each district
 					try {
@@ -535,48 +539,56 @@ public class WorldBankCovid19Sim extends SimState {
 						// No one in population met criteria
 						covidCountArray.add(0);
 					}
+					// get the cumulative number of covid cases in the district
 					try {
 						cumCovidCountArray.add(location_cumulative_covid_map.get(district).get(true).intValue());
 						} catch (Exception e) {
 							// No one in population met criteria
 							cumCovidCountArray.add(0);
 						}
+					// get the number of asymptomatic covid cases in the district
 					try {
 						asymptCovidCountArray.add(location_covid_type_map.get(district).get(true).get(true).get(true).get(false).get(false).get(false).get(false).intValue());
 						} catch (Exception e) {
 							// No one in population met criteria
 							asymptCovidCountArray.add(0);
 						}
+					// get the number of mild covid cases in the district
 					try {
 						mildCovidCountArray.add(location_covid_type_map.get(district).get(true).get(true).get(false).get(true).get(false).get(false).get(false).intValue());
 						} catch (Exception e) {
 							// No one in population met criteria
 							mildCovidCountArray.add(0);
 						}
+					// get the number of severe covid cases in the district
 					try {
 						severeCovidCountArray.add(location_covid_type_map.get(district).get(true).get(true).get(false).get(false).get(true).get(false).get(false).intValue());
 						} catch (Exception e) {
 							// No one in population met criteria
 							severeCovidCountArray.add(0);
 						}
+					// get the number of critical covid cases in the district
 					try {
 						criticalCovidCountArray.add(location_covid_type_map.get(district).get(true).get(true).get(false).get(false).get(false).get(true).get(false).intValue());
 						} catch (Exception e) {
 							// No one in population met criteria
 							criticalCovidCountArray.add(0);
 						}
+					// get the number of recoveries  in the district
 					try {
-						recoveredCountArray.add(location_alive_recovered_map.get(district).get(true).get(true).intValue());
+						recoveredCountArray.add(location_alive_recovered_map.get(district).get(true).intValue());
 						} catch (Exception e) {
 							// No one in population met criteria
 							recoveredCountArray.add(0);
 						}
+					// get the cumultative number of covid deaths in the district
 					try {
 						covidCumulativeDeathCount.add(location_cumulative_died_map.get(district).get(true).intValue());
 						} catch (Exception e) {
 							// No one in population met criteria
 							covidCumulativeDeathCount.add(0);
 						}
+					// get the number of new covid deaths in the district
 					try {
 						covidNewDeathCount.add(location_new_deaths_map.get(district).get(true).get(false).intValue());
 						} catch (Exception e) {
@@ -584,10 +596,11 @@ public class WorldBankCovid19Sim extends SimState {
 							covidNewDeathCount.add(0);
 						}
 				}
-				// calculate incidence of covid death this day
+				// report out findings
 				int time = (int) (arg0.schedule.getTime() / params.ticks_per_day);
+				// name the file
 				String covidNumberOutput = "";
-
+				// format the file
 				String t = "\t";
 				String tabbedDistrictNames = "";
 				for (String district: districtList) {tabbedDistrictNames += t + district;}
@@ -597,67 +610,77 @@ public class WorldBankCovid19Sim extends SimState {
 				else {
 					covidNumberOutput += String.valueOf(time);
 				}
+				// store total number of cases in district
 				covidNumberOutput += t + "total_cases";
 				for (int val: covidCountArray){
 					covidNumberOutput += t + String.valueOf(val);
 				}
 				covidNumberOutput += "\n";
+				// store total number of asymptomatic cases in district
 				covidNumberOutput += time + t + "total_asympt_cases";
 				for (int val: asymptCovidCountArray){
 					covidNumberOutput += t + String.valueOf(val);
 				}
 				covidNumberOutput += "\n";
+				// store total number of mild cases in district
 				covidNumberOutput += time + t + "total_mild_cases";
 				for (int val: mildCovidCountArray){
 					covidNumberOutput += t + String.valueOf(val);
 				}
 				covidNumberOutput += "\n";
+				// store total number of severe cases in district
 				covidNumberOutput += time + t + "total_severe_cases";
 				for (int val: severeCovidCountArray){
 					covidNumberOutput += t + String.valueOf(val);
 				}
 				covidNumberOutput += "\n";
+				// store total number of recoveries in district
 				covidNumberOutput += time + t + "total_recovered";
 				for (int val: recoveredCountArray){
 					covidNumberOutput += t + String.valueOf(val);
 				}
 				covidNumberOutput += "\n";
+				// store cumulative number of cases in district
 				covidNumberOutput += time + t + "cumulative_cases";
 				for (int val: cumCovidCountArray){
 					covidNumberOutput += t + String.valueOf(val);
 				}
 				covidNumberOutput += "\n";
+				// store cumulative number of deaths in district
 				covidNumberOutput += time + t + "cumulative_deaths"; 
 				for (int val: covidCumulativeDeathCount){
 					covidNumberOutput += t + String.valueOf(val);
 				}
 				covidNumberOutput += "\n";
+				// store total number of new deaths in district
 				covidNumberOutput += time + t + "new_deaths";
 				for (int val: covidNewDeathCount){
 					covidNumberOutput += t + String.valueOf(val);
 				}
 				covidNumberOutput += "\n";
 
-				// create a string to store this information in
-				// get the day
+				// export the file
 				
 				exportMe(newLoggingFilename, covidNumberOutput);
+				// to make sure deaths and cases aren't counted multiple times, update this person's properties
 				for (Person p: agents) {
-					if(p.isDead()) {
+					if(p.isDeadFromCovid()) {
 						p.confirmDeathLogged();
 						}
 					if(p.hasCovid() & !p.covidLogCheck()) {
-						p.confirmLogged();
+						p.confirmCovidLogged();
 					}
 					}	
 			}
 			};
 		
 		schedule.scheduleRepeating(testLoggingCases, this.param_schedule_reporting, params.ticks_per_day);
-		Steppable updateDistrictPopSize = new Steppable() {
+		
+		// Create a function to keep track of the population and epidemic at the scale of district level
+		Steppable updateDistrictLevelInfo = new Steppable() {
 			@Override
 			public void step(SimState arg0) {
-				// create a function to group the population by sex, age and whether they are alive
+				// create a function to group the population by who is alive at this district
 				Map<Boolean, Map<String, List<Person>>> aliveAtLocation = agents.stream().collect(
 						Collectors.groupingBy(
 								Person::getAlive,
@@ -666,7 +689,7 @@ public class WorldBankCovid19Sim extends SimState {
 										)
 						)
 						);
-				
+				// create a function to group the population by who is alive in each district and has covid
 				Map<Boolean, Map<String, Map<Boolean, List<Person>>>> covidAtLocation = agents.stream().collect(
 						Collectors.groupingBy(
 								Person::getAlive,
@@ -678,17 +701,38 @@ public class WorldBankCovid19Sim extends SimState {
 						)
 						)
 						);
-				int time = (int) (arg0.schedule.getTime() / params.ticks_per_day);
+				Map<Boolean, Map<String, Map<Integer, Map<String, List<Person>>>>> aliveAtLocationAgeSex = agents.stream().collect(
+						Collectors.groupingBy(
+								Person::getAlive,
+								Collectors.groupingBy(
+										Person::getCurrentDistrict,
+										Collectors.groupingBy(
+												Person::getAge,
+												Collectors.groupingBy(
+														Person::getSex
+										)
+						)
+						)
+						)
+						);
+				// get list of ages to iterate over
+				List <Integer> upper_age_range = Arrays.asList(1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 120);
+				List <Integer> lower_age_range = Arrays.asList(0, 1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95);
+				// get a list of districts to iterate over
 				List <String> districts = Arrays.asList(
 						"d_1", "d_2", "d_3", "d_4", "d_5", "d_6", "d_7", "d_8", "d_9", "d_10", "d_11", "d_12", "d_13", "d_14", "d_15", 
 						"d_16", "d_17", "d_18", "d_19", "d_20", "d_21", "d_22", "d_23", "d_24", "d_25", "d_26", "d_27", "d_28", "d_29", 
 						"d_30", "d_31", "d_32", "d_33", "d_34", "d_35", "d_36", "d_37", "d_38", "d_39", "d_40", "d_41", "d_42", "d_43", 
 						"d_44", "d_45", "d_46", "d_47", "d_48", "d_49", "d_50", "d_51", "d_52", "d_53", "d_54", "d_55", "d_56", "d_57", 
 						"d_58", "d_59", "d_60");
+				// create a list to store the number of people and who has covid in each district
 				ArrayList <Integer> districtPopCounts = new ArrayList<Integer>();
 				ArrayList <Integer> districtCovidCounts = new ArrayList<Integer>();
+				// iterate over each district
 				for (String place: districts) {
+					// get population counts in each district
 					districtPopCounts.add(aliveAtLocation.get(true).get(place).size());
+					// get covid counts in each district
 					try {
 					districtCovidCounts.add(covidAtLocation.get(true).get(place).get(true).size());
 					}
@@ -696,7 +740,11 @@ public class WorldBankCovid19Sim extends SimState {
 					// age wasn't present in the population, skip
 					districtCovidCounts.add(0);
 					}
+					
 				}
+				// format the output file for population counts
+				int time = (int) (arg0.schedule.getTime() / params.ticks_per_day);
+
 				String pop_size_in_district = "";
 				
 				String t = "\t";
@@ -710,13 +758,13 @@ public class WorldBankCovid19Sim extends SimState {
 				else {
 					pop_size_in_district += "\n" + String.valueOf(time);
 				}
+				// store the population counts per district
 				for (int count: districtPopCounts) {
 					pop_size_in_district += t + count;
 				}
-				
-				
+				// export the file
 				exportMe(distPopSizeOutputFilename, pop_size_in_district);
-				
+				// format the output for the percent of the district with covid
 				String percent_with_covid = "";
 				if (time == 0) {
 					percent_with_covid += "day" + t;
@@ -729,20 +777,78 @@ public class WorldBankCovid19Sim extends SimState {
 					percent_with_covid += "\n" + String.valueOf(time);
 				}
 				int idx = 0;
+				// calculate the percentage in the district with covid
 				for (float count: districtCovidCounts) {
 					float perc_with_covid = count / districtPopCounts.get(idx);
 					percent_with_covid += t + perc_with_covid;
 					idx++;
 				}
+				// export the file
 				exportMe(distCovidPrevalenceOutputFilename, percent_with_covid);
-
-//				exportMe(outputFilename, s);
+				String districtLevelPopBreakdown = "";
 				
+				String district_age_sex_categories = t + "district" + t + "sex" + t + "<1" + t + "1_4" + t + "5_9" + t + "10_14" + t + "15_19" + t + "20_24" + 
+						t + "25_29" + t + "30_34" + t + "35_39" + t + "40_44" + t + "45_49" + t + "50_54" + t + "55_59" + t + 
+						"60_64" + t + "65_69" + t + "70_74" + t + "75_79" + t + "80_84" + t + "85_89" + t + "90_94" + t + "95<" + "\n";
+				if (time == 0) {
+					districtLevelPopBreakdown += "day" + district_age_sex_categories;
+				}
+				for (String place: districts) {
+					districtLevelPopBreakdown += time + t + place;
+					// create lists to store the age gender breakdown of people in this district
+					ArrayList <Integer> male_alive_ages = new ArrayList<Integer>();
+					ArrayList <Integer> female_alive_ages = new ArrayList<Integer>();
+					idx = 0;
+					for (Integer val: upper_age_range) {
+						// for each age group we begin to count the number of people who fall into each category, create variables
+						// to store this information in
+						Integer male_count = 0;
+						Integer female_count = 0;
+						for (int age = lower_age_range.get(idx); age < val; age++) {
+					
+							try {
+								// try function necessary as some ages won't be present in the population
+								// use the functions created earlier to calculate the number of people of each age group who fall
+								// into the categories we are interested in (alive, died from covid, died from other)
+							male_count += aliveAtLocationAgeSex.get(true).get(place).get(age).get("male").size();
+							}
+							catch (Exception e) {
+								// age wasn't present in the population, skip
+							}
+							try {
+								// try function necessary as some ages won't be present in the population
+								// use the functions created earlier to calculate the number of people of each age group who fall
+								// into the categories we are interested in (alive, died from covid, died from other)
+								female_count += aliveAtLocationAgeSex.get(true).get(place).get(age).get("female").size();
+							}
+							catch (Exception e) {
+								// age wasn't present in the population, skip
+							}
+						}
+					// store what we have found in the lists we created
+					male_alive_ages.add(male_count);
+					female_alive_ages.add(female_count);
+				}
+				districtLevelPopBreakdown += t + "m";
+				for (int count: male_alive_ages){
+		            districtLevelPopBreakdown += t + String.valueOf(count);
+				}
+				districtLevelPopBreakdown += "\n";
+				districtLevelPopBreakdown += time + t + place;				
+				districtLevelPopBreakdown += t + "f";
+				for (int count: female_alive_ages){
+		            districtLevelPopBreakdown += t + String.valueOf(count);
+				}
+				districtLevelPopBreakdown += "\n";
+				}
+				exportMe(distPopBreakdownOutputFilename, districtLevelPopBreakdown);
+
+			System.out.print("");
 			}
 		};
 		
 		if (this.demography){
-		schedule.scheduleRepeating(updateDistrictPopSize, this.param_schedule_reporting, params.ticks_per_day);
+		schedule.scheduleRepeating(updateDistrictLevelInfo, this.param_schedule_reporting, params.ticks_per_day);
 		}
 		
 		// SCHEDULE CHECKS ON MORTALITY AND LOGGING
@@ -750,33 +856,29 @@ public class WorldBankCovid19Sim extends SimState {
 		Steppable checkMortality = new Steppable() {
 			@Override
 			public void step(SimState arg0) {
-				
+				// create a temp variable to be updated when the likelihood of mortality has been determined
 				double myMortalityLikelihood = 0.0;
-				// TODO something is going wrong in either causing the deaths or calculating the logging
-				int time = (int) (arg0.schedule.getTime() / params.ticks_per_day);
-				
+				// iterate over the population
 				for(Person p: agents){
-					String sex = p.getSex();
-					int age = p.getAge();
-
-					if(sex.equals("male")) {
-						myMortalityLikelihood = params.getAllCauseLikelihoodByAge(
-								params.prob_death_by_age_male, age);
+					// only determine mortality if this person is alive
+					if (p.getAlive()){
+						// get the person's age and sex
+						String sex = p.getSex();
+						int age = p.getAge();
+						// based on their properties determine if they die today
+						if(sex.equals("male")) {
+							myMortalityLikelihood = params.getAllCauseLikelihoodByAge(
+									params.prob_death_by_age_male, age);
+						}
+						else {
+							myMortalityLikelihood = params.getAllCauseLikelihoodByAge(
+									params.prob_death_by_age_female, age);
+						}
+						if(random.nextDouble() < myMortalityLikelihood) {
+							p.die("other");
+						}
 					}
-					else {
-						myMortalityLikelihood = params.getAllCauseLikelihoodByAge(
-								params.prob_death_by_age_female, age);
-					}
-					if(random.nextDouble() < myMortalityLikelihood) {
-//						System.out.println("person " + p + "should die on day" + time);
-						p.die("other");
-					}
-					
-
-				}
-				
-//				exportMe(outputFilename, s);
-				
+				}				
 			}
 		};
 		
@@ -1251,247 +1353,6 @@ public class WorldBankCovid19Sim extends SimState {
 		if (this.demography){
 		schedule.scheduleRepeating(reportPopStructure, this.param_schedule_reporting, params.ticks_per_day);
 		}
-		Steppable testLoggingCases = new Steppable() {
-			
-			@Override
-			public void step(SimState arg0) {
-				//	create a list of district names to iterate over for our logging
-				List <String> districtList = Arrays.asList(
-						"d_1", "d_2", "d_3", "d_4", "d_5", "d_6", "d_7", "d_8", "d_9", "d_10", "d_11", "d_12", "d_13", "d_14", "d_15", 
-						"d_16", "d_17", "d_18", "d_19", "d_20", "d_21", "d_22", "d_23", "d_24", "d_25", "d_26", "d_27", "d_28", "d_29", 
-						"d_30", "d_31", "d_32", "d_33", "d_34", "d_35", "d_36", "d_37", "d_38", "d_39", "d_40", "d_41", "d_42", "d_43", 
-						"d_44", "d_45", "d_46", "d_47", "d_48", "d_49", "d_50", "d_51", "d_52", "d_53", "d_54", "d_55", "d_56", "d_57", 
-						"d_58", "d_59", "d_60");
-				// create list to store the counts of each category of interest. The number of cases, the number of cases by type, the
-				// number of recoveries, the number of deaths etc... 
-				ArrayList <Integer> covidCountArray = new ArrayList<Integer>();
-				ArrayList <Integer> cumCovidCountArray = new ArrayList<Integer>();
-
-				ArrayList <Integer> asymptCovidCountArray = new ArrayList<Integer>();
-				ArrayList <Integer> mildCovidCountArray = new ArrayList<Integer>();
-				ArrayList <Integer> severeCovidCountArray = new ArrayList<Integer>();
-				ArrayList <Integer> criticalCovidCountArray = new ArrayList<Integer>();
-				ArrayList <Integer> recoveredCountArray = new ArrayList<Integer>();
-				ArrayList<Integer> covidCumulativeDeathCount = new ArrayList<Integer>();
-				ArrayList<Integer> covidNewDeathCount = new ArrayList<Integer>();
-
-				// create a function to group the population by location, whether they are alive and if they have covid
-				Map<String, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>> location_alive_hasCovid_map = agents.stream().collect(
-						Collectors.groupingBy(
-								Person::getCurrentDistrict, 
-									Collectors.groupingBy(
-												Person::getAlive,
-												Collectors.groupingBy(
-														Person::hasCovid,
-														Collectors.groupingBy(
-																Person::covidLogCheck,
-										Collectors.counting()
-										)
-								)
-						)
-						)
-						);
-				Map<String, Map<Boolean, Map<Boolean, Long>>> location_alive_recovered_map = agents.stream().collect(
-						Collectors.groupingBy(
-								Person::getCurrentDistrict, 
-									Collectors.groupingBy(
-												Person::getAlive,
-												Collectors.groupingBy(
-														Person::hasRecovered,
-										Collectors.counting()
-										)
-								)
-						)
-						);
-				// create a function to group the population by location, whether they are alive and if they have asymptomatic covid
-				Map<String, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>>>>>> location_covid_type_map = agents.stream().collect(
-						Collectors.groupingBy(
-								Person::getCurrentDistrict, 
-									Collectors.groupingBy(
-												Person::getAlive,
-												Collectors.groupingBy(
-														Person::hasCovid,
-														Collectors.groupingBy(
-																Person::hasAsymptCovid,
-																Collectors.groupingBy(
-																		Person::hasMild,
-																		Collectors.groupingBy(
-																				Person::hasSevere,
-																				Collectors.groupingBy(
-																						Person::hasCritical,
-																						Collectors.groupingBy(
-																								Person::covidLogCheck,
-										Collectors.counting()
-										)
-								)
-						)
-						)
-						)
-						)
-						)
-						)
-						);
-				// create a function to group the population by location and count cumulative deaths
-				Map<String, Map<Boolean, Long>> location_cumulative_died_map = agents.stream().collect(
-						Collectors.groupingBy(
-								Person::getCurrentDistrict, 
-											Collectors.groupingBy(
-													Person::isDead,
-										Collectors.counting()
-										)
-								)
-						);
-				// create a function to group the population by location and count cumulative cases
-				Map<String, Map<Boolean, Long>> location_cumulative_covid_map = agents.stream().collect(
-						Collectors.groupingBy(
-								Person::getCurrentDistrict, 
-											Collectors.groupingBy(
-													Person::hadCovid,
-										Collectors.counting()
-										)
-								)
-						);
-				// create a function to group the population by location and count new deaths
-				Map<String, Map<Boolean, Map<Boolean, Long>>> location_new_deaths_map = agents.stream().collect(
-						Collectors.groupingBy(
-								Person::getCurrentDistrict, 
-											Collectors.groupingBy(
-													Person::isDead,
-													Collectors.groupingBy(
-															Person::getDeathLogged,
-										Collectors.counting()
-										)
-									)
-								)
-						);
-				//	We now iterate over the districts, to find the number of covid cases
-				for (String district: districtList) {
-					// get the current number of cases in each district
-					try {
-					covidCountArray.add(location_alive_hasCovid_map.get(district).get(true).get(true).get(false).intValue());
-					} catch (Exception e) {
-						// No one in population met criteria
-						covidCountArray.add(0);
-					}
-					try {
-						cumCovidCountArray.add(location_cumulative_covid_map.get(district).get(true).intValue());
-						} catch (Exception e) {
-							// No one in population met criteria
-							cumCovidCountArray.add(0);
-						}
-					try {
-						asymptCovidCountArray.add(location_covid_type_map.get(district).get(true).get(true).get(true).get(false).get(false).get(false).get(false).intValue());
-						} catch (Exception e) {
-							// No one in population met criteria
-							asymptCovidCountArray.add(0);
-						}
-					try {
-						mildCovidCountArray.add(location_covid_type_map.get(district).get(true).get(true).get(false).get(true).get(false).get(false).get(false).intValue());
-						} catch (Exception e) {
-							// No one in population met criteria
-							mildCovidCountArray.add(0);
-						}
-					try {
-						severeCovidCountArray.add(location_covid_type_map.get(district).get(true).get(true).get(false).get(false).get(true).get(false).get(false).intValue());
-						} catch (Exception e) {
-							// No one in population met criteria
-							severeCovidCountArray.add(0);
-						}
-					try {
-						criticalCovidCountArray.add(location_covid_type_map.get(district).get(true).get(true).get(false).get(false).get(false).get(true).get(false).intValue());
-						} catch (Exception e) {
-							// No one in population met criteria
-							criticalCovidCountArray.add(0);
-						}
-					try {
-						recoveredCountArray.add(location_alive_recovered_map.get(district).get(true).get(true).intValue());
-						} catch (Exception e) {
-							// No one in population met criteria
-							recoveredCountArray.add(0);
-						}
-					try {
-						covidCumulativeDeathCount.add(location_cumulative_died_map.get(district).get(true).intValue());
-						} catch (Exception e) {
-							// No one in population met criteria
-							covidCumulativeDeathCount.add(0);
-						}
-					try {
-						covidNewDeathCount.add(location_new_deaths_map.get(district).get(true).get(false).intValue());
-						} catch (Exception e) {
-							// No one in population met criteria
-							covidNewDeathCount.add(0);
-						}
-				}
-				// calculate incidence of covid death this day
-				int time = (int) (arg0.schedule.getTime() / params.ticks_per_day);
-				String covidNumberOutput = "";
-
-				String t = "\t";
-				String tabbedDistrictNames = "";
-				for (String district: districtList) {tabbedDistrictNames += t + district;}
-				if (time == 0) {
-					covidNumberOutput += "day" + t + "metric" + tabbedDistrictNames + "\n" + String.valueOf(time);
-				}
-				else {
-					covidNumberOutput += String.valueOf(time);
-				}
-				covidNumberOutput += t + "total_cases";
-				for (int val: covidCountArray){
-					covidNumberOutput += t + String.valueOf(val);
-				}
-				covidNumberOutput += "\n";
-				covidNumberOutput += time + t + "total_asympt_cases";
-				for (int val: asymptCovidCountArray){
-					covidNumberOutput += t + String.valueOf(val);
-				}
-				covidNumberOutput += "\n";
-				covidNumberOutput += time + t + "total_mild_cases";
-				for (int val: mildCovidCountArray){
-					covidNumberOutput += t + String.valueOf(val);
-				}
-				covidNumberOutput += "\n";
-				covidNumberOutput += time + t + "total_severe_cases";
-				for (int val: severeCovidCountArray){
-					covidNumberOutput += t + String.valueOf(val);
-				}
-				covidNumberOutput += "\n";
-				covidNumberOutput += time + t + "total_recovered";
-				for (int val: recoveredCountArray){
-					covidNumberOutput += t + String.valueOf(val);
-				}
-				covidNumberOutput += "\n";
-				covidNumberOutput += time + t + "cumulative_cases";
-				for (int val: cumCovidCountArray){
-					covidNumberOutput += t + String.valueOf(val);
-				}
-				covidNumberOutput += "\n";
-				covidNumberOutput += time + t + "cumulative_deaths"; 
-				for (int val: covidCumulativeDeathCount){
-					covidNumberOutput += t + String.valueOf(val);
-				}
-				covidNumberOutput += "\n";
-				covidNumberOutput += time + t + "new_deaths";
-				for (int val: covidNewDeathCount){
-					covidNumberOutput += t + String.valueOf(val);
-				}
-				covidNumberOutput += "\n";
-
-				// create a string to store this information in
-				// get the day
-				
-				exportMe(newLoggingFilename, covidNumberOutput);
-				for (Person p: agents) {
-					if(p.isDead()) {
-						p.confirmDeathLogged();
-						}
-					if(p.hasCovid() & !p.covidLogCheck()) {
-						p.confirmLogged();
-					}
-					}	
-			}
-			};
-		
-		schedule.scheduleRepeating(testLoggingCases, this.param_schedule_reporting, params.ticks_per_day);
 		
 		// SCHEDULE LOCKDOWNS
 		Steppable lockdownTrigger = new Steppable() {
@@ -1921,6 +1782,7 @@ public class WorldBankCovid19Sim extends SimState {
 		String newLoggingFilename = "";
 		String paramsFilename = "data/configs/params.txt";
 		String distCovidPrevalenceOutputFilename = "";
+		String distPopBreakdownOutputFilename = "";
 		boolean demography = false;
 		// read in any extra settings from the command line
 		if(args.length < 0){
@@ -1952,7 +1814,7 @@ public class WorldBankCovid19Sim extends SimState {
 		 */
 
 		// set up the simulation
-		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim( seed, new Params(paramsFilename), outputFilename, incCovidFilename, incCovidDeathFilename, incOtherDeathFilename, birthOutputFileneame, popStructureFilename, PopSizeOutputFilename, distCovidPrevalenceOutputFilename, newLoggingFilename, demography);
+		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim( seed, new Params(paramsFilename), outputFilename, demography);
 
 
 		System.out.println("Loading...");

@@ -231,6 +231,7 @@ public class Person extends MobileAgent {
 			isDeadFromOther = true;
 		}
 		isAlive = false;
+		isDead = true;
 		transferTo(null);
 	}
 	
@@ -534,6 +535,7 @@ public class Person extends MobileAgent {
 		
 	public void setInfection(Infection i){ myInfection = i; }
 	public boolean hasCovid() { return this.hasCovid; }
+	public boolean hadCovid() { return this.hadCovid; }
 	public boolean hasAsymptCovid() { return this.asymptomatic; }
 	public boolean hasMild() { return this.mild; }
 	public boolean hasSevere() { return this.severe; }
@@ -546,7 +548,6 @@ public class Person extends MobileAgent {
 	public void setMobility(boolean mobile){ this.immobilised = !mobile; }
 	public boolean isImmobilised(){ return this.immobilised; }
 	public boolean getAlive() { return this.isAlive; }
-	public boolean hasCovid() { return this.hasCovid; }
 	public boolean getCovidLogged() { return this.covidLogged; }
 	public boolean isDeadFromCovid() { return this.isDeadFromCovid; }
 	public boolean isDeadFromOther() { return this.isDeadFromOther; }
@@ -581,8 +582,7 @@ public class Person extends MobileAgent {
 		this.dayGaveBirth = Integer.MAX_VALUE;
 	}
 	public void confirmBirthlogged() { this.birthLogged = true; }
-	public void storeCovid() { this.hasCovid = true ;}
-	public void removeCovid() { this.hasCovid = false;}
+	public void storeCovid() { this.hasCovid = true; this.hadCovid = true;}
 	public void confirmCovidLogged() { this.covidLogged = true; }
 	public void setAsympt() { this.asymptomatic = true; }
 	public void setMild() { this.mild = true; }
