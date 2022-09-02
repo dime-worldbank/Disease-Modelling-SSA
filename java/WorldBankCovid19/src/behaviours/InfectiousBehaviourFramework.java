@@ -160,6 +160,7 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 					return Double.MAX_VALUE;
 				}
 				i.getHost().infectNeighbours();
+				i.getHost().setAsympt();
 
 				// determine when the agent will recover - this is
 				// only a matter of time in this case
@@ -195,6 +196,9 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 					return Double.MAX_VALUE;
 				}
 				i.getHost().infectNeighbours();
+				if (!i.getHost().hasMild()) {
+					i.getHost().setMild();
+					}
 
 				// if the agent is scheduled to recover, make sure that it
 				// does so
@@ -262,7 +266,12 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 					return Double.MAX_VALUE;
 				}
 				i.getHost().infectNeighbours();
-
+				if (i.getHost().hasMild()) {
+					i.getHost().removeMild();
+					}
+				if (!i.getHost().hasSevere()) {
+					i.getHost().setSevere();
+				}
 				// if the agent is scheduled to recover, make sure that it
 				// does so
 				if(time >= i.time_recovered){
@@ -321,7 +330,12 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 					return Double.MAX_VALUE;
 				}
 				i.getHost().infectNeighbours();
-
+				if (i.getHost().hasSevere()) {
+					i.getHost().removeSevere();
+				}
+				if (!i.getHost().hasCritical()) {
+					i.getHost().setCritical();
+				}
 				// if the agent is scheduled to recover, make sure that it
 				// does so
 				if(time >= i.time_recovered ){
@@ -387,9 +401,9 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 					return Double.MAX_VALUE;
 				}
 				i.time_recovered = time;
-				// remove covid from person object
+				// update person's properties
+				i.getHost().setRecovered();
 				i.getHost().removeCovid();
-
 				i.getHost().getLocation().getRootSuperLocation().metric_new_recovered++;
 
 				// the Person may have stopped moving when ill - reactivate!

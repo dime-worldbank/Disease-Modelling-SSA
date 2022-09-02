@@ -26,17 +26,18 @@ public class BulkRun {
 				String covidIncDeath = s + "_covid_inc_death" + outputPrefix + i + outputSuffix;
 				String otherInc = s + "_other_inc_death" + outputPrefix + i + outputSuffix;
 				String birthRate = s + "_birth_rate" + outputPrefix + i + outputSuffix;
+				String testOutputFilename = s + "_new_logging_" + outputPrefix + i + outputSuffix;
 				String infectionsOutputFilename = "infections_" + s + outputPrefix + i + outputSuffix;
 				String populationOutputFilename = "population_" + s + outputPrefix + i + outputSuffix;
 				String distPopSizeOutputFilename = "dist_population_" + s + outputPrefix + i + outputSuffix;
 				String distCovidPrevalenceOutputFilename = "perc_inf" + s + outputPrefix + i + outputSuffix;
 
 				WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(i, new Params(paramFilename), outputFilename, covidInc, covidIncDeath, 
-						otherInc, birthRate, populationOutputFilename, distPopSizeOutputFilename, distCovidPrevalenceOutputFilename, demography);
+						otherInc, birthRate, populationOutputFilename, distPopSizeOutputFilename, distCovidPrevalenceOutputFilename,testOutputFilename, demography);
 				
 				System.out.println("Loading...");
 
-				mySim.params.infection_beta = myBeta / mySim.params.ticks_per_day; // normalised to be per tick
+				mySim.params.infection_beta = myBeta; // normalised to be per tick
 				mySim.targetDuration = numDays;
 				mySim.start();
 				mySim.infections_export_filename = infectionsOutputFilename;

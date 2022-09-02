@@ -49,6 +49,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public String otherIncDeathOutputFilename;
 	public String birthRateOutputFilename;
 	public String distPopSizeOutputFilename;
+	public String newLoggingFilename;
 	public String infections_export_filename;
 	public String distCovidPrevalenceOutputFilename;
 	public String sim_info_filename;
@@ -74,7 +75,7 @@ public class WorldBankCovid19Sim extends SimState {
 	 * Constructor function
 	 * @param seed
 	 */
-	public WorldBankCovid19Sim(long seed, Params params, String outputFilename, String covidIncOutputFilename, String covidIncDeathOutputFilename, String otherIncDeathOutputFilename, String birthRateOutputFilename, String populationOutputFilename, String distPopSizeOutputFilename, String distCovidPrevalenceOutputFilename, boolean demography) {
+	public WorldBankCovid19Sim(long seed, Params params, String outputFilename, String covidIncOutputFilename, String covidIncDeathOutputFilename, String otherIncDeathOutputFilename, String birthRateOutputFilename, String populationOutputFilename, String distPopSizeOutputFilename, String distCovidPrevalenceOutputFilename, String newLoggingFilename, boolean demography) {
 		super(seed);
 		this.params = params;
 		this.outputFilename = outputFilename;
@@ -86,8 +87,8 @@ public class WorldBankCovid19Sim extends SimState {
 		this.populationOutputFilename = populationOutputFilename;
 		this.distCovidPrevalenceOutputFilename = distCovidPrevalenceOutputFilename;
 		this.demography = demography;
+		this.newLoggingFilename = newLoggingFilename;
 	}
-
 	
 	public void start(){
 		
@@ -97,7 +98,6 @@ public class WorldBankCovid19Sim extends SimState {
 		// set up the behavioural framework
 		movementFramework = new MovementBehaviourFramework(this);
 		infectiousFramework = new InfectiousBehaviourFramework(this);
-		
 		
 		// load the population
 		load_population(params.dataDir + params.population_filename);
@@ -158,7 +158,16 @@ public class WorldBankCovid19Sim extends SimState {
 				
 				// create new person
 				Infection inf = new Infection(p, null, infectiousFramework.getInfectedEntryPoint(l), this);
+				// update this person's properties
+				
 				inf.time_contagious = 0;
+				p.storeCovid();
+				if (inf.getBehaviourName().equals("asymptomatic")) {
+					p.setAsympt();
+				}
+				else {
+					p.setMild();
+				}
 				schedule.scheduleOnce(1, param_schedule_infecting, inf);
 			}
 						
@@ -1242,6 +1251,248 @@ public class WorldBankCovid19Sim extends SimState {
 		if (this.demography){
 		schedule.scheduleRepeating(reportPopStructure, this.param_schedule_reporting, params.ticks_per_day);
 		}
+		Steppable testLoggingCases = new Steppable() {
+			
+			@Override
+			public void step(SimState arg0) {
+				//	create a list of district names to iterate over for our logging
+				List <String> districtList = Arrays.asList(
+						"d_1", "d_2", "d_3", "d_4", "d_5", "d_6", "d_7", "d_8", "d_9", "d_10", "d_11", "d_12", "d_13", "d_14", "d_15", 
+						"d_16", "d_17", "d_18", "d_19", "d_20", "d_21", "d_22", "d_23", "d_24", "d_25", "d_26", "d_27", "d_28", "d_29", 
+						"d_30", "d_31", "d_32", "d_33", "d_34", "d_35", "d_36", "d_37", "d_38", "d_39", "d_40", "d_41", "d_42", "d_43", 
+						"d_44", "d_45", "d_46", "d_47", "d_48", "d_49", "d_50", "d_51", "d_52", "d_53", "d_54", "d_55", "d_56", "d_57", 
+						"d_58", "d_59", "d_60");
+				// create list to store the counts of each category of interest. The number of cases, the number of cases by type, the
+				// number of recoveries, the number of deaths etc... 
+				ArrayList <Integer> covidCountArray = new ArrayList<Integer>();
+				ArrayList <Integer> cumCovidCountArray = new ArrayList<Integer>();
+
+				ArrayList <Integer> asymptCovidCountArray = new ArrayList<Integer>();
+				ArrayList <Integer> mildCovidCountArray = new ArrayList<Integer>();
+				ArrayList <Integer> severeCovidCountArray = new ArrayList<Integer>();
+				ArrayList <Integer> criticalCovidCountArray = new ArrayList<Integer>();
+				ArrayList <Integer> recoveredCountArray = new ArrayList<Integer>();
+				ArrayList<Integer> covidCumulativeDeathCount = new ArrayList<Integer>();
+				ArrayList<Integer> covidNewDeathCount = new ArrayList<Integer>();
+
+				// create a function to group the population by location, whether they are alive and if they have covid
+				Map<String, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>> location_alive_hasCovid_map = agents.stream().collect(
+						Collectors.groupingBy(
+								Person::getCurrentDistrict, 
+									Collectors.groupingBy(
+												Person::getAlive,
+												Collectors.groupingBy(
+														Person::hasCovid,
+														Collectors.groupingBy(
+																Person::covidLogCheck,
+										Collectors.counting()
+										)
+								)
+						)
+						)
+						);
+				Map<String, Map<Boolean, Map<Boolean, Long>>> location_alive_recovered_map = agents.stream().collect(
+						Collectors.groupingBy(
+								Person::getCurrentDistrict, 
+									Collectors.groupingBy(
+												Person::getAlive,
+												Collectors.groupingBy(
+														Person::hasRecovered,
+										Collectors.counting()
+										)
+								)
+						)
+						);
+				// create a function to group the population by location, whether they are alive and if they have asymptomatic covid
+				Map<String, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>>>>>> location_covid_type_map = agents.stream().collect(
+						Collectors.groupingBy(
+								Person::getCurrentDistrict, 
+									Collectors.groupingBy(
+												Person::getAlive,
+												Collectors.groupingBy(
+														Person::hasCovid,
+														Collectors.groupingBy(
+																Person::hasAsymptCovid,
+																Collectors.groupingBy(
+																		Person::hasMild,
+																		Collectors.groupingBy(
+																				Person::hasSevere,
+																				Collectors.groupingBy(
+																						Person::hasCritical,
+																						Collectors.groupingBy(
+																								Person::covidLogCheck,
+										Collectors.counting()
+										)
+								)
+						)
+						)
+						)
+						)
+						)
+						)
+						);
+				// create a function to group the population by location and count cumulative deaths
+				Map<String, Map<Boolean, Long>> location_cumulative_died_map = agents.stream().collect(
+						Collectors.groupingBy(
+								Person::getCurrentDistrict, 
+											Collectors.groupingBy(
+													Person::isDead,
+										Collectors.counting()
+										)
+								)
+						);
+				// create a function to group the population by location and count cumulative cases
+				Map<String, Map<Boolean, Long>> location_cumulative_covid_map = agents.stream().collect(
+						Collectors.groupingBy(
+								Person::getCurrentDistrict, 
+											Collectors.groupingBy(
+													Person::hadCovid,
+										Collectors.counting()
+										)
+								)
+						);
+				// create a function to group the population by location and count new deaths
+				Map<String, Map<Boolean, Map<Boolean, Long>>> location_new_deaths_map = agents.stream().collect(
+						Collectors.groupingBy(
+								Person::getCurrentDistrict, 
+											Collectors.groupingBy(
+													Person::isDead,
+													Collectors.groupingBy(
+															Person::getDeathLogged,
+										Collectors.counting()
+										)
+									)
+								)
+						);
+				//	We now iterate over the districts, to find the number of covid cases
+				for (String district: districtList) {
+					// get the current number of cases in each district
+					try {
+					covidCountArray.add(location_alive_hasCovid_map.get(district).get(true).get(true).get(false).intValue());
+					} catch (Exception e) {
+						// No one in population met criteria
+						covidCountArray.add(0);
+					}
+					try {
+						cumCovidCountArray.add(location_cumulative_covid_map.get(district).get(true).intValue());
+						} catch (Exception e) {
+							// No one in population met criteria
+							cumCovidCountArray.add(0);
+						}
+					try {
+						asymptCovidCountArray.add(location_covid_type_map.get(district).get(true).get(true).get(true).get(false).get(false).get(false).get(false).intValue());
+						} catch (Exception e) {
+							// No one in population met criteria
+							asymptCovidCountArray.add(0);
+						}
+					try {
+						mildCovidCountArray.add(location_covid_type_map.get(district).get(true).get(true).get(false).get(true).get(false).get(false).get(false).intValue());
+						} catch (Exception e) {
+							// No one in population met criteria
+							mildCovidCountArray.add(0);
+						}
+					try {
+						severeCovidCountArray.add(location_covid_type_map.get(district).get(true).get(true).get(false).get(false).get(true).get(false).get(false).intValue());
+						} catch (Exception e) {
+							// No one in population met criteria
+							severeCovidCountArray.add(0);
+						}
+					try {
+						criticalCovidCountArray.add(location_covid_type_map.get(district).get(true).get(true).get(false).get(false).get(false).get(true).get(false).intValue());
+						} catch (Exception e) {
+							// No one in population met criteria
+							criticalCovidCountArray.add(0);
+						}
+					try {
+						recoveredCountArray.add(location_alive_recovered_map.get(district).get(true).get(true).intValue());
+						} catch (Exception e) {
+							// No one in population met criteria
+							recoveredCountArray.add(0);
+						}
+					try {
+						covidCumulativeDeathCount.add(location_cumulative_died_map.get(district).get(true).intValue());
+						} catch (Exception e) {
+							// No one in population met criteria
+							covidCumulativeDeathCount.add(0);
+						}
+					try {
+						covidNewDeathCount.add(location_new_deaths_map.get(district).get(true).get(false).intValue());
+						} catch (Exception e) {
+							// No one in population met criteria
+							covidNewDeathCount.add(0);
+						}
+				}
+				// calculate incidence of covid death this day
+				int time = (int) (arg0.schedule.getTime() / params.ticks_per_day);
+				String covidNumberOutput = "";
+
+				String t = "\t";
+				String tabbedDistrictNames = "";
+				for (String district: districtList) {tabbedDistrictNames += t + district;}
+				if (time == 0) {
+					covidNumberOutput += "day" + t + "metric" + tabbedDistrictNames + "\n" + String.valueOf(time);
+				}
+				else {
+					covidNumberOutput += String.valueOf(time);
+				}
+				covidNumberOutput += t + "total_cases";
+				for (int val: covidCountArray){
+					covidNumberOutput += t + String.valueOf(val);
+				}
+				covidNumberOutput += "\n";
+				covidNumberOutput += time + t + "total_asympt_cases";
+				for (int val: asymptCovidCountArray){
+					covidNumberOutput += t + String.valueOf(val);
+				}
+				covidNumberOutput += "\n";
+				covidNumberOutput += time + t + "total_mild_cases";
+				for (int val: mildCovidCountArray){
+					covidNumberOutput += t + String.valueOf(val);
+				}
+				covidNumberOutput += "\n";
+				covidNumberOutput += time + t + "total_severe_cases";
+				for (int val: severeCovidCountArray){
+					covidNumberOutput += t + String.valueOf(val);
+				}
+				covidNumberOutput += "\n";
+				covidNumberOutput += time + t + "total_recovered";
+				for (int val: recoveredCountArray){
+					covidNumberOutput += t + String.valueOf(val);
+				}
+				covidNumberOutput += "\n";
+				covidNumberOutput += time + t + "cumulative_cases";
+				for (int val: cumCovidCountArray){
+					covidNumberOutput += t + String.valueOf(val);
+				}
+				covidNumberOutput += "\n";
+				covidNumberOutput += time + t + "cumulative_deaths"; 
+				for (int val: covidCumulativeDeathCount){
+					covidNumberOutput += t + String.valueOf(val);
+				}
+				covidNumberOutput += "\n";
+				covidNumberOutput += time + t + "new_deaths";
+				for (int val: covidNewDeathCount){
+					covidNumberOutput += t + String.valueOf(val);
+				}
+				covidNumberOutput += "\n";
+
+				// create a string to store this information in
+				// get the day
+				
+				exportMe(newLoggingFilename, covidNumberOutput);
+				for (Person p: agents) {
+					if(p.isDead()) {
+						p.confirmDeathLogged();
+						}
+					if(p.hasCovid() & !p.covidLogCheck()) {
+						p.confirmLogged();
+					}
+					}	
+			}
+			};
+		
+		schedule.scheduleRepeating(testLoggingCases, this.param_schedule_reporting, params.ticks_per_day);
+		
 		// SCHEDULE LOCKDOWNS
 		Steppable lockdownTrigger = new Steppable() {
 
@@ -1667,6 +1918,7 @@ public class WorldBankCovid19Sim extends SimState {
 		String infectionsOutputFilename = ""; 
 		String popStructureFilename = "";
 		String PopSizeOutputFilename = "";
+		String newLoggingFilename = "";
 		String paramsFilename = "data/configs/params.txt";
 		String distCovidPrevalenceOutputFilename = "";
 		boolean demography = false;
@@ -1700,7 +1952,7 @@ public class WorldBankCovid19Sim extends SimState {
 		 */
 
 		// set up the simulation
-		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim( seed, new Params(paramsFilename), outputFilename, incCovidFilename, incCovidDeathFilename, incOtherDeathFilename, birthOutputFileneame, popStructureFilename, PopSizeOutputFilename, distCovidPrevalenceOutputFilename, demography);
+		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim( seed, new Params(paramsFilename), outputFilename, incCovidFilename, incCovidDeathFilename, incOtherDeathFilename, birthOutputFileneame, popStructureFilename, PopSizeOutputFilename, distCovidPrevalenceOutputFilename, newLoggingFilename, demography);
 
 
 		System.out.println("Loading...");

@@ -143,9 +143,6 @@ public class Person extends MobileAgent {
 			myWorld.schedule.scheduleOnce(time + myDelta, myWorld.param_schedule_movement, this);
 		else
 			myWorld.schedule.scheduleOnce(this, myWorld.param_schedule_movement);
-		
-		
-		
 			
 		
 		// HACK TO ENSURE INTERACTION AWAY FROM HOME DISTRICT
@@ -536,6 +533,14 @@ public class Person extends MobileAgent {
 	public Household getHouseholdAsType() {return myHousehold; }
 		
 	public void setInfection(Infection i){ myInfection = i; }
+	public boolean hasCovid() { return this.hasCovid; }
+	public boolean hasAsymptCovid() { return this.asymptomatic; }
+	public boolean hasMild() { return this.mild; }
+	public boolean hasSevere() { return this.severe; }
+	public boolean hasCritical() { return this.critical; }
+	public boolean hasRecovered() { return this.recovered; }
+
+
 	public Infection getInfection(){ return myInfection; }
 	
 	public void setMobility(boolean mobile){ this.immobilised = !mobile; }
@@ -546,6 +551,7 @@ public class Person extends MobileAgent {
 	public boolean isDeadFromCovid() { return this.isDeadFromCovid; }
 	public boolean isDeadFromOther() { return this.isDeadFromOther; }
 	public boolean isSchoolGoer() { return this.schoolGoer; }
+	public boolean covidLogCheck () { return this.covidLogged; }
 	public boolean getDeathLogged () { return this.deathLogged; }
 	public boolean gaveBirthLastYear() { return this.gaveBirthLastYear; }
 	public int getDateGaveBirth() { return this.dayGaveBirth; }
@@ -578,7 +584,20 @@ public class Person extends MobileAgent {
 	public void storeCovid() { this.hasCovid = true ;}
 	public void removeCovid() { this.hasCovid = false;}
 	public void confirmCovidLogged() { this.covidLogged = true; }
-	
+	public void setAsympt() { this.asymptomatic = true; }
+	public void setMild() { this.mild = true; }
+	public void removeMild() { this.mild = false; }
+	public void setSevere() { this.severe = true; }
+	public void removeSevere() { this.severe = false; }
+	public void setCritical() { this.critical = true; }
+	public void setRecovered() { this.recovered = true; }
+	public void removeCovid() { 
+		this.asymptomatic = false;
+		this.mild = false;
+		this.severe = false;
+		this.critical = false;
+		this.hasCovid = false; 
+		}
 	public String getCurrentDistrict() {return this.getHousehold().getRootSuperLocation().myId;}
 	
 }
