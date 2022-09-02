@@ -635,6 +635,12 @@ public class WorldBankCovid19Sim extends SimState {
 					covidNumberOutput += t + String.valueOf(val);
 				}
 				covidNumberOutput += "\n";
+				// store total number of critical cases in district
+				covidNumberOutput += time + t + "total_critical_cases";
+				for (int val: criticalCovidCountArray){
+					covidNumberOutput += t + String.valueOf(val);
+				}
+				covidNumberOutput += "\n";
 				// store total number of recoveries in district
 				covidNumberOutput += time + t + "total_recovered";
 				for (int val: recoveredCountArray){
@@ -1383,7 +1389,7 @@ public class WorldBankCovid19Sim extends SimState {
 				+ this.targetDuration + "_"
 				+ this.seed() + ".txt";
 		//outputFilename = "results_" + filenameSuffix;
-		infections_export_filename = "infections_" + filenameSuffix;
+//		infections_export_filename = "infections_" + filenameSuffix;
 
 		exportMe(outputFilename, Location.metricNamesToString());
 		Steppable reporter = new Steppable(){
