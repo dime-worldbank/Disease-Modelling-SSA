@@ -420,6 +420,7 @@ public class WorldBankCovid19Sim extends SimState {
 		schedule.scheduleRepeating(updateAges, this.param_schedule_reporting, params.ticks_per_day);
 		}
 		
+		// create another function to log cases per district as other method led to negative cases
 		Steppable testLoggingCases = new Steppable() {
 			
 			@Override
@@ -886,6 +887,7 @@ public class WorldBankCovid19Sim extends SimState {
 		schedule.scheduleRepeating(checkMortality, this.param_schedule_reporting, params.ticks_per_day);
 		}
 		
+		// create a function to report the incidence of death from covid and other causes per 100,000 person years
 		Steppable reportIncidenceOfDeath = new Steppable(){
 			
 			@Override
@@ -1006,7 +1008,6 @@ public class WorldBankCovid19Sim extends SimState {
 						}
 							catch (Exception e) {
 							// age wasn't present in the population, skip
-//								System.out.print(e);
 							}
 						try {
 							// try function necessary as some ages won't be present in the population
@@ -1015,10 +1016,8 @@ public class WorldBankCovid19Sim extends SimState {
 							female_other_death_count += age_sex_map_died_from_other.get("female").get(age).get(true).get(false).intValue();
 						}
 							catch (Exception e) {
-//								System.out.print(e);
 							// age wasn't present in the population, skip
 							}
-//						System.out.print(female_other_death_count);
 						}
 				
 						
@@ -1032,7 +1031,7 @@ public class WorldBankCovid19Sim extends SimState {
 					// update the idx variable for the next iteration
 					idx++;
 				}
-				// calculate incidence of covid death this day
+				// format log file
 				int time = (int) (arg0.schedule.getTime() / params.ticks_per_day);
 				String covid_inc_death = "";
 				String other_inc_death = "";
@@ -1049,6 +1048,7 @@ public class WorldBankCovid19Sim extends SimState {
 					covid_inc_death += String.valueOf(time);
 					other_inc_death += String.valueOf(time);
 				}
+				// calculate incidence of covid death in males this day
 				covid_inc_death += t + "m";
 				for (int x = 0; x <male_covid_deaths_by_ages.size(); x++){
 					double male_covid_deaths_in_age = male_covid_deaths_by_ages.get(x);
@@ -1058,8 +1058,8 @@ public class WorldBankCovid19Sim extends SimState {
 	                covid_inc_death += t + String.valueOf(result);
 				}
 				covid_inc_death += "\n";
+				// calculate incidence of covid death in females this day
 				covid_inc_death += String.valueOf(time) + t + "f";
-
 				for (int x =0; x <female_covid_deaths_by_ages.size(); x++){
 					double female_covid_deaths_in_age = female_covid_deaths_by_ages.get(x);
 					double female_alive_in_age = female_alive_ages.get(x);
@@ -1068,6 +1068,7 @@ public class WorldBankCovid19Sim extends SimState {
 	                covid_inc_death += t + String.valueOf(result);
 				}
 				covid_inc_death += "\n";
+				// calculate incidence of other death in males this day
 				other_inc_death += t + "m";
 				for (int x = 0; x <male_other_deaths_by_ages.size(); x++){
 					double male_other_deaths_in_age = male_other_deaths_by_ages.get(x);
@@ -1077,6 +1078,7 @@ public class WorldBankCovid19Sim extends SimState {
 	                other_inc_death += t + String.valueOf(result);
 				}
 				other_inc_death += "\n";
+				// calculate incidence of other death in females this day
 				other_inc_death += String.valueOf(time) + t + "f";
 				for (int x =0; x <female_other_deaths_by_ages.size(); x++){
 					double female_other_deaths_in_age = female_other_deaths_by_ages.get(x);
@@ -1086,15 +1088,14 @@ public class WorldBankCovid19Sim extends SimState {
 	                other_inc_death += t +String.valueOf(result);
 				}
 				other_inc_death += "\n";
+				// to avoid counting deaths more than once, update this person's properties
 				for (Person p: agents) {
 					if(p.isDeadFromCovid() | p.isDeadFromOther()) {
 						p.confirmDeathLogged();
 						}
 					}
 
-				// create a string to store this information in
-				// get the day
-				
+				// export the output files
 				exportMe(covidIncDeathOutputFilename, covid_inc_death);
 				exportMe(otherIncDeathOutputFilename, other_inc_death);
 				
@@ -1103,6 +1104,7 @@ public class WorldBankCovid19Sim extends SimState {
 		
 		schedule.scheduleRepeating(reportIncidenceOfDeath, this.param_schedule_reporting, params.ticks_per_day);
 		
+		// create a function to report the incidence of covid per 100,000 person years
 		Steppable reportIncidenceOfCovid = new Steppable(){
 			
 			@Override
@@ -1208,7 +1210,7 @@ public class WorldBankCovid19Sim extends SimState {
 					idx++;
 					
 				}
-				// calculate incidence of covid death this day
+				// format the output file
 				int time = (int) (arg0.schedule.getTime() / params.ticks_per_day);
 				String covid_inc = "";
 
@@ -1222,6 +1224,7 @@ public class WorldBankCovid19Sim extends SimState {
 				else {
 					covid_inc += String.valueOf(time);
 				}
+				// calculate the incidence of covid in males this day
 				covid_inc += t + "m";
 				for (int x = 0; x <male_covid_by_ages.size(); x++){
 					double male_covid_deaths_in_age = male_covid_by_ages.get(x);
@@ -1231,6 +1234,7 @@ public class WorldBankCovid19Sim extends SimState {
 	                covid_inc += t + String.valueOf(result);
 				}
 				covid_inc += "\n";
+				// calculate the incidence of covid in females this day
 				covid_inc += String.valueOf(time) + t + "f";
 
 				for (int x =0; x <female_covid_by_ages.size(); x++){
@@ -1242,14 +1246,13 @@ public class WorldBankCovid19Sim extends SimState {
 				}
 				covid_inc += "\n";
 				
+				// to avoid counting covid cases multiple times, update this person's properties
 				for (Person p: agents) {
 					if (p.hasCovid()) {
 						p.confirmCovidLogged();
 						}
 					}
-				// create a string to store this information in
-				// get the day
-				
+				// export the output file
 				exportMe(covidIncOutputFilename, covid_inc);
 				
 			}
@@ -1257,6 +1260,7 @@ public class WorldBankCovid19Sim extends SimState {
 		
 		schedule.scheduleRepeating(reportIncidenceOfCovid, this.param_schedule_reporting, params.ticks_per_day);
 		
+		// create a function to report the overall population structure
 		Steppable reportPopStructure = new Steppable(){
 			
 			@Override
@@ -1265,8 +1269,7 @@ public class WorldBankCovid19Sim extends SimState {
 				//	create a list to define our age group search ranges
 				List <Integer> upper_age_range = Arrays.asList(1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 120);
 				List <Integer> lower_age_range = Arrays.asList(0, 1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95);
-				// create list to store the counts of the number of males and females alive in each age range and
-				// the number of covid cases in each age range 
+				// create list to store the counts of the number of males and females alive in each age range in each district
 				ArrayList <Integer> male_alive_ages = new ArrayList<Integer>();
 				ArrayList <Integer> female_alive_ages = new ArrayList<Integer>();
 				// create a function to group the population by sex, age and whether they are alive
@@ -1317,7 +1320,7 @@ public class WorldBankCovid19Sim extends SimState {
 					idx++;
 					
 				}
-				// calculate incidence of covid death this day
+				// format the output file
 				int time = (int) (arg0.schedule.getTime() / params.ticks_per_day);
 				String population = "";
 
@@ -1331,6 +1334,7 @@ public class WorldBankCovid19Sim extends SimState {
 				else {
 					population += String.valueOf(time);
 				}
+				// get the number of males in each age group
 				population += t + "m";
 
 				for (int x = 0; x <male_alive_ages.size(); x++){
@@ -1338,6 +1342,7 @@ public class WorldBankCovid19Sim extends SimState {
 					population += t + String.valueOf(male_alive_in_age);
 				}
 				population += "\n";
+				// get the number of females in each age group
 				population += String.valueOf(time) + t + "f";
 				for (int x = 0; x <female_alive_ages.size(); x++){
 					int female_alive_in_age = female_alive_ages.get(x);
@@ -1345,7 +1350,7 @@ public class WorldBankCovid19Sim extends SimState {
 				}
 				population += "\n";
 
-				
+				// export the file
 				exportMe(populationOutputFilename, population);
 				
 			}
@@ -1772,17 +1777,8 @@ public class WorldBankCovid19Sim extends SimState {
 		double myBeta = .016;
 		long seed = 12345;
 		String outputFilename = "dailyReport_" + myBeta + "_" + numDays + "_" + seed + ".txt";
-		String incCovidDeathFilename = "";
-		String incCovidFilename = "";
-		String incOtherDeathFilename = "";
-		String birthOutputFileneame = "";
 		String infectionsOutputFilename = ""; 
-		String popStructureFilename = "";
-		String PopSizeOutputFilename = "";
-		String newLoggingFilename = "";
 		String paramsFilename = "data/configs/params.txt";
-		String distCovidPrevalenceOutputFilename = "";
-		String distPopBreakdownOutputFilename = "";
 		boolean demography = false;
 		// read in any extra settings from the command line
 		if(args.length < 0){
