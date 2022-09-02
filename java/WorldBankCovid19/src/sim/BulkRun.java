@@ -32,7 +32,7 @@ public class BulkRun {
 				String distCovidPrevalenceOutputFilename = "perc_inf" + s + outputPrefix + i + outputSuffix;
 
 				WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(i, new Params(paramFilename), outputFilename, covidInc, covidIncDeath, 
-						otherInc, birthRate, populationOutputFilename, distPopSizeOutputFilename, distPopSizeOutputFilename, demography);
+						otherInc, birthRate, populationOutputFilename, distPopSizeOutputFilename, distCovidPrevalenceOutputFilename, demography);
 				
 				System.out.println("Loading...");
 

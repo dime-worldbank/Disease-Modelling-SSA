@@ -482,7 +482,7 @@ public class WorldBankCovid19Sim extends SimState {
 				int idx = 0;
 				for (float count: districtCovidCounts) {
 					float perc_with_covid = count / districtPopCounts.get(idx);
-					pop_size_in_district += t + perc_with_covid;
+					percent_with_covid += t + perc_with_covid;
 					idx++;
 				}
 				exportMe(distCovidPrevalenceOutputFilename, percent_with_covid);
