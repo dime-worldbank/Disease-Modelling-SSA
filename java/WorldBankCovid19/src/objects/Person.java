@@ -66,6 +66,13 @@ public class Person extends MobileAgent {
 	
 	// health
 	boolean isAlive = true;
+	boolean isDead = false;
+	boolean asymptomatic = false;
+	boolean mild = false;
+	boolean severe = false;
+	boolean critical = false;
+	boolean recovered = false;
+	boolean hadCovid = false;
 	boolean hasCovid = false;
 	boolean covidLogged = false;
 	boolean isDeadFromCovid = false;
