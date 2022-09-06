@@ -61,7 +61,6 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 					// moderate this based on the age of the host
 					double mySymptLikelihood = myWorld.params.getLikelihoodByAge(
 							myWorld.params.infection_p_sym_by_age, i.getHost().getAge());
-					
 					// activate the next step probabilistically
 					if(myWorld.random.nextDouble() < mySymptLikelihood){
 						i.setBehaviourNode(presymptomaticNode);
@@ -95,6 +94,8 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 					i.time_contagious = time + timeUntilInfectious;
 					// update the person's properties to show they have covid
 					i.getHost().storeCovid();
+					i.getHost().updateCovidCounter();
+
 					return timeUntilInfectious;
 				}
 				

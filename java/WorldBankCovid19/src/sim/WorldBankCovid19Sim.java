@@ -471,29 +471,89 @@ public class WorldBankCovid19Sim extends SimState {
 								)
 						);
 				// create a function to group the population by location, whether they are alive and which type of covid infection they have
-				Map<String, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>>>>>> location_covid_type_map = agents.stream().collect(
+				Map<String, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>> location_covid_map = agents.stream().collect(
 						Collectors.groupingBy(
 								Person::getCurrentDistrict, 
 									Collectors.groupingBy(
 												Person::getAlive,
 												Collectors.groupingBy(
 														Person::hasCovid,
-														Collectors.groupingBy(
-																Person::hasAsymptCovid,
 																Collectors.groupingBy(
-																		Person::hasMild,
+																		Person::covidLogCheck,
+										Collectors.counting()
+										)
+								)
+						)
+						)
+						);
+				Map<String, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>>> location_asympt_covid_map = agents.stream().collect(
+						Collectors.groupingBy(
+								Person::getCurrentDistrict, 
+									Collectors.groupingBy(
+												Person::getAlive,
+												Collectors.groupingBy(
+														Person::hasCovid,
+															Collectors.groupingBy(
+																	Person::hasAsymptCovid,
 																		Collectors.groupingBy(
-																				Person::hasSevere,
-																				Collectors.groupingBy(
-																						Person::hasCritical,
-																						Collectors.groupingBy(
-																								Person::covidLogCheck,
+																					Person::getAsymptCovidLogged,
 										Collectors.counting()
 										)
 								)
 						)
 						)
 						)
+						);
+				Map<String, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>>> location_mild_covid_map = agents.stream().collect(
+						Collectors.groupingBy(
+								Person::getCurrentDistrict, 
+									Collectors.groupingBy(
+												Person::getAlive,
+												Collectors.groupingBy(
+														Person::hasCovid,
+															Collectors.groupingBy(
+																	Person::hasMild,
+																		Collectors.groupingBy(
+																					Person::getMildCovidLogged,
+										Collectors.counting()
+										)
+								)
+						)
+						)
+						)
+						);
+				Map<String, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>>> location_severe_covid_map = agents.stream().collect(
+						Collectors.groupingBy(
+								Person::getCurrentDistrict, 
+									Collectors.groupingBy(
+												Person::getAlive,
+												Collectors.groupingBy(
+														Person::hasCovid,
+															Collectors.groupingBy(
+																	Person::hasSevere,
+																		Collectors.groupingBy(
+																					Person::getSevereCovidLogged,
+										Collectors.counting()
+										)
+								)
+						)
+						)
+						)
+						);
+				Map<String, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>>> location_critical_covid_map = agents.stream().collect(
+						Collectors.groupingBy(
+								Person::getCurrentDistrict, 
+									Collectors.groupingBy(
+												Person::getAlive,
+												Collectors.groupingBy(
+														Person::hasCovid,
+															Collectors.groupingBy(
+																	Person::hasCritical,
+																		Collectors.groupingBy(
+																					Person::getCriticalCovidLogged,
+										Collectors.counting()
+										)
+								)
 						)
 						)
 						)
@@ -549,28 +609,28 @@ public class WorldBankCovid19Sim extends SimState {
 						}
 					// get the number of asymptomatic covid cases in the district
 					try {
-						asymptCovidCountArray.add(location_covid_type_map.get(district).get(true).get(true).get(true).get(false).get(false).get(false).get(false).intValue());
+						asymptCovidCountArray.add(location_asympt_covid_map.get(district).get(true).get(true).get(true).get(false).intValue());
 						} catch (Exception e) {
 							// No one in population met criteria
 							asymptCovidCountArray.add(0);
 						}
 					// get the number of mild covid cases in the district
 					try {
-						mildCovidCountArray.add(location_covid_type_map.get(district).get(true).get(true).get(false).get(true).get(false).get(false).get(false).intValue());
+						mildCovidCountArray.add(location_mild_covid_map.get(district).get(true).get(true).get(true).get(false).intValue());
 						} catch (Exception e) {
 							// No one in population met criteria
 							mildCovidCountArray.add(0);
 						}
 					// get the number of severe covid cases in the district
 					try {
-						severeCovidCountArray.add(location_covid_type_map.get(district).get(true).get(true).get(false).get(false).get(true).get(false).get(false).intValue());
+						severeCovidCountArray.add(location_severe_covid_map.get(district).get(true).get(true).get(true).get(false).intValue());
 						} catch (Exception e) {
 							// No one in population met criteria
 							severeCovidCountArray.add(0);
 						}
 					// get the number of critical covid cases in the district
 					try {
-						criticalCovidCountArray.add(location_covid_type_map.get(district).get(true).get(true).get(false).get(false).get(false).get(true).get(false).intValue());
+						criticalCovidCountArray.add(location_critical_covid_map.get(district).get(true).get(true).get(true).get(false).intValue());
 						} catch (Exception e) {
 							// No one in population met criteria
 							criticalCovidCountArray.add(0);
@@ -676,6 +736,18 @@ public class WorldBankCovid19Sim extends SimState {
 						}
 					if(p.hasCovid() & !p.covidLogCheck()) {
 						p.confirmCovidLogged();
+					}
+					if(p.hasAsymptCovid() & !p.getAsymptCovidLogged()) {
+						p.confirmAsymptLogged();
+					}
+					if(p.hasMild() & !p.getMildCovidLogged()) {
+						p.confirmMildLogged();
+					}
+					if(p.hasSevere() & !p.getSevereCovidLogged()) {
+						p.confirmSevereLogged();
+					}
+					if(p.hasCritical() & !p.getCovidLogged()) {
+						p.confirmCriticalLogged();
 					}
 					}	
 			}
@@ -1627,7 +1699,7 @@ public class WorldBankCovid19Sim extends SimState {
 			// shove it out
 			BufferedWriter exportFile = new BufferedWriter(new FileWriter(infections_export_filename, true));
 			exportFile.write("Host\tSource\tTime\tLocOfTransmission" + 
-					"\tContagiousAt\tSymptomaticAt\tSevereAt\tCriticalAt\tRecoveredAt\tDiedAt\tYLD\tYLL\tDALYs"
+					"\tContagiousAt\tSymptomaticAt\tSevereAt\tCriticalAt\tRecoveredAt\tDiedAt\tYLD\tYLL\tDALYs\tNTimesInfected"
 					+ "\n");
 			
 			// export infection data
@@ -1739,6 +1811,8 @@ public class WorldBankCovid19Sim extends SimState {
 					rec += "\t-";
 				else
 					rec += "\t" + (double) (yll + yld);
+				// record number of times with covid
+				rec += "\t" + i.getHost().getNumberOfTimesInfected();
 				
 				rec += "\n";
 				

@@ -68,10 +68,15 @@ public class Person extends MobileAgent {
 	boolean isAlive = true;
 	boolean isDead = false;
 	boolean asymptomatic = false;
+	boolean asymptomaticLogged = false;
 	boolean mild = false;
+	boolean mildLogged = false;
 	boolean severe = false;
+	boolean severeLogged = false;
 	boolean critical = false;
+	boolean criticalLogged = false;
 	boolean recovered = false;
+	boolean recoveredLogged = false;
 	boolean hadCovid = false;
 	boolean hasCovid = false;
 	boolean covidLogged = false;
@@ -81,6 +86,7 @@ public class Person extends MobileAgent {
 	boolean gaveBirthLastYear = false;
 	boolean birthLogged = false;
 	Integer dayGaveBirth = Integer.MAX_VALUE;
+	Integer numberOfTimesWithCovid = 0;
 
 	
 	/**
@@ -549,6 +555,10 @@ public class Person extends MobileAgent {
 	public boolean isImmobilised(){ return this.immobilised; }
 	public boolean getAlive() { return this.isAlive; }
 	public boolean getCovidLogged() { return this.covidLogged; }
+	public boolean getAsymptCovidLogged() { return this.asymptomaticLogged; }
+	public boolean getMildCovidLogged() { return this.mildLogged; }
+	public boolean getSevereCovidLogged() { return this.severeLogged; }
+	public boolean getCriticalCovidLogged() { return this.criticalLogged; }
 	public boolean isDeadFromCovid() { return this.isDeadFromCovid; }
 	public boolean isDeadFromOther() { return this.isDeadFromOther; }
 	public boolean isSchoolGoer() { return this.schoolGoer; }
@@ -557,6 +567,7 @@ public class Person extends MobileAgent {
 	public boolean gaveBirthLastYear() { return this.gaveBirthLastYear; }
 	public int getDateGaveBirth() { return this.dayGaveBirth; }
 	public boolean getBirthLogged() { return this.birthLogged; }
+	public int getNumberOfTimesInfected() { return this.numberOfTimesWithCovid; }
 	// UTILS
 	
 	public String toString(){ return "P_" + this.myId;}
@@ -585,12 +596,17 @@ public class Person extends MobileAgent {
 	public void storeCovid() { this.hasCovid = true; this.hadCovid = true;}
 	public void confirmCovidLogged() { this.covidLogged = true; }
 	public void setAsympt() { this.asymptomatic = true; }
+	public void confirmAsymptLogged() {this.asymptomaticLogged = true; }
 	public void setMild() { this.mild = true; }
 	public void removeMild() { this.mild = false; }
+	public void confirmMildLogged() {this.mildLogged = true; }
 	public void setSevere() { this.severe = true; }
+	public void confirmSevereLogged() {this.severeLogged = true; }
 	public void removeSevere() { this.severe = false; }
 	public void setCritical() { this.critical = true; }
+	public void confirmCriticalLogged() {this.criticalLogged = true; }
 	public void setRecovered() { this.recovered = true; }
+	public void updateCovidCounter () { this.numberOfTimesWithCovid++; }
 	public void removeCovid() { 
 		this.asymptomatic = false;
 		this.mild = false;
@@ -598,6 +614,8 @@ public class Person extends MobileAgent {
 		this.critical = false;
 		this.hasCovid = false; 
 		}
+	public void resetCovidLog() { this.covidLogged = false; this.asymptomaticLogged = false; this.mildLogged = false; this.severeLogged = false; this.criticalLogged = false;}
+
 	public String getCurrentDistrict() {return this.getHousehold().getRootSuperLocation().myId;}
 	
 }
