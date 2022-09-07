@@ -53,6 +53,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public String distCovidPrevalenceOutputFilename;
 	public String distPopBreakdownOutputFilename;
 	public String sim_info_filename;
+	public String covidCountsOutputFilename;
 	int targetDuration = 0;
 	
 	// ordering information
@@ -91,6 +92,7 @@ public class WorldBankCovid19Sim extends SimState {
 		this.distCovidPrevalenceOutputFilename = outputFilename + "_Percent_In_District_With_Covid_" + ".txt";
 		this.distPopBreakdownOutputFilename = outputFilename + "_Overall_Demographics_" + ".txt";
 		this.sim_info_filename = outputFilename + "_Sim_Information_" + ".txt";
+		this.covidCountsOutputFilename = outputFilename + "_Age_Gender_Demographics_Covid_" + ".txt";
 	}
 	
 	public void start(){
@@ -1069,7 +1071,39 @@ public class WorldBankCovid19Sim extends SimState {
 					}
 				// export the output file
 				exportMe(covidIncOutputFilename, covid_inc);
+				//	calculate the number of counts in each age group	
+				String covid_number_and_deaths = "";
+				if (time == 0) {
+					covid_number_and_deaths += "day" + t + "metric" + age_sex_categories + String.valueOf(time);
+				}
+				else {
+					covid_number_and_deaths += String.valueOf(time);
+				}
+				covid_number_and_deaths += t + "cases" + t + "m";
+				for (Integer count: male_covid_by_ages){
+					covid_number_and_deaths += t + count;
+				}
+				covid_number_and_deaths += "\n";
+				// calculate the incidence of covid in females this day
+				covid_number_and_deaths += String.valueOf(time) + t + "deaths" + t + "m";
+				for (Integer count: male_covid_deaths_by_ages){
+					covid_number_and_deaths += t + count;
+				}
+				covid_number_and_deaths += "\n";
+				covid_number_and_deaths += String.valueOf(time) + t + "cases" + t + "f";
+				for (Integer count: female_covid_by_ages){
+					covid_number_and_deaths += t + count;
+				}
+				covid_number_and_deaths += "\n";
+				// calculate the incidence of covid in females this day
+				covid_number_and_deaths += String.valueOf(time) + t + "deaths" + t + "f";
+				for (Integer count: female_covid_deaths_by_ages){
+					covid_number_and_deaths += t + count;
+				}
+				covid_number_and_deaths += "\n";
 				// to make sure deaths and cases aren't counted multiple times, update this person's properties
+				exportMe(covidCountsOutputFilename, covid_number_and_deaths);
+
 				for (Person p: agents) {
 					if(p.isDeadFromCovid()) {
 						p.confirmDeathLogged();
