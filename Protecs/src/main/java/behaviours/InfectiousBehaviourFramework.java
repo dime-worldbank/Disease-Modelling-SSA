@@ -68,15 +68,23 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 					// moderate this based on the age of the host
 					double mySymptLikelihood = myWorld.params.getLikelihoodByAge(
 							myWorld.params.infection_p_sym_by_age, i.getHost().getAge());
+					assert (mySymptLikelihood >= 0.0) & (mySymptLikelihood <= 1.0) : "probability out of bounds";
+					assert (i.getHost() != null && i.getHost().getLocation() != null) : "PROBLEM WITH INFECTION HOST OR LOCATION";
+
 					// activate the next step probabilistically
 					if(myWorld.random.nextDouble() < mySymptLikelihood){
 						i.setBehaviourNode(presymptomaticNode);
 						i.getHost().getLocation().getRootSuperLocation().metric_new_cases_sympt++;
+						// Store this person's covid
+						i.getHost().storeCovid();
 					}
 					else{
 						i.setBehaviourNode(asymptomaticNode);
-						if(i.getHost() != null && i.getHost().getLocation() != null)
+						if(i.getHost() != null && i.getHost().getLocation() != null) {
 							i.getHost().getLocation().getRootSuperLocation().metric_new_cases_asympt++;
+							// Store this person's covid
+							i.getHost().storeCovid();
+							}
 						else
 							System.out.println("PROBLEM WITH INFECTION HOST OR LOCATION");
 					}
@@ -93,11 +101,14 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 					
 					// timekeep this
 					i.time_infected = time;
-					
+//					---------------- mySusceptLikelihood is sometimes greater than 1, is this correct -------------------------------------
+//					assert (mySusceptLikelihood >= 0.0) & (mySusceptLikelihood <= 1.0): "probability out of bounds: " + mySusceptLikelihood;
+					assert (i.getHost() != null && i.getHost().getLocation() != null) : "PROBLEM WITH INFECTION HOST OR LOCATION";
 					// the agent has been infected - set the time at which it will become infecTIOUS
 					double timeUntilInfectious = myWorld.nextRandomLognormal(
 							myWorld.params.exposedToInfectious_mean,
 							myWorld.params.exposedToInfectious_std);
+					assert (timeUntilInfectious > 0): "Something has gone wrong in deciding when a person will become infectious";
 					i.time_contagious = time + timeUntilInfectious;
 					// update the person's properties to show they have covid
 					i.getHost().storeCovid();
@@ -140,7 +151,9 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 					return Double.MAX_VALUE;
 				}
 				i.getHost().infectNeighbours();
-
+				if (!i.getHost().hasPresymptCovid()) {
+					i.getHost().setPresympt();
+					}
 				// determine when the infection will proceed to symptoms - this is
 				// only a matter of time in this case
 				if(time >= i.time_start_symptomatic){
@@ -150,6 +163,7 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 					double time_until_symptoms = myWorld.nextRandomLognormal(
 							myWorld.params.infectiousToSymptomatic_mean, 
 							myWorld.params.infectiousToSymptomatic_std);
+					assert (time_until_symptoms >= 0.0) : "sheduled time not in future";
 					i.time_start_symptomatic = time + time_until_symptoms;
 				}
 				
@@ -180,7 +194,9 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 					return Double.MAX_VALUE;
 				}
 				i.getHost().infectNeighbours();
-				i.getHost().setAsympt();
+				if (!i.getHost().hasAsymptCovid()) {
+					i.getHost().setAsympt();
+					}
 
 				// determine when the agent will recover - this is
 				// only a matter of time in this case
@@ -192,6 +208,7 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 					double time_until_recovered = myWorld.nextRandomLognormal(
 							myWorld.params.asymptomaticToRecovery_mean, 
 							myWorld.params.asymptomaticToRecovery_std);
+					assert (time_until_recovered > 0) : "Time until recovered is not set to the future";
 					i.time_recovered = time + time_until_recovered;
 				}
 				
@@ -222,9 +239,14 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 					return Double.MAX_VALUE;
 				}
 				i.getHost().infectNeighbours();
+				if (i.getHost().hasPresymptCovid()) {
+					i.getHost().removePresympt();
+					}
 				if (!i.getHost().hasMild()) {
 					i.getHost().setMild();
-					}
+					i.getHost().elligableForTesting();
+				}
+
 
 				// if the agent is scheduled to recover, make sure that it
 				// does so
@@ -253,11 +275,12 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 					// determine if the patient will become sicker
 					double mySevereLikelihood = myWorld.params.getLikelihoodByAge(
 							myWorld.params.infection_p_sev_by_age, i.getHost().getAge());
-					
+					assert (mySevereLikelihood > 0.0) & (mySevereLikelihood < 1.0) : "probablilty not valid";
 					if(myWorld.random.nextDouble() < mySevereLikelihood){
 						double time_until_severe = myWorld.nextRandomLognormal(
 								myWorld.params.symptomaticToSevere_mean, 
 								myWorld.params.symptomaticToSevere_std);
+						assert time_until_severe > 0 : "time until disease progression not scheduled in future";
 						i.time_start_severe = time + time_until_severe;
 					}
 					
@@ -266,6 +289,8 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 						double time_until_recovered = myWorld.nextRandomLognormal(
 								myWorld.params.sympomaticToRecovery_mean, 
 								myWorld.params.sympomaticToRecovery_std);
+						assert time_until_recovered > 0 : "time until recovery not scheduled in future";
+
 						i.time_recovered = time + time_until_recovered;
 						return 1;
 					}
@@ -304,6 +329,7 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				if (!i.getHost().hasSevere()) {
 					i.getHost().setSevere();
 				}
+
 				// if the agent is scheduled to recover, make sure that it
 				// does so
 				if(time >= i.time_recovered){
@@ -322,12 +348,15 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 
 					double myCriticalLikelihood = myWorld.params.getLikelihoodByAge(
 							myWorld.params.infection_p_cri_by_age, i.getHost().getAge());
-					
+					assert (myCriticalLikelihood > 0.0) & (myCriticalLikelihood < 1.0) : "probablilty not valid";
+
 					// determine if the patient will become sicker
 					if(myWorld.random.nextDouble() < myCriticalLikelihood){
 						double time_until_critical = myWorld.nextRandomLognormal(
 								myWorld.params.severeToCritical_mean, 
 								myWorld.params.severeToCritical_std);
+						assert time_until_critical > 0.0 : "time until critical not in future";
+
 						i.time_start_critical = time + time_until_critical;
 					}
 					
@@ -336,6 +365,8 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 						double time_until_recovered = myWorld.nextRandomLognormal(
 								myWorld.params.severeToRecovery_mean, 
 								myWorld.params.severeToRecovery_std);
+						assert time_until_recovered > 0.0 : "time until recovered not in future";
+
 						i.time_recovered = time + time_until_recovered;
 						return 1;
 					}
@@ -368,12 +399,14 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 					return Double.MAX_VALUE;
 				}
 				i.getHost().infectNeighbours();
+
 				if (i.getHost().hasSevere()) {
 					i.getHost().removeSevere();
 				}
 				if (!i.getHost().hasCritical()) {
 					i.getHost().setCritical();
 				}
+
 				// if the agent is scheduled to recover, make sure that it
 				// does so
 				if(time >= i.time_recovered ){
@@ -400,12 +433,15 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 					double myDeathLikelihood = myWorld.params.getLikelihoodByAge(
 							myWorld.params.infection_p_dea_by_age, i.getHost().getAge());
 					
-					
+					assert (myDeathLikelihood > 0.0) & (myDeathLikelihood < 1.0) : "probablilty not valid";
+
 					// determine if the patient will die
 					if(myWorld.random.nextDouble() < myDeathLikelihood){
 						double time_until_death = myWorld.nextRandomLognormal(
 								myWorld.params.criticalToDeath_mean, 
 								myWorld.params.criticalToDeath_std);
+						assert time_until_death > 0.0 : "time until died not in future";
+
 						i.time_died = time + time_until_death;
 					}
 					
@@ -414,6 +450,8 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 						double time_until_recovered = myWorld.nextRandomLognormal(
 								myWorld.params.criticalToRecovery_mean, 
 								myWorld.params.criticalToRecovery_std);
+						assert time_until_recovered > 0.0 : "time until recovered not in future";
+
 						i.time_recovered = time + time_until_recovered;
 						return 1;
 					}
@@ -449,7 +487,9 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				i.getHost().setRecovered();
 				i.getHost().removeCovid();
 				i.getHost().getLocation().getRootSuperLocation().metric_new_recovered++;
-
+				i.getHost().setRecovered();
+				i.getHost().removeCovid();
+				i.getHost().notElligableForTesting();
 				// the Person may have stopped moving when ill - reactivate!
 				if(i.getHost().isImmobilised()){
 					i.getHost().setMobility(true);
