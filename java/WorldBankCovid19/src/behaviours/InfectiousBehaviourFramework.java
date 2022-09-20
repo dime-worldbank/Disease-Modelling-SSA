@@ -58,7 +58,8 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 					// moderate this based on the age of the host
 					double mySymptLikelihood = myWorld.params.getLikelihoodByAge(
 							myWorld.params.infection_p_sym_by_age, i.getHost().getAge());
-					
+					assert (mySymptLikelihood >= 0.0) & (mySymptLikelihood <= 1.0) : "probability out of bounds";
+					assert (i.getHost() != null && i.getHost().getLocation() != null) : "PROBLEM WITH INFECTION HOST OR LOCATION";
 					// activate the next step probabilistically
 					if(myWorld.random.nextDouble() < mySymptLikelihood){
 						i.setBehaviourNode(presymptomaticNode);
@@ -84,7 +85,8 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 					
 					// timekeep this
 					i.time_infected = time;
-					
+					assert mySusceptLikelihood >= 0.0: "probability out of bounds: " + mySusceptLikelihood;
+					assert (i.getHost() != null && i.getHost().getLocation() != null) : "PROBLEM WITH INFECTION HOST OR LOCATION";
 					// the agent has been infected - set the time at which it will become infecTIOUS
 					double timeUntilInfectious = myWorld.nextRandomLognormal(
 							myWorld.params.exposedToInfectious_mean,
@@ -117,7 +119,6 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				// while presympotmatic, the agent is still infectious
 				Infection i = (Infection) s;
 				i.getHost().infectNeighbours();
-
 				// determine when the infection will proceed to symptoms - this is
 				// only a matter of time in this case
 				if(time >= i.time_start_symptomatic){
@@ -127,6 +128,7 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 					double time_until_symptoms = myWorld.nextRandomLognormal(
 							myWorld.params.infectiousToSymptomatic_mean, 
 							myWorld.params.infectiousToSymptomatic_std);
+					assert (time_until_symptoms >= 0.0) : "sheduled time not in future";
 					i.time_start_symptomatic = time + time_until_symptoms;
 				}
 				
@@ -208,11 +210,12 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 					// determine if the patient will become sicker
 					double mySevereLikelihood = myWorld.params.getLikelihoodByAge(
 							myWorld.params.infection_p_sev_by_age, i.getHost().getAge());
-					
+					assert (mySevereLikelihood > 0.0) & (mySevereLikelihood < 1.0) : "probablilty not valid";
 					if(myWorld.random.nextDouble() < mySevereLikelihood){
 						double time_until_severe = myWorld.nextRandomLognormal(
 								myWorld.params.symptomaticToSevere_mean, 
 								myWorld.params.symptomaticToSevere_std);
+						assert time_until_severe > 0 : "time until disease progression not scheduled in future";
 						i.time_start_severe = time + time_until_severe;
 					}
 					
@@ -221,6 +224,8 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 						double time_until_recovered = myWorld.nextRandomLognormal(
 								myWorld.params.sympomaticToRecovery_mean, 
 								myWorld.params.sympomaticToRecovery_std);
+						assert time_until_recovered > 0 : "time until recovery not scheduled in future";
+
 						i.time_recovered = time + time_until_recovered;
 						return 1;
 					}
@@ -244,7 +249,6 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				// the agent is infectious
 				Infection i = (Infection) s;
 				i.getHost().infectNeighbours();
-
 				// if the agent is scheduled to recover, make sure that it
 				// does so
 				if(time >= i.time_recovered){
@@ -263,12 +267,15 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 
 					double myCriticalLikelihood = myWorld.params.getLikelihoodByAge(
 							myWorld.params.infection_p_cri_by_age, i.getHost().getAge());
-					
+					assert (myCriticalLikelihood > 0.0) & (myCriticalLikelihood < 1.0) : "probablilty not valid";
+
 					// determine if the patient will become sicker
 					if(myWorld.random.nextDouble() < myCriticalLikelihood){
 						double time_until_critical = myWorld.nextRandomLognormal(
 								myWorld.params.severeToCritical_mean, 
 								myWorld.params.severeToCritical_std);
+						assert time_until_critical > 0.0 : "time until critical not in future";
+
 						i.time_start_critical = time + time_until_critical;
 					}
 					
@@ -277,6 +284,8 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 						double time_until_recovered = myWorld.nextRandomLognormal(
 								myWorld.params.severeToRecovery_mean, 
 								myWorld.params.severeToRecovery_std);
+						assert time_until_recovered > 0.0 : "time until recovered not in future";
+
 						i.time_recovered = time + time_until_recovered;
 						return 1;
 					}
@@ -300,7 +309,6 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				// the agent is infectious
 				Infection i = (Infection) s;
 				i.getHost().infectNeighbours();
-
 				// if the agent is scheduled to recover, make sure that it
 				// does so
 				if(time >= i.time_recovered ){
@@ -327,12 +335,15 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 					double myDeathLikelihood = myWorld.params.getLikelihoodByAge(
 							myWorld.params.infection_p_dea_by_age, i.getHost().getAge());
 					
-					
+					assert (myDeathLikelihood > 0.0) & (myDeathLikelihood < 1.0) : "probablilty not valid";
+
 					// determine if the patient will die
 					if(myWorld.random.nextDouble() < myDeathLikelihood){
 						double time_until_death = myWorld.nextRandomLognormal(
 								myWorld.params.criticalToDeath_mean, 
 								myWorld.params.criticalToDeath_std);
+						assert time_until_death > 0.0 : "time until died not in future";
+
 						i.time_died = time + time_until_death;
 					}
 					
@@ -341,6 +352,8 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 						double time_until_recovered = myWorld.nextRandomLognormal(
 								myWorld.params.criticalToRecovery_mean, 
 								myWorld.params.criticalToRecovery_std);
+						assert time_until_recovered > 0.0 : "time until recovered not in future";
+
 						i.time_recovered = time + time_until_recovered;
 						return 1;
 					}
