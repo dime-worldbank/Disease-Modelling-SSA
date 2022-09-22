@@ -70,6 +70,7 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 						p.setActivityNode(workNode);
 						p.setAtWork(true);
 						p.setVisiting(false);
+						System.out.print("I've gone to work");
 						return myWorld.params.hours_at_work_weekday;
 					}
 					
