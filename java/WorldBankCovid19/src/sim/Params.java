@@ -821,7 +821,7 @@ public class Params {
 			return true;
 		else return false;
 	}
-	
+
 	public double getLikelihoodByAge(ArrayList <Double> distrib, int age){
 		for(int i = 0; i < infection_age_params.size(); i++){
 			if(age < infection_age_params.get(i))

@@ -57,18 +57,18 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 					
 					// define workday
 					boolean goToWork = (p.isSchoolGoer() || target == p.getCommunityLocation()) // schoolgoer or going to own district
-							&& myWorld.params.isWeekday(day);				// it's a weekday
+							&& myWorld.params.isWeekday(day);
 
 					if(myWorld.params.setting_perfectMixing) // in perfect mixing, just go to the community!
 						goToWork = false;
 					
 					p.transferTo(target);
-					
 					// update appropriately
 					if(goToWork){ // working
 						p.setActivityNode(workNode);
 						p.setAtWork(true);
 						p.setVisiting(false);
+						System.out.print("gone to work");
 						return myWorld.params.hours_at_work_weekday;
 					}
 					

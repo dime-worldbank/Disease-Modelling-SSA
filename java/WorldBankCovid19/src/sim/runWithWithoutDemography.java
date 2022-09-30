@@ -18,11 +18,10 @@ public class runWithWithoutDemography {
 
 		for(String s: paramsFilenames) {
 			
-			for(int i = 0; i < 5; i++) {
+			for(int i = 0; i < 3; i++) {
 				
 				String paramFilename = filenameBase + s + filenameSuffix;
-				String outputFilename = outputPath + s + outputPrefix + i + outputSuffix;
-				String infectionsOutputFilename = outputPath + "infections_" + s + outputPrefix + i + outputSuffix;
+				String outputFilename = outputPath + s + outputPrefix + i;
 				WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(i, new Params(paramFilename), outputFilename, demography);
 				
 				System.out.println("Loading...");
@@ -30,7 +29,6 @@ public class runWithWithoutDemography {
 				mySim.params.infection_beta = myBeta / mySim.params.ticks_per_day; // normalised to be per tick
 				mySim.targetDuration = numDays;
 				mySim.start();
-				mySim.infections_export_filename = infectionsOutputFilename;
 				
 				System.out.println("Running...");
 
@@ -40,7 +38,7 @@ public class runWithWithoutDemography {
 					//System.out.println("\n*****END TIME: DAY " + (int)(myTime / 6) + " HOUR " + (int)((myTime % 6) * 4) + " RAWTIME: " + myTime);
 				}
 //				
-				mySim.reportOnInfected();
+//				mySim.reportOnInfected();
 				mySim.exportInfections();
 
 			}
@@ -53,22 +51,11 @@ public class runWithWithoutDemography {
 
 		for(String s: paramsFilenames) {
 			
-			for(int i = 0; i < 5; i++) {
+			for(int i = 0; i < 3; i++) {
 				
 				String paramFilename = filenameBase + s + filenameSuffix;
-				String outputFilename = outputPath_2 + s + outputPrefix_2 + i + outputSuffix;
-				String covidInc = outputPath_2 + s + "_covid_inc" + outputPrefix_2 + i + outputSuffix;
-				String covidIncDeath = outputPath_2 + s + "_covid_inc_death" + outputPrefix_2 + i + outputSuffix;
-				String otherInc = outputPath_2 + s + "_other_inc_death" + outputPrefix_2 + i + outputSuffix;
-				String birthRate = outputPath_2 + s + "_birth_rate" + outputPrefix_2 + i + outputSuffix;
-				String infectionsOutputFilename = outputPath_2 + "infections_" + s + outputPrefix_2 + i + outputSuffix;
-				String populationStructureFilename = outputPath_2 + "popstructure" + s + outputPrefix_2 + i + outputSuffix;
-				String distPopulationStructureFilename = outputPath_2 + "dist_popstructure" + s + outputPrefix_2 + i + outputSuffix;
-				String distPopulationBreakdownFilename = outputPath_2 + "dist_popstructure_breakdown_" + s + outputPrefix_2 + i + outputSuffix;
-
-				String percinfFilename = outputPath_2 + "perc_inf" + s + outputPrefix_2 + i + outputSuffix;
-				String newLogFile = outputPath_2 + "new_logging" + s + outputPrefix_2 + i + outputSuffix;
-
+				String outputFilename = outputPath_2 + s + outputPrefix_2 + i;
+				
 
 				WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(i, new Params(paramFilename), outputFilename, demography_off);
 				
@@ -77,7 +64,7 @@ public class runWithWithoutDemography {
 				mySim.params.infection_beta = myBeta / mySim.params.ticks_per_day; // normalised to be per tick
 				mySim.targetDuration = numDays;
 				mySim.start();
-				mySim.infections_export_filename = infectionsOutputFilename;
+
 				
 				System.out.println("Running...");
 

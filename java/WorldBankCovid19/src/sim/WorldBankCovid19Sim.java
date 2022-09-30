@@ -39,7 +39,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public Params params;
 	public boolean lockedDown = false;
 	// create a variable to determine whether the model will cause additional births and deaths	
-	public boolean demography;
+	public boolean demography = false;
 	// the names of file names of each output filename		
 	public String outputFilename;
 	public String covidIncOutputFilename; 
@@ -54,6 +54,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public String distPopBreakdownOutputFilename;
 	public String sim_info_filename;
 	public String covidCountsOutputFilename;
+	public String covidByEconOutputFilename;
 	int targetDuration = 0;
 	
 	// ordering information
@@ -93,6 +94,7 @@ public class WorldBankCovid19Sim extends SimState {
 		this.distPopBreakdownOutputFilename = outputFilename + "_Overall_Demographics_" + ".txt";
 		this.sim_info_filename = outputFilename + "_Sim_Information_" + ".txt";
 		this.covidCountsOutputFilename = outputFilename + "_Age_Gender_Demographics_Covid_" + ".txt";
+		this.covidByEconOutputFilename = outputFilename + "_Economic_Status_Covid_.txt";
 	}
 	
 	public void start(){
@@ -959,12 +961,6 @@ public class WorldBankCovid19Sim extends SimState {
 	                other_inc_death += t +String.valueOf(result);
 				}
 				other_inc_death += "\n";
-				// to avoid counting deaths more than once, update this person's properties
-				for (Person p: agents) {
-					if(p.isDeadFromCovid() | p.isDeadFromOther()) {
-						p.confirmDeathLogged();
-						}
-					}
 
 				// export the output files
 				exportMe(covidIncDeathOutputFilename, covid_inc_death);
@@ -1061,12 +1057,6 @@ public class WorldBankCovid19Sim extends SimState {
 				}
 				covid_inc += "\n";
 				
-				// to avoid counting covid cases multiple times, update this person's properties
-				for (Person p: agents) {
-					if (p.hasCovid()) {
-						p.confirmCovidLogged();
-						}
-					}
 				// export the output file
 				exportMe(covidIncOutputFilename, covid_inc);
 				//	calculate the number of counts in each age group	
@@ -1099,13 +1089,112 @@ public class WorldBankCovid19Sim extends SimState {
 					covid_number_and_deaths += t + count;
 				}
 				covid_number_and_deaths += "\n";
-				// to make sure deaths and cases aren't counted multiple times, update this person's properties
 				exportMe(covidCountsOutputFilename, covid_number_and_deaths);
+				List <String> economic_status = Arrays.asList("not working, inactive, not in universe", "current students", "homemakers/housework", 
+						"office workers", "teachers", "service workers", "agriculture workers", "industry workers", "in the army", "disabled and not working");
+				ArrayList <Integer> status_counts = new ArrayList<Integer>();
+				ArrayList <Integer> status_covid_counts = new ArrayList<Integer>();
+				ArrayList <Integer> status_covid_death_counts = new ArrayList<Integer>();
+				// create a function to group the population by sex, age and whether they are alive
+				
+				// create a function to group the population by occupation, age and whether they have covid
+				Map<String, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>> economic_alive_has_covid = agents.stream().collect(
+						Collectors.groupingBy(
+								Person::getEconStatus, 
+								Collectors.groupingBy(
+										Person::getAlive,
+										Collectors.groupingBy(
+												Person::hasCovid,
+												Collectors.groupingBy(
+														Person::getCovidLogged,
+														Collectors.counting()
+										)
+								)
+						)
+						)
+						);
+				Map<String, Map<Boolean, Long>> economic_alive = agents.stream().collect(
+						Collectors.groupingBy(
+								Person::getEconStatus, 
+								Collectors.groupingBy(
+										Person::getAlive,
+														Collectors.counting()
+										
+								
+						)
+						)
+						);
+				// create a function to group the population by sex, age and whether they died from covid
+				Map<String, Map<Boolean, Map<Boolean, Long>>> econ_died_from_covid = agents.stream().collect(
+						Collectors.groupingBy(
+								Person::getEconStatus, 
+									Collectors.groupingBy(
+											Person::isDeadFromCovid,
+											Collectors.groupingBy(
+													Person::getDeathLogged,
+													Collectors.counting()
+										)
+								)
+						)
+						);
+				for (String status: economic_status) {
+					try {
+					status_covid_counts.add(economic_alive_has_covid.get(status).get(true).get(true).get(false).intValue());
+					}
+					catch (Exception e) {
+						// no one in population met criteria, skip
+						status_covid_counts.add(0);
+					}
+					try {
+						status_covid_death_counts.add(econ_died_from_covid.get(status).get(true).get(false).intValue());
+						}
+					catch (Exception e) {
+						// no one in population met criteria, skip
+						status_covid_death_counts.add(0);
+					}
+					try {
+					status_counts.add(economic_alive.get(status).get(true).intValue());
+					}
+					catch (Exception e) {
+						// no one in population met criteria, skip
+						status_counts.add(0);
+					}
+				}
+				String econ_status_categories = "Not working, inactive, not in universe" + t + "Current Students" + t + "Homemakers/Housework" + t +
+						"Office workers" + t + "Teachers" + t + "Service Workers" + t + "Agriculture Workers" + t + "Industry Workers" + t + "In the army" + 
+						t + "Disabled and not working" + "\n";
+				String econ_status_output = "";
+				if (time == 0) {
+					econ_status_output += "day" + t + "metric" + t + econ_status_categories + String.valueOf(time);
+				}
+				else {
+					econ_status_output += String.valueOf(time);
+				}
+				econ_status_output += t + "number_in_occ";
+				for (Integer count: status_counts){
+					econ_status_output += t + count;
+				}
+				econ_status_output += "\n";
+				// calculate the incidence of covid in females this day
+				econ_status_output += String.valueOf(time) + t + "number_with_covid";
+				for (Integer count: status_covid_counts){
+					econ_status_output += t + count;
+				}
+				econ_status_output += "\n";
+				econ_status_output += String.valueOf(time) + t + "number_died_from_covid";
+				for (Integer count: status_covid_death_counts){
+					econ_status_output += t + count;
+				}
+				econ_status_output += "\n";
+				
+				exportMe(covidByEconOutputFilename, econ_status_output);
+				// to make sure deaths and cases aren't counted multiple times, update this person's properties
 
 				for (Person p: agents) {
 					if(p.isDeadFromCovid()) {
 						p.confirmDeathLogged();
 						}
+					if (p.isDeadFromOther()) p.confirmDeathLogged();
 					if(p.hasCovid() & !p.covidLogCheck()) {
 						p.confirmCovidLogged();
 					}
@@ -1296,7 +1385,6 @@ public class WorldBankCovid19Sim extends SimState {
 				}
 				exportMe(distPopBreakdownOutputFilename, districtLevelPopBreakdown);
 
-			System.out.print("");
 			}
 		};
 		
