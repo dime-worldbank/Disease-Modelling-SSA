@@ -15,7 +15,7 @@ clear
 set more off
 
 ************ recreate the subsamples by taking the original IPUMS 5% and then scale back UP to 20% and 50% for the paper. Creating different versions:
-
+// 150,997
 /*
 
 1. No age, all households of 6 (synthetic) (variation -1)
@@ -35,12 +35,13 @@ clear all
 
 cap cd "/Users/sophieayling/Documents/GitHub/Disease-Modelling-SSA"
 cap cd "\Users\wb488473\OneDrive - WBG\Documents\GitHub\Disease-Modelling-SSA"
+cap cd "/Users/sophieayling/Library/CloudStorage/OneDrive-UniversityCollegeLondon/GitHub/Disease-Modelling-SSA/"
 tempfile temp1 temp2
 
 
 ** take the 100 perc dataset with missing vars to sample on
 
-use "data/raw/census/100_perc_sample/abm_individual_new_092320_final_merged_complete_FINAL.dta", clear
+use "data/raw/census/100_perc/abm_individual_new_092320_final_merged_complete_FINAL.dta", clear
 
 * it still needs some of the work done down below, but first cut it to the sample size i want - using new method from Billy using cycle 
 
@@ -100,8 +101,38 @@ save "data/raw/census/5_perc_sample/abm_092320_5_perc_080222_ver1.dta", replace
 
 save `temp1', replace
 
+*********************************************** CREATE 10%
+expand 2
+
+bys person_id: replace cycle=_n
+tab cycle
+sort cycle household_id person_id
+
+*replacing all person ids and hh ids to correspond to 10%
+
+drop person_id
+gen person_id=_n
+sort household_id
+tostring(household_id), replace
+//gen num="num"
+egen new_id=concat(household_id cycle)
+drop household_id 
+rename new_id household_id
+
+*check household size 
+bysort household_id: gen tot= _N 
+sum tot // mean number of hhs = 6 
+drop tot 
+*check no. hh members
+codebook person_id   // 3.2 million
+codebook household_id // 803,640 hhs
+save "data/raw/census/10_perc_sample/abm_092320_10_perc_080222_ver1.dta", replace
+
+e
 
 *********************************************** CREATE 25%
+
+use "data/raw/census/5_perc_sample/abm_092320_5_perc_080222_ver1.dta", clear
 
 expand 5
 
@@ -116,7 +147,7 @@ gen person_id=_n
 sort household_id
 tostring(household_id), replace
 gen num="num"
-egen new_id=concat(household_id  num cycle)
+egen new_id=concat(household_id cycle)
 drop household_id num 
 rename new_id household_id
 
@@ -125,8 +156,8 @@ bysort household_id: gen tot= _N
 sum tot // mean number of hhs = 6 
 drop tot 
 *check no. hh members
-codebook person_id   // 3.2 million
-codebook household_id // 803,640 hhs
+codebook person_id   // 1.3 million
+codebook household_id // 321,456 hhs
 save "data/raw/census/25_perc_sample/abm_092320_25_perc_080222_ver1.dta", replace
 
 
@@ -145,7 +176,7 @@ gen person_id=_n
 sort household_id
 tostring(household_id), replace
 gen num="num"
-egen new_id=concat(household_id  num cycle)
+egen new_id=concat(household_id  cycle)
 drop household_id num 
 rename new_id household_id
 

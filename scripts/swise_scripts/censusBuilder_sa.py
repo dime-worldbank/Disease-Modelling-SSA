@@ -18,11 +18,11 @@ from pathlib import Path
 # define the relevant filenames
 
 #census_filename =get_data_dir('raw', 'census', 'census_sample_1500.dta')
-dataDir ="/home/ucfu056/Disease-Modelling-SSA/data/"
-census_filename =dataDir + "raw/census/75_perc_sample/abm_092320_75_perc_080222_ver1.dta"
+dataDir ="/Users/sophieayling/Library/CloudStorage/OneDrive-UniversityCollegeLondon/GitHub/Disease-Modelling-SSA/data/"
+census_filename =dataDir + "raw/census/10_perc_sample/abm_092320_10_perc_080222_ver3.dta"
 #'ABM_Simulated_Pop_WardDistributed_UpdatedMay30_school_complete_060520.dta'
 district_filename = dataDir + "raw/district_relation.csv"
-output_filename = dataDir + "preprocessed/census/75_perc_sample/abm_092320_75_perc_080222_ver1.csv"
+output_filename = dataDir + "preprocessed/census/10_perc/abm_092320_10_perc_080222_ver3.csv"
 
 # set up mappings between the input data and the values used by the census builder
 
@@ -90,8 +90,8 @@ gb.fit(X_tr, individual_df.loc[X_tr.index, 'age'])
 
 # now pull out the individuals with null ages and replace their ages with regressed integer values
 
-#missing_age = X[individual_df['age'].isnull()]
-#individual_df.loc[missing_age.index, 'age'] = gb.predict(missing_age).astype(int)
+missing_age = X[individual_df['age'].isnull()]
+individual_df.loc[missing_age.index, 'age'] = gb.predict(missing_age).astype(int)
 
 print("\nAll missing ages regressed and predicted successfully...")
 
@@ -154,6 +154,8 @@ except KeyError:
 
 mining_df['person_id'] = mining_df.index
 print('flag1')
+print(" \nCount total NaN in a DataFrame : \n\n",
+       mining_df.isnull().sum())
 mining_df['age'] = mining_df['age'].astype(int)
 print('flag2')
 mining_df['economic_status'] = mining_df['economic_status'].str.strip()
@@ -169,6 +171,7 @@ print('flag_4')
 # WRITING OUT TO THE PICKLE FILES
 #
 
+
 print("Writing out to file...")
 
 mining_df[relevant_cols].to_csv(output_filename)
@@ -180,6 +183,12 @@ mining_df[relevant_cols].to_csv(output_filename)
 #mining_df[relevant_cols][mining_df.serial_expanded % 100 < 10].to_pickle( get_data_dir(output_filename) + '_10pct.pickle')
 
 print("FINISHED!")
+
+print(mining_df.head())
+print(mining_df.iloc[-1])
+print(mining_df['household_id'].nunique())
+
+print(mining_df['district_id'].value_counts())
 
 #mining_df[relevant_cols][
 #    mining_df.serial_expanded.str.endswith('_01')
