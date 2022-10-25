@@ -5,6 +5,8 @@ import objects.Person;
 import sim.Params;
 import sim.WorldBankCovid19Sim;
 import sim.engine.Steppable;
+import swise.behaviours.BehaviourFramework;
+import swise.behaviours.BehaviourNode;
 
 /**
  * The MovementBehaviourFramework is an extension on the basis of the BehaviourFramework which

@@ -5,6 +5,8 @@ import objects.Location;
 import objects.Person;
 import sim.WorldBankCovid19Sim;
 import sim.engine.Steppable;
+import swise.behaviours.BehaviourFramework;
+import swise.behaviours.BehaviourNode;
 
 public class InfectiousBehaviourFramework extends BehaviourFramework {
 	

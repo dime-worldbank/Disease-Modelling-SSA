@@ -1,9 +1,9 @@
 package objects;
 
-import behaviours.BehaviourNode;
 import sim.WorldBankCovid19Sim;
 import sim.engine.SimState;
 import sim.engine.Steppable;
+import swise.behaviours.BehaviourNode;
 
 public class Infection implements Steppable {
 
