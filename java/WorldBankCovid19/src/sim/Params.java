@@ -88,7 +88,12 @@ public class Params {
 	public double criticalToRecovery_mean =		18.1 * ticks_per_day;
 	public double criticalToRecovery_std =		6.3 * ticks_per_day;
 	
-	
+	// all cause mortality parameters, currently pulled out my arse
+	public ArrayList <Integer> all_cause_death_age_params;
+	public ArrayList <Double> prob_death_by_age_male;
+	public ArrayList <Double> prob_death_by_age_female;
+	public ArrayList <Integer> birth_age_params;
+	public ArrayList <Double> prob_birth_by_age;
 	// data files
 	
 	public String dataDir = "";
@@ -108,6 +113,8 @@ public class Params {
 	public String line_list_filename = "";
 	public String infection_transition_params_filename = "";
 	public String lockdown_changeList_filename = "";
+	public String all_cause_mortaility_filename = "";
+	public String birth_rate_filename = "";
 	
 	
 	
@@ -145,6 +152,9 @@ public class Params {
 		load_line_list(dataDir  + line_list_filename);
 		load_lockdown_changelist(dataDir +  lockdown_changeList_filename);
 		load_infection_params(dataDir  + infection_transition_params_filename);
+		load_all_cause_mortality_params(dataDir + all_cause_mortaility_filename);
+		load_all_birthrate_params(dataDir + birth_rate_filename);
+
 	}
 	
 	//
@@ -338,6 +348,105 @@ public class Params {
 				System.err.println("File input error: " + filename);
 			}
 		}
+	
+	public void load_all_cause_mortality_params(String filename) {
+		try {
+			
+			System.out.println("Reading in all cause mortality data from " + filename);
+			
+			// Open the tracts file
+			FileInputStream fstream = new FileInputStream(filename);
+
+			// Convert our input stream to a BufferedReader
+			BufferedReader lineListDataFile = new BufferedReader(new InputStreamReader(fstream));
+			String s;
+
+			// extract the header
+			s = lineListDataFile.readLine();
+
+			// map the header into column names relative to location
+			String [] header = splitRawCSVString(s);
+			HashMap <String, Integer> columnNames = parseHeader(header);
+			
+			// set up data container
+			
+			all_cause_death_age_params = new ArrayList<Integer> ();
+			prob_death_by_age_male = new ArrayList <Double> ();
+			prob_death_by_age_female = new ArrayList <Double> ();
+
+			
+			// read in the raw data
+			while ((s = lineListDataFile.readLine()) != null) {
+				String [] bits = splitRawCSVString(s);
+				
+				// assemble the age data
+				String [] ageRange = bits[0].split("-");
+				int maxAge = Integer.MAX_VALUE;
+				if(ageRange.length > 1){
+					maxAge = Integer.parseInt(ageRange[1]); // take the maximum
+				}
+				all_cause_death_age_params.add(maxAge);
+				
+				double male_prob_death  = Double.parseDouble(bits[1]),
+						female_prob_death = Double.parseDouble(bits[2]);
+				
+				// store the values
+				prob_death_by_age_male.add(male_prob_death);
+				prob_death_by_age_female.add(female_prob_death);
+
+			}
+			} catch (Exception e) {
+				System.err.println("File input error: " + filename);
+			}
+	}
+	
+	public void load_all_birthrate_params(String filename) {
+		try {
+			
+			System.out.println("Reading in birth rate data from " + filename);
+			
+			// Open the tracts file
+			FileInputStream fstream = new FileInputStream(filename);
+
+			// Convert our input stream to a BufferedReader
+			BufferedReader lineListDataFile = new BufferedReader(new InputStreamReader(fstream));
+			String s;
+
+			// extract the header
+			s = lineListDataFile.readLine();
+
+			// map the header into column names relative to location
+			String [] header = splitRawCSVString(s);
+			HashMap <String, Integer> columnNames = parseHeader(header);
+			
+			// set up data container
+			
+			birth_age_params = new ArrayList<Integer> ();
+			prob_birth_by_age = new ArrayList <Double> ();
+
+			
+			// read in the raw data
+			while ((s = lineListDataFile.readLine()) != null) {
+				String [] bits = splitRawCSVString(s);
+				
+				// assemble the age data
+				String [] ageRange = bits[0].split("-");
+				int maxAge = Integer.MAX_VALUE;
+				if(ageRange.length > 1){
+					maxAge = Integer.parseInt(ageRange[1]); // take the maximum
+				}
+				birth_age_params.add(maxAge);
+				
+				double female_prob_birth = Double.parseDouble(bits[1]);
+				
+				// store the values
+				prob_birth_by_age.add(female_prob_birth);
+
+			}
+			} catch (Exception e) {
+				System.err.println("File input error: " + filename);
+			}
+	}
 
 	// Economic
 	
@@ -712,10 +821,24 @@ public class Params {
 			return true;
 		else return false;
 	}
-	
+
 	public double getLikelihoodByAge(ArrayList <Double> distrib, int age){
 		for(int i = 0; i < infection_age_params.size(); i++){
 			if(age < infection_age_params.get(i))
+				return distrib.get(i);
+		}
+		return -1; // somehow poorly formatted?
+	}
+	public double getBirthLikelihoodByAge(ArrayList <Double> distrib, int age){
+		for(int i = 0; i < birth_age_params.size(); i++){
+			if(age < birth_age_params.get(i))
+				return distrib.get(i);
+		}
+		return -1; // somehow poorly formatted?
+	}
+	public double getAllCauseLikelihoodByAge(ArrayList <Double> distrib, int age){
+		for(int i = 0; i < all_cause_death_age_params.size(); i++){
+			if(age < all_cause_death_age_params.get(i))
 				return distrib.get(i);
 		}
 		return -1; // somehow poorly formatted?

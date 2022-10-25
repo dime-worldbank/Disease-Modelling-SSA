@@ -26,5 +26,4 @@ public class Household extends Location {
 		updatePersonsHere();
 		return result;
 	}
-	
 }
