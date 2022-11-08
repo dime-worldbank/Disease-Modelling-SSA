@@ -42,7 +42,8 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 				// extract time info
 				int hour = ((int)time) % Params.ticks_per_day;
 				int day = (int)(time / Params.ticks_per_day) % 7; // because 7 days in a week
-				
+				assert (hour >= 0) : "Hour of the day not valid";
+				assert (day >= 0) : "Day not valid";
 				// determine likelihood of leaving the home today
 				double myEconStatProb = myWorld.params.getEconProbByDay(day, p.getEconStatus());
 				assert (myEconStatProb >= 0.0) & (myEconStatProb <= 1.0) : "Probability not valid";
@@ -64,13 +65,12 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 						goToWork = false;
 					
 					p.transferTo(target);
-					
+					assert (p.getLocation().equals(target)) : "Transfer to target didn't work";
 					// update appropriately
 					if(goToWork){ // working
 						p.setActivityNode(workNode);
 						p.setAtWork(true);
 						p.setVisiting(false);
-						System.out.print("I've gone to work");
 						return myWorld.params.hours_at_work_weekday;
 					}
 					
@@ -86,7 +86,7 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 						p.setActivityNode(communityNode);
 						p.setAtWork(false);
 						p.setVisiting(true);
-						assert ! p.getHousehold().getSuper().getId().equals(target.getId()) : 
+						assert ! p.getHousehold().getSuper().equals(target) : 
 							"set to travel to a different district but didn't, home/target " + p.getHousehold().getSuper().getId() + " " + target.getId();
 						return myWorld.params.hour_end_day_otherday - hour; // stay out until time to go home!
 					}
@@ -107,7 +107,6 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 				
 				// extract time info
 				int hour = ((int)time) % Params.ticks_per_day;
-				System.out.print("bloody at work");
 
 				
 				// if it's too late, go straight home
@@ -115,7 +114,6 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 					p.transferTo(p.getHousehold());
 					p.setActivityNode(homeNode);
 					p.setAtWork(false);
-					System.out.print("going home fuck this shit");
 					return myWorld.params.hours_sleeping;
 				}
 				
@@ -124,7 +122,6 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 					p.transferTo(p.getCommunityLocation());
 					p.setActivityNode(communityNode);
 					p.setAtWork(false);
-					System.out.print("fuck this shit gonna get lit");
 					return 1; // 4 hours in the community
 				}
 

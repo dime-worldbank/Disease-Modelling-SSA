@@ -85,12 +85,13 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 					
 					// timekeep this
 					i.time_infected = time;
-					assert mySusceptLikelihood >= 0.0: "probability out of bounds: " + mySusceptLikelihood;
+					assert (mySusceptLikelihood >= 0.0) & (mySusceptLikelihood <= 1.0): "probability out of bounds: " + mySusceptLikelihood;
 					assert (i.getHost() != null && i.getHost().getLocation() != null) : "PROBLEM WITH INFECTION HOST OR LOCATION";
 					// the agent has been infected - set the time at which it will become infecTIOUS
 					double timeUntilInfectious = myWorld.nextRandomLognormal(
 							myWorld.params.exposedToInfectious_mean,
 							myWorld.params.exposedToInfectious_std);
+					assert (timeUntilInfectious > 0): "Something has gone wrong in deciding when a person will become infectious";
 					i.time_contagious = time + timeUntilInfectious;
 					
 					return timeUntilInfectious;
@@ -161,6 +162,7 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 					double time_until_recovered = myWorld.nextRandomLognormal(
 							myWorld.params.asymptomaticToRecovery_mean, 
 							myWorld.params.asymptomaticToRecovery_std);
+					assert (time_until_recovered > 0) : "Time until recovered is not set to the future";
 					i.time_recovered = time + time_until_recovered;
 				}
 				

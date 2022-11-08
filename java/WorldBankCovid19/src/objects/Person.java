@@ -200,19 +200,22 @@ public class Person extends MobileAgent {
 		currentLocation = l;
 		if(l != null)
 			l.addPerson(this);
+		assert (this.currentLocation.equals(l)): "The transfer to the new location didn't work";
 		return 1; // TODO make based on distance travelled!
 	}
 	
 	public void die(){
 		isDead = true;
 		transferTo(null);
+		assert (this.currentLocation.equals(null)): "This person is still in a district but shouldn't be";
 		System.out.println(this.toString() + " has DIED :(");
 	}
 	
 	public void infectNeighbours(){
-		
+		// if this person is dead, do not try and interact
+		if (this.isDead) return;
 		// if not currently in the space, do not try to interact
-		if(currentLocation == null) return;
+		else if(currentLocation == null) return;
 		else if(myInfection == null){
 			System.out.println("ERROR: " + this.myId + " asked to infect others, but is not infected!");
 			return;
