@@ -224,6 +224,7 @@ public class Params {
 				Integer myCount = Integer.parseInt(bits[countIndex]);
 				lineList.put(myDistrict, myCount);
 			}
+			assert (lineList.size() > 0): "lineList not loaded";
 
 		} catch (Exception e) {
 			System.err.println("File input error: " + lineListFilename);
@@ -269,6 +270,7 @@ public class Params {
 					started = false;
 				}
 			}
+			assert (lockdownChangeList.size() > 0): "lockdownChangeList not loaded";
 
 		} catch (Exception e) {
 			System.err.println("File input error: " + lockdownChangelistFilename);
@@ -334,6 +336,13 @@ public class Params {
 				infection_p_dea_by_age.add(p_dea);
 
 			}
+			assert (infection_r_sus_by_age.size() > 0): "infection_r_sus_by_age not loaded";
+			assert (infection_p_sym_by_age.size() > 0): "infection_p_sym_by_age not loaded";
+			assert (infection_p_sev_by_age.size() > 0): "infection_p_sev_by_age not loaded";
+			assert (infection_p_cri_by_age.size() > 0): "infection_p_cri_by_age not loaded";
+			assert (infection_p_dea_by_age.size() > 0): "infection_p_dea_by_age not loaded";
+
+
 			} catch (Exception e) {
 				System.err.println("File input error: " + filename);
 			}
@@ -395,7 +404,9 @@ public class Params {
 				// save ordering info
 				orderedEconStatuses.add(bits[0].toLowerCase());
 			}
-			
+			assert (economicInteractionDistrib.size() > 0): "economicInteractionDistrib not loaded";
+			assert (economicInteractionCumulativeDistrib.size() > 0): "economicInteractionCumulativeDistrib not loaded";
+			assert (orderedEconStatuses.size() > 0): "orderedEconStatuses not loaded";			
 			econDistribData.close();
 		} catch (Exception e) {
 			System.err.println("File input error: " + econ_interaction_distrib_filename);
@@ -482,6 +493,8 @@ public class Params {
 			
 			// clean up after ourselves
 			districtData.close();
+			assert (districts.size() > 0): "Districts not loaded";
+			assert (probHolder.size() > 0): "Probability of transition between districts not loaded";
 			return probHolder;
 		} catch (Exception e) {
 			System.err.println("File input error: " + districtFilename);
@@ -526,7 +539,6 @@ public class Params {
 				String [] bits = splitRawCSVString(s);
 				econData.put(bits[statusIndex].toLowerCase(), Double.parseDouble(bits[probIndex]));
 			}
-			
 			// cleanup
 			econDataFile.close();
 			
@@ -588,7 +600,7 @@ public class Params {
 				
 				districtLeavingProb.put(myLocation, prob);
 			}
-
+			assert (districtLeavingProb.size() > 0): "District leaving probability not loaded";
 			// clean up after ourselves
 			districtData.close();
 		} catch (Exception e) {

@@ -79,7 +79,7 @@ public class WorldBankCovid19Sim extends SimState {
 		
 		// load the population
 		load_population(params.dataDir + params.population_filename);
-		
+		assert (agents.size() > 0) : "ERROR *** NO AGENTS LOADED";
 		// if there are no agents, SOMETHING IS WRONG. Flag this issue!
 		if(agents.size() == 0) {
 			System.out.println("ERROR *** NO AGENTS LOADED");
@@ -111,6 +111,7 @@ public class WorldBankCovid19Sim extends SimState {
 			// number of people present
 			ArrayList <Person> peopleHere = this.personsToDistrict.get(l);
 			int numPeopleHere = peopleHere.size();//l.getPeople().size();
+			assert (numPeopleHere > 0): "A location has no one in it, this can't happen";
 			if(numPeopleHere == 0){ // if there is no one there, don't continue
 				System.out.println("WARNING: attempting to initialise infection in Location " + l.getId() + " but there are no People present. Continuing without successful infection...");
 				continue;
@@ -125,7 +126,6 @@ public class WorldBankCovid19Sim extends SimState {
 			// infect until you have met the target number of infections
 			while(newlyInfected.size() < countInfections && collisions > 0){
 				Person p = peopleHere.get(random.nextInt(numPeopleHere));
-				
 				// check for duplicates!
 				if(newlyInfected.contains(p)){
 					collisions--;
@@ -147,8 +147,10 @@ public class WorldBankCovid19Sim extends SimState {
 
 			@Override
 			public void step(SimState arg0) {
-				for(Location l: districts)
+				for(Location l: districts) {
 					l.updatePersonsHere();
+					assert (l.getPeople().size() > 0): "There are no people in this district";
+					}
 				
 			}
 			
