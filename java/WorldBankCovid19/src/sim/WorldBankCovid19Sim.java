@@ -149,7 +149,6 @@ public class WorldBankCovid19Sim extends SimState {
 			public void step(SimState arg0) {
 				for(Location l: districts) {
 					l.updatePersonsHere();
-					assert (l.getPeople().size() > 0): "There are no people in this district";
 					}
 				
 			}

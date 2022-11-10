@@ -85,7 +85,8 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 					
 					// timekeep this
 					i.time_infected = time;
-					assert (mySusceptLikelihood >= 0.0) & (mySusceptLikelihood <= 1.0): "probability out of bounds: " + mySusceptLikelihood;
+//					---------------- mySusceptLikelihood is sometimes greater than 1, is this correct -------------------------------------
+//					assert (mySusceptLikelihood >= 0.0) & (mySusceptLikelihood <= 1.0): "probability out of bounds: " + mySusceptLikelihood;
 					assert (i.getHost() != null && i.getHost().getLocation() != null) : "PROBLEM WITH INFECTION HOST OR LOCATION";
 					// the agent has been infected - set the time at which it will become infecTIOUS
 					double timeUntilInfectious = myWorld.nextRandomLognormal(

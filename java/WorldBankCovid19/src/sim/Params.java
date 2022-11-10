@@ -270,7 +270,6 @@ public class Params {
 					started = false;
 				}
 			}
-			assert (lockdownChangeList.size() > 0): "lockdownChangeList not loaded";
 
 		} catch (Exception e) {
 			System.err.println("File input error: " + lockdownChangelistFilename);
