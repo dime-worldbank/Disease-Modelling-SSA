@@ -5,11 +5,16 @@ import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 import behaviours.InfectiousBehaviourFramework;
 import behaviours.MovementBehaviourFramework;
@@ -39,6 +44,7 @@ public class WorldBankCovid19Sim extends SimState {
 		
 	public String outputFilename;
 	public String infections_export_filename;
+	public String dedectedCovidFilename;
 	public String sim_info_filename;
 	int targetDuration = 0;
 	
@@ -66,6 +72,7 @@ public class WorldBankCovid19Sim extends SimState {
 		super(seed);
 		this.params = params;
 		this.outputFilename = outputFilename;
+		this.dedectedCovidFilename = outputFilename + "_detected_covid_cases.txt";
 	}
 	
 	public void start(){
@@ -156,6 +163,60 @@ public class WorldBankCovid19Sim extends SimState {
 		};
 		schedule.scheduleRepeating(0, this.param_schedule_updating_locations, updateLocationLists);
 		
+		// SCHEDULE testing
+		Steppable testing_for_covid = new Steppable() {
+
+					@Override
+					public void step(SimState arg0) {
+						// get the simulation time
+						int time = (int) (arg0.schedule.getTime() / params.ticks_per_day);
+						// get the index for the test numbers
+						int index_for_test_number = params.test_dates.indexOf(time);
+						// find the number of tests per 1000 to test today
+						double number_of_test_per_1000_for_today = params.number_of_tests_per_1000_on_day.get(index_for_test_number);
+						// we only want to test people who are alive and administer the tests per 1000 based on this 
+						Map<Boolean, List<Person>> is_alive_map = agents.stream().collect(
+												Collectors.groupingBy(
+														Person::isDead,
+												Collectors.toList()
+												)
+								);
+						// get the number of people who are alive
+						int alive_count = is_alive_map.get(false).size();
+						// get the of tests to be administered today
+						int number_of_tests_administered_today = (int) number_of_test_per_1000_for_today * (alive_count / 1000);
+						// make sure that there are fewer tests than people
+						assert (number_of_tests_administered_today < alive_count): "More tests administered than people";
+						// create a random state (I need to link this to the existing random state but don't know how)
+						Random testing_random = new Random(sim.WorldBankCovid19Sim.this.seed());
+						// generate a list of people to test today
+						List<Person> people_tested = pickRandom(is_alive_map.get(false), number_of_tests_administered_today, testing_random);
+						// create a counter for the number of positive tests
+						int number_of_positive_tests = 0;
+						double test_accuracy = 0.9;
+						// iterate over the list of people to test and perform the tests
+						for (Person person:people_tested) {
+							if(person.hasCovid()) {
+								if (random.nextDouble() < test_accuracy)
+									number_of_positive_tests ++;
+							}
+						}	
+						String t = "\t";
+
+						String detected_covid_output = "";
+						if (time == 0) {
+							detected_covid_output += "day" + t + "number_of_detected_cases" + "\n"+ String.valueOf(time) + t + number_of_positive_tests + "\n";
+						}
+						else {
+							detected_covid_output += String.valueOf(time) + t + number_of_positive_tests + "\n";
+						}
+						exportMe(dedectedCovidFilename, detected_covid_output);
+						
+					}
+					
+				};
+		schedule.scheduleRepeating(testing_for_covid, this.param_schedule_reporting, params.ticks_per_day);
+
 		// SCHEDULE LOCKDOWNS
 		Steppable lockdownTrigger = new Steppable() {
 
@@ -307,8 +368,8 @@ public class WorldBankCovid19Sim extends SimState {
 			System.err.println("File input error: " + agentsFilename);
 		}
 	}
+			
 	
-
 	void reportOnInfected(){
 		String makeTerribleGraphFilename = "nodes_latest_16.gexf";
 		try {
@@ -555,6 +616,9 @@ public class WorldBankCovid19Sim extends SimState {
 		return Math.exp(x);
 		
 	}
+	private static <E> List<E> pickRandom(List<E> list, int n, Random rand) {
+		  return new Random().ints(n, 0, list.size()).mapToObj(list::get).collect(Collectors.toList());
+		}
 	
 	/**
 	 * In an ideal scenario, there would be multiple ways to run this with arguments. EITHER: <ul>

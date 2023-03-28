@@ -62,6 +62,8 @@ public class Person extends MobileAgent {
 	
 	// health
 	boolean isDead = false;
+	boolean hasCovid = false;
+
 	
 
 	
@@ -511,8 +513,10 @@ public class Person extends MobileAgent {
 	public void setMobility(boolean mobile){ this.immobilised = !mobile; }
 	public boolean isImmobilised(){ return this.immobilised; }
 	public boolean isDead() { return this.isDead; }
+	public boolean hasCovid() { return this.hasCovid; }
 	public boolean isSchoolGoer() { return this.schoolGoer; }
-
+	public void storeCovid() { this.hasCovid = true;}
+	public void removeCovid() { this.hasCovid = false;}
 	// UTILS
 	
 	public String toString(){ return "P_" + this.myId;}
