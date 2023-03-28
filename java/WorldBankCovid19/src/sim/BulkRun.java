@@ -11,7 +11,7 @@ public class BulkRun {
 				filenameSuffix = ".txt";
 		String [] paramsFilenames = {"assert_statements_everywhere"};//, "params_defaultMultiDist", "params_multiStatusMultiDist"};   params_default1Dist
 		double myBeta = .5;
-		int numDays = 90;
+		int numDays = 30;
 
 		String outputPrefix = "_bulkTest_" + myBeta + "_" + numDays + "_", outputSuffix = ".txt";
 
