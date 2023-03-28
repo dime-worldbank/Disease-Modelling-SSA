@@ -60,6 +60,10 @@ public class Params {
 	HashMap <Location, Integer> lineList;
 	ArrayList <Double> lockdownChangeList;
 	
+	// holders for testing
+	public ArrayList <Integer> test_dates;
+	public ArrayList <Double> number_of_tests_per_1000_on_day;
+	
 	// parameters drawn from Kerr et al 2020 - https://www.medrxiv.org/content/10.1101/2020.05.10.20097469v3.full.pdf
 	public ArrayList <Integer> infection_age_params;
 	public ArrayList <Double> infection_r_sus_by_age;
@@ -109,6 +113,8 @@ public class Params {
 	public String infection_transition_params_filename = "";
 	public String lockdown_changeList_filename = "";
 	
+	public String testDataFilename = "";
+	
 	
 	
 	// time
@@ -138,13 +144,15 @@ public class Params {
 		
 		economic_num_interactions_weekday_perTick = readInEconomicData(dataDir  + economic_status_num_daily_interacts_filename, "economic_status", "interactions");
 		//HashMap <String, Double> econBubbleHolder =
-		// TODO: not reading in bubbles in any meaningful way. Must readd.
+		// TODO: not reading in bubbles in any meaningful way. Must read.
 		
 		load_econStatus_distrib(dataDir  + econ_interaction_distrib_filename);
 		
 		load_line_list(dataDir  + line_list_filename);
 		load_lockdown_changelist(dataDir +  lockdown_changeList_filename);
 		load_infection_params(dataDir  + infection_transition_params_filename);
+		// load the testing data
+		load_testing(dataDir + testDataFilename);
 	}
 	
 	//
@@ -273,6 +281,47 @@ public class Params {
 
 		} catch (Exception e) {
 			System.err.println("File input error: " + lockdownChangelistFilename);
+		}
+	}
+	
+	public void load_testing(String testDataFilename) {
+		try {
+			
+			System.out.println("Reading in testing data from " + testDataFilename);
+			
+			// Open the tracts file
+			FileInputStream fstream = new FileInputStream(testDataFilename);
+
+			// Convert our input stream to a BufferedReader
+			BufferedReader testingDataFile = new BufferedReader(new InputStreamReader(fstream));
+			String s;
+
+			// extract the header
+			s = testingDataFile.readLine();
+
+			// map the header into column names relative to location
+			String [] header = splitRawCSVString(s);
+			HashMap <String, Integer> columnNames = parseHeader(header);
+			int dayIndex = columnNames.get("index");
+			int tests_per_1000 = columnNames.get("tests_per_1000");
+			
+			// set up data containers
+			test_dates = new ArrayList <Integer> ();
+			number_of_tests_per_1000_on_day = new ArrayList <Double> ();
+			
+			// read in the raw data
+			boolean started = false;
+			while ((s = testingDataFile.readLine()) != null) {
+				String [] bits = splitRawCSVString(s);
+				int dayVal = Integer.parseInt(bits[dayIndex]);
+				Double tests_on_day = Double.parseDouble(bits[tests_per_1000]);
+				test_dates.add((Integer)dayVal);
+				number_of_tests_per_1000_on_day.add((double)tests_on_day);
+			}
+			assert (number_of_tests_per_1000_on_day.size() > 0): "Number of tests per day not loaded";
+
+		} catch (Exception e) {
+			System.err.println("File input error: " + testDataFilename);
 		}
 	}
 	

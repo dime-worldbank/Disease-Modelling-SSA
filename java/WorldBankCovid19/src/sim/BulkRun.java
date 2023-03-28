@@ -9,7 +9,7 @@ public class BulkRun {
 		
 		String filenameBase = "/Users/robbiework/eclipse-workspace/Disease-Modelling-SSA/data/verification/", 
 				filenameSuffix = ".txt";
-		String [] paramsFilenames = {"assert_statements_everywhere"};//, "params_defaultMultiDist", "params_multiStatusMultiDist"};   params_default1Dist
+		String [] paramsFilenames = {"develop_testing"};//, "params_defaultMultiDist", "params_multiStatusMultiDist"};   params_default1Dist
 		double myBeta = .5;
 		int numDays = 30;
 
