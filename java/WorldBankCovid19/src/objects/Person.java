@@ -63,6 +63,14 @@ public class Person extends MobileAgent {
 	// health
 	boolean isDead = false;
 	boolean hasCovid = false;
+	boolean asymptomatic = false;
+	boolean presymptomatic = false;
+	boolean mild = false;
+	boolean severe = false;
+	boolean critical = false;
+	boolean recovered = false;
+	boolean hadCovid = false;
+	boolean hasBeenTested = false;
 
 	
 
@@ -506,6 +514,15 @@ public class Person extends MobileAgent {
 	public int getAge(){ return age;}
 	public String getEconStatus(){ return economic_status;}
 	public Location getHousehold(){ return myHousehold; }
+	public boolean hasAsymptCovid() { return this.asymptomatic; }
+	public boolean hasPresymptCovid() { return this.presymptomatic; }
+
+	public boolean hasCovid() { return this.hasCovid; }
+	public boolean hasMild() { return this.mild; }
+	public boolean hasSevere() { return this.severe; }
+	public boolean hasCritical() { return this.critical; }
+	public boolean hasRecovered() { return this.recovered; }
+	public boolean hasBeenTested() { return this.hasBeenTested; }
 		
 	public void setInfection(Infection i){ myInfection = i; }
 	public Infection getInfection(){ return myInfection; }
@@ -513,10 +530,28 @@ public class Person extends MobileAgent {
 	public void setMobility(boolean mobile){ this.immobilised = !mobile; }
 	public boolean isImmobilised(){ return this.immobilised; }
 	public boolean isDead() { return this.isDead; }
-	public boolean hasCovid() { return this.hasCovid; }
 	public boolean isSchoolGoer() { return this.schoolGoer; }
-	public void storeCovid() { this.hasCovid = true;}
-	public void removeCovid() { this.hasCovid = false;}
+	public void storeCovid() { this.hasCovid = true; this.hadCovid = true;}
+	public void setAsympt() { this.asymptomatic = true; }
+	public void setPresympt() { this.presymptomatic = true; }
+	public void removePresympt() { this.presymptomatic = false; }
+	public void setMild() { this.mild = true; }
+	public void removeMild() { this.mild = false; }
+	public void setSevere() { this.severe = true; }
+	public void removeSevere() { this.severe = false; }
+	public void setCritical() { this.critical = true; }
+	public void setRecovered() { this.recovered = true; }
+	public void setTested() { this.hasBeenTested = true; }
+	public void removeCovid() { 
+		this.asymptomatic = false;
+		this.mild = false;
+		this.severe = false;
+		this.critical = false;
+		this.hasCovid = false; 
+		}
+	
+
+
 	// UTILS
 	
 	public String toString(){ return "P_" + this.myId;}

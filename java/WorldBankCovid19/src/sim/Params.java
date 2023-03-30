@@ -62,7 +62,7 @@ public class Params {
 	
 	// holders for testing
 	public ArrayList <Integer> test_dates;
-	public ArrayList <Double> number_of_tests_per_1000_on_day;
+	public ArrayList <Integer> number_of_tests_per_day;
 	
 	// parameters drawn from Kerr et al 2020 - https://www.medrxiv.org/content/10.1101/2020.05.10.20097469v3.full.pdf
 	public ArrayList <Integer> infection_age_params;
@@ -302,23 +302,22 @@ public class Params {
 			// map the header into column names relative to location
 			String [] header = splitRawCSVString(s);
 			HashMap <String, Integer> columnNames = parseHeader(header);
-			int dayIndex = columnNames.get("index");
-			int tests_per_1000 = columnNames.get("tests_per_1000");
+			int dayIndex = columnNames.get("date");
+			int number_of_tests = columnNames.get("number_of_tests");
 			
 			// set up data containers
 			test_dates = new ArrayList <Integer> ();
-			number_of_tests_per_1000_on_day = new ArrayList <Double> ();
+			number_of_tests_per_day = new ArrayList <Integer> ();
 			
 			// read in the raw data
-			boolean started = false;
 			while ((s = testingDataFile.readLine()) != null) {
 				String [] bits = splitRawCSVString(s);
 				int dayVal = Integer.parseInt(bits[dayIndex]);
-				Double tests_on_day = Double.parseDouble(bits[tests_per_1000]);
+				Integer tests_on_day = Integer.parseInt(bits[number_of_tests]);
 				test_dates.add((Integer)dayVal);
-				number_of_tests_per_1000_on_day.add((double)tests_on_day);
+				number_of_tests_per_day.add((Integer)tests_on_day);
 			}
-			assert (number_of_tests_per_1000_on_day.size() > 0): "Number of tests per day not loaded";
+			assert (number_of_tests_per_day.size() > 0): "Number of tests per day not loaded";
 
 		} catch (Exception e) {
 			System.err.println("File input error: " + testDataFilename);

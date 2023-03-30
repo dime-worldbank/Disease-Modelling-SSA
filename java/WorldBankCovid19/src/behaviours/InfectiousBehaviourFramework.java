@@ -126,6 +126,9 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				// while presympotmatic, the agent is still infectious
 				Infection i = (Infection) s;
 				i.getHost().infectNeighbours();
+				if (!i.getHost().hasPresymptCovid()) {
+					i.getHost().setPresympt();
+					}
 				// determine when the infection will proceed to symptoms - this is
 				// only a matter of time in this case
 				if(time >= i.time_start_symptomatic){
@@ -157,7 +160,9 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				// although asympotmatic, the agent is still infectious
 				Infection i = (Infection) s;
 				i.getHost().infectNeighbours();
-
+				if (!i.getHost().hasAsymptCovid()) {
+					i.getHost().setAsympt();
+					}
 				// determine when the agent will recover - this is
 				// only a matter of time in this case
 				if(time >= i.time_recovered){
@@ -190,6 +195,12 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				// the agent is infectious
 				Infection i = (Infection) s;
 				i.getHost().infectNeighbours();
+				if (i.getHost().hasPresymptCovid()) {
+					i.getHost().removePresympt();
+					}
+				if (!i.getHost().hasMild()) {
+					i.getHost().setMild();
+				}
 
 				// if the agent is scheduled to recover, make sure that it
 				// does so
@@ -257,6 +268,12 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				// the agent is infectious
 				Infection i = (Infection) s;
 				i.getHost().infectNeighbours();
+				if (i.getHost().hasMild()) {
+					i.getHost().removeMild();
+					}
+				if (!i.getHost().hasSevere()) {
+					i.getHost().setSevere();
+				}
 				// if the agent is scheduled to recover, make sure that it
 				// does so
 				if(time >= i.time_recovered){
@@ -317,6 +334,12 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				// the agent is infectious
 				Infection i = (Infection) s;
 				i.getHost().infectNeighbours();
+				if (i.getHost().hasSevere()) {
+					i.getHost().removeSevere();
+				}
+				if (!i.getHost().hasCritical()) {
+					i.getHost().setCritical();
+				}
 				// if the agent is scheduled to recover, make sure that it
 				// does so
 				if(time >= i.time_recovered ){
@@ -386,8 +409,8 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				i.time_recovered = time;
 				
 				i.getHost().getLocation().getRootSuperLocation().metric_new_recovered++;
+				i.getHost().setRecovered();
 				i.getHost().removeCovid();
-
 				// the Person may have stopped moving when ill - reactivate!
 				if(i.getHost().isImmobilised()){
 					i.getHost().setMobility(true);

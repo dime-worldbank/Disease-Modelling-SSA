@@ -173,42 +173,44 @@ public class WorldBankCovid19Sim extends SimState {
 						// get the index for the test numbers
 						int index_for_test_number = params.test_dates.indexOf(time);
 						// find the number of tests per 1000 to test today
-						double number_of_test_per_1000_for_today = params.number_of_tests_per_1000_on_day.get(index_for_test_number);
+						int number_of_tests_today = params.number_of_tests_per_day.get(index_for_test_number);
 						// we only want to test people who are alive and administer the tests per 1000 based on this 
-						Map<Boolean, List<Person>> is_alive_map = agents.stream().collect(
+						Map<Boolean, List<Person>> is_dead_map = agents.stream().collect(
 												Collectors.groupingBy(
 														Person::isDead,
 												Collectors.toList()
 												)
 								);
 						// get the number of people who are alive
-						int alive_count = is_alive_map.get(false).size();
-						// get the of tests to be administered today
-						int number_of_tests_administered_today = (int) number_of_test_per_1000_for_today * (alive_count / 1000);
+						int alive_count = is_dead_map.get(false).size();
 						// make sure that there are fewer tests than people
-						assert (number_of_tests_administered_today < alive_count): "More tests administered than people";
+						assert (number_of_tests_today < alive_count): "More tests administered than people";
 						// create a random state (I need to link this to the existing random state but don't know how)
 						Random testing_random = new Random(sim.WorldBankCovid19Sim.this.seed());
 						// generate a list of people to test today
-						List<Person> people_tested = pickRandom(is_alive_map.get(false), number_of_tests_administered_today, testing_random);
+						List<Person> people_tested = pickRandom(is_dead_map.get(false), number_of_tests_today, testing_random);
 						// create a counter for the number of positive tests
 						int number_of_positive_tests = 0;
-						double test_accuracy = 0.9;
+						double test_accuracy = 0.97;
 						// iterate over the list of people to test and perform the tests
 						for (Person person:people_tested) {
 							if(person.hasCovid()) {
 								if (random.nextDouble() < test_accuracy)
 									number_of_positive_tests ++;
 							}
-						}	
+						}
+						double percent_positive = 0;
+						if (number_of_tests_today > 0) {
+							percent_positive = (double) number_of_positive_tests / (double) number_of_tests_today; 
+						}
 						String t = "\t";
-
+						
 						String detected_covid_output = "";
 						if (time == 0) {
-							detected_covid_output += "day" + t + "number_of_detected_cases" + "\n"+ String.valueOf(time) + t + number_of_positive_tests + "\n";
+							detected_covid_output += "day" + t + "number_of_detected_cases" + t + "number_of_tests" + t + "fraction_positive" + "\n"+ String.valueOf(time) + t + number_of_positive_tests + t + number_of_tests_today + t + percent_positive+ "\n";
 						}
 						else {
-							detected_covid_output += String.valueOf(time) + t + number_of_positive_tests + "\n";
+							detected_covid_output += String.valueOf(time) + t + number_of_positive_tests + t + number_of_tests_today + t + percent_positive + "\n";
 						}
 						exportMe(dedectedCovidFilename, detected_covid_output);
 						
