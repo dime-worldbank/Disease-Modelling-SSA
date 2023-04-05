@@ -545,6 +545,7 @@ public class Person extends MobileAgent {
 	public void setRecovered() { this.recovered = true; }
 	public void setTested() { this.hasBeenTested = true; }
 	public void setTestedPositive() { this.hasTestedPositive = true; }
+	public void removeTestedPositive() { this.hasTestedPositive = false; }
 	public void removeCovid() { 
 		this.asymptomatic = false;
 		this.mild = false;
@@ -553,6 +554,7 @@ public class Person extends MobileAgent {
 		this.hasCovid = false; 
 		}
 	
+	public String getCurrentDistrict() {return this.getHousehold().getRootSuperLocation().myId;}
 
 
 	// UTILS

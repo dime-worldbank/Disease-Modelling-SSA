@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -199,7 +200,7 @@ public class WorldBankCovid19Sim extends SimState {
 							if(person.hasCovid()) {
 								if (random.nextDouble() < test_accuracy) {
 									number_of_positive_tests ++;
-									person.hasTestedPos();
+									person.setTestedPositive();
 								}
 							}
 						}
@@ -217,7 +218,61 @@ public class WorldBankCovid19Sim extends SimState {
 							detected_covid_output += String.valueOf(time) + t + number_of_positive_tests + t + number_of_tests_today + t + percent_positive + "\n";
 						}
 						exportMe(dedectedCovidFilename, detected_covid_output);
+//						create a list of district names to iterate over for our logging
+						List <String> districtList = Arrays.asList(
+								"d_1", "d_2", "d_3", "d_4", "d_5", "d_6", "d_7", "d_8", "d_9", "d_10", "d_11", "d_12", "d_13", "d_14", "d_15", 
+								"d_16", "d_17", "d_18", "d_19", "d_20", "d_21", "d_22", "d_23", "d_24", "d_25", "d_26", "d_27", "d_28", "d_29", 
+								"d_30", "d_31", "d_32", "d_33", "d_34", "d_35", "d_36", "d_37", "d_38", "d_39", "d_40", "d_41", "d_42", "d_43", 
+								"d_44", "d_45", "d_46", "d_47", "d_48", "d_49", "d_50", "d_51", "d_52", "d_53", "d_54", "d_55", "d_56", "d_57", 
+								"d_58", "d_59", "d_60");
+						// create list to store the number of cases per district
+						ArrayList <Integer> covidTestedPositiveArray = new ArrayList<Integer>();
+
+						// create a function to group the population by location, whether they are alive and if they have covid and if this is a new case
+						Map<String, Map<Boolean, Map<Boolean, Long>>> location_alive_tested_pos_for_Covid_map = agents.stream().collect(
+								Collectors.groupingBy(
+										Person::getCurrentDistrict, 
+											Collectors.groupingBy(
+														Person::isDead,
+														Collectors.groupingBy(
+																Person::hasTestedPos,
+												Collectors.counting()
+												)
+										)
+								)
+								);
+//						We now iterate over the districts, to find the current state of the epidemic
+						for (String district: districtList) {
+							// get the current number of cases in each district
+							try {
+								covidTestedPositiveArray.add(location_alive_tested_pos_for_Covid_map.get(district).get(false).get(true).intValue());
+							} catch (Exception e) {
+								// No one in population met criteria
+								covidTestedPositiveArray.add(0);
+							}
+						}
 						
+						String spatialOutput = "";
+						// format the file
+						String tabbedDistrictNames = "";
+						for (String district: districtList) {tabbedDistrictNames += t + district;}
+						if (time == 0) {
+							spatialOutput += "day" + tabbedDistrictNames + "\n" + String.valueOf(time);
+						}
+						else {
+							spatialOutput += String.valueOf(time);
+						}
+						// store total number of positive tests in district
+						for (int val: covidTestedPositiveArray){
+							spatialOutput += t + String.valueOf(val);
+						}
+						spatialOutput += "\n";
+						exportMe(spatialDedectedCovidFilename, spatialOutput);
+						for (Person person:people_tested) {
+							if(person.hasTestedPos()) {
+								person.removeTestedPositive();
+								}
+						}
 					}
 					
 				};
