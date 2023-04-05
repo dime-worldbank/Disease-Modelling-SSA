@@ -45,6 +45,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public String outputFilename;
 	public String infections_export_filename;
 	public String dedectedCovidFilename;
+	public String spatialDedectedCovidFilename;
 	public String sim_info_filename;
 	int targetDuration = 0;
 	
@@ -71,8 +72,9 @@ public class WorldBankCovid19Sim extends SimState {
 	public WorldBankCovid19Sim(long seed, Params params, String outputFilename) {
 		super(seed);
 		this.params = params;
-		this.outputFilename = outputFilename;
+		this.outputFilename = outputFilename + ".txt";
 		this.dedectedCovidFilename = outputFilename + "_detected_covid_cases.txt";
+		this.spatialDedectedCovidFilename = outputFilename + "_spatial_detected_covid_cases.txt";
 	}
 	
 	public void start(){
@@ -195,8 +197,10 @@ public class WorldBankCovid19Sim extends SimState {
 						// iterate over the list of people to test and perform the tests
 						for (Person person:people_tested) {
 							if(person.hasCovid()) {
-								if (random.nextDouble() < test_accuracy)
+								if (random.nextDouble() < test_accuracy) {
 									number_of_positive_tests ++;
+									person.hasTestedPos();
+								}
 							}
 						}
 						double percent_positive = 0;

@@ -71,6 +71,7 @@ public class Person extends MobileAgent {
 	boolean recovered = false;
 	boolean hadCovid = false;
 	boolean hasBeenTested = false;
+	boolean hasTestedPositive = false;
 
 	
 
@@ -523,6 +524,7 @@ public class Person extends MobileAgent {
 	public boolean hasCritical() { return this.critical; }
 	public boolean hasRecovered() { return this.recovered; }
 	public boolean hasBeenTested() { return this.hasBeenTested; }
+	public boolean hasTestedPos() { return this.hasTestedPositive; }
 		
 	public void setInfection(Infection i){ myInfection = i; }
 	public Infection getInfection(){ return myInfection; }
@@ -542,6 +544,7 @@ public class Person extends MobileAgent {
 	public void setCritical() { this.critical = true; }
 	public void setRecovered() { this.recovered = true; }
 	public void setTested() { this.hasBeenTested = true; }
+	public void setTestedPositive() { this.hasTestedPositive = true; }
 	public void removeCovid() { 
 		this.asymptomatic = false;
 		this.mild = false;

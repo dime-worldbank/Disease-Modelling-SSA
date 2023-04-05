@@ -10,8 +10,8 @@ public class BulkRun {
 		String filenameBase = "/Users/robbiework/eclipse-workspace/Disease-Modelling-SSA/data/verification/", 
 				filenameSuffix = ".txt";
 		String [] paramsFilenames = {"develop_testing"};//, "params_defaultMultiDist", "params_multiStatusMultiDist"};   params_default1Dist
-		double myBeta = 0.096;
-		int numDays =200;
+		double myBeta = 0.5;
+		int numDays = 100;
 
 		String outputPrefix = "_bulkTest_" + myBeta + "_" + numDays + "_", outputSuffix = ".txt";
 
@@ -20,7 +20,7 @@ public class BulkRun {
 			for(int i = 0; i < 3; i++) {
 
 				String paramFilename = filenameBase + s + filenameSuffix;
-				String outputFilename = s + outputPrefix + i + outputSuffix;
+				String outputFilename = s + outputPrefix + i;
 				String infectionsOutputFilename = "infections_" + s + outputPrefix + i + outputSuffix;
 				String sim_info_filename = "sim_info_" + s + outputPrefix + i + outputSuffix;
 				WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(i, new Params(paramFilename), outputFilename);
