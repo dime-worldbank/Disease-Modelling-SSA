@@ -88,6 +88,11 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 					}
 				}
 				return 1; // otherwise it's not the morning - stay home for now, but check in again later!
+			}
+
+			@Override
+			public boolean isEndpoint() {
+				return false;
 			}		
 		};
 		
@@ -122,6 +127,11 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 
 				return 1; // otherwise, stay at work
 			}
+
+			@Override
+			public boolean isEndpoint() {
+				return false;
+			}
 			
 		};
 		
@@ -146,6 +156,11 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 					return myWorld.params.hours_sleeping;
 				}
 				return 1; // check in again soon, but we have more time!
+			}
+
+			@Override
+			public boolean isEndpoint() {
+				return false;
 			}
 			
 		};

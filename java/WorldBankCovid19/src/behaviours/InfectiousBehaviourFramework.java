@@ -29,6 +29,12 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 			public double next(Steppable s, double time) {
 				return Double.MAX_VALUE;
 			}
+
+			@Override
+			public boolean isEndpoint() {
+				// TODO Auto-generated method stub
+				return false;
+			}
 			
 		};
 		
@@ -111,6 +117,12 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				i.setBehaviourNode(susceptibleNode);
 				return Double.MAX_VALUE;
 			}
+
+			@Override
+			public boolean isEndpoint() {
+				// TODO Auto-generated method stub
+				return false;
+			}
 			
 		};
 		
@@ -144,6 +156,12 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				
 				// update every timestep
 				return 1;
+			}
+
+			@Override
+			public boolean isEndpoint() {
+				// TODO Auto-generated method stub
+				return false;
 			}
 			
 		};
@@ -180,6 +198,12 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				
 				// update every timestep
 				return 1;
+			}
+
+			@Override
+			public boolean isEndpoint() {
+				// TODO Auto-generated method stub
+				return false;
 			}
 			
 		};
@@ -251,6 +275,12 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				// update every timestep
 				return 1;
 			}
+
+			@Override
+			public boolean isEndpoint() {
+				// TODO Auto-generated method stub
+				return false;
+			}
 			
 		};
 
@@ -314,6 +344,12 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				
 				// update every timestep
 				return 1;
+			}
+
+			@Override
+			public boolean isEndpoint() {
+				// TODO Auto-generated method stub
+				return false;
 			}
 			
 		};
@@ -387,6 +423,12 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				// update every timestep
 				return 1;
 			}
+
+			@Override
+			public boolean isEndpoint() {
+				// TODO Auto-generated method stub
+				return false;
+			}
 			
 		};
 		
@@ -418,6 +460,12 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				// no need to update again!
 				return Double.MAX_VALUE;
 			}
+
+			@Override
+			public boolean isEndpoint() {
+				// TODO Auto-generated method stub
+				return false;
+			}
 			
 		};
 		
@@ -435,6 +483,12 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				i.time_died = time;
 								
 				return Double.MAX_VALUE; // no need to run ever again
+			}
+
+			@Override
+			public boolean isEndpoint() {
+				// TODO Auto-generated method stub
+				return true;
 			}
 			
 		};
