@@ -49,6 +49,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public String spatialDedectedCovidFilename;
 	public String sim_info_filename;
 	int targetDuration = 0;
+
 	
 	// ordering information
 	public static int param_schedule_lockdown = 0;
@@ -178,22 +179,23 @@ public class WorldBankCovid19Sim extends SimState {
 						// find the number of tests per 1000 to test today
 						int number_of_tests_today = params.number_of_tests_per_day.get(index_for_test_number);
 						// we only want to test people who are alive and administer the tests per 1000 based on this 
-						Map<Boolean, List<Person>> is_dead_map = agents.stream().collect(
+						Map<Boolean, Map<Boolean, List<Person>>> is_elligable_for_testing_map = agents.stream().collect(
 												Collectors.groupingBy(
 														Person::isDead,
+														Collectors.groupingBy(
+																Person::isElligableForTesting,
 												Collectors.toList()
 												)
+											)
 								);
-						// get the number of people who are alive
-						int alive_count = is_dead_map.get(false).size();
-						// make sure that there are fewer tests than people
-						assert (number_of_tests_today < alive_count): "More tests administered than people";
 						// create a random state (I need to link this to the existing random state but don't know how)
 						Random testing_random = new Random(sim.WorldBankCovid19Sim.this.seed());
-						// generate a list of people to test today
-						List<Person> people_tested = pickRandom(is_dead_map.get(false), number_of_tests_today, testing_random);
-						// create a counter for the number of positive tests
 						int number_of_positive_tests = 0;
+						double percent_positive = 0;
+						// generate a list of people to test today
+						try {
+							List<Person> people_tested = pickRandom(is_elligable_for_testing_map.get(false).get(true), number_of_tests_today, testing_random);
+						// create a counter for the number of positive tests
 						double test_accuracy = 0.97;
 						// iterate over the list of people to test and perform the tests
 						for (Person person:people_tested) {
@@ -201,12 +203,15 @@ public class WorldBankCovid19Sim extends SimState {
 								if (random.nextDouble() < test_accuracy) {
 									number_of_positive_tests ++;
 									person.setTestedPositive();
+									// after they have tested positive, they no longer need to be tested again
+									person.notElligableForTesting();
 								}
 							}
 						}
-						double percent_positive = 0;
 						if (number_of_tests_today > 0) {
 							percent_positive = (double) number_of_positive_tests / (double) number_of_tests_today; 
+						}}
+						catch (Exception e) {
 						}
 						String t = "\t";
 						
@@ -268,12 +273,15 @@ public class WorldBankCovid19Sim extends SimState {
 						}
 						spatialOutput += "\n";
 						exportMe(spatialDedectedCovidFilename, spatialOutput);
+						try {
+							List<Person> people_tested = pickRandom(is_elligable_for_testing_map.get(false).get(true), number_of_tests_today, testing_random);
 						for (Person person:people_tested) {
 							if(person.hasTestedPos()) {
 								person.removeTestedPositive();
 								}
 						}
-					}
+					} catch (Exception e) {}
+				}
 					
 				};
 		schedule.scheduleRepeating(testing_for_covid, this.param_schedule_reporting, params.ticks_per_day);
@@ -296,6 +304,73 @@ public class WorldBankCovid19Sim extends SimState {
 			
 		};
 		schedule.scheduleRepeating(0, this.param_schedule_lockdown, lockdownTrigger);
+		
+		// SCHEDULE LOCKDOWNS
+		
+		Steppable spuriosSymptomTrigger = new Steppable() {
+
+			@Override
+			public void step(SimState arg0) {
+				int time = (int) (arg0.schedule.getTime() / params.ticks_per_day);
+
+				// we only want to assign symptoms to people without symptomatic covid. Create a map to find those alive, without mild, severe or critical covid.
+				Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, List<Person>>>>> has_non_asymptomatic_covid = agents.stream().collect(
+									Collectors.groupingBy(
+												Person::isDead,
+												Collectors.groupingBy(
+														Person::hasMild,
+														Collectors.groupingBy(
+																Person::hasSevere,
+																Collectors.groupingBy(
+																		Person::hasCritical,
+										Collectors.toList()
+										)
+								)
+						)
+					)
+					);
+				// todo fix this
+				double number_people_with_symptoms_as_double = (double) params.rate_of_spurious_symptoms * has_non_asymptomatic_covid.get(false).get(false).get(false).get(false).size();
+				// create the number of people to develop symptoms
+				int number_people_with_symptoms = (int) number_people_with_symptoms_as_double;
+				// create a random state (I need to link this to the existing random state but don't know how)
+				Random symptom_random = new Random(sim.WorldBankCovid19Sim.this.seed());
+				// generate a list of people develop symptoms today
+				List<Person> people_developing_symptoms = pickRandom(has_non_asymptomatic_covid.get(false).get(false).get(false).get(false), number_people_with_symptoms, symptom_random);
+				
+			for (Person p: people_developing_symptoms) {
+				p.elligableForTesting();
+				// Assume people have these symptoms for a week
+				p.setSymptomRemovalDate(time + 7);
+				p.hasSpuriousSymptoms();
+			}
+			// we also want people's spurios symptoms to dissapear over time, find out who has these symptoms
+			Map<Boolean, Map<Boolean, List<Person>>> has_spurios_symptoms = agents.stream().collect(
+								Collectors.groupingBy(
+											Person::isDead,
+											Collectors.groupingBy(
+													Person::hasSpuriousSymptoms,
+									Collectors.toList()
+									)
+							)
+				);
+			List<Person> people_with_symptoms = has_spurios_symptoms.get(false).get(true);
+			try {
+			for (Person p: people_with_symptoms) {
+				if (p.timeToRemoveSymptoms < time) {
+					p.notElligableForTesting();
+					p.removeSpuriousSymptoms();
+				}
+			}
+			} catch (Exception e) {
+				// No one to remove spurious symptoms from
+			}
+			
+		}
+		};
+		schedule.scheduleRepeating(0, this.param_schedule_lockdown, spuriosSymptomTrigger);
+
+		
 		
 		String filenameSuffix = (this.params.ticks_per_day * this.params.infection_beta) + "_" 
 				+ this.params.lineListWeightingFactor + "_"
@@ -327,6 +402,7 @@ public class WorldBankCovid19Sim extends SimState {
 		schedule.scheduleRepeating(reporter, this.param_schedule_reporting, params.ticks_per_day);
 		random = new MersenneTwisterFast(this.seed());
 	}
+	
 	
 	public void load_population(String agentsFilename){
 		try {

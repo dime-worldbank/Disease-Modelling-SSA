@@ -17,6 +17,7 @@ import objects.Person;
 public class Params {
 	
 	public double infection_beta = 0.016;
+	public double rate_of_spurious_symptoms = 0.004;
 	public int lineListWeightingFactor = 1; // the line list contains only detected instances, which can be biased 
 											// - weight this if we suspect it's undercounting
 	public boolean setting_perfectMixing = false; // if TRUE: there are no work or social bubbles; individuals have

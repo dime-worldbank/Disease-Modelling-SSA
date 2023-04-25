@@ -70,8 +70,11 @@ public class Person extends MobileAgent {
 	boolean critical = false;
 	boolean recovered = false;
 	boolean hadCovid = false;
+	boolean elligableForTesting = false;
 	boolean hasBeenTested = false;
 	boolean hasTestedPositive = false;
+	boolean hasSpuriousSymptoms = false;
+	public int timeToRemoveSymptoms = 100000000;
 
 	
 
@@ -525,6 +528,8 @@ public class Person extends MobileAgent {
 	public boolean hasRecovered() { return this.recovered; }
 	public boolean hasBeenTested() { return this.hasBeenTested; }
 	public boolean hasTestedPos() { return this.hasTestedPositive; }
+	public boolean isElligableForTesting() {return this.elligableForTesting; }
+	public boolean hasSpuriousSymptoms() {return this.hasSpuriousSymptoms; }
 		
 	public void setInfection(Infection i){ myInfection = i; }
 	public Infection getInfection(){ return myInfection; }
@@ -543,8 +548,11 @@ public class Person extends MobileAgent {
 	public void removeSevere() { this.severe = false; }
 	public void setCritical() { this.critical = true; }
 	public void setRecovered() { this.recovered = true; }
+	public void elligableForTesting() {this.elligableForTesting = true; } 
+	public void notElligableForTesting() {this.elligableForTesting = false; } 
 	public void setTested() { this.hasBeenTested = true; }
 	public void setTestedPositive() { this.hasTestedPositive = true; }
+	public void setSymptomRemovalDate(int time) { this.timeToRemoveSymptoms = time; }
 	public void removeTestedPositive() { this.hasTestedPositive = false; }
 	public void removeCovid() { 
 		this.asymptomatic = false;
@@ -553,6 +561,9 @@ public class Person extends MobileAgent {
 		this.critical = false;
 		this.hasCovid = false; 
 		}
+	public void removeSpuriousSymptoms() { 
+		this.hasSpuriousSymptoms = false;
+	}
 	
 	public String getCurrentDistrict() {return this.getHousehold().getRootSuperLocation().myId;}
 
