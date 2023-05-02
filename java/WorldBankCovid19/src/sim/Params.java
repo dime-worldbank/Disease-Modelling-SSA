@@ -64,6 +64,7 @@ public class Params {
 	// holders for testing
 	public ArrayList <Integer> test_dates;
 	public ArrayList <Integer> number_of_tests_per_day;
+	public ArrayList <String> districts_to_test_in;
 	
 	// parameters drawn from Kerr et al 2020 - https://www.medrxiv.org/content/10.1101/2020.05.10.20097469v3.full.pdf
 	public ArrayList <Integer> infection_age_params;
@@ -115,6 +116,7 @@ public class Params {
 	public String lockdown_changeList_filename = "";
 	
 	public String testDataFilename = "";
+	public String testLocationFilename = "";
 	
 	
 	
@@ -154,6 +156,8 @@ public class Params {
 		load_infection_params(dataDir  + infection_transition_params_filename);
 		// load the testing data
 		load_testing(dataDir + testDataFilename);
+		load_testing_locations(dataDir + testLocationFilename);
+		
 	}
 	
 	//
@@ -322,6 +326,42 @@ public class Params {
 
 		} catch (Exception e) {
 			System.err.println("File input error: " + testDataFilename);
+		}
+	}
+	
+	public void load_testing_locations(String testLocationsFilename) {
+		try {
+			
+			System.out.println("Reading in testing locations from " + testLocationsFilename);
+			
+			// Open the tracts file
+			FileInputStream fstream = new FileInputStream(testLocationsFilename);
+
+			// Convert our input stream to a BufferedReader
+			BufferedReader testingDataFile = new BufferedReader(new InputStreamReader(fstream));
+			String s;
+
+			// extract the header
+			s = testingDataFile.readLine();
+
+			// map the header into column names relative to location
+			String [] header = splitRawCSVString(s);
+			HashMap <String, Integer> columnNames = parseHeader(header);
+			int district_numbers = columnNames.get("number");
+			
+			// set up data containers
+			districts_to_test_in = new ArrayList <String> ();
+			
+			// read in the raw data
+			while ((s = testingDataFile.readLine()) != null) {
+				String [] bits = splitRawCSVString(s);
+				String district_to_test_in = "d_" + bits[district_numbers];
+				districts_to_test_in.add(district_to_test_in);
+			}
+			assert (districts_to_test_in.size() > 0): "Number of districts to test in not loaded";
+
+		} catch (Exception e) {
+			System.err.println("File input error: " + testLocationsFilename);
 		}
 	}
 	
