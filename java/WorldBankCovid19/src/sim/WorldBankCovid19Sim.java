@@ -179,14 +179,16 @@ public class WorldBankCovid19Sim extends SimState {
 						// find the number of tests per 1000 to test today
 						int number_of_tests_today = params.number_of_tests_per_day.get(index_for_test_number);
 						// we only want to test people who are alive and administer the tests per 1000 based on this 
-						Map<Boolean, Map<Boolean, List<Person>>> is_elligable_for_testing_map = agents.stream().collect(
+						Map<Boolean, Map<Boolean, Map<Boolean, List<Person>>>> is_elligable_for_testing_map = agents.stream().collect(
 												Collectors.groupingBy(
 														Person::isDead,
 														Collectors.groupingBy(
 																Person::isElligableForTesting,
+																Collectors.groupingBy(Person::inADistrictTesting,
 												Collectors.toList()
 												)
 											)
+										)
 								);
 						// create a random state (I need to link this to the existing random state but don't know how)
 						Random testing_random = new Random(sim.WorldBankCovid19Sim.this.seed());
@@ -194,7 +196,7 @@ public class WorldBankCovid19Sim extends SimState {
 						double percent_positive = 0;
 						// generate a list of people to test today
 						try {
-							List<Person> people_tested = pickRandom(is_elligable_for_testing_map.get(false).get(true), number_of_tests_today, testing_random);
+							List<Person> people_tested = pickRandom(is_elligable_for_testing_map.get(false).get(true).get(true), number_of_tests_today, testing_random);
 						// create a counter for the number of positive tests
 						double test_accuracy = 0.97;
 						// iterate over the list of people to test and perform the tests
@@ -274,7 +276,7 @@ public class WorldBankCovid19Sim extends SimState {
 						spatialOutput += "\n";
 						exportMe(spatialDedectedCovidFilename, spatialOutput);
 						try {
-							List<Person> people_tested = pickRandom(is_elligable_for_testing_map.get(false).get(true), number_of_tests_today, testing_random);
+							List<Person> people_tested = pickRandom(is_elligable_for_testing_map.get(false).get(true).get(true), number_of_tests_today, testing_random);
 						for (Person person:people_tested) {
 							if(person.hasTestedPos()) {
 								person.removeTestedPositive();

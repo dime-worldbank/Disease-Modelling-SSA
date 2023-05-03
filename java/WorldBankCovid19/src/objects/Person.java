@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.stream.Stream;
 
 import behaviours.BehaviourNode;
 import behaviours.MovementBehaviourFramework;
@@ -530,6 +531,11 @@ public class Person extends MobileAgent {
 	public boolean hasTestedPos() { return this.hasTestedPositive; }
 	public boolean isElligableForTesting() {return this.elligableForTesting; }
 	public boolean hasSpuriousSymptoms() {return this.hasSpuriousSymptoms; }
+	public boolean inADistrictTesting() {
+		boolean answer = this.myWorld.params.districts_to_test_in.stream().anyMatch(x -> x.equals(this.myHousehold.getRootSuperLocation().myId));
+		return answer;
+	}
+
 		
 	public void setInfection(Infection i){ myInfection = i; }
 	public Infection getInfection(){ return myInfection; }
@@ -566,7 +572,6 @@ public class Person extends MobileAgent {
 	}
 	
 	public String getCurrentDistrict() {return this.getHousehold().getRootSuperLocation().myId;}
-
 
 	// UTILS
 	
