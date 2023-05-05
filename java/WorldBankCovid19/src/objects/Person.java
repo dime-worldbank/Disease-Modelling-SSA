@@ -71,7 +71,7 @@ public class Person extends MobileAgent {
 	boolean critical = false;
 	boolean recovered = false;
 	boolean hadCovid = false;
-	boolean elligableForTesting = false;
+	public boolean elligableForTesting = false;
 	boolean hasBeenTested = false;
 	boolean hasTestedPositive = false;
 	boolean hasSpuriousSymptoms = false;
@@ -570,7 +570,9 @@ public class Person extends MobileAgent {
 	public void removeSpuriousSymptoms() { 
 		this.hasSpuriousSymptoms = false;
 	}
-	
+	public void setSpuriousSymptoms() {
+		this.hasSpuriousSymptoms = true;
+	}
 	public String getCurrentDistrict() {return this.getHousehold().getRootSuperLocation().myId;}
 
 	// UTILS

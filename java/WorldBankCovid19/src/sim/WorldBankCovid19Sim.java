@@ -201,6 +201,10 @@ public class WorldBankCovid19Sim extends SimState {
 						double test_accuracy = 0.97;
 						// iterate over the list of people to test and perform the tests
 						for (Person person:people_tested) {
+							assert (!person.isDead()) : "Person being tested isn't alive";
+							assert (person.isElligableForTesting()) : "Person being tested isn't eligable";
+							assert (!person.hasBeenTested()) : "Person being tested has already been tested";
+							assert (person.hasSpuriousSymptoms() || person.hasCovid()) : "Person doesn't have symptoms";
 							if(person.hasCovid()) {
 								if (random.nextDouble() < test_accuracy) {
 									number_of_positive_tests ++;
@@ -344,7 +348,7 @@ public class WorldBankCovid19Sim extends SimState {
 				p.elligableForTesting();
 				// Assume people have these symptoms for a week
 				p.setSymptomRemovalDate(time + 7);
-				p.hasSpuriousSymptoms();
+				p.setSpuriousSymptoms();
 			}
 			// we also want people's spurios symptoms to dissapear over time, find out who has these symptoms
 			Map<Boolean, Map<Boolean, List<Person>>> has_spurios_symptoms = agents.stream().collect(
@@ -357,17 +361,15 @@ public class WorldBankCovid19Sim extends SimState {
 							)
 				);
 			List<Person> people_with_symptoms = has_spurios_symptoms.get(false).get(true);
-			try {
+			if (people_with_symptoms != null){
 			for (Person p: people_with_symptoms) {
 				if (p.timeToRemoveSymptoms < time) {
 					p.notElligableForTesting();
 					p.removeSpuriousSymptoms();
 				}
 			}
-			} catch (Exception e) {
-				// No one to remove spurious symptoms from
-			}
 			
+		}
 		}
 		};
 		schedule.scheduleRepeating(0, this.param_schedule_lockdown, spuriosSymptomTrigger);
