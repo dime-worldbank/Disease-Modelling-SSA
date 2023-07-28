@@ -1,0 +1,269 @@
+---
+title: "Mapping prevalence of respiratory illness in Zimbabwe"
+output: html_document
+---
+
+
+```{r, include=FALSE, echo=FALSE, eval=FALSE}
+library(sf)
+library(mgcv)
+library(raster)
+library(lubridate)
+library(sf)
+library(disarmr)
+library(gratia)
+library(leaflet)
+library(wesanderson)
+library(knitr)
+
+#opts_chunk$set(fig.width=12, fig.height=8)
+
+setwd("~/Documents/Work/Lnl/GitRepos/fn-covid19-prev-pred")
+source('R/prevalence_predictor_mgcv_st_grid.R')
+
+# Testing prevalence_predictor_mgcv_st_grid
+resp_ill <- read.csv("~/Documents/Work/Lnl/covid_modeling_ZWE/data/dhs_cluster_illness_rate_gps_041620.csv")
+
+# Organize data
+df_trim <- data.frame(lng = resp_ill$LONGNUM,
+                                 lat = resp_ill$LATNUM,
+                                 n_positive = resp_ill$count_any, 
+                                 n_trials = resp_ill$total_children_asked)
+
+# Prepare covariates
+pred_raster_hw <- raster("~/Documents/Work/Lnl/covid_modeling_ZWE/outputs/pred_raster_hw.tif")
+pred_raster_w <- raster("~/Documents/Work/Lnl/covid_modeling_ZWE/outputs/pred_raster_w.tif")
+zwe_adm3 <- st_read('/Users/sturrockh/Dropbox/Data to be shared/poverty data/poverty_adminzones/zwe_adm3_2002_v2_utm.shp')
+poverty_df <- read.csv("/Users/sturrockh/Dropbox/Data to be shared/poverty data/poverty_adminzones/master_092518_simplified.csv")
+poverty_df <- poverty_df[,c("wardpcode02_v2", "Foodpovertyprevalence")]
+zwe_adm3 <- merge(zwe_adm3, poverty_df, by.x = "wardpcode0",
+                    by.y = "wardpcode02_v2")
+zwe_adm3 <- st_transform(zwe_adm3, crs(pred_raster_w))
+zwe_adm3_sp <- as(zwe_adm3, "Spatial")
+poverty_raster <- rasterize(zwe_adm3_sp, pred_raster_hw, field = "Foodpovertyprevalence")
+names(poverty_raster) <- "poverty"
+pop_dens <- raster('~/Documents/Work/Lnl/covid_modeling_ZWE/data/pop_dens_1km.tif')
+#pop_dens <- aggregate(pop_dens, 30, sum, na.rm=T)
+pop_dens <- resample(pop_dens, pred_raster_w)
+pop_dens[is.na(pop_dens[])] <- 0
+names(pop_dens) <- 'pop_dens'
+dist_to_road <- raster("~/Documents/Work/Lnl/covid_modeling_ZWE/covariate_rasters/zwe_osm_dst_road_100m_2016.tif")
+dist_to_road <- resample(dist_to_road, pop_dens)
+
+# Combine handwashing/water
+data_idx <- which(!is.na(pred_raster_hw[]))
+hw_pca <- prcomp(cbind(pred_raster_hw[data_idx], pred_raster_w[data_idx]))
+hw_pca_raster <- pred_raster_hw
+hw_pca_raster[data_idx] <- hw_pca$x[,1]
+
+covs <- stack(pred_raster_hw, 
+              #pred_raster_w,
+              #hw_pca_raster,
+              dist_to_road,
+              pop_dens, 
+              poverty_raster)
+names(covs) <- c("Handwashing_risk",
+                 #"Water_risk",
+                 #"hw_pca",
+                 "Distance_to_road",
+                 "Population_density",
+                 "Poverty")
+
+
+
+# Test
+res <- prevalence_predictor_mgcv_st_grid(df_trim,
+                                                     boundary = '~/Documents/Work/Lnl/covid_modeling_ZWE/data/ZWE_boundary.geojson',
+                                                     covariates = covs,
+                                                     ncol_pred_grid = 500,
+                                                     m=1,
+                                                     debug = TRUE)
+
+res_improved_1 <- prevalence_predictor_mgcv_st_grid(df_trim,
+                                                     boundary = '~/Documents/Work/Lnl/covid_modeling_ZWE/data/ZWE_boundary.geojson',
+                                                     covariates = covs,
+                                                     ncol_pred_grid = 500,
+                                                    m=1,
+                                                     debug = TRUE,
+                                                      fix_prediction_covariates = list(Handwashing_risk = 0.24))
+
+res_improved_2 <- prevalence_predictor_mgcv_st_grid(df_trim,
+                                                     boundary = '~/Documents/Work/Lnl/covid_modeling_ZWE/data/ZWE_boundary.geojson',
+                                                     covariates = covs,
+                                                     ncol_pred_grid = 500,
+                                                    m=1,
+                                                     debug = TRUE,
+                                                      fix_prediction_covariates = list(Handwashing_risk = 0.036))
+
+res_improved_3 <- prevalence_predictor_mgcv_st_grid(df_trim,
+                                                     boundary = '~/Documents/Work/Lnl/covid_modeling_ZWE/data/ZWE_boundary.geojson',
+                                                     covariates = covs,
+                                                     ncol_pred_grid = 500,
+                                                    m=1,
+                                                     debug = TRUE,
+                                                      fix_prediction_covariates = list(Handwashing_risk = 0))
+
+
+
+# Generate district level pop-weighted means
+zwe_adm2 <- readRDS('/Users/sturrockh/Documents/Work/Lnl/covid_modeling_ZWE/gadm36_ZWE_2_sp.rds')
+zwe_adm2 <- st_as_sf(zwe_adm2)
+res_resamp <- resample(res$pred_prev_raster, pop_dens)
+res_improved_1_resamp <- resample(res_improved_1$pred_prev_raster, pop_dens)
+res_improved_2_resamp <- resample(res_improved_2$pred_prev_raster, pop_dens)
+res_improved_3_resamp <- resample(res_improved_3$pred_prev_raster, pop_dens)
+sum(res_resamp[] * pop_dens[], na.rm=T) / sum(pop_dens[],na.rm=T)
+sum(res_improved_1_resamp[] * pop_dens[], na.rm=T) / sum(pop_dens[],na.rm=T)
+sum(res_improved_2_resamp[] * pop_dens[], na.rm=T) / sum(pop_dens[],na.rm=T)
+sum(res_improved_3_resamp[] * pop_dens[], na.rm=T) / sum(pop_dens[],na.rm=T)
+
+writeRaster(res_resamp, overwrite = TRUE, "~/Documents/Work/Lnl/covid_modeling_ZWE/outputs/resp_illness_prev.tif")
+writeRaster(res_improved_1_resamp, overwrite = TRUE, "~/Documents/Work/Lnl/covid_modeling_ZWE/outputs/resp_illness_improved_1_prev.tif")
+writeRaster(res_improved_2_resamp, overwrite = TRUE, "~/Documents/Work/Lnl/covid_modeling_ZWE/outputs/resp_illness_improved_2_prev.tif")
+writeRaster(res_improved_3_resamp, overwrite = TRUE, "~/Documents/Work/Lnl/covid_modeling_ZWE/outputs/resp_illness_improved_3_prev.tif")
+
+# Create pop-weighted district means
+zwe_adm2$total_pop <- extract(pop_dens, zwe_adm2, sum, na.rm=T)
+weighted_sum_res <- extract(res_resamp*pop_dens, zwe_adm2, sum, na.rm=T)
+weighted_sum_res_improved_1 <- extract(res_improved_1_resamp*pop_dens, zwe_adm2, sum, na.rm=T)
+zwe_adm2$mean_resp_risk_pop_weighted <- weighted_sum_res / zwe_adm2$total_pop
+zwe_adm2$mean_resp_risk_improved_1_pop_weighted <- weighted_sum_res_improved_1 / zwe_adm2$total_pop
+weighted_sum_res_improved_2 <- extract(res_improved_2_resamp*pop_dens, zwe_adm2, sum, na.rm=T)
+zwe_adm2$mean_resp_risk_improved_2_pop_weighted <- weighted_sum_res_improved_2 / zwe_adm2$total_pop
+weighted_sum_res_improved_3 <- extract(res_improved_3_resamp*pop_dens, zwe_adm2, sum, na.rm=T)
+zwe_adm2$mean_resp_risk_improved_3_pop_weighted <- weighted_sum_res_improved_3 / zwe_adm2$total_pop
+write.csv(st_drop_geometry(zwe_adm2),
+          "~/Documents/Work/Lnl/covid_modeling_ZWE/outputs/district_resp_risk.csv", row.names = F)
+
+# Create ward level
+zwe_adm3$total_pop <- extract(pop_dens, zwe_adm3, sum, na.rm=T)
+weighted_sum_res_ward <- extract(res_resamp*pop_dens, zwe_adm3, sum, na.rm=T)
+weighted_sum_res_improved_1_ward <- extract(res_improved_1_resamp*pop_dens, zwe_adm3, sum, na.rm=T)
+zwe_adm3$mean_resp_risk_pop_weighted <- weighted_sum_res_ward / zwe_adm3$total_pop
+zwe_adm3$mean_resp_risk_improved_1_pop_weighted <- weighted_sum_res_improved_1_ward / zwe_adm3$total_pop
+weighted_sum_res_improved_2_ward <- extract(res_improved_2_resamp*pop_dens, zwe_adm3, sum, na.rm=T)
+zwe_adm3$mean_resp_risk_improved_2_pop_weighted <- weighted_sum_res_improved_2_ward / zwe_adm3$total_pop
+weighted_sum_res_improved_3_ward <- extract(res_improved_3_resamp*pop_dens, zwe_adm3, sum, na.rm=T)
+zwe_adm3$mean_resp_risk_improved_3_pop_weighted <- weighted_sum_res_improved_3_ward / zwe_adm3$total_pop
+write.csv(st_drop_geometry(zwe_adm3[,c('wardpcode0', 'mean_resp_risk_pop_weighted', 
+                                       'mean_resp_risk_improved_1_pop_weighted',
+                                       'mean_resp_risk_improved_2_pop_weighted',
+                                       'mean_resp_risk_improved_3_pop_weighted')]),
+          "~/Documents/Work/Lnl/covid_modeling_ZWE/outputs/ward_resp_risk.csv", row.names = F)
+save(list=ls(), file = "~/Documents/Work/Lnl/covid_modeling_ZWE/data/resp_illness_layers_data.RData")
+```
+
+To map the prevalence of respiratory illness across Zimbabwe, we used data from the latest DHS. Specifically, we extracted data on the presence of symptoms related to respiratory ilness in children (cough, fever, shortness of breath). 
+
+```{r, echo=FALSE, warning=F, message=F}
+library(sf)
+library(mgcv)
+library(raster)
+library(lubridate)
+library(sf)
+library(disarmr)
+library(gratia)
+library(leaflet)
+library(wesanderson)
+library(knitr)
+#opts_chunk$set(fig.width=10, fig.height=8)
+load("~/Documents/Work/Lnl/covid_modeling_ZWE/data/resp_illness_layers_data.RData")
+df_trim_sf <- st_as_sf(df_trim, coords = c('lng', 'lat'))
+df_trim_sf$prevalence_respiratory_illness <- df_trim_sf$n_positive / df_trim_sf$n_trials
+quick_map(df_trim_sf, 'prevalence_respiratory_illness')
+```
+
+
+These were modeled against a set of potential covariates including population density, distance to nearest road, poverty and handwashing risk as part of a spatial model. 
+
+```{r, echo=FALSE}
+plot(covs)
+```
+
+The figure below shows the relationship between respiratory illness and each risk factor. This shows that communities with higher handwashing risk, higher population density and those closer to roads had higher risk fo respiratory illness.
+
+```{r, echo=FALSE, warning=FALSE}
+# Generate diagnostic plots
+draw(res$diagnostics$model)
+```
+
+Plots of observed versus fitted prevalence at the cluster level show a reasonable model fit, with a tendency to predict towards the mean.
+```{r, echo=FALSE}
+library(ggplot2)
+ggplot(res$diagnostics$obs_fitted) + geom_point(aes(fitted, obs)) + xlim(0,1) + ylim(0,1)
+```
+
+
+This model was used to produce predicted prevalence of respiratory illness (symptoms) on a 1km grid. We also estimated the prevalence of respiratory illness under two scenarios of i) reducing handwashing risk to 0.24 (lowest observed district level value) everywhere, ii) reducing handwashing risk to 0.036 (lowest observed cluster level value) and iii) reducing handwashing risk to 0 everywhere. 
+```{r, echo=FALSE}
+colors <- wes_palette("Zissou1", 10, type = "continuous")[1:10]
+col_pal <- colorNumeric(colors, c(0.02, 0.74), na.color = NA)
+leaflet() %>% addProviderTiles("CartoDB.Positron") %>% 
+  addRasterImage(res$pred_prev_raster, col = col_pal, opacity = 0.8,
+                 group = "Current") %>%
+    addRasterImage(res_improved_1$pred_prev_raster, col = col_pal, opacity = 0.8,
+                  group = "Improved handwashing scenario 1") %>%
+  addRasterImage(res_improved_2$pred_prev_raster, col = col_pal, opacity = 0.8,
+                 group = "Improved handwashing scenario 2") %>%
+    addRasterImage(res_improved_3$pred_prev_raster, col = col_pal, opacity = 0.8,
+                 group = "Improved handwashing scenario 3") %>%
+  addLegend(pal = col_pal, values = c(0.02, 0.74), 
+            title = "Prevalence of respiratory <br> illness symptoms") %>%
+  addLayersControl(baseGroups = c("Current", 
+                                  "Improved handwashing scenario 1", 
+                                  "Improved handwashing scenario 2",
+                                  "Improved handwashing scenario 3")) 
+```
+
+Overall, it is estimated that reducing handwashing risk throughout the country to the minimum observed at district level (0.24) in Zimbabwe would lead to a reduction in the prevalence of respiratory illness from 40.5% to 33.6%. Redicing handwashing risk to 0.036 would reduce the prevalence of respiratory illness to 15.6% and reducing handwashing risk to 0 (i.e. ensuring every household has access to water and handwashing facilities) would reduce the prevalence of respiratory illness to 13.8%.
+
+To obtain district and ward level prevalence estimates under current and improved scenarios, we calculated the population weighted mean. 
+```{r, echo=FALSE, warning=FALSE}
+#poverty_sf_simp <- st_simplify(poverty_sf, dTolerance=0.01)
+basemap <- leaflet() %>% addProviderTiles("CartoDB.Positron")
+col_pal <- colorNumeric(wesanderson::wes_palette("Zissou1", 64, type='continuous')[1:64],
+                        c(0, 0.61))
+
+basemap %>% addPolygons(data = zwe_adm2, 
+                        color = "black",
+                        weight = 1,
+                        fillOpacity = 0.8,
+                        popup = zwe_adm2$NAME_2,
+                        fillColor = col_pal(zwe_adm2$mean_resp_risk_pop_weighted),
+                        group = "District") %>%
+  
+addPolygons(data = zwe_adm2, 
+                        color = "black",
+                        weight = 1,
+                        fillOpacity = 0.8,
+                        popup = zwe_adm2$NAME_2,
+                        fillColor = col_pal(zwe_adm2$mean_resp_risk_improved_1_pop_weighted),
+                        group = "District (improved WASH scenario 1)") %>%
+  
+addPolygons(data = zwe_adm2, 
+                        color = "black",
+                        weight = 1,
+                        fillOpacity = 0.8,
+                        popup = zwe_adm2$NAME_2,
+                        fillColor = col_pal(zwe_adm2$mean_resp_risk_improved_2_pop_weighted),
+                        group = "District (improved WASH scenario 2)") %>%
+  
+  addPolygons(data = zwe_adm2, 
+                        color = "black",
+                        weight = 1,
+                        fillOpacity = 0.8,
+                        popup = zwe_adm2$NAME_2,
+                        fillColor = col_pal(zwe_adm2$mean_resp_risk_improved_3_pop_weighted),
+                        group = "District (improved WASH scenario 3)") %>%
+  
+  addLegend(pal = col_pal,
+            values = c(0, 0.61),
+            title = "Prevalence of <br> respiratory illness") %>%
+  
+  addLayersControl(baseGroups = c("District", 
+                                  "District (improved WASH scenario 1)",
+                                  "District (improved WASH scenario 2)",
+                                  "District (improved WASH scenario 3)"),
+                   options = layersControlOptions(collapsed = F))
+```
+

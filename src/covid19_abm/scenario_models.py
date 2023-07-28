@@ -3,8 +3,9 @@ import sys
 from datetime import datetime, timedelta
 import numpy as np
 
-from covid19_abm.base_model import Country
+from mesa import Agent
 
+from covid19_abm.base_model import Country
 
 class UnmitigatedScenario(Country):
     def __init__(self, params, model_log_file=None, individual_log_file=None):
@@ -366,6 +367,23 @@ class Phase1GovernmentOpenSchoolsScenario(Country):
         # Run model until Jan. 2021.
 
         self.params.scenario_phase1_government_open_schools()
+        stepper = Phase1GovernmentOpenSchoolsScenario.PhaseOneOpenSchools(0, self)
+        self.scheduler.add(stepper)
+
+    class PhaseOneOpenSchools(Agent):
+
+        def step(self):
+            if (self.model.scheduler.real_time.year == 2021) and (self.model.scheduler.real_time.day == 1):
+                if self.model.scheduler.real_time.month == 1:
+                    self.model.active_school_phases.append(2)
+                    self.model.active_school_phases.append(4)
+                elif self.model.scheduler.real_time.month == 5:
+                    self.model.active_school_phases.append(3)
+                    self.model.active_school_phases.append(5)
+
+                self.model.open_schools(np.unique(self.model.district_ids), self.model.active_school_phases)
+
+
 
     def scenario_data_preprocessing(self, df):
         pass
@@ -397,11 +415,24 @@ class DynamicPhase1GovernmentOpenSchoolsScenario(Country):
         # Run model until Jan. 2021.
 
         self.params.scenario_dynamic_phase1_government_open_schools()
+        stepper = DynamicPhase1GovernmentOpenSchoolsScenario.DynamicPhaseOneOpenSchools(0, self)
+        self.scheduler.add(stepper)
+
+    class DynamicPhaseOneOpenSchools(Agent):
+
+        def step(self):
+            if self.model.scheduler.real_time.day == 1:
+                    safe_district_ids, unsafe_district_ids = self.model.get_safe_and_unsafe_districts(quantile_value=0.75)
+                    self.model.open_schools(safe_district_ids, self.model.active_school_phases)
+                    self.model.lockdown_schools(unsafe_district_ids, self.model.active_school_phases)
 
     def scenario_data_preprocessing(self, df):
         pass
 
+
     def scenario_data_postprocessing(self, df):
+        print(df.columns)
+
         #### NOTE: SCENARIO SPECIFIC: Continued lockdown with mining open
         assert(self.params.SCENARIO == 'DYNAMIC_PHASE1_GOVERNMENT_OPEN_SCHOOLS')
         if "phase" in df:
@@ -424,6 +455,21 @@ class AcceleratedGovernmentOpenSchoolsScenario(Country):
         self.is_school_scenario = True
 
         self.params.scenario_accelerated_government_open_schools()
+        stepper = AcceleratedGovernmentOpenSchoolsScenario.AcceleratedGovernmentOpenSchools(0, self)
+        self.scheduler.add(stepper)
+
+    class AcceleratedGovernmentOpenSchools(Agent):
+
+        def step(self):
+            if self.model.scheduler.real_time.day == 1:
+                # Increase phase number every month.
+                current_phase = self.model.active_school_phases[-1] + 1
+
+                if current_phase <= self.model.max_school_phase:
+                    self.model.active_school_phases.append(current_phase)
+                    self.model.open_schools(np.unique(self.model.district_ids), self.model.active_school_phases)
+
+
 
     def scenario_data_preprocessing(self, df):
         pass
@@ -456,29 +502,32 @@ def run_scenario(scenarioClass, scenario_name, sim_fname, R0, sample_size, seed_
 
     if scaled_mobility:
         sim_fname = f'scaled_{scenario_name}_{sim_fname}_R{R0}_samp{sample_size}_seed{seed_num}'
-        stay_duration_file = 'weekday_mobility_duration_count_df-new-district-scaled.pickle'
-        transition_probability_file = 'daily_region_transition_probability-new-district-scaled.csv'
+     #   stay_duration_file = 'weekday_mobility_duration_count_df-new-district-scaled.pickle'
+     #   transition_probability_file = 'daily_region_transition_probability-new-district-scaled.csv'
     else:
         sim_fname = f'{scenario_name}_{sim_fname}_R{R0}_samp{sample_size}_seed{seed_num}'
-        stay_duration_file = 'weekday_mobility_duration_count_df-new-district.pickle'
-        transition_probability_file = 'daily_region_transition_probability-new-district-pre-lockdown.csv'
+    #    stay_duration_file = 'weekday_mobility_duration_count_df-new-district.pickle'
+    #    transition_probability_file = 'daily_region_transition_probability-new-district-pre-lockdown.csv'
 
     now = datetime.now().isoformat()
 
     model_log_file = get_data_dir('logs',  f'model_log_file_{sim_fname}.{now}.log')
     individual_log_file = get_data_dir('logs', f'individual_log_file_{sim_fname}.{now}.log')
 
+    stay_duration_file = 'weekday_mobility_duration_count_df-new-district i5.csv'
+    transition_probability_file = 'daily_region_transition_probability-new-district-pre-lockdown_i5.csv'
+
     params = ParamsConfig(
-        district='new',
-        data_sample_size=sample_size, R0=R0,
+
+        district='new', data_sample_size=sample_size, R0=R0,
 #        normal_interaction_matrix_file=('/Users/sophieayling/Documents/GitHub/covid19-agent-based-model/data/raw/final_close_interaction_matrix.xlsx'),
 #        lockdown_interaction_matrix_file=('/Users/sophieayling/Documents/GitHub/covid19-agent-based-model/data/raw/final_close_interaction_matrix.xlsx'),
-        normal_interaction_matrix_file=get_data_dir('raw', 'final_close_interaction_matrix.xlsx'),
-        lockdown_interaction_matrix_file=get_data_dir('raw', 'final_close_interaction_matrix.xlsx'),
-        stay_duration_file=get_data_dir('preprocessed', 'mobility', stay_duration_file),
-        transition_probability_file=get_data_dir('preprocessed', 'mobility', transition_probability_file),
-        timestep=timestep
-    )
+        normal_interaction_matrix_file=('../../data/raw/interaction_matrix_update 130121.xlsx'),
+        lockdown_interaction_matrix_file=('../../data/raw/interaction_matrix_update 130121.xlsx'),
+
+        stay_duration_file=get_data_dir('preprocessed', 'mobility', 'New Files', stay_duration_file),
+        transition_probability_file=get_data_dir('preprocessed', 'mobility', 'New Files',  transition_probability_file),
+
 #    params.set_new_district_seed(seed_infected=seed_num)
     params.set_old_district_seed(seed_infected=seed_num)
 
@@ -498,7 +547,9 @@ def run_scenario(scenarioClass, scenario_name, sim_fname, R0, sample_size, seed_
         if ((model.epidemic_state >= model.STATE_INFECTED) & (model.epidemic_state < model.STATE_RECOVERED)).sum() == 0:
             break
 
-    model_dump_file = get_data_dir('logs', f'model_dump_file_{sim_fname}.{now}.pickle')
+    model_dump_file = get_data_dir('logs', f'model_dump_file_{sim_fname}.{now}.pickle') # .csv
 
+    #model.log_model_output()
+    
     with open(model_dump_file, 'wb') as fl:
-        pickle.dump(model, fl)
+       pickle.dump(model, fl)

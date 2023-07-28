@@ -33,6 +33,9 @@ class EpidemicScheduler(BaseScheduler):
     def step(self):
         current_time = self.real_time
 
+        for agent in self.agent_buffer(shuffled=False):
+            agent.step()
+
         self.model.log_model_output()
 
         self.update_agent_states()
@@ -371,6 +374,11 @@ class EpidemicScheduler(BaseScheduler):
         )]
 
         district_probs = self.model.params.DAILY_DISTRICT_TRANSITION_PROBABILITY.loc[current_time.weekday()]
+        print("\nDISTRICT MOVER IDS")
+        print(self.model.district_ids[district_out_mover_ids])
+        print("\nDISTRICT PROBS")
+        print(district_probs)
+        
         target_district_ids = np.less(
             np.random.random((len(district_out_mover_ids), 1)),
             # NOTE: We can use .iloc because we explicitly defined that district_ids are sorted increasingly.
@@ -384,7 +392,7 @@ class EpidemicScheduler(BaseScheduler):
             # Take the probability that a person is not allowed to move to other districts
 
             lockdown_not_allowed_target_district_index = np.less(
-                np.array([self.params.LOCKDOWN_ALLOWED_PROBABILITY[i] for i in self.district_ids[district_out_mover_ids]]),
+                np.array([self.params.LOCKDOWN_ALLOWED_PROBABILITY[i] for i in self.model.district_ids[district_out_mover_ids]]),
                 np.random.random(len(target_district_ids)))
 
             # If a person is not allowed to move and target location is on lockdown
@@ -601,8 +609,12 @@ class Country(Model):
 
         self.person_ids = np.array(range(size), dtype=int)
 
-        self.district_ids = np.array(df['district_id'].map(self.params.DISTRICT_NAME_TO_ID))
+        self.district_ids = np.array(df['district_id'])#.map(self.params.DISTRICT_NAME_TO_ID))
         self.household_ids = np.array(df['household_id'].map(self.params.HOUSEHOLD_NAME_TO_ID))
+
+        #print("\nINIT ********")
+        #print(df['district_id'])
+        #print(self.params.DISTRICT_NAME_TO_ID)
 
         self.age = np.array(df['age'])
         self.sex = np.array(df['sex'].map(self.params.SEX_NAME_TO_ID))
@@ -783,12 +795,18 @@ class Country(Model):
         self.initialize_epidemic_vectors(size)
         self.initialize_clinical_vectors(size)
 
+        #print("\nLOAD_AGENTS")
+        #print(self.params.SEED_INFECT_DISTRICT_IDS)
+        #print(self.current_district_ids)
+
         if infect_num is not None:
+
             candidate_ids = self.person_ids[
                 np.in1d(self.current_district_ids, self.params.SEED_INFECT_DISTRICT_IDS) &
                 ((self.age > self.params.SEED_INFECT_AGE_MIN) & (self.age < self.params.SEED_INFECT_AGE_MAX))
             ]
 
+#            print(candidate_ids)
             neighbors_to_infect = []
 
             for did, pr in self.params.DISTRICT_ID_INFECTED_PROB.items():
@@ -797,11 +815,16 @@ class Country(Model):
                 ic = int(pr * infect_num) + 1
                 ic = min(ic, len(cands)) 
                 # above line added 1st Dec to ensure not more people than exist are infected
-                neighbors_to_infect.append(np.random.choice(cands, size=ic, replace=False))
+                randchoices = np.random.choice(cands, size=ic, replace=False)
+                neighbors_to_infect.extend(randchoices.tolist())
 
-            neighbors_to_infect = np.concatenate(neighbors_to_infect)
+#            neighbors_to_infect = np.concatenate(neighbors_to_infect)
 
-            self.set_epidemic_status(neighbors_to_infect)
+            neighbor_array = np.array(neighbors_to_infect)
+
+            ##### TODO
+
+            self.set_epidemic_status(neighbor_array)
 
         del(df)
         gc.collect()
@@ -813,34 +836,6 @@ class Country(Model):
             self.economic_activity_location_ids[school_educ_ids] = self.school_ids[school_educ_ids]
 
     def step(self):
-
-        if self.params.SCENARIO == "DYNAMIC_PHASE1_GOVERNMENT_OPEN_SCHOOLS":
-            # Check if 1st of month. Assess epidemic status.
-            if self.scheduler.real_time.day == 1:
-                safe_district_ids, unsafe_district_ids = self.get_safe_and_unsafe_districts(quantile_value=0.75)
-                self.open_schools(safe_district_ids, self.active_school_phases)
-                self.lockdown_schools(unsafe_district_ids, self.active_school_phases)
-
-        elif self.params.SCENARIO == "ACCELERATED_GOVERNMENT_OPEN_SCHOOLS":
-            if self.scheduler.real_time.day == 1:
-                # Increase phase number every month.
-                current_phase = self.active_school_phases[-1] + 1
-
-                if current_phase <= self.max_school_phase:
-                    self.active_school_phases.append(current_phase)
-                    self.open_schools(np.unique(self.district_ids), self.active_school_phases)
-
-        elif self.params.SCENARIO == "PHASE1_GOVERNMENT_OPEN_SCHOOLS":
-            if (self.scheduler.real_time.year == 2021) and (self.scheduler.real_time.day == 1):
-                if self.scheduler.real_time.month == 1:
-                    self.active_school_phases.append(2)
-                    self.active_school_phases.append(4)
-                elif self.scheduler.real_time.month == 5:
-                    self.active_school_phases.append(3)
-                    self.active_school_phases.append(5)
-
-                self.open_schools(np.unique(self.district_ids), self.active_school_phases)
-
         self.scheduler.step()
 
     def set_epidemic_status(self, neighbors_to_infect):
@@ -851,6 +846,7 @@ class Country(Model):
 
         current_time = self.scheduler.real_time
 
+        #print(neighbors_to_infect)
         self.infected_at_district_ids[neighbors_to_infect] = self.current_district_ids[neighbors_to_infect]
         self.infected_at_location_ids[neighbors_to_infect] = self.current_location_ids[neighbors_to_infect]
 
@@ -1088,9 +1084,9 @@ class Country(Model):
         return location_person_ids
 
     def log_model_output(self):
-        print("log_flag")
+       
         if self.scheduler.real_time.hour == 0:   # temp edit from 8 by Sophie and Sarah to test model 4/12
-            print("log_flag_success")
+            
             current_time = self.scheduler.real_time
             if self.model_log_file is not None:
                 data = dict(

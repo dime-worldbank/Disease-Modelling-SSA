@@ -70,13 +70,33 @@ build/*
 # Julia
 !/**/*.jl
 
+# Java
+!/**/*.java
+!/**/*.jar
+
+# Yaml
+!/**/*.yml
+!/**/*.yaml
+
+######################
+# Including some of the input data which corresponds to important parameters
+!/configs/*.txt
+!/configs/*.csv
+/dataForSophie/*
+
+
+!/data/configs/*.txt
+!/data/configs/*.csv
+/data/verification/*.txt
+/data/verification/*.csv
+
 #######################
 # Include some additional file formats in any output folder. You might have
 # to change the name of the Output folder to whatever it is called in your
 # project, but we strongly recommend that you only include these files in
 # a subset of the folders where you are certain no private data is ever stored.
-!/**/Output/**/*.txt
-!/**/Output/**/*.csv
+##!/**/Output/**/*.txt ## there are a few too many of these right now so commenting out
+##!/**/Output/**/*.csv ## there are a few too many of these right now so commenting out
 !/**/Output/**/*.xml
 !/**/Output/**/*.eps
 !/**/Output/**/*.svg
@@ -91,3 +111,5 @@ password.*
 passwords.*
 password/
 passwords/
+
+.DS_Store

@@ -1,4 +1,4 @@
-# Agent-based Model (ABM) for CoVid19
+# Agent-based Model (ABM) for CoVid19 in Sub Saharan Africa (SSA)
 
 This repository contains the implementation of the agent-based model used to model the spread of COVID-19.
 
@@ -74,27 +74,28 @@ Additional parameters are contained in [`src/covid19_abm/params.py`](src/covid19
 
 ## Running the model
 
-1. The core model implementation can be found in [`src/covid19_abm/base_model.py`](src/covid19_abm/base_model.py).
+1. The core model implementation can be found in [`java/WorldBankCovid19/libs/WB_covid19ABM.jar`](java/WorldBankCovid19/libs/WB_covid19ABM.jar).
 
-2. A script in [`scripts/run_simulation_scenarios_full_data.py`](scripts/run_simulation_scenarios_full_data.py) can be configured to identify which scenarios will be simulated and basic parameters such as `R0` can be defined.
+2. The parameters for deciding the input file configurations can be found in [`src/covid19_abm/params.py`](src/covid19_abm/params.py) can be configured to decide which scenarios will be simulated and basic parameters such as the rate of transmission (beta) for R0.
 
-3. Specification of scenarios are defined in [`src/covid19_abm/scenario_models.py`](src/covid19_abm/scenario_models.py)
+3. Specification of scenarios are defined in (this will be edited)  [`src/covid19_abm/scenario_models.py`](src/covid19_abm/scenario_models.py)
 
 ## Notice
 
-This repository may contain some codes and/or notebooks that may break since this was migrated from a different workspace. Kindly report any problems using Github's issues or e-mail me at asolatorio@worldbank.org or avsolatorio@gmail.com.
+This repository may contain some codes and/or notebooks that may break since this was migrated from a different workspace. Kindly report any problems using Github's issues or e-mail sayling@worldbank.org with s.wise@ucl.ac.uk and smilusheva@worldbank.org in copy. 
 
 Any errors found in the model implementation and/or logic are highly encouraged to be reported using the same channel.
+This java model was adapted from a version written in python by Aivin Solatorio, Data Scientist, World Bank. 
 
 ## Citation
 
 For work or publication derived from this model, kindly cite this repository in your publication using the following details.
 
-      @misc{Solatorio2020,
-         author = {Solatorio, Aivin},
-         title = {Agent-based Model (ABM) for CoVid19},
-         year = {2020},
+      @misc{Wise2021,
+         author = {Wise, Sarah},
+         title = {Agent-based Model (ABM) for CoVid19 - java version},
+         year = {2021},
          publisher = {GitHub},
          journal = {GitHub Repository},
-         howpublished = {\url{https://github.com/worldbank/covid19-agent-based-model}},
+         howpublished = {\url{https://github.com/worldbank/Disease-Modelling-SSA}},
       }

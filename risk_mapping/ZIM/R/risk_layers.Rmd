@@ -1,0 +1,197 @@
+---
+title: "Handwashing and water risk Zimbabwe"
+output: html_document
+---
+```{r, echo=FALSE, message=FALSE, include = FALSE, eval=FALSE}
+library(leaflet)
+library(sf)
+library(raster)
+library(mgcv)
+library(disarmr)
+library(webshot)
+library(viridis)
+library(gratia)
+library(gridExtra)
+setwd("~/Documents/Work/Lnl/covid_modeling_ZWE/")
+risk_data <- read.csv("data/dhs_cluster_water_covid_risk_gps.csv")
+risk_data_sf <- st_as_sf(risk_data, coords = c('LONGNUM', 'LATNUM'))
+pop <- raster('/Users/sturrockh/Documents/Work/GIS/WorldPop/global/ppp_2020_1km_Aggregated.tif')
+wards <- st_read('/Users/sturrockh/Dropbox/Data to be shared/admin zone boundaries/Zimbabwe admin zones/Zimbabwe_admin_zone.shp')
+wards <- st_simplify(wards, dTolerance = 100)
+wards <- st_transform(wards, crs(pop))
+pop <- crop(pop, wards)
+pop <- mask(pop, wards)
+
+# Import covariates
+NTL <- raster("covariate_rasters/zwe_viirs_100m_2015.tif")
+dist_to_road <- raster("covariate_rasters/zwe_osm_dst_road_100m_2016.tif")
+NTL <- resample(NTL, pop)
+dist_to_road <- resample(dist_to_road, pop)
+
+# Extract covars
+risk_data_sf$NTL <- extract(NTL, risk_data_sf)
+risk_data_sf$dist_to_road <- extract(dist_to_road, risk_data_sf)
+risk_data_df <- as.data.frame(risk_data_sf)
+risk_data_df <- cbind(risk_data_df, st_coordinates(risk_data_sf))
+
+# Standardize weights
+risk_data_df$weights <- risk_data_df$total_hhs / mean(risk_data_df$total_hhs)
+
+# Fit beta model
+gam_mod_hw <- gam(hw_risk_index ~ s(NTL) + s(dist_to_road) + s(X, Y, k=300),
+               data = risk_data_df, family = "betar", select = T, weights = weights)
+
+gam_mod_w <- gam(w_risk_index ~ s(NTL, k=50) + s(dist_to_road) + s(X, Y, k=300),
+               data = risk_data_df, family = "betar", select = T, weights = weights)
+# gam_mod_w_2 <- gam(risk_data_sf$w_risk_index ~ te(NTL, dist_to_road, k=15) + #s(dist_to_road) +
+#                      s(X, Y, k=100),
+#                  data = risk_data_df, family = "betar")
+
+#gam.check(gam_mod_w_2)
+
+# Generate predictor raster stack
+X_raster <- Y_raster <- pop
+X_raster[] <- coordinates(pop)[,1]
+Y_raster[] <- coordinates(pop)[,2]
+pred_stack <- stack(X_raster,
+                    Y_raster,
+                    NTL,
+                    dist_to_road)
+names(pred_stack) <- c('X', 'Y', 'NTL', 'dist_to_road')
+
+pred_raster_hw <- predict(pred_stack, gam_mod_hw, type="response")
+pred_raster_w <- predict(pred_stack, gam_mod_w, type="response")
+
+# Create pop-weighted ward means
+wards$total_pop <- extract(pop, wards, sum, na.rm=T)
+weighted_sum_hw <- extract(pred_raster_hw*pop, wards, sum, na.rm=T)
+weighted_sum_w <- extract(pred_raster_w*pop, wards, sum, na.rm=T)
+wards$mean_hw_risk_pop_weighted <- weighted_sum_hw / wards$total_pop
+wards$mean_w_risk_pop_weighted <- weighted_sum_w / wards$total_pop
+write.csv(st_drop_geometry(wards[,c('wardpcode0',
+                                    'total_pop',
+                                 'mean_hw_risk_pop_weighted',
+                                 'mean_w_risk_pop_weighted')]),
+          "ward_hw_w_risk.csv", row.names = F)
+
+zwe_adm2 <- readRDS('/Users/sturrockh/Documents/Work/Lnl/covid_modeling_ZWE/gadm36_ZWE_2_sp.rds')
+zwe_adm2 <- st_as_sf(zwe_adm2)
+#zwe_adm2 <- st_simplify(zwe_adm2, dTolerance = 0.01)
+
+# Create pop-weighted district means
+zwe_adm2$total_pop <- extract(pop, zwe_adm2, sum, na.rm=T)
+weighted_sum_hw <- extract(pred_raster_hw*pop, zwe_adm2, sum, na.rm=T)
+weighted_sum_w <- extract(pred_raster_w*pop, zwe_adm2, sum, na.rm=T)
+zwe_adm2$mean_hw_risk_pop_weighted <- weighted_sum_hw / zwe_adm2$total_pop
+zwe_adm2$mean_w_risk_pop_weighted <- weighted_sum_w / zwe_adm2$total_pop
+write.csv(st_drop_geometry(zwe_adm2),
+          "outputs/district_hw_w_risk.csv", row.names = F)
+save(list=ls(), file="~/Documents/Work/Lnl/covid_modeling_ZWE/data/risk_layers_data.RData")
+```
+
+To create estimates of handwashing and water risk at district and ward level, we created and aggregated continuous predictions at 1km resolution using DHS data and geospatial modeling. Below are maps of raw handwashing and water risk indices per cluster. Risk varies from 0-1, with higher values indicating higher risk (i.e. less access).
+
+```{r, echo=F, message=F, warning=F}
+library(leaflet)
+library(sf)
+library(raster)
+library(mgcv)
+library(disarmr)
+library(webshot)
+library(viridis)
+library(gratia)
+library(gridExtra)
+library(wesanderson)
+load("~/Documents/Work/Lnl/covid_modeling_ZWE/data/risk_layers_data.RData")
+# Map
+quick_map(risk_data_sf, 'hw_risk_index')
+quick_map(risk_data_sf, 'w_risk_index', colors =  magma(64)[1:55])
+```
+
+Two predictors, mean night light intensity in 2015 and distance to road (OSM) were considered. These were resampled to the same 1km resolution as population density raster availabel from Facebook.
+
+```{r, echo=FALSE}
+par(mfrow = c(1, 3))
+plot(pop, main = "Population")
+plot(NTL, main = "Night time light intensity")
+plot(dist_to_road, main = "Distance to nearest road")
+```
+
+To model the 2 indices, we fit Beta Generalized Additive Models which allow for non-linear covariate effects. Additionally, we included a bivariate smooth on latitude and longitude to account for any residual spatial effect.
+
+Plots of the spatial effects show the non-linear relationship with each covariate. For handwashing risk (top) there was a general negative relationship with night light intensity with higher values of light intensity associated with lower risk. There was no relationship with distance to road. For water risk (bottom), there was a negative association with night lights and a positive association with distance to road.
+```{r, echo=FALSE}
+draw(gam_mod_hw)
+draw(gam_mod_w)
+```
+
+Take a look at the fitted (predicted) versus observed values. These show that the model provides reasonable fit.
+```{r, echo=F}
+grid.arrange(gratia::observed_fitted_plot(gam_mod_hw, title = "Handwashing risk"),
+    gratia::observed_fitted_plot(gam_mod_w, title = "Water risk"), ncol=2)
+```
+
+### Generating predicted surfaces
+Using the model, we predicted the 2 indices at 1km resolution across the country.
+```{r, echo=F}
+wes_colors <- wes_palette(64, name = "Zissou1", type = "continuous")
+plot(pred_raster_hw, col =  wes_colors, 
+     main = "Hand washing risk index")
+plot(pred_raster_w, col = magma(64)[1:55], main = "Water risk index")
+#writeRaster(pred_raster_hw, "outputs/pred_raster_hw.tif")
+#writeRaster(pred_raster_w, "outputs/pred_raster_w.tif")
+# quick_map(pred_raster_hw, col = viridis(64), raster_legend_title = "Handwashing risk index")
+# quick_map(pred_raster_w, col = magma(64)[1:55], raster_legend_title = "Water risk index")
+```
+
+
+### Ward level summaries
+To obtain risk by ward, we calculated the population-weighted mean.
+```{r, echo=F}
+
+# Plot ward level
+hw_pal <- colorNumeric(wes_colors[1:64], wards$mean_hw_risk_pop_weighted)
+w_pal <- colorNumeric( magma(64)[1:55], wards$mean_w_risk_pop_weighted)
+basemap <- leaflet() %>% addProviderTiles("CartoDB.Positron")
+basemap %>% addPolygons(data = wards,
+                        col = "black",
+                        fillColor = hw_pal(wards$mean_hw_risk_pop_weighted), weight = 1,
+                        fillOpacity = 0.8, opacity = 0.5) %>%
+  addLegend(pal = hw_pal, values = wards$mean_hw_risk_pop_weighted, title = "Handwashing risk")
+```
+
+```{r, echo=F}
+basemap %>% addPolygons(data = wards,
+                        col = "black",
+                        fillColor = w_pal(wards$mean_w_risk_pop_weighted), weight = 1,
+                        fillOpacity = 0.8, opacity = 0.5)%>%
+  addLegend(pal = w_pal, values = wards$mean_w_risk_pop_weighted, title = "Water risk")
+
+```
+
+### District level summaries
+To obtain risk by district, we calculated the population-weighted mean.
+```{r, echo=F, include = F}
+
+# Plot ward level
+hw_pal_dis <- colorNumeric(wes_colors[1:64], zwe_adm2$mean_hw_risk_pop_weighted)
+w_pal_dis <- colorNumeric( magma(64)[1:55], zwe_adm2$mean_w_risk_pop_weighted)
+basemap <- leaflet() %>% addProviderTiles("CartoDB.Positron")
+```
+
+```{r, echo=F}
+basemap %>% addPolygons(data = zwe_adm2,
+                        col = "black",
+                        fillColor = hw_pal_dis(zwe_adm2$mean_hw_risk_pop_weighted), weight = 1,
+                        fillOpacity = 0.8, opacity = 0.5, label = zwe_adm2$NAME_2) %>%
+  addLegend(pal = hw_pal_dis, values = zwe_adm2$mean_hw_risk_pop_weighted, title = "Handwashing risk")
+
+```
+
+```{r, echo=F}
+basemap %>% addPolygons(data = zwe_adm2,
+                        col = "black",
+                        fillColor = w_pal_dis(zwe_adm2$mean_w_risk_pop_weighted), weight = 1,
+                        fillOpacity = 0.8, opacity = 0.5, label = zwe_adm2$NAME_2) %>%
+  addLegend(pal = w_pal_dis, values = zwe_adm2$mean_w_risk_pop_weighted, title = "Handwashing risk")
+```

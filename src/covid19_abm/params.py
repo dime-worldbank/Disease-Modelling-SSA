@@ -7,6 +7,7 @@ import pickle
 from covid19_abm.dir_manager import get_data_dir
 
 
+         
 class ParamsConfig:
 
     # This is the probability that a person will go out of his/her household during weekdays.
@@ -216,18 +217,19 @@ class ParamsConfig:
 
     # Map of district to hospital ids
     DISTRICT_HOSPITALS = {}
+    
+################## MOBILITY PARAMS ########################
 
     DISTRICT_MOVEMENT_ALLOWED_AGE = 18
 
     def __init__(
         self, district='old', data_sample_size=5, R0=None,
-        #normal_interaction_matrix_file='interaction_matrix_update 130121.xlsx',
-        normal_interaction_matrix_file='final_close_interaction_matrix_normal.xlsx',
-        lockdown_interaction_matrix_file='final_close_interaction_matrix_lockdown.xlsx',
-        #lockdown_interaction_matrix_file='interaction_matrix_update 130121.xlsx',
-        stay_duration_file='weekday_mobility_duration_count_df.pickle',
-        transition_probability_file='daily_region_transition_probability.csv',
-        intra_district_decreased_mobility_rates_file='intra_district_decreased_mobility_rates.csv',
+        normal_interaction_matrix_file='../../configs/interaction_matrix_nld.txt', # updated by Sophie
+        lockdown_interaction_matrix_file='../../configs/interaction_matrix_ld.txt',  # updated by Sophie
+        stay_duration_file='../../preprocessed/mobility/New Files/weekday_mobility_duration_count_df-new-district i5.pickle', # i5 to start
+        transition_probability_file='../../preprocessed/mobility/New Files/daily_region_transition_probability-new-district-post-lockdown_i5.csv', # i5 to start
+        intra_district_decreased_mobility_rates_file='../../preprocessed/mobility/intra_district_decreased_mobility_rates.csv',
+
         timestep=None,
     ):
         if R0 is not None:
@@ -235,6 +237,36 @@ class ParamsConfig:
 
         if timestep is not None:
             self.step_timedelta = timestep
+
+
+        # read in from files
+
+
+        ################## MORE EPIDEMIOLOGICAL PARAMS (move up once pushed) ########################
+
+        #os.chdir("/Users/sophieayling/Documents/GitHub/Disease-Modelling-SSA/src/covid19_abm")
+        os.chdir("/Users/swise/workspace/worldbank/Disease-Modelling-SSA/src/covid19_abm")
+        #cwd = os.getcwd()
+        #print(cwd)
+
+        # Functions for reading in params as text files 
+
+        self.susceptibility_by_age = pd.Series(self.readInParams("../../configs/susceptibility_by_age.txt"))
+
+        self.hospitalization_rates_by_age = pd.Series(self.readInParams("../../configs/hospitalization_rates_by_age.txt"))
+
+        self.critical_rates_by_age = pd.Series(self.readInParams("../../configs/critical_rates_by_age.txt"))
+
+        self.hospitalized_death_rates_by_age = pd.Series(self.readInParams("../../configs/hospitalized_death_rates_by_age.txt"))
+            
+        self.per_capita_contact_rates_wk = pd.Series(self.readInParams("../../configs/per_capita_contact_rates_work.txt"))
+
+        self.ECONOMIC_STATUS_WEEKDAY_MOVEMENT_PROBABILITY = self.readInParams2("../../configs/ECONOMIC_STATUS_WEEKDAY_MOVEMENT_PROBABILITY.txt")
+
+        self.ECONOMIC_STATUS_OTHER_DAY_MOVEMENT_PROBABILITY = self.readInParams2("../../configs/ECONOMIC_STATUS_OTHER_DAY_MOVEMENT_PROBABILITY.txt")
+
+        # STOP READ IN
+
 
         self.data_sample_size = data_sample_size
         self.district_type = district  # 'new' or 'old'
@@ -259,20 +291,16 @@ class ParamsConfig:
         # Computing beta with contact matrix https://github.com/mrc-ide/squire/blob/master/R/beta.R
         # https://cran.r-project.org/web/packages/socialmixr/vignettes/introduction.html
         self.AGE_ASYMPTOMATIC_INFECTION_RATE = pd.Series({
-            age: self.R0 / ((timedelta(days=self.ASYMPTOMATIC_CONTAGIOUS_PERIOD_MEAN) / self.step_timedelta) * self.per_capita_contact_rates.iloc[(self.per_capita_contact_rates.index >= age).argmax()]) for age in self.ages})
+            age: self.R0 / ((timedelta(days=self.ASYMPTOMATIC_CONTAGIOUS_PERIOD_MEAN) / self.step_timedelta) * self.per_capita_contact_rates_wk.iloc[(self.per_capita_contact_rates_wk.index >= age).argmax()]) for age in self.ages})
         self.AGE_ASYMPTOMATIC_INFECTION_RATE_VALUES = self.AGE_ASYMPTOMATIC_INFECTION_RATE[sorted(self.ages)].values
 
         self.AGE_SYMPTOMATIC_INFECTION_RATE = pd.Series({
-            age: self.R0 / ((timedelta(days=self.SYMPTOMATIC_CONTAGIOUS_PERIOD_MEAN) / self.step_timedelta) * self.per_capita_contact_rates.iloc[(self.per_capita_contact_rates.index >= age).argmax()]) for age in self.ages})
+            age: self.R0 / ((timedelta(days=self.SYMPTOMATIC_CONTAGIOUS_PERIOD_MEAN) / self.step_timedelta) * self.per_capita_contact_rates_wk.iloc[(self.per_capita_contact_rates_wk.index >= age).argmax()]) for age in self.ages})
         self.AGE_SYMPTOMATIC_INFECTION_RATE_VALUES = self.AGE_SYMPTOMATIC_INFECTION_RATE[sorted(self.ages)].values
 
         self.DISTRICT_MOVING_ECONOMIC_STATUS = set([i for i, j in self.ECONOMIC_STATUS_WEEKDAY_MOVEMENT_PROBABILITY.items() if j > 0])
         #self.DISTRICT_MOVING_ECONOMIC_STATUS.remove('In School')
         #self.DISTRICT_MOVING_ECONOMIC_STATUS.remove('Teachers') # TODO: reimpelment these
-
-        # Values in hours
-        self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX = pd.read_pickle(stay_duration_file)
-        self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX[['avg_duration', 'stddev_duration']] = self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX[['avg_duration', 'stddev_duration']] + 0.001
 
         self.DAILY_DISTRICT_TRANSITION_PROBABILITY = pd.read_csv(transition_probability_file, index_col=[0, 1])
         self.DAILY_DISTRICT_TRANSITION_PROBABILITY = self.DAILY_DISTRICT_TRANSITION_PROBABILITY.loc[sorted(self.DAILY_DISTRICT_TRANSITION_PROBABILITY.index)]
@@ -281,10 +309,26 @@ class ParamsConfig:
         self.DISTRICT_ID_TO_NAME = dict(enumerate(self.DISTRICT_IDS))
         self.DISTRICT_NAME_TO_ID = {j: i for i, j in self.DISTRICT_ID_TO_NAME.items()}
 
+        #print(self.DISTRCT_NAME_TO_ID)
+
         self.DAILY_DISTRICT_TRANSITION_PROBABILITY = self.DAILY_DISTRICT_TRANSITION_PROBABILITY[self.DISTRICT_IDS]
 
         for wid_i in self.DISTRICT_IDS:
             self.DISTRICT_HOSPITALS[wid_i] = [f'c_{wid_i}_{i}' for i in list(np.random.randint(0, 1000, size=10))]
+
+        # Values in hours
+        self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX = pd.read_csv(stay_duration_file) #
+
+        myregions = sorted(self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX['home_region'].unique())
+        full_idx = [(dow, 'd_' + str(src), 'd_' + str(dst)) for dow in range(7) for src in myregions for dst in myregions]
+
+        self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX["idx"] = [(x, 'd_' + str(y), 'd_' + str(z)) for (x, y, z) in zip(self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX["weekday"], self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX["home_region"], self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX["region"])]
+        self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX = self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX.set_index("idx")
+        self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX = self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX.reindex(full_idx)
+
+        self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX['avg_duration'] = self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX['avg_duration'].fillna(24)
+        self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX['stddev_duration'] = self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX['stddev_duration'].fillna(self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX['stddev_duration'].mean())
+        self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX[['avg_duration', 'stddev_duration']] = self.DISTRICT_WEEKDAY_OD_STAY_COUNT_MATRIX[['avg_duration', 'stddev_duration']] + 0.001
 
         if self.district_type == 'old':
             self.set_old_district_seed(seed_infected=3)
@@ -300,40 +344,32 @@ class ParamsConfig:
 
         self.intra_district_decreased_mobility_rates_file = intra_district_decreased_mobility_rates_file
 
-    def set_interaction_parameters(self, interaction_size_file, interaction_matrix_file):
+
+    def readInParams(self, filename):
+        rawfile = pd.read_csv(filename, skipinitialspace=True)
+        rawfile.dropna(axis=1, inplace=True)
+        rawDict = { k: v for (k,v) in zip(rawfile["age"], rawfile["rate"])} 
+        maxVal = float(rawDict.pop("older"))
+        myDict = {int(k): float(v) for (k, v) in rawDict.items()}
+        myDict[np.inf] = maxVal
+        return myDict
+
+    # define another function that will read in the other format of text files and turn them to objects
+    def readInParams2(self, filename):
+        rawfile = pd.read_csv(filename, skipinitialspace=True)
+        rawfile.dropna(axis=1, inplace=True)
+        myDict = { k:float(v) for (k,v) in zip(rawfile["economic_status"], rawfile["movement_probability"])} 
+        return myDict
+
+
+    def set_interaction_parameters(self, interaction_matrix_file):
         # This matrix defines the probability of an interaction between two economic status.
         # This will be multiplied by the population density per district to quantify the mixing intensity per district.
         # ECONOMIC_STATUS_INTERACTION_MATRIX = {'employed': {'unemployed'}}
+        
+        self.ECONOMIC_STATUS_INTERACTION_MATRIX = pd.read_csv("../../configs/interaction_matrix_nld.txt", index_col=0)
+        self.ECONOMIC_STATUS_INTERACTION_SIZE_MAP = pd.read_csv("../../configs/no_interactions_wk_econ.txt", index_col=0)
 
-        print("LOOKING FOR " + interaction_matrix_file)
-
-#        self.ECONOMIC_STATUS_INTERACTION_MATRIX = pd.read_excel(
-#            interaction_matrix_file,
-#            #sheet_name='interaction_matrix', index_col=0)
-#            sheet_name='interactions', index_col=0)
-
-        self.ECONOMIC_STATUS_INTERACTION_MATRIX = pd.DataFrame(pd.read_csv(
-            interaction_size_file, sep="\t"
-            #sheet_name='interaction_matrix', index_col=0)
-            ))
-
-
-        print("set_interaction_parameters ******")
-        print(self.ECONOMIC_STATUS_INTERACTION_MATRIX)
-
-#        self.ECONOMIC_STATUS_INTERACTION_SIZE_MAP = pd.read_excel(
-#            interaction_matrix_file,
-#            #sheet_name='interactions', index_col=0)['interactions']
-#            sheet_name='interactions', index_col=0)['interactions']
-
-        self.ECONOMIC_STATUS_INTERACTION_SIZE_MAP = pd.DataFrame(pd.read_csv(
-            interaction_matrix_file, sep="\t"
-            ))
-
-
-        print("\nset_interaction_map")
-        print(self.ECONOMIC_STATUS_INTERACTION_SIZE_MAP)
-        print("\n")
 
         # self.DISTRICT_POP_DENSITY = pd.read_csv(os.path.join(data_dir, 'district_pop_dens_friction.csv'))
 
@@ -345,6 +381,8 @@ class ParamsConfig:
             self.ECONOMIC_STATUS_INTERACTION_MATRIX_CUMSUM.columns].values
 
     def set_intra_district_decreased_mobility_rates(self, intra_district_decreased_mobility_rates_file):
+
+        print(intra_district_decreased_mobility_rates_file)
         self.LOCKDOWN_DECREASED_MOBILITY_RATE = pd.read_csv(
             get_data_dir('preprocessed', 'mobility', intra_district_decreased_mobility_rates_file),
             index_col=0
@@ -362,6 +400,7 @@ class ParamsConfig:
             # 33% decrease in inter-district mobility (empirical)
             self.LOCKDOWN_ALLOWED_PROBABILITY = {w: 0.67 for w in self.DISTRICT_ID_TO_NAME}
             # self.LOCKDOWN_DECREASED_MOBILITY_RATE = {w: 0.59 for w in self.DISTRICT_ID_TO_NAME}
+            # SA: this is currently not being used. Aivin says we could here replace the input parameter with a file with the reduced mobility levels. Am concerned that we have w everywhere here, should be d? This should then be updated --> scenario_models, THEN to base_model for scenario specific changes  
         elif lockdown_mode == 'lockdown_assumed':
             self.LOCKDOWN_ALLOWED_PROBABILITY = {w: 0.05 for w in self.DISTRICT_ID_TO_NAME}
             # 41% decrease in short-range mobility
@@ -407,7 +446,7 @@ class ParamsConfig:
         # model.params.DISTRICT_NAME_TO_ID['d_2'] -> 11 Harare
         # model.params.DISTRICT_NAME_TO_ID['d_18'] -> 9 Goromonzi
 
-        with open(get_data_dir('preprocessed', 'line_list', 'latest_line_list.pickle'), 'rb') as fl:
+        with open(get_data_dir('preprocessed', 'line_list', 'd_line_list.pickle'), 'rb') as fl:
             infected_count = pickle.load(fl)
             self.DISTRICT_ID_INFECTED_COUNT = {self.DISTRICT_NAME_TO_ID.get(i): j for i, j in infected_count.items()}
             self.DISTRICT_ID_INFECTED_PROB = pd.Series(self.DISTRICT_ID_INFECTED_COUNT)
@@ -419,18 +458,22 @@ class ParamsConfig:
         self.SEED_INFECT_NUM = seed_infected  # 3 -> 66 for a 5% sample
         self.SIMULATION_START_DATE = datetime(2020, 9, 1, 8)
 
-        self.data_file_name = get_data_dir('preprocessed', 'census', f'zimbabwe_expanded_census_consolidated_{self.data_sample_size}pct.pickle')
+        self.data_file_name = get_data_dir('preprocessed', 'census', 'sample_1500.pickle')#f'zimbabwe_expanded_census_consolidated_{self.data_sample_size}pct.pickle')
 
     def get_effective_R0(self, hw):
         self.HW_MIN_TO_MEAN_INCREASE = 0.05
         self.HW_MIN_TO_MEAN_DELTA = self.MEAN_HW_RISK - self.MIN_HW_RISK
 
         return 1 + (self.HW_MIN_TO_MEAN_INCREASE * (hw - self.MEAN_HW_RISK) / self.HW_MIN_TO_MEAN_DELTA)
+    
+    
+
+        ################## SCENARIO FUNCTIONS SET UP ########################
 
     def scenario_test_interaction_matrix_sensitivity(self):
         self.SCENARIO = 'INTERACTION_MATRIX_SENSITIVITY'
         self.set_interaction_parameters(
-            get_data_dir('raw', 'sensitivity_interaction_matrix.xlsx'))
+            get_data_dir('raw', 'age-econ_matrix', 'sensitivity_interaction_matrix.xlsx'))
 
     def scenario_handwashing_risk(self):
         self.SCENARIO = 'HANDWASHING_RISK'
