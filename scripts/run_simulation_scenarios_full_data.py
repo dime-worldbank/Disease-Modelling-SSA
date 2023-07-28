@@ -29,7 +29,7 @@ scenarios = [
 ]
 
 run_env = os.environ.copy()
-#run_env['PATH'] = '/opt/anaconda3/envs/covid19_abm/bin/:' + run_env['PATH']
+#run_env['PATH'] = '/Users/swise/opt/anaconda3/envs/covid19_abm/bin/:' + run_env['PATH'] #'/opt/anaconda3/envs/covid19_abm/bin/:' + run_env['PATH']
 run_env['OMP_NUM_THREADS'] = '1'
 
 run_scenarios_script = 'run_scenarios.py'

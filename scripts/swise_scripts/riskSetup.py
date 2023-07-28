@@ -12,6 +12,7 @@ from covid19_abm.dir_manager import get_data_dir
 
 #
 # SETUP
+#os.chdir("/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data")
 os.chdir("/Users/sophieayling/Documents/GitHub/Disease-Modelling-SSA/data")
 cwd = os.getcwd()
 print(cwd)
