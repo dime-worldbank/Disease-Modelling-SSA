@@ -187,7 +187,8 @@ class EpidemicScheduler(BaseScheduler):
         if location == 'house':
             # Adjust here since the average contact in household is ~3x less than the contacts outside.
             # Average household size is 4 while age structured contact rate is ~11.
-            infection_rates *= 3
+            #infection_rates *= 3
+            infection_rates = self.Params.per_capital_contact_rate_home
 
         if self.model.params.SCENARIO.startswith('HANDWASHING_RISK'):
             # Since we assume that all people are in the same location, the district information should be the same.
@@ -636,7 +637,12 @@ class Country(Model):
         self.left_district_at = np.full(shape=size, fill_value=datetime.max)
         self.return_district_at = np.full(shape=size, fill_value=datetime.max)
 
+        print("\n\nECONSTATS\n")
+        print(self.params.ECON_STAT_NAME_TO_ID)
+        print("\n\nDISTRICTS\n")
+        print(self.params.DISTRICT_MOVING_ECONOMIC_STATUS)
         district_moving_economic_status_ids = [self.params.ECON_STAT_NAME_TO_ID[es] for es in self.params.DISTRICT_MOVING_ECONOMIC_STATUS]
+        print("\n")
 
         self.DISTRICT_MOVER_FALSE = 0
         self.DISTRICT_MOVER_TRUE = 1

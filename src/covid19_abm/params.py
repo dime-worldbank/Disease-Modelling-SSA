@@ -10,9 +10,140 @@ from covid19_abm.dir_manager import get_data_dir
          
 class ParamsConfig:
 
-    ################## EPIDEMIOLOGICAL PARAMS ########################
-    
-    per_capita_contact_rates_home  = 4.12 
+    # This is the probability that a person will go out of his/her household during weekdays.
+    ECONOMIC_STATUS_WEEKDAY_MOVEMENT_PROBABILITY = {
+        'Not working, inactive, not in universe': 0.8,
+        'In School': 1.0,
+        'Homemakers/Housework': 0.8,
+        'Office workers': 1.0,
+        #'Teachers': 1.0,
+        'Service Workers': 1.0,
+        'Agriculture Workers': 1.0,
+        'Indusrtry Workers': 1.0,
+        'In the army': 1.0,
+        'Disabled and not working': 0.0
+    }
+
+    # This is the probability that a person will go out of his/her household during weekends.
+    ECONOMIC_STATUS_OTHER_DAY_MOVEMENT_PROBABILITY = {
+        'Not working, inactive, not in universe': 0.8,
+        'In School': 0.8,
+        'Homemakers/Housework': 0.8,
+        'Office workers': 0.8,
+        #'Teachers': 0.8,
+        'Service Workers': 0.8,
+        'Agriculture Workers': 0.8,
+        'Indusrtry Workers': 0.8,
+        'In the army': 0.8,
+        'Disabled and not working': 0.0
+    }
+
+    # Susceptibility by age
+    susceptibility_by_age = pd.Series({
+        9: 0.4,
+        19: 0.38,
+        29: 0.79,
+        39: 0.86,
+        49: 0.8,
+        59: 0.82,
+        69: 0.88,
+        np.inf: 0.74,
+    })
+
+    # Hospitalization rates by age
+    # https://mrc-ide.github.io/global-lmic-reports/parameters.html
+    hospitalization_rates_by_age = pd.Series({
+        14: 0.1,
+        19: 0.2,
+        24: 0.5,
+        29: 1.0,
+        34: 1.6,
+        39: 2.3,
+        44: 2.9,
+        49: 3.9,
+        54: 5.8,
+        59: 7.2,
+        64: 10.2,
+        69: 11.7,
+        74: 14.6,
+        79: 17.7,
+        np.inf: 18.0
+    }) / 100
+
+    # ICU rates by age
+    # https://mrc-ide.github.io/global-lmic-reports/parameters.html
+    critical_rates_by_age = pd.Series({
+        34: 5.0,
+        39: 5.3,
+        44: 6.0,
+        49: 7.5,
+        54: 10.4,
+        59: 14.9,
+        64: 22.4,
+        69: 30.7,
+        74: 38.6,
+        79: 46.1,
+        np.inf: 70.9
+    }) / 100
+
+    # Death rates by age
+    # https://mrc-ide.github.io/global-lmic-reports/parameters.html
+    hospitalized_death_rates_by_age = pd.Series({
+        39: 1.3,
+        44: 1.5,
+        49: 1.9,
+        54: 2.7,
+        59: 4.2,
+        64: 6.9,
+        69: 10.5,
+        74: 14.9,
+        79: 20.3,
+        np.inf: 58.0
+    }) / 100
+
+    # Social Contact Structures and Time Use Patterns in the Manicaland Province of Zimbabwe
+    # https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0170459
+
+    # Taken from doc age-econ matrix_130121 >> comparison >> Sophie edits - all interactions
+    per_capita_contact_rates = pd.Series({
+        5: 2.710359,
+        10: 7.453772,
+        15: 7.574741,
+        20: 6.248537,
+        25: 5.950558,
+        30: 6.761012,
+        35: 7.183772,
+        40: 7.366016,
+        45: 7.711605,
+        50: 7.208618,
+        55: 6.434354,
+        60: 5.927063,
+        65: 5.251288,
+        70: 4.591202,
+        np.inf: 3.521694,
+    })
+
+    # Taken from doc age-econ matrix_130121 >> comparison >> Sophie edits - work interactions
+    per_capita_contact_rates_work = pd.Series({
+        5: 6.840359,
+        10: 11.58377,
+        15: 11.70474,
+        20: 10.37854,
+        25: 10.08056,
+        30: 10.89101,
+        35: 11.31377,
+        40: 11.49602,
+        45: 11.8416,
+        50: 11.33862,
+        55: 10.56435,
+        60: 10.05706,
+        65: 9.381288,
+        70: 8.721202,
+        np.inf: 7.651694,
+    })
+
+    # interactions within home
+    per_capital_contact_rate_home = 4.12 # average HH size of 5.12 persons minus self    
     
     ages = list(range(100))
 
@@ -98,6 +229,7 @@ class ParamsConfig:
         stay_duration_file='../../preprocessed/mobility/New Files/weekday_mobility_duration_count_df-new-district i5.pickle', # i5 to start
         transition_probability_file='../../preprocessed/mobility/New Files/daily_region_transition_probability-new-district-post-lockdown_i5.csv', # i5 to start
         intra_district_decreased_mobility_rates_file='../../preprocessed/mobility/intra_district_decreased_mobility_rates.csv',
+
         timestep=None,
     ):
         if R0 is not None:
@@ -167,8 +299,8 @@ class ParamsConfig:
         self.AGE_SYMPTOMATIC_INFECTION_RATE_VALUES = self.AGE_SYMPTOMATIC_INFECTION_RATE[sorted(self.ages)].values
 
         self.DISTRICT_MOVING_ECONOMIC_STATUS = set([i for i, j in self.ECONOMIC_STATUS_WEEKDAY_MOVEMENT_PROBABILITY.items() if j > 0])
-        self.DISTRICT_MOVING_ECONOMIC_STATUS.remove('In School')
-        self.DISTRICT_MOVING_ECONOMIC_STATUS.remove('Teachers')
+        #self.DISTRICT_MOVING_ECONOMIC_STATUS.remove('In School')
+        #self.DISTRICT_MOVING_ECONOMIC_STATUS.remove('Teachers') # TODO: reimpelment these
 
         self.DAILY_DISTRICT_TRANSITION_PROBABILITY = pd.read_csv(transition_probability_file, index_col=[0, 1])
         self.DAILY_DISTRICT_TRANSITION_PROBABILITY = self.DAILY_DISTRICT_TRANSITION_PROBABILITY.loc[sorted(self.DAILY_DISTRICT_TRANSITION_PROBABILITY.index)]
@@ -238,6 +370,7 @@ class ParamsConfig:
         self.ECONOMIC_STATUS_INTERACTION_MATRIX = pd.read_csv("../../configs/interaction_matrix_nld.txt", index_col=0)
         self.ECONOMIC_STATUS_INTERACTION_SIZE_MAP = pd.read_csv("../../configs/no_interactions_wk_econ.txt", index_col=0)
 
+
         # self.DISTRICT_POP_DENSITY = pd.read_csv(os.path.join(data_dir, 'district_pop_dens_friction.csv'))
 
         self.ECONOMIC_STATUS_INTERACTION_MATRIX_CUMSUM = self.ECONOMIC_STATUS_INTERACTION_MATRIX.cumsum(axis=1)
@@ -303,6 +436,9 @@ class ParamsConfig:
         self.SEED_INFECT_AGE_MIN = 20
         self.SEED_INFECT_NUM = seed_infected  # 3 -> 66 for a 5% sample
         self.SIMULATION_START_DATE = datetime(2020, 6, 28, 8)
+
+        #self.data_file_name = get_data_dir('preprocessed', 'census', f'zimbabwe_expanded_census_consolidated_{self.data_sample_size}pct.pickle')
+
 
     def set_new_district_seed(self, seed_infected):
         # NOTE: This should be updated when the admin level is changed.

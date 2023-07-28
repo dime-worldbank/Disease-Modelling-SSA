@@ -518,6 +518,7 @@ def run_scenario(scenarioClass, scenario_name, sim_fname, R0, sample_size, seed_
     transition_probability_file = 'daily_region_transition_probability-new-district-pre-lockdown_i5.csv'
 
     params = ParamsConfig(
+
         district='new', data_sample_size=sample_size, R0=R0,
 #        normal_interaction_matrix_file=('/Users/sophieayling/Documents/GitHub/covid19-agent-based-model/data/raw/final_close_interaction_matrix.xlsx'),
 #        lockdown_interaction_matrix_file=('/Users/sophieayling/Documents/GitHub/covid19-agent-based-model/data/raw/final_close_interaction_matrix.xlsx'),
@@ -527,9 +528,8 @@ def run_scenario(scenarioClass, scenario_name, sim_fname, R0, sample_size, seed_
         stay_duration_file=get_data_dir('preprocessed', 'mobility', 'New Files', stay_duration_file),
         transition_probability_file=get_data_dir('preprocessed', 'mobility', 'New Files',  transition_probability_file),
 
-        timestep=timestep
-    )
-    params.set_new_district_seed(seed_infected=seed_num)
+#    params.set_new_district_seed(seed_infected=seed_num)
+    params.set_old_district_seed(seed_infected=seed_num)
 
     model = scenarioClass(params, model_log_file=model_log_file, individual_log_file=individual_log_file)
 

@@ -12,8 +12,9 @@ from pathlib import Path
 #sys.exit()
 # This is how to set the directory - 
 #os.chdir("/Users/sophie/Documents/Github/covid19-agent-based-model/data")
-#cwd = os.getcwd()
-#print(cwd)
+#os.chdir("/Users/swise/workspace/worldbank/Disease-Modelling-SSA/data")
+cwd = os.getcwd()
+print(cwd)
 
 # define the relevant filenames
 

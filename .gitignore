@@ -58,6 +58,8 @@
 !/**/*.ipynb
 # Still ignore .ipynb files in checkpoint folders
 .ipynb_checkpoints
+.eggs/*
+build/*
 
 # Matlab
 !/**/*.m
