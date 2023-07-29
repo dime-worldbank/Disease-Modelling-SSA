@@ -84,7 +84,6 @@ build/*
 !/configs/*.csv
 /dataForSophie/*
 
-
 !/data/configs/*.txt
 !/data/configs/*.csv
 !/data/verification/*.txt
