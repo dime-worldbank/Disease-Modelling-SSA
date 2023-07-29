@@ -72,33 +72,11 @@ public class Person extends MobileAgent {
 	boolean isAlive = true;
 	boolean isDead = false;
 
-	boolean hasCovid = false;
-	boolean asymptomatic = false;
-	boolean presymptomatic = false;
-	boolean mild = false;
-	boolean severe = false;
-	boolean critical = false;
-	boolean recovered = false;
-	boolean hadCovid = false;
-	public boolean elligableForTesting = false;
-	boolean hasBeenTested = false;
-	boolean hasTestedPositive = false;
-	boolean hasSpuriousSymptoms = false;
-	public int timeToRemoveSymptoms = 100000000;
-
-	
-	boolean asymptomatic = false;
 	boolean asymptomaticLogged = false;
-	boolean mild = false;
 	boolean mildLogged = false;
-	boolean severe = false;
 	boolean severeLogged = false;
-	boolean critical = false;
 	boolean criticalLogged = false;
-	boolean recovered = false;
 	boolean recoveredLogged = false;
-	boolean hadCovid = false;
-	boolean hasCovid = false;
 	boolean covidLogged = false;
 	boolean isDeadFromCovid = false;
 	boolean isDeadFromOther = false;
@@ -108,13 +86,13 @@ public class Person extends MobileAgent {
 	Integer dayGaveBirth = Integer.MAX_VALUE;
 	Integer numberOfTimesWithCovid = 0;
 
-	boolean hasCovid = false;
 	boolean asymptomatic = false;
 	boolean presymptomatic = false;
 	boolean mild = false;
 	boolean severe = false;
 	boolean critical = false;
 	boolean recovered = false;
+	boolean hasCovid = false;
 	boolean hadCovid = false;
 	public boolean elligableForTesting = false;
 	boolean hasBeenTested = false;
@@ -577,14 +555,8 @@ public class Person extends MobileAgent {
 	public String getEconStatus(){ return economic_status;}
 	public Location getHousehold(){ return myHousehold; }
 
-	public boolean hasAsymptCovid() { return this.asymptomatic; }
 	public boolean hasPresymptCovid() { return this.presymptomatic; }
 
-	public boolean hasCovid() { return this.hasCovid; }
-	public boolean hasMild() { return this.mild; }
-	public boolean hasSevere() { return this.severe; }
-	public boolean hasCritical() { return this.critical; }
-	public boolean hasRecovered() { return this.recovered; }
 	public boolean hasBeenTested() { return this.hasBeenTested; }
 
 	public boolean hasTestedPos() { return this.hasTestedPositive; }
@@ -598,7 +570,6 @@ public class Person extends MobileAgent {
 	}
 		
 	public void setInfection(Infection i){ myInfection = i; }
-	public boolean hasCovid() { return this.hasCovid; }
 	public boolean hadCovid() { return this.hadCovid; }
 	public boolean hasAsymptCovid() { return this.asymptomatic; }
 	public boolean hasMild() { return this.mild; }
@@ -620,8 +591,7 @@ public class Person extends MobileAgent {
 	public boolean getCriticalCovidLogged() { return this.criticalLogged; }
 	public boolean isDeadFromCovid() { return this.isDeadFromCovid; }
 	public boolean isDeadFromOther() { return this.isDeadFromOther; }
-	public boolean isSchoolGoer() { return this.schoolGoer; }
-
+	
 	public boolean covidLogCheck () { return this.covidLogged; }
 	public boolean getDeathLogged () { return this.deathLogged; }
 	public boolean gaveBirthLastYear() { return this.gaveBirthLastYear; }
@@ -632,9 +602,7 @@ public class Person extends MobileAgent {
 	public boolean isDead() { return this.isDead; }
 
 	public boolean hasCovid() { return this.hasCovid; }
-	public void storeCovid() { this.hasCovid = true;}
-	public void removeCovid() { this.hasCovid = false;}
-
+	
 	public boolean isSchoolGoer() { return this.schoolGoer; }
 
 	public void storeCovid() { this.hasCovid = true; this.hadCovid = true;}
@@ -693,29 +661,19 @@ public class Person extends MobileAgent {
 		this.dayGaveBirth = Integer.MAX_VALUE;
 	}
 	public void confirmBirthlogged() { this.birthLogged = true; }
-	public void storeCovid() { this.hasCovid = true; this.hadCovid = true;}
 	public void confirmCovidLogged() { this.covidLogged = true; }
-	public void setAsympt() { this.asymptomatic = true; }
 	public void confirmAsymptLogged() {this.asymptomaticLogged = true; }
-	public void setMild() { this.mild = true; }
-	public void removeMild() { this.mild = false; }
 	public void confirmMildLogged() {this.mildLogged = true; }
-	public void setSevere() { this.severe = true; }
 	public void confirmSevereLogged() {this.severeLogged = true; }
-	public void removeSevere() { this.severe = false; }
-	public void setCritical() { this.critical = true; }
 	public void confirmCriticalLogged() {this.criticalLogged = true; }
-	public void setRecovered() { this.recovered = true; }
 	public void updateCovidCounter () { this.numberOfTimesWithCovid++; }
-	public void removeCovid() { 
-		this.asymptomatic = false;
-		this.mild = false;
-		this.severe = false;
-		this.critical = false;
-		this.hasCovid = false; 
-		}
+	
 	public void resetCovidLog() { this.covidLogged = false; this.asymptomaticLogged = false; this.mildLogged = false; this.severeLogged = false; this.criticalLogged = false;}
 
-	public String getCurrentDistrict() {return this.getHousehold().getRootSuperLocation().myId;}
+
+	public Household getHouseholdAsType() {
+		
+		return this.myHousehold;
+	}
 	
 }
