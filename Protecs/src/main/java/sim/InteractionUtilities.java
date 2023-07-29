@@ -56,7 +56,7 @@ public class InteractionUtilities {
 				binsOfWorkers = new HashMap <String, List<Person>> ();
 				peoplePerDistrictPerJob.put(mySuper, binsOfWorkers);
 			}
-
+			assert (peoplePerDistrictPerJob.size() > 0): "No lists of jobs have been created but should have been";
 			// store this record
 			if(binsOfWorkers.containsKey(myJob))
 				binsOfWorkers.get(myJob).add(p);
@@ -64,6 +64,7 @@ public class InteractionUtilities {
 				ArrayList <Person> peepsInJob = new ArrayList <Person> ();
 				peepsInJob.add(p);
 				binsOfWorkers.put(myJob, peepsInJob);
+			assert (peepsInJob.contains(myJob)): "My job hasn't been stored but should have been";
 			}			
 		}
 		
@@ -81,7 +82,7 @@ public class InteractionUtilities {
 			ArrayList <Double> interDistrib = (ArrayList <Double>)
 					world.params.economicInteractionCumulativeDistrib.get(myStatus);
 			int bubbleSize = world.params.econBubbleSize.get(myStatus);
-			
+			assert (bubbleSize > 0): "This person's bubble size is zero";
 			// pull out the relevant list of potential friends in my district
 			HashMap <String, List<Person>> binsOfWorkers = 
 					(HashMap <String, List<Person>>) peoplePerDistrictPerJob.get(myWorkLocation);
