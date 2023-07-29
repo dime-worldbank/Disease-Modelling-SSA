@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.stream.Stream;
 
 import java.util.List;
 import java.util.Map;
@@ -71,6 +72,21 @@ public class Person extends MobileAgent {
 	boolean isAlive = true;
 	boolean isDead = false;
 
+	boolean hasCovid = false;
+	boolean asymptomatic = false;
+	boolean presymptomatic = false;
+	boolean mild = false;
+	boolean severe = false;
+	boolean critical = false;
+	boolean recovered = false;
+	boolean hadCovid = false;
+	public boolean elligableForTesting = false;
+	boolean hasBeenTested = false;
+	boolean hasTestedPositive = false;
+	boolean hasSpuriousSymptoms = false;
+	public int timeToRemoveSymptoms = 100000000;
+
+	
 	boolean asymptomatic = false;
 	boolean asymptomaticLogged = false;
 	boolean mild = false;
@@ -561,8 +577,6 @@ public class Person extends MobileAgent {
 	public String getEconStatus(){ return economic_status;}
 	public Location getHousehold(){ return myHousehold; }
 
-	public Household getHouseholdAsType() {return myHousehold; }
-
 	public boolean hasAsymptCovid() { return this.asymptomatic; }
 	public boolean hasPresymptCovid() { return this.presymptomatic; }
 
@@ -582,8 +596,6 @@ public class Person extends MobileAgent {
 		boolean answer = this.myWorld.params.districts_to_test_in.stream().anyMatch(x -> x.equals(this.myHousehold.getRootSuperLocation().myId));
 		return answer;
 	}
-
-
 		
 	public void setInfection(Infection i){ myInfection = i; }
 	public boolean hasCovid() { return this.hasCovid; }
@@ -609,6 +621,7 @@ public class Person extends MobileAgent {
 	public boolean isDeadFromCovid() { return this.isDeadFromCovid; }
 	public boolean isDeadFromOther() { return this.isDeadFromOther; }
 	public boolean isSchoolGoer() { return this.schoolGoer; }
+
 	public boolean covidLogCheck () { return this.covidLogged; }
 	public boolean getDeathLogged () { return this.deathLogged; }
 	public boolean gaveBirthLastYear() { return this.gaveBirthLastYear; }
@@ -623,6 +636,7 @@ public class Person extends MobileAgent {
 	public void removeCovid() { this.hasCovid = false;}
 
 	public boolean isSchoolGoer() { return this.schoolGoer; }
+
 	public void storeCovid() { this.hasCovid = true; this.hadCovid = true;}
 	public void setAsympt() { this.asymptomatic = true; }
 	public void setPresympt() { this.presymptomatic = true; }

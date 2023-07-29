@@ -126,6 +126,9 @@ public class Params {
 	public String testDataFilename = "";
 	public String testLocationFilename = "";
 	
+	public String testDataFilename = "";
+	public String testLocationFilename = "";
+	
 	
 	
 	// time
@@ -167,7 +170,7 @@ public class Params {
 		load_all_cause_mortality_params(dataDir + all_cause_mortality_filename);
 		load_all_birthrate_params(dataDir + birth_rate_filename);
 
-
+		// load the testing data
 		load_testing(dataDir + testDataFilename);
 		load_testing_locations(dataDir + testLocationFilename);
 		
