@@ -18,6 +18,7 @@ public class Params {
 	public boolean verbose = true;
 	
 	public double infection_beta = 0.016;
+	public double rate_of_spurious_symptoms = 0.004;
 	public int lineListWeightingFactor = 1; // the line list contains only detected instances, which can be biased 
 											// - weight this if we suspect it's undercounting
 	public boolean setting_perfectMixing = false; // if TRUE: there are no work or social bubbles; individuals have
@@ -60,6 +61,11 @@ public class Params {
 	
 	HashMap <Location, Integer> lineList;
 	ArrayList <Double> lockdownChangeList;
+	
+	// holders for testing
+	public ArrayList <Integer> test_dates;
+	public ArrayList <Integer> number_of_tests_per_day;
+	public ArrayList <String> districts_to_test_in;
 	
 	// parameters drawn from Kerr et al 2020 - https://www.medrxiv.org/content/10.1101/2020.05.10.20097469v3.full.pdf
 	public ArrayList <Integer> infection_age_params;
@@ -117,7 +123,9 @@ public class Params {
 	public String all_cause_mortality_filename = "";
 	public String birth_rate_filename = "";
 	
-	
+	public String testDataFilename = "";
+	public String testLocationFilename = "";
+		
 	
 	// time
 	public static int hours_per_tick = 4; // the number of hours each tick represents
@@ -147,16 +155,21 @@ public class Params {
 		
 		economic_num_interactions_weekday_perTick = readInEconomicData(dataDir  + economic_status_num_daily_interacts_filename, "economic_status", "interactions");
 		//HashMap <String, Double> econBubbleHolder =
-		// TODO: not reading in bubbles in any meaningful way. Must readd.
+		// TODO: not reading in bubbles in any meaningful way. Must read.
 		
 		load_econStatus_distrib(dataDir  + econ_interaction_distrib_filename);
 		
 		load_line_list(dataDir  + line_list_filename);
 		load_lockdown_changelist(dataDir +  lockdown_changeList_filename);
 		load_infection_params(dataDir  + infection_transition_params_filename);
+
 		load_all_cause_mortality_params(dataDir + all_cause_mortality_filename);
 		load_all_birthrate_params(dataDir + birth_rate_filename);
 
+		// load the testing data
+		load_testing(dataDir + testDataFilename);
+		load_testing_locations(dataDir + testLocationFilename);
+		
 	}
 	
 	//
@@ -238,6 +251,7 @@ public class Params {
 				Integer myCount = Integer.parseInt(bits[countIndex]);
 				lineList.put(myDistrict, myCount);
 			}
+			assert (lineList.size() > 0): "lineList not loaded";
 
 		} catch (Exception e) {
 			System.err.println("File input error: " + lineListFilename);
@@ -287,6 +301,82 @@ public class Params {
 
 		} catch (Exception e) {
 			System.err.println("File input error: " + lockdownChangelistFilename);
+		}
+	}
+	
+	public void load_testing(String testDataFilename) {
+		try {
+			
+			System.out.println("Reading in testing data from " + testDataFilename);
+			
+			// Open the tracts file
+			FileInputStream fstream = new FileInputStream(testDataFilename);
+
+			// Convert our input stream to a BufferedReader
+			BufferedReader testingDataFile = new BufferedReader(new InputStreamReader(fstream));
+			String s;
+
+			// extract the header
+			s = testingDataFile.readLine();
+
+			// map the header into column names relative to location
+			String [] header = splitRawCSVString(s);
+			HashMap <String, Integer> columnNames = parseHeader(header);
+			int dayIndex = columnNames.get("date");
+			int number_of_tests = columnNames.get("number_of_tests");
+			
+			// set up data containers
+			test_dates = new ArrayList <Integer> ();
+			number_of_tests_per_day = new ArrayList <Integer> ();
+			
+			// read in the raw data
+			while ((s = testingDataFile.readLine()) != null) {
+				String [] bits = splitRawCSVString(s);
+				int dayVal = Integer.parseInt(bits[dayIndex]);
+				Integer tests_on_day = Integer.parseInt(bits[number_of_tests]);
+				test_dates.add((Integer)dayVal);
+				number_of_tests_per_day.add((Integer)tests_on_day);
+			}
+			assert (number_of_tests_per_day.size() > 0): "Number of tests per day not loaded";
+
+		} catch (Exception e) {
+			System.err.println("File input error: " + testDataFilename);
+		}
+	}
+	
+	public void load_testing_locations(String testLocationsFilename) {
+		try {
+			
+			System.out.println("Reading in testing locations from " + testLocationsFilename);
+			
+			// Open the tracts file
+			FileInputStream fstream = new FileInputStream(testLocationsFilename);
+
+			// Convert our input stream to a BufferedReader
+			BufferedReader testingDataFile = new BufferedReader(new InputStreamReader(fstream));
+			String s;
+
+			// extract the header
+			s = testingDataFile.readLine();
+
+			// map the header into column names relative to location
+			String [] header = splitRawCSVString(s);
+			HashMap <String, Integer> columnNames = parseHeader(header);
+			int district_numbers = columnNames.get("number");
+			
+			// set up data containers
+			districts_to_test_in = new ArrayList <String> ();
+			
+			// read in the raw data
+			while ((s = testingDataFile.readLine()) != null) {
+				String [] bits = splitRawCSVString(s);
+				String district_to_test_in = "d_" + bits[district_numbers];
+				districts_to_test_in.add(district_to_test_in);
+			}
+			assert (districts_to_test_in.size() > 0): "Number of districts to test in not loaded";
+
+		} catch (Exception e) {
+			System.err.println("File input error: " + testLocationsFilename);
 		}
 	}
 	
@@ -350,6 +440,13 @@ public class Params {
 				infection_p_dea_by_age.add(p_dea);
 
 			}
+			assert (infection_r_sus_by_age.size() > 0): "infection_r_sus_by_age not loaded";
+			assert (infection_p_sym_by_age.size() > 0): "infection_p_sym_by_age not loaded";
+			assert (infection_p_sev_by_age.size() > 0): "infection_p_sev_by_age not loaded";
+			assert (infection_p_cri_by_age.size() > 0): "infection_p_cri_by_age not loaded";
+			assert (infection_p_dea_by_age.size() > 0): "infection_p_dea_by_age not loaded";
+
+
 			} catch (Exception e) {
 				System.err.println("File input error: " + filename);
 			}
@@ -514,7 +611,9 @@ public class Params {
 				// save ordering info
 				orderedEconStatuses.add(bits[0].toLowerCase());
 			}
-			
+			assert (economicInteractionDistrib.size() > 0): "economicInteractionDistrib not loaded";
+			assert (economicInteractionCumulativeDistrib.size() > 0): "economicInteractionCumulativeDistrib not loaded";
+			assert (orderedEconStatuses.size() > 0): "orderedEconStatuses not loaded";			
 			econDistribData.close();
 		} catch (Exception e) {
 			System.err.println("File input error: " + econ_interaction_distrib_filename);
@@ -603,6 +702,8 @@ public class Params {
 			
 			// clean up after ourselves
 			districtData.close();
+			assert (districts.size() > 0): "Districts not loaded";
+			assert (probHolder.size() > 0): "Probability of transition between districts not loaded";
 			return probHolder;
 		} catch (Exception e) {
 			System.err.println("File input error: " + districtFilename);
@@ -648,7 +749,6 @@ public class Params {
 				String [] bits = splitRawCSVString(s);
 				econData.put(bits[statusIndex].toLowerCase(), Double.parseDouble(bits[probIndex]));
 			}
-			
 			// cleanup
 			econDataFile.close();
 			
@@ -713,7 +813,7 @@ public class Params {
 				
 				districtLeavingProb.put(myLocation, prob);
 			}
-
+			assert (districtLeavingProb.size() > 0): "District leaving probability not loaded";
 			// clean up after ourselves
 			districtData.close();
 		} catch (Exception e) {
