@@ -1681,7 +1681,7 @@ public class WorldBankCovid19Sim extends SimState {
 		long seed = 12345;
 		String outputFilename = "dailyReport_" + myBeta + "_" + numDays + "_" + seed + ".txt";
 		String infectionsOutputFilename = "infections_" + myBeta + "_" + numDays + "_" + seed + ".txt"; 
-		String paramsFilename = "src/main/resources/params.txt";//"../data/configs/params.txt";
+		String paramsFilename = "src/main/resources/params.txt";
 		boolean demography = false;
 		// read in any extra settings from the command line
 		if(args.length < 0){
@@ -1713,7 +1713,7 @@ public class WorldBankCovid19Sim extends SimState {
 		 */
 
 		// set up the simulation
-		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim( seed, new Params(paramsFilename), outputFilename, demography);
+		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim( seed, new Params(paramsFilename, true), outputFilename, demography);
 
 
 		System.out.println("Loading...");

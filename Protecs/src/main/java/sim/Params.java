@@ -15,6 +15,8 @@ import main.java.objects.*;
 
 public class Params {
 	
+	public boolean verbose = true;
+	
 	public double infection_beta = 0.016;
 	public int lineListWeightingFactor = 1; // the line list contains only detected instances, which can be biased 
 											// - weight this if we suspect it's undercounting
@@ -131,8 +133,9 @@ public class Params {
 	public static int hours_sleeping = 8 / hours_per_tick;
 	
 	
-	public Params(String paramsFilename){
+	public Params(String paramsFilename, boolean isVerbose){
 		
+		this.verbose = isVerbose;
 		readInParamFile(paramsFilename);
 		
 		dailyTransitionLockdownProbs = load_district_data(dataDir + district_transition_LOCKDOWN_filename);
@@ -161,7 +164,8 @@ public class Params {
 	//
 	
 	public void readInParamFile(String paramFilename) {
-		System.out.println("Reading in data from " + paramFilename);
+		if(verbose)
+			System.out.println("Reading in data from " + paramFilename);
 		
 		// Open the tracts file
 		FileInputStream fstream;
@@ -205,7 +209,8 @@ public class Params {
 	public void load_line_list(String lineListFilename){
 		try {
 			
-			System.out.println("Reading in data from " + lineListFilename);
+			if(verbose)
+				System.out.println("Reading in data from " + lineListFilename);
 			
 			// Open the tracts file
 			FileInputStream fstream = new FileInputStream(lineListFilename);
@@ -242,7 +247,8 @@ public class Params {
 	public void load_lockdown_changelist(String lockdownChangelistFilename) {
 		try {
 			
-			System.out.println("Reading in data from " + lockdownChangelistFilename);
+			if(verbose)
+				System.out.println("Reading in data from " + lockdownChangelistFilename);
 			
 			// Open the tracts file
 			FileInputStream fstream = new FileInputStream(lockdownChangelistFilename);
@@ -287,7 +293,8 @@ public class Params {
 	public void load_infection_params(String filename){
 		try {
 			
-			System.out.println("Reading in data from " + filename);
+			if(verbose)
+				System.out.println("Reading in data from " + filename);
 			
 			// Open the tracts file
 			FileInputStream fstream = new FileInputStream(filename);
@@ -351,7 +358,8 @@ public class Params {
 	public void load_all_cause_mortality_params(String filename) {
 		try {
 			
-			System.out.println("Reading in all cause mortality data from " + filename);
+			if(verbose)
+				System.out.println("Reading in all cause mortality data from " + filename);
 			
 			// Open the tracts file
 			FileInputStream fstream = new FileInputStream(filename);
@@ -402,7 +410,8 @@ public class Params {
 	public void load_all_birthrate_params(String filename) {
 		try {
 			
-			System.out.println("Reading in birth rate data from " + filename);
+			if(verbose)
+				System.out.println("Reading in birth rate data from " + filename);
 			
 			// Open the tracts file
 			FileInputStream fstream = new FileInputStream(filename);
@@ -457,7 +466,8 @@ public class Params {
 		
 		try {
 			
-			System.out.println("Reading in econ interaction data from " + filename);
+			if(verbose)
+				System.out.println("Reading in econ interaction data from " + filename);
 			
 			// Open the tracts file
 			FileInputStream fstream = new FileInputStream(filename);
@@ -480,7 +490,8 @@ public class Params {
 			while ((s = econDistribData.readLine()) != null) {
 				String [] bits = splitRawCSVString(s);
 				String myTitle = bits[0].toLowerCase();
-				System.out.println(bits);
+				if(verbose)
+					System.out.println(bits);
 				
 				// save bubble info
 				//econBubbleSize.put(myTitle, Integer.parseInt(bits[bubbleIndex]));
@@ -527,7 +538,8 @@ public class Params {
 		
 		try {
 			
-			System.out.println("Reading in district transfer information from " + districtFilename);
+			if(verbose)
+				System.out.println("Reading in district transfer information from " + districtFilename);
 			
 			// Open the tracts file
 			FileInputStream fstream = new FileInputStream(districtFilename);
@@ -555,7 +567,8 @@ public class Params {
 			// set up holders for the information
 			
 			
-			System.out.println("BEGIN READING IN DISTRICTS");
+			if(verbose)
+				System.out.println("BEGIN READING IN DISTRICTS");
 			
 			// read in the raw data
 			while ((s = districtData.readLine()) != null) {
@@ -608,7 +621,8 @@ public class Params {
 			// set up structure to hold the data
 			HashMap <String, Double> econData = new HashMap <String, Double> ();
 			
-			System.out.println("Reading in data from " + econFilename);
+			if(verbose)
+				System.out.println("Reading in data from " + econFilename);
 			
 			// Open the tracts file
 			FileInputStream fstream = new FileInputStream(econFilename);
@@ -639,7 +653,8 @@ public class Params {
 			econDataFile.close();
 			
 			// report success
-			System.out.println("...Finished reading in from " + econFilename);
+			if(verbose)
+				System.out.println("...Finished reading in from " + econFilename);
 			
 			return econData;
 		} catch (Exception e) {
@@ -655,7 +670,8 @@ public class Params {
 		
 		try {
 			
-			System.out.println("Reading in district transfer information from " + districtFilename);
+			if(verbose)
+				System.out.println("Reading in district transfer information from " + districtFilename);
 			
 			// Open the tracts file
 			FileInputStream fstream = new FileInputStream(districtFilename);
@@ -677,7 +693,8 @@ public class Params {
 			int probIndex = rawColumnNames.get("pctdif_distance");
 			
 
-			System.out.println("BEGIN READING IN LEAVING PROBABILITIES");
+			if(verbose)
+				System.out.println("BEGIN READING IN LEAVING PROBABILITIES");
 			
 			// read in the raw data
 			while ((s = districtData.readLine()) != null) {
