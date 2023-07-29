@@ -374,7 +374,7 @@ public class WorldBankCovid19Sim extends SimState {
 				// create a string to store this information in
 				// get the day
 				
-				exportMe(birthRateOutputFilename, age_dependent_birth_rate);
+				ImportExport.exportMe(birthRateOutputFilename, age_dependent_birth_rate, timer);
 				// to make sure that births aren't counted more than once, update this person's properties
 				for (Person p: agents) {
 					if(p.gaveBirthLastYear()) {
@@ -766,7 +766,7 @@ public class WorldBankCovid19Sim extends SimState {
 
 				// export the file
 				
-				exportMe(newLoggingFilename, covidNumberOutput);
+				ImportExport.exportMe(newLoggingFilename, covidNumberOutput, timer);
 //				calculate incidence of death in each age group by cause
 				//	covid deaths, incidence in age groups 0-1, 1-4, 5-9, 10-14, ..., 95+
 				//	create a list to define our age group search ranges
@@ -963,8 +963,8 @@ public class WorldBankCovid19Sim extends SimState {
 				other_inc_death += "\n";
 
 				// export the output files
-				exportMe(covidIncDeathOutputFilename, covid_inc_death);
-				exportMe(otherIncDeathOutputFilename, other_inc_death);
+				ImportExport.exportMe(covidIncDeathOutputFilename, covid_inc_death, timer);
+				ImportExport.exportMe(otherIncDeathOutputFilename, other_inc_death, timer);
 //				calculate incidence of Covid in each age group
 				//	covid incidence in age groups 0-1, 1-4, 5-9, 10-14, ..., 95+
 				//	create a list to define our age group search ranges
@@ -1058,7 +1058,7 @@ public class WorldBankCovid19Sim extends SimState {
 				covid_inc += "\n";
 				
 				// export the output file
-				exportMe(covidIncOutputFilename, covid_inc);
+				ImportExport.exportMe(covidIncOutputFilename, covid_inc, timer);
 				//	calculate the number of counts in each age group	
 				String covid_number_and_deaths = "";
 				if (time == 0) {
@@ -1089,7 +1089,7 @@ public class WorldBankCovid19Sim extends SimState {
 					covid_number_and_deaths += t + count;
 				}
 				covid_number_and_deaths += "\n";
-				exportMe(covidCountsOutputFilename, covid_number_and_deaths);
+				ImportExport.exportMe(covidCountsOutputFilename, covid_number_and_deaths, timer);
 				List <String> economic_status = Arrays.asList("not working, inactive, not in universe", "current students", "homemakers/housework", 
 						"office workers", "teachers", "service workers", "agriculture workers", "industry workers", "in the army", "disabled and not working");
 				ArrayList <Integer> status_counts = new ArrayList<Integer>();
@@ -1187,7 +1187,7 @@ public class WorldBankCovid19Sim extends SimState {
 				}
 				econ_status_output += "\n";
 				
-				exportMe(covidByEconOutputFilename, econ_status_output);
+				ImportExport.exportMe(covidByEconOutputFilename, econ_status_output, timer);
 				// to make sure deaths and cases aren't counted multiple times, update this person's properties
 
 				for (Person p: agents) {
@@ -1307,7 +1307,7 @@ public class WorldBankCovid19Sim extends SimState {
 					pop_size_in_district += t + count;
 				}
 				// export the file
-				exportMe(distPopSizeOutputFilename, pop_size_in_district);
+				ImportExport.exportMe(distPopSizeOutputFilename, pop_size_in_district, timer);
 				// format the output for the percent of the district with covid
 				String percent_with_covid = "";
 				if (time == 0) {
@@ -1328,7 +1328,7 @@ public class WorldBankCovid19Sim extends SimState {
 					idx++;
 				}
 				// export the file
-				exportMe(distCovidPrevalenceOutputFilename, percent_with_covid);
+				ImportExport.exportMe(distCovidPrevalenceOutputFilename, percent_with_covid, timer);
 				String districtLevelPopBreakdown = "";
 				
 				String district_age_sex_categories = t + "district" + t + "sex" + t + "<1" + t + "1_4" + t + "5_9" + t + "10_14" + t + "15_19" + t + "20_24" + 
@@ -1385,7 +1385,7 @@ public class WorldBankCovid19Sim extends SimState {
 				}
 				districtLevelPopBreakdown += "\n";
 				}
-				exportMe(distPopBreakdownOutputFilename, districtLevelPopBreakdown);
+				ImportExport.exportMe(distPopBreakdownOutputFilename, districtLevelPopBreakdown, timer);
 
 			}
 		};
@@ -1485,7 +1485,7 @@ public class WorldBankCovid19Sim extends SimState {
 				population += "\n";
 
 				// export the file
-				exportMe(populationOutputFilename, population);
+				ImportExport.exportMe(populationOutputFilename, population, timer);
 				
 			}
 		};
@@ -1518,7 +1518,7 @@ public class WorldBankCovid19Sim extends SimState {
 		//outputFilename = "results_" + filenameSuffix;
 //		infections_export_filename = "infections_" + filenameSuffix;
 
-		exportMe(outputFilename, Location.metricNamesToString());
+		ImportExport.exportMe(outputFilename, Location.metricNamesToString(), timer);
 		Steppable reporter = new Steppable(){
 
 			@Override
@@ -1533,7 +1533,7 @@ public class WorldBankCovid19Sim extends SimState {
 					l.refreshMetrics();
 				}
 				
-				exportMe(outputFilename, s);
+				ImportExport.exportMe(outputFilename, s, timer);
 				
 				System.out.println("Day " + time + " finished");
 			}
@@ -1648,239 +1648,7 @@ public class WorldBankCovid19Sim extends SimState {
 	}
 	
 
-	void reportOnInfected(){
-		String makeTerribleGraphFilename = "nodes_latest_16.gexf";
-		try {
-			
-			System.out.println("Printing out infects? from " + makeTerribleGraphFilename);
-			
-			// shove it out
-			BufferedWriter badGraph = new BufferedWriter(new FileWriter(makeTerribleGraphFilename));
 
-			//badGraph.write("ID;econ;age;infect;time;source");
-			badGraph.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<gexf xmlns=\"http://www.gexf.net/1.1draft\" version=\"1.1\">\n" + 
-					"<graph mode=\"static\" defaultedgetype=\"directed\">\n" + 
-					"<attributes class=\"node\" type=\"static\"> \n" +
-				     "<attribute id=\"infected\" title=\"Infected\" type=\"string\"/>\n</attributes>\n");
-			badGraph.write("<nodes>\n");
-			for(Person p: agents){
-				String myStr = p.toString();
-				//myStr += ";" + p.getEconStatus() + ";" + p.getAge() + ";" + p.getInfectStatus();
-				
-				if(p.getInfection() != null){
-					Person source = p.getInfection().getSource();
-					String sourceName = null;
-					if(source != null)
-						sourceName = source.toString();
-					//myStr += ";" + p.getInfection().getStartTime() + ";" + sourceName;
-					myStr = p.getInfection().getBehaviourName();
-				}
-				else
-					//myStr += "Susceptible;;";
-					myStr = "Susceptible";
-/*				for(Person op: p.getWorkBubble()){
-					myStr += ";" + op.toString();
-				}
-	*/			
-				badGraph.write("\t<node id=\"" + p.getID() + "\" label=\"" + p.toString() + 
-						"\"> <attvalue for=\"infected\" value=\"" +myStr +  "\"/></node>\n");
-
-				//badGraph.write("\n" + myStr);
-			}
-			badGraph.write("</nodes>\n");
-			badGraph.write("<edges>\n");
-			for(Person p: agents){
-				int myID = p.getID();
-				for(Person op: p.getWorkBubble()){
-					badGraph.write("\t<edge source=\"" + myID + "\" target=\"" + op.getID() + "\" weight=\"1\" />\n");
-				}
-			}
-			
-			badGraph.write("</edges>\n");
-			badGraph.write("</graph>\n</gexf>");
-			badGraph.close();
-		} catch (Exception e) {
-			System.err.println("File input error: " + makeTerribleGraphFilename);
-		}
-	}
-	
-	void exportMe(String filename, String output){
-		try {
-			
-			// shove it out
-			BufferedWriter exportFile = new BufferedWriter(new FileWriter(filename, true));
-			if(timer > 0)
-				exportFile.write(timer + "\n");
-			exportFile.write(output);
-			exportFile.close();
-		} catch (Exception e) {
-			System.err.println("File input error: " + filename);
-		}
-	}
-	
-	void exportDailyReports(String filename){
-		try {
-			
-			System.out.println("Printing out infects? from " + filename);
-			
-			// shove it out
-			BufferedWriter exportFile = new BufferedWriter(new FileWriter(filename, true));
-
-			String header = "index\t";
-			for(int p = 0; p < params.exportParams.length; p++){
-				header += params.exportParams[p].toString() + "\t";
-			}
-			exportFile.write(header);
-			
-			for(int i = 0; i < dailyRecord.size(); i++){
-				HashMap <String, Double> myRecord = dailyRecord.get(i);
-				String s = this.seed() + "\t";
-				for(String paramName: params.exportParams){
-					s += myRecord.get(paramName).toString() + "\t";
-				}
-				exportFile.write("\n" + s);
-			}
-			exportFile.close();
-		} catch (Exception e) {
-			System.err.println("File input error: " + filename);
-		}
-	}
-	
-	void exportInfections() {
-		try {
-			
-			System.out.println("Printing out INFECTIONS to " + infections_export_filename);
-			
-			// shove it out
-			BufferedWriter exportFile = new BufferedWriter(new FileWriter(infections_export_filename, true));
-			exportFile.write("Host\tSource\tTime\tLocOfTransmission" + 
-					"\tContagiousAt\tSymptomaticAt\tSevereAt\tCriticalAt\tRecoveredAt\tDiedAt\tYLD\tYLL\tDALYs\tNTimesInfected"
-					+ "\n");
-			
-			// export infection data
-			for(Infection i: infections) {
-				
-				String rec = i.getHost().getID() + "\t";
-				
-				// infected by:
-				
-				Person source = i.getSource();
-				if(source == null)
-					rec += "null";
-				else
-					rec += source.getID();
-				
-				rec += "\t" + i.getStartTime() + "\t";
-				
-				// infected at:
-				
-				Location loc = i.getInfectedAtLocation();
-				
-				if(loc == null)
-					rec += "SEEDED";
-				else if(loc.getRootSuperLocation() != null)
-					rec += loc.getRootSuperLocation().getId();
-				else
-					rec += loc.getId();
-				
-				// progress of disease: get rid of max vals
-				
-				if(i.time_contagious == Double.MAX_VALUE)
-					rec += "\t-";
-				else
-					rec += "\t" + (int) i.time_contagious;
-				
-				if(i.time_start_symptomatic == Double.MAX_VALUE)
-					rec += "\t-";
-				else
-					rec += "\t" + (int) i.time_start_symptomatic;
-				
-				if(i.time_start_severe == Double.MAX_VALUE)
-					rec += "\t-";
-				else
-					rec += "\t" + (int) i.time_start_severe;
-				
-				if(i.time_start_critical == Double.MAX_VALUE)
-					rec += "\t-";
-				else
-					rec += "\t" + (int) i.time_start_critical;
-				
-				if(i.time_recovered == Double.MAX_VALUE)
-					rec += "\t-";
-				else
-					rec += "\t" + (int) i.time_recovered;
-				
-				if(i.time_died == Double.MAX_VALUE)
-					rec += "\t-";
-				else
-					rec += "\t" + (int) i.time_died;
-				// create variables to calculate DALYs, set to YLD zero as default
-				double yld = 0.0;
-				// DALY weights are taken from https://www.ssph-journal.org/articles/10.3389/ijph.2022.1604699/full , exact same DALY weights used 
-				// here https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8212397/ and here https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8844028/ , seems like these are common
-				// TODO: check if these would be representative internationally
-				// TODO: Find DALYs from long COVID
-				double critical_daly_weight = 0.655;
-				double severe_daly_weight = 0.133;
-				double mild_daly_weight = 0.051;
-
-				// calculate DALYs part 1: YLD working from the most serious level of infection
-				// YLD = fraction of year with condition * DALY weight
-				if (i.time_start_critical < Double.MAX_VALUE)
-					// calculate yld between the onset of critical illness to death or recovery
-					if (i.time_died < Double.MAX_VALUE)
-						yld += ((i.time_died - i.time_start_critical) / 365) * critical_daly_weight;
-					else if (i.time_recovered < Double.MAX_VALUE)
-						yld += ((i.time_recovered - i.time_start_critical) / 365) * critical_daly_weight;
-				if (i.time_start_severe < Double.MAX_VALUE)
-					// calculate yld between the progression from a severe case to a critical case or recovery
-					if (i.time_start_critical < Double.MAX_VALUE)
-						yld += ((i.time_start_critical - i.time_start_severe) / 365) * severe_daly_weight;
-					else if (i.time_recovered < Double.MAX_VALUE)
-						yld += ((i.time_recovered - i.time_start_severe) / 365) * severe_daly_weight;
-				if (i.time_start_symptomatic < Double.MAX_VALUE)
-					// calculate yld between the onset of symptoms to progression to severe case or recovery
-					if (i.time_start_severe < Double.MAX_VALUE)
-						yld += ((i.time_start_severe - i.time_start_symptomatic) / 365) * mild_daly_weight;
-					else if (i.time_recovered < Double.MAX_VALUE)
-						yld += ((i.time_recovered - i.time_start_symptomatic) / 365) * mild_daly_weight;
-				if(yld == 0.0)
-					rec += "\t-";
-				else
-					rec += "\t" + (double) yld;
-				// calculate YLL (basic)
-				// YLL = Life expectancy in years - age at time of death, if age at death < Life expectancy else 0
-				int lifeExpectancy = 62;  // according to world bank estimate https://data.worldbank.org/indicator/SP.DYN.LE00.IN?locations=ZW
-				double yll = 0;
-				if(i.time_died == Double.MAX_VALUE)
-					rec += "\t-";
-				else {
-					yll = lifeExpectancy - i.getHost().getAge();
-					// If this person's age is greater than the life expectancy of Zimbabwe, then assume there are no years of life lost
-					if (yll < 0)
-						yll = 0;
-					rec += "\t" + (double) yll;
-				}
-				// Recored DALYs (YLL + YLD)
-				if (yll + yld == 0.0)
-					rec += "\t-";
-				else
-					rec += "\t" + (double) (yll + yld);
-				// record number of times with covid
-				rec += "\t" + i.getHost().getNumberOfTimesInfected();
-				
-				rec += "\n";
-				
-				exportFile.write(rec);
-				
-			}
-			
-			exportFile.close();
-		} catch (Exception e) {
-			System.err.println("File input error: " + infections_export_filename);
-		}
-
-	}
 	
 	// thanks to THIS FRIEND: https://blogs.sas.com/content/iml/2014/06/04/simulate-lognormal-data-with-specified-mean-and-variance.html <3 to you Rick
 	public double nextRandomLognormal(double mean, double std){
@@ -1966,7 +1734,7 @@ public class WorldBankCovid19Sim extends SimState {
 			double myTime = mySim.schedule.getTime();
 		}
 		
-		mySim.exportInfections();
+		ImportExport.exportInfections(infectionsOutputFilename, mySim.infections);
 		
 		// end of wallclock determination of time
 		long endTime = System.currentTimeMillis();
@@ -1975,33 +1743,5 @@ public class WorldBankCovid19Sim extends SimState {
 		System.out.println("...run finished after " + mySim.timer + " ms");
 	}
 
-	void exportSimInformation() {
-		// Write the following information to a .txt file: Seed, number of agents, simulation duration
-		// TODO: discuss what else would be useful for the output here
-		try {
-		System.out.println("Printing out SIMULATION INFORMATION to " + sim_info_filename);
-		
-		// Create new buffered writer to store this information in
-		BufferedWriter exportFile = new BufferedWriter(new FileWriter(sim_info_filename, true));
-		// write a new heading 
-		exportFile.write("Seed\tNumberOfAgents\tSimuilationDuration"
-				+ "\n");
-		// Create variable rec to store the information
-		String rec = "";
-		// get and record the simulation seed
-		rec += this.seed() + "\t";
-		// get and record the number of agents
-		rec += this.agents.size() + "\t";
-		// get and record the simulation duration
-		rec += this.targetDuration + "\t";
-		
-		exportFile.write(rec);
-		exportFile.close();
-		
-		} catch (Exception e) {
-			System.err.println("File input error: " + sim_info_filename);
-		}
 
-		
-	}
 }
