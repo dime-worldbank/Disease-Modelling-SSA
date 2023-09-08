@@ -91,6 +91,7 @@ build/*
 /data/verification/census*
 
 !/Protecs/src/main/resources/*
+
 #######################
 # Include some additional file formats in any output folder. You might have
 # to change the name of the Output folder to whatever it is called in your
@@ -98,6 +99,9 @@ build/*
 # a subset of the folders where you are certain no private data is ever stored.
 ##!/**/Output/**/*.txt ## there are a few too many of these right now so commenting out
 ##!/**/Output/**/*.csv ## there are a few too many of these right now so commenting out
+!/docs/**/*.png
+!/docs/**/*.gif
+
 !/**/Output/**/*.xml
 !/**/Output/**/*.eps
 !/**/Output/**/*.svg
