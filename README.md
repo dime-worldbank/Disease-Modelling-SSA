@@ -37,7 +37,7 @@ The following visualizations are generated from the output of the model. Shown b
 
 ### Varying the beta value of the disease
 
-![](docs/figures/popAndBetas.png)
+<img src="docs/figures/popAndBetas.png" width="700"/>
 
 ### Comparison of population sizes
 
@@ -49,11 +49,11 @@ The following visualizations are generated from the output of the model. Shown b
 
 ### Comparison of impact of population proportion in spatial and non-spatial versions of the model
 
-![Lockdown example](docs/figures/cases_and_deaths_confidence_intervals_version_2.png)
+<img src="docs/figures/cases_and_deaths_confidence_intervals_version_2.png" width="900"/>
 
 ### Scenario exploration
 
-![](docs/figures/lockdown_level_first_look.png)
+<img src="docs/figures/lockdown_level_first_look.png" width="700"/>
 
 <!-- ### Case trajectories
 
