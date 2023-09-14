@@ -1,0 +1,2 @@
+day,date,level
+10, 40, 4

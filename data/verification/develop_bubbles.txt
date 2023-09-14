@@ -1,0 +1,23 @@
+dataDir: /Users/robbiework/eclipse-workspace/Disease-Modelling-SSA/data/verification/
+
+population_filename: test_economic_bubbles.csv
+
+district_transition_LOCKDOWN_filename: daily_region_transition_probability-new-district-post-lockdown_i5.csv
+district_transition_PRELOCKDOWN_filename: dailyDistrictTransitionProb_preLockdown_multiDist.csv
+district_leaving_filename: decreasedTransitionMobilityRates_multiDist.csv
+
+economic_status_weekday_movement_prob_filename: econStatusMovementProb_weekday_multi.txt
+economic_status_otherday_movement_prob_filename: econStatusMovementProb_weekday_multi.txt
+econ_interaction_distrib_filename: interactionMatrixByStatus_ld_multi.txt
+
+lockdown_changeList_filename: lockdownChangelist_empty.txt
+
+community_num_interaction_perTick: 5
+lineListWeightingFactor: 1
+setting_perfectMixing: false
+
+economic_status_num_daily_interacts_filename: numWeeklyInteractionsByStatus_multi.txt
+line_list_filename: line_list_dev_local_lockdown.txt
+infection_transition_params_filename: covasim_infect_transitions.txt
+workplace_id_filename: test_workplace_ids.csv
+community_id_filename: test_community_ids.csv

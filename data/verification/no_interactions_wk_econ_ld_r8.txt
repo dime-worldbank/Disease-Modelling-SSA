@@ -1,0 +1,11 @@
+economic_status,interactions,SD
+"Not working, inactive, not in universe",1,9
+Current Students,24,37
+Homemakers/Housework,8,26
+Office workers,32,38
+Teachers,30,46
+Service Workers,21,34
+Agriculture Workers,16,27
+Industry Workers,18,25
+In the army,10,10
+Disabled and not working,17,31
