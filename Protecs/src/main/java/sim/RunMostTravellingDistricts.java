@@ -1,4 +1,4 @@
-package sim;
+package main.java.sim;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -6,7 +6,7 @@ import java.io.FileWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Random;
-
+import main.java.sim.ImportExport;
 public class RunMostTravellingDistricts {
 	
 	public static void main(String [] args) {
@@ -36,7 +36,7 @@ public class RunMostTravellingDistricts {
 			    // generate random seed from 0 to 1,000,000
 			    int seed = random.nextInt(1000000);
 			        
-			    WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(seed, new Params(paramFilename), outputFilename);
+			    WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(seed, new Params(paramFilename, false), outputFilename, false);
 	
 				System.out.println("Loading...");
 	
@@ -55,8 +55,8 @@ public class RunMostTravellingDistricts {
 				}
 					
 				//mySim.reportOnInfected();
-				mySim.exportInfections();
-				mySim.exportSimInformation();
+//				mySim.
+//				mySim.exportSimInformation();
 	
 				
 			}
