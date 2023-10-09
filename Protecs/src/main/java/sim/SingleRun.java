@@ -1,4 +1,4 @@
-package sim;
+package main.java.sim;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -29,7 +29,7 @@ public class SingleRun {
         // generate random seed from 0 to 1,000,000
         int seed = random.nextInt(1000000);
         // create the simulation object
-		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(seed, new Params(paramFilename), outputFilename);
+		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(seed, new Params(paramFilename, false), outputFilename, false);
 
 		// Set how long the simulation should run for
 		mySim.targetDuration = numDays;
@@ -46,8 +46,8 @@ public class SingleRun {
 					//System.out.println("\n*****END TIME: DAY " + (int)(myTime / 6) + " HOUR " + (int)((myTime % 6) * 4) + " RAWTIME: " + myTime);
 		}
 		// export the infections and simulation information to .txt files
-		mySim.exportInfections();
-		mySim.exportSimInformation();
+//		mySim.exportInfections();
+//		mySim.exportSimInformation();
 
 	}
 	
