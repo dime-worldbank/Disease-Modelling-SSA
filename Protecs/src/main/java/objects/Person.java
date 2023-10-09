@@ -99,7 +99,8 @@ public class Person extends MobileAgent {
 	boolean hasTestedPositive = false;
 	boolean hasSpuriousSymptoms = false;
 	public int timeToRemoveSymptoms = 100000000;
-
+	boolean hasAntibodies = false;
+	public int timeToRemoveAntibodies = 100000000;
 	
 	
 	/**
@@ -633,6 +634,12 @@ public class Person extends MobileAgent {
 	}
 	public void setSpuriousSymptoms() {
 		this.hasSpuriousSymptoms = true;
+	}
+	public void removeAntibodies() { 
+		this.hasAntibodies = false;
+	}
+	public void setAntibodiess() {
+		this.hasAntibodies = true;
 	}
 	public String getCurrentDistrict() {return this.getHousehold().getRootSuperLocation().myId;}
 
