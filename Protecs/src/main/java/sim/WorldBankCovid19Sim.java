@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import main.java.behaviours.*;
@@ -18,6 +19,7 @@ import main.java.objects.*;
 import ec.util.MersenneTwisterFast;
 import sim.engine.SimState;
 import sim.engine.Steppable;
+import main.java.sim.ImportExport;
 
 public class WorldBankCovid19Sim extends SimState {
 
@@ -51,6 +53,8 @@ public class WorldBankCovid19Sim extends SimState {
 	public String sim_info_filename;
 	public String covidCountsOutputFilename;
 	public String covidByEconOutputFilename;
+	public String dedectedCovidFilename;
+	public String spatialDedectedCovidFilename;
 	int targetDuration = 0;
 	
 	// ordering information
@@ -91,6 +95,8 @@ public class WorldBankCovid19Sim extends SimState {
 		this.sim_info_filename = outputFilename + "_Sim_Information_" + ".txt";
 		this.covidCountsOutputFilename = outputFilename + "_Age_Gender_Demographics_Covid_" + ".txt";
 		this.covidByEconOutputFilename = outputFilename + "_Economic_Status_Covid_.txt";
+		this.dedectedCovidFilename = outputFilename + "_detected_covid_cases.txt";
+		this.spatialDedectedCovidFilename = outputFilename + "_spatial_detected_covid_cases.txt";
 	}
 	
 	public void start(){
@@ -1490,7 +1496,117 @@ public class WorldBankCovid19Sim extends SimState {
 			}
 		};
 		schedule.scheduleRepeating(reportPopStructure, this.param_schedule_reporting, params.ticks_per_day);
-		
+		// SCHEDULE testing
+				Steppable testing_for_covid = new Steppable() {
+
+							@Override
+							public void step(SimState arg0) {
+								// get the simulation time
+								int time = (int) (arg0.schedule.getTime() / params.ticks_per_day);
+								// get the index for the test numbers
+								int index_for_test_number = params.test_dates.indexOf(time);
+								// find the number of tests per 1000 to test today
+								int number_of_tests_today = params.number_of_tests_per_day.get(index_for_test_number);
+								// we only want to test people who are alive and administer the tests per 1000 based on this 
+								Map<Boolean, Map<Boolean, List<Person>>> is_elligable_for_testing_map = agents.stream().collect(
+														Collectors.groupingBy(
+																Person::isDead,
+																Collectors.groupingBy(
+																		Person::isElligableForTesting,
+														Collectors.toList()
+														)
+													)
+										);
+								WorldBankCovid19Sim myWorld = (WorldBankCovid19Sim) arg0;								// create a random state (I need to link this to the existing random state but don't know how)
+								Random testing_random = new Random(myWorld.seed());
+								int number_of_positive_tests = 0;
+								double percent_positive = 0;
+								// generate a list of people to test today
+								try {
+									List<Person> people_tested = pickRandom(is_elligable_for_testing_map.get(false).get(true), number_of_tests_today, testing_random);
+								// create a counter for the number of positive tests
+								double test_accuracy = 0.97;
+								// iterate over the list of people to test and perform the tests
+								for (Person person:people_tested) {
+									if(person.hasCovid()) {
+										if (random.nextDouble() < test_accuracy) {
+											number_of_positive_tests ++;
+											person.setTestedPositive();
+											// after they have tested positive, they no longer need to be tested again
+											person.notElligableForTesting();
+										}
+									}
+								}
+								if (number_of_tests_today > 0) {
+									percent_positive = (double) number_of_positive_tests / (double) number_of_tests_today; 
+								}}
+								catch (Exception e) {
+								}
+								String t = "\t";
+								
+								String detected_covid_output = "";
+								if (time == 0) {
+									detected_covid_output += "day" + t + "number_of_detected_cases" + t + "number_of_tests" + t + "fraction_positive" + "\n"+ String.valueOf(time) + t + number_of_positive_tests + t + number_of_tests_today + t + percent_positive+ "\n";
+								}
+								else {
+									detected_covid_output += t + number_of_positive_tests + t + number_of_tests_today + t + percent_positive + "\n";
+								}
+								ImportExport.exportMe(dedectedCovidFilename, detected_covid_output, time);
+//								create a list of district names to iterate over for our logging
+								List <String> districtList = myWorld.params.districtNames;
+
+								// create list to store the number of cases per district
+								ArrayList <Integer> covidTestedPositiveArray = new ArrayList<Integer>();
+
+								// create a function to group the population by location, whether they are alive and if they have covid and if this is a new case
+								Map<String, Map<Boolean, Map<Boolean, Long>>> location_alive_tested_pos_for_Covid_map = agents.stream().collect(
+										Collectors.groupingBy(
+												Person::getCurrentDistrict, 
+													Collectors.groupingBy(
+																Person::isDead,
+																Collectors.groupingBy(
+																		Person::hasTestedPos,
+														Collectors.counting()
+														)
+												)
+										)
+										);
+//								We now iterate over the districts, to find the current state of the epidemic
+								for (String district: districtList) {
+									// get the current number of cases in each district
+									try {
+										covidTestedPositiveArray.add(location_alive_tested_pos_for_Covid_map.get(district).get(false).get(true).intValue());
+									} catch (Exception e) {
+										// No one in population met criteria
+										covidTestedPositiveArray.add(0);
+									}
+								}
+								
+								String spatialOutput = "";
+								// format the file
+								String tabbedDistrictNames = "";
+								for (String district: districtList) {tabbedDistrictNames += t + district;}
+								if (time == 0) {
+									spatialOutput += "day" + tabbedDistrictNames + "\n" + String.valueOf(time);
+								}
+								// store total number of positive tests in district
+								for (int val: covidTestedPositiveArray){
+									spatialOutput += t + String.valueOf(val);
+								}
+								spatialOutput += "\n";
+								ImportExport.exportMe(spatialDedectedCovidFilename, spatialOutput, time);
+								try {
+									List<Person> people_tested = pickRandom(is_elligable_for_testing_map.get(false).get(true), number_of_tests_today, testing_random);
+								for (Person person:people_tested) {
+									if(person.hasTestedPos()) {
+										person.removeTestedPositive();
+										}
+								}
+							} catch (Exception e) {}
+						}
+							
+						};
+				schedule.scheduleRepeating(testing_for_covid, this.param_schedule_reporting, params.ticks_per_day);
 		
 		// SCHEDULE LOCKDOWNS
 		Steppable lockdownTrigger = new Steppable() {
@@ -1664,6 +1780,11 @@ public class WorldBankCovid19Sim extends SimState {
 		return Math.exp(x);
 		
 	}
+	
+	private static <E> List<E> pickRandom(List<E> list, int n, Random rand) {
+		  return new Random().ints(n, 0, list.size()).mapToObj(list::get).collect(Collectors.toList());
+		}
+	
 	public WorldBankCovid19Sim returnSim() {return this;}
 	
 	/**

@@ -103,7 +103,7 @@ public class ImportExport {
 			// shove it out
 			BufferedWriter exportFile = new BufferedWriter(new FileWriter(filename, true));
 			if(timer > 0)
-				exportFile.write(timer + "\n");
+				exportFile.write(timer + "");
 			exportFile.write(output);
 			exportFile.close();
 		} catch (Exception e) {
