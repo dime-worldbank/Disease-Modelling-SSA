@@ -370,7 +370,10 @@ public class WorldBankCovid19Sim extends SimState {
 				for (int x = 0; x <female_pregnancy_ages.size(); x++){
 					double births_in_age = female_pregnancy_ages.get(x);
 					double female_alive_in_age = female_alive_ages.get(x);
-					double result = births_in_age / female_alive_in_age;
+					double result = 0;
+					if (female_alive_in_age > 0) {
+						result = births_in_age / female_alive_in_age;
+						}
 	                result *= 1000;
 	                age_dependent_birth_rate += t + String.valueOf(result);
 				}
@@ -470,12 +473,6 @@ public class WorldBankCovid19Sim extends SimState {
 				//	create a list of district names to iterate over for our logging
 				List <String> districtList = myWorld.params.districtNames;
 						
-/*						Arrays.asList(
-						"d_1", "d_2", "d_3", "d_4", "d_5", "d_6", "d_7", "d_8", "d_9", "d_10", "d_11", "d_12", "d_13", "d_14", "d_15", 
-						"d_16", "d_17", "d_18", "d_19", "d_20", "d_21", "d_22", "d_23", "d_24", "d_25", "d_26", "d_27", "d_28", "d_29", 
-						"d_30", "d_31", "d_32", "d_33", "d_34", "d_35", "d_36", "d_37", "d_38", "d_39", "d_40", "d_41", "d_42", "d_43", 
-						"d_44", "d_45", "d_46", "d_47", "d_48", "d_49", "d_50", "d_51", "d_52", "d_53", "d_54", "d_55", "d_56", "d_57", 
-						"d_58", "d_59", "d_60"); */
 				// create list to store the counts of each category of interest. The number of cases, the cumulative number of cases, 
 				// the number of cases by type, the number of recoveries, the number of deaths etc... 
 				ArrayList <Integer> covidCountArray = new ArrayList<Integer>();
@@ -932,7 +929,10 @@ public class WorldBankCovid19Sim extends SimState {
 				for (int x = 0; x <male_covid_deaths_by_ages.size(); x++){
 					double male_covid_deaths_in_age = male_covid_deaths_by_ages.get(x);
 					double male_alive_in_age = male_alive_ages.get(x);
-					double result =  male_covid_deaths_in_age / male_alive_in_age;
+					double result = 0;
+					if (male_alive_in_age > 0) {
+						result =  male_covid_deaths_in_age / male_alive_in_age;
+					}
 	                result *= 100000;
 	                covid_inc_death += t + String.valueOf(result);
 				}
@@ -942,7 +942,10 @@ public class WorldBankCovid19Sim extends SimState {
 				for (int x =0; x <female_covid_deaths_by_ages.size(); x++){
 					double female_covid_deaths_in_age = female_covid_deaths_by_ages.get(x);
 					double female_alive_in_age = female_alive_ages.get(x);
-					double result = female_covid_deaths_in_age / female_alive_in_age;	                
+					double result = 0;
+					if (female_alive_in_age > 0) {
+						result = female_covid_deaths_in_age / female_alive_in_age;	                
+					}
 					result *= 100000;
 	                covid_inc_death += t + String.valueOf(result);
 				}
@@ -952,7 +955,10 @@ public class WorldBankCovid19Sim extends SimState {
 				for (int x = 0; x <male_other_deaths_by_ages.size(); x++){
 					double male_other_deaths_in_age = male_other_deaths_by_ages.get(x);
 					double male_alive_in_age = male_alive_ages.get(x);
-					double result = male_other_deaths_in_age / male_alive_in_age;
+					double result = 0;
+					if (male_alive_in_age > 0) {
+						result = male_other_deaths_in_age / male_alive_in_age;
+					}
 	                result *= 100000;
 	                other_inc_death += t + String.valueOf(result);
 				}
@@ -962,7 +968,10 @@ public class WorldBankCovid19Sim extends SimState {
 				for (int x =0; x <female_other_deaths_by_ages.size(); x++){
 					double female_other_deaths_in_age = female_other_deaths_by_ages.get(x);
 					double female_alive_in_age = female_alive_ages.get(x);
-					double result = female_other_deaths_in_age / female_alive_in_age;
+					double result = 0;
+					if (female_alive_in_age > 0) {
+						result = female_other_deaths_in_age / female_alive_in_age;
+					}
 	                result *= 100000;
 	                other_inc_death += t +String.valueOf(result);
 				}
@@ -1046,7 +1055,10 @@ public class WorldBankCovid19Sim extends SimState {
 				for (int x = 0; x <male_covid_by_ages.size(); x++){
 					double male_covid_deaths_in_age = male_covid_by_ages.get(x);
 					double male_alive_in_age = male_alive_ages.get(x);
-					double result =  male_covid_deaths_in_age / male_alive_in_age;
+					double result = 0;
+					if (male_alive_in_age > 0) {
+						result =  male_covid_deaths_in_age / male_alive_in_age;
+					}
 	                result *= 100000;
 	                covid_inc += t + String.valueOf(result);
 				}
@@ -1057,7 +1069,10 @@ public class WorldBankCovid19Sim extends SimState {
 				for (int x =0; x <female_covid_by_ages.size(); x++){
 					double female_covid_deaths_in_age = female_covid_by_ages.get(x);
 					double female_alive_in_age = female_alive_ages.get(x);
-					double result = female_covid_deaths_in_age / female_alive_in_age;	                
+					double result = 0;
+					if (female_alive_in_age > 0) {
+						result = female_covid_deaths_in_age / female_alive_in_age;	                
+					}
 					result *= 100000;
 	                covid_inc += t + String.valueOf(result);
 				}
