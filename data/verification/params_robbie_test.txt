@@ -10,7 +10,13 @@ economic_status_weekday_movement_prob_filename: econStatusMovementProb_weekday_m
 economic_status_otherday_movement_prob_filename: econStatusMovementProb_otherDay_multi.txt
 econ_interaction_distrib_filename: interactionMatrixByStatus_nld_multi.txt
 
+all_cause_mortality_filename: test_mortality_rates.txt
+birth_rate_filename: test_birth_rates.txt
+
+testDataFilename: num_tests_by_date.txt
+
 lockdown_changeList_filename: lockdownChangelist_empty.txt
+testLocationFilename: border_post_districts_to_test.txt
 
 community_num_interaction_perTick: 5
 lineListWeightingFactor: 1

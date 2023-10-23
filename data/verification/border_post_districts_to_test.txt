@@ -1,0 +1,11 @@
+name,number
+Bulawayo,1 
+Harare,2
+Mutare,7
+Mudzi,20
+Hurungwe North,27
+Kariba,29
+Chiredzi,33
+Hwange,41
+Beitbridge,46
+Bulilimamangwe District,47
