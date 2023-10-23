@@ -482,6 +482,7 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				if (i.getHost().isDeadFromOther()) {
 					return Double.MAX_VALUE;
 				}
+				int day = (int) (myWorld.returnSim().schedule.getTime() / myWorld.params.ticks_per_day);
 				i.time_recovered = time;
 				// update person's properties
 				i.getHost().setRecovered();
@@ -495,7 +496,21 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 					i.getHost().setMobility(true);
 					myWorld.schedule.scheduleOnce(i.getHost());	// schedule the agent to begin moving again!				
 				}
-				
+				// We will determine if a person will develop antibodies to COVID here and then determine how 
+				// long they will be present in the person. A study from Ethiopia (Gebrecherkos, Teklay, et al. "Longitudinal profile of antibody response to SARS-CoV-2 in patients with COVID-19 in a setting from Sub–Saharan Africa: A prospective longitudinal study." PLoS One 17.3 (2022): e0263627.)
+				// found that 8.9% of people never developed antibodies.
+				double prob_not_develop_antibodies = 0.089;
+				// if they develop antibodies, there are multiple factors which will determine how long
+				// they remain in the person, such as age, bmi, infection severity etc... currently the
+				// exact length of difficult to determine as there are conflicting results from studies
+				// for development, let's use the max reported time for now of 500 days (Swartz, Michael D., et al. "Antibody duration after infection from SARS-CoV-2 in the Texas coronavirus antibody response survey." The Journal of Infectious Diseases 227.2 (2023): 193-201.)
+				// Resistance to COVID seems to last for 7 months, we will assign this here.
+				if (myWorld.random.nextDouble() > prob_not_develop_antibodies) {
+					i.getHost().setCovidAntibodies();
+					i.getHost().setCovidAntibodyRemovalDate(day + 500);
+					i.getHost().setCovidResistance();
+					i.getHost().setCovidResistanceRemovalDate(day + 7 * 30);
+				}
 				// no need to update again!
 				return Double.MAX_VALUE;
 			}

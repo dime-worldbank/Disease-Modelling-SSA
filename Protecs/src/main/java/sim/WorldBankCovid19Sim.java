@@ -55,6 +55,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public String covidByEconOutputFilename;
 	public String dedectedCovidFilename;
 	public String spatialDedectedCovidFilename;
+	public String overallSeroprevalence;
 	int targetDuration = 0;
 	
 	// ordering information
@@ -84,6 +85,7 @@ public class WorldBankCovid19Sim extends SimState {
 		this.demography = demography;
 		this.covidIncOutputFilename = outputFilename + "_Incidence_Of_Covid_" + ".txt"; 
 		this.populationOutputFilename = outputFilename + "_Overall_Demographics_" + ".txt";
+		this.overallSeroprevalence = outputFilename + "_Overall_Seroprevalence_" + ".txt";
 		this.covidIncDeathOutputFilename = outputFilename + "_Incidence_Of_Covid_Death_" + ".txt";
 		this.otherIncDeathOutputFilename = outputFilename + "_Incidence_Of_Other_Death_" + ".txt";
 		this.birthRateOutputFilename = outputFilename + "_Birth_Rate_" + ".txt";
@@ -1511,6 +1513,83 @@ public class WorldBankCovid19Sim extends SimState {
 			}
 		};
 		schedule.scheduleRepeating(reportPopStructure, this.param_schedule_reporting, params.ticks_per_day);
+		// create a function to report the overall population structure
+		Steppable reportSeroprevalence = new Steppable(){
+					
+					@Override
+					public void step(SimState arg0) {
+						// get a list of locations
+						List <String> districts = ((WorldBankCovid19Sim)arg0).params.districtNames;
+
+						// create a function to group the population by who is alive at this district
+						Map<Boolean, Map<String, List<Person>>> aliveAtLocation = agents.stream().collect(
+								Collectors.groupingBy(
+										Person::getAlive,
+										Collectors.groupingBy(
+												Person::getCurrentDistrict
+												)
+								)
+								);
+						// create a function to group the population by who is alive in each district and has covid antibodies
+						Map<Boolean, Map<String, Map<Boolean, List<Person>>>> covidAntibodiesAtLocation = agents.stream().collect(
+								Collectors.groupingBy(
+										Person::getAlive,
+										Collectors.groupingBy(
+												Person::getCurrentDistrict,
+												Collectors.groupingBy(
+														Person::hasAntibodies
+												)
+								)
+								)
+								);
+						
+						ArrayList <Double> districtSeroprevalence = new ArrayList<Double>();
+						// iterate over each district
+						double population;
+						double antibodyCount;
+						double seroprevalence;
+						for (String place: districts) {
+							// get population counts in each district
+							population = (double) aliveAtLocation.get(true).get(place).size();
+							// get covid counts in each district
+							try {
+								antibodyCount = (double) covidAntibodiesAtLocation.get(true).get(place).get(true).size();
+							}
+							catch (Exception e) {
+							// antibodies weren't present in the population, skip
+								antibodyCount = 0.0;
+							}
+							
+							districtSeroprevalence.add(antibodyCount / population);
+						}
+						// format the output file for population counts
+						int time = (int) (arg0.schedule.getTime() / params.ticks_per_day);
+
+						String seroprev_in_district = "";
+						
+						String t = "\t";
+						if (time == 0) {
+							seroprev_in_district += "day" + t;
+							for (String place: districts) {
+								seroprev_in_district += place + t;
+							}
+							seroprev_in_district += "\n" + String.valueOf(time);
+						}
+						else {
+							seroprev_in_district += "\n" + String.valueOf(time);
+						}
+						// store the population counts per district
+						for (double val: districtSeroprevalence) {
+							seroprev_in_district += t + val;
+						}
+						
+
+						// export the file
+						ImportExport.exportMe(overallSeroprevalence, seroprev_in_district, timer);
+						
+					}
+				};
+				schedule.scheduleRepeating(reportSeroprevalence, this.param_schedule_reporting, params.ticks_per_day);
 		// SCHEDULE testing
 				Steppable testing_for_covid = new Steppable() {
 

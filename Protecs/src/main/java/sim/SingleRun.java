@@ -9,7 +9,7 @@ public class SingleRun {
 	public static void main(String [] args) {
 		double beta = 0.016;
 		// set the number of days the simulation will run
-		int numDays = 100;
+		int numDays = 50;
 		// get current time, use to time stamp the results file, first format date time
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");  
 		// name current time 'timestamp'
@@ -29,7 +29,7 @@ public class SingleRun {
         // generate random seed from 0 to 1,000,000
         int seed = random.nextInt(1000000);
         // create the simulation object
-		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(seed, new Params(paramFilename, true), outputFilename, true);
+		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(seed, new Params(paramFilename, true), outputFilename, false);
 
 		// Set how long the simulation should run for
 		mySim.targetDuration = numDays;
