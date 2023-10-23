@@ -99,6 +99,8 @@ public class Person extends MobileAgent {
 	boolean hasTestedPositive = false;
 	boolean hasSpuriousSymptoms = false;
 	public int timeToRemoveSymptoms = 100000000;
+	boolean hasCovidAntibodies = false;
+	public int timeToRemoveAntibodies = 100000000;
 
 	
 	
@@ -563,7 +565,9 @@ public class Person extends MobileAgent {
 
 	public boolean isElligableForTesting() {return this.elligableForTesting; }
 	public boolean hasSpuriousSymptoms() {return this.hasSpuriousSymptoms; }
-
+	
+	public boolean hasAntibodies() { return this.hasCovidAntibodies; }
+	
 	public boolean inADistrictTesting() {
 		boolean answer = this.myWorld.params.districts_to_test_in.stream().anyMatch(x -> x.equals(this.myHousehold.getRootSuperLocation().myId));
 		return answer;
@@ -634,6 +638,14 @@ public class Person extends MobileAgent {
 	public void setSpuriousSymptoms() {
 		this.hasSpuriousSymptoms = true;
 	}
+	public void removeCovidAntibodies() { 
+		this.hasCovidAntibodies = false;
+	}
+	public void setCovidAntibodies() {
+		this.hasCovidAntibodies = true;
+	}
+	public void setCovidAntibodyRemovalDate(int time) { this.timeToRemoveAntibodies = time; }
+
 	public String getCurrentDistrict() {return this.getHousehold().getRootSuperLocation().myId;}
 
 	// UTILS

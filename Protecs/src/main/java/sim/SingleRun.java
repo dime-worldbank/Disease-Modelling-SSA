@@ -16,9 +16,9 @@ public class SingleRun {
 		LocalDateTime timestamp = LocalDateTime.now();  
 		// Get location of parameter file
 
-		String paramFilename = "/Users/robbiework/eclipse-workspace/Disease-Modelling-SSA/data/verification/params_robbie_test.txt";
+		String paramFilename = "/Users/robbiework/Desktop/verification/params_robbie_test.txt";
 		// Create a name for the output file
-		String outputFilename = "single_run_" + timestamp.toString() + ".txt";
+		String outputFilename = "single_run_" + timestamp.toString();
 		// create a name for the infections output file
 		String infectionsOutputFilename = "single_run_infections_" + timestamp.toString() + ".txt";
 		// create a name for the simulation information file
