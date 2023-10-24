@@ -1846,7 +1846,11 @@ public class WorldBankCovid19Sim extends SimState {
 				this.schedule.scheduleOnce(0, this.param_schedule_movement, p);
 				//this.schedule.scheduleRepeating(p);
 			}
-			
+			// calculate and store the sample size of the population, involves some type casting, may be able to be improved
+			double model_pop_size = (double) agents.size();
+			double model_pop_fraction = model_pop_size / this.params.pop_size_2020;
+			double model_sample_size = model_pop_fraction * 100;
+			this.params.sample_size =  (int) model_sample_size;
 			// clean up after ourselves!
 			agentData.close();
 							

@@ -17,6 +17,10 @@ public class Params {
 	
 	public boolean verbose = true;
 	
+	public int sample_size;
+	
+	public int pop_size_2020 = 15023660;
+	
 	public double infection_beta = 0.016;
 	public double rate_of_spurious_symptoms = 0.004;
 	public int lineListWeightingFactor = 1; // the line list contains only detected instances, which can be biased 
@@ -66,6 +70,11 @@ public class Params {
 	public ArrayList <Integer> test_dates;
 	public ArrayList <Integer> number_of_tests_per_day;
 	public ArrayList <String> districts_to_test_in;
+	// holder for seroprevalence testing
+	public ArrayList <String> sero_districts_to_test_in;
+	public ArrayList <Double> seroChangeList;
+	public ArrayList <Integer> seroSampleNumbers;
+	// 
 	
 	// parameters drawn from Kerr et al 2020 - https://www.medrxiv.org/content/10.1101/2020.05.10.20097469v3.full.pdf
 	public ArrayList <Integer> infection_age_params;
@@ -125,6 +134,7 @@ public class Params {
 	
 	public String testDataFilename = "";
 	public String testLocationFilename = "";
+	public String seroprevalenceSamplingFilename = "";
 		
 	
 	// time
@@ -169,6 +179,8 @@ public class Params {
 		// load the testing data
 		load_testing(dataDir + testDataFilename);
 		load_testing_locations(dataDir + testLocationFilename);
+		// load the seroprevalence data 
+		load_seroprevalence_sampling(dataDir + seroprevalenceSamplingFilename);
 		
 	}
 	
@@ -208,8 +220,8 @@ public class Params {
 					else
 						f.set(this, myVal);	
 				}
-			}			
-
+			}
+			paramFile.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -252,6 +264,7 @@ public class Params {
 				lineList.put(myDistrict, myCount);
 			}
 			assert (lineList.size() > 0): "lineList not loaded";
+			lineListDataFile.close();
 
 		} catch (Exception e) {
 			System.err.println("File input error: " + lineListFilename);
@@ -298,9 +311,63 @@ public class Params {
 					started = false;
 				}
 			}
-
+			lineListDataFile.close();
 		} catch (Exception e) {
 			System.err.println("File input error: " + lockdownChangelistFilename);
+		}
+	}
+	
+	public void load_seroprevalence_sampling(String seroprevalenceSamplingFilename) {
+		try {
+			
+			if(verbose)
+				System.out.println("Reading in data from " + seroprevalenceSamplingFilename);
+			
+			// Open the tracts file
+			FileInputStream fstream = new FileInputStream(seroprevalenceSamplingFilename);
+
+			// Convert our input stream to a BufferedReader
+			BufferedReader seroPrevDataFile = new BufferedReader(new InputStreamReader(fstream));
+			String s;
+
+			// extract the header
+			s = seroPrevDataFile.readLine();
+
+			// map the header into column names relative to location
+			String [] header = splitRawCSVString(s);
+			HashMap <String, Integer> columnNames = parseHeader(header);
+			int dayIndex = columnNames.get("day");
+			int levelIndex = columnNames.get("level");
+			int numberSampleIdx = columnNames.get("samples_to_conduct");
+			int districts_to_test_in_idx = columnNames.get("districts_to_test_in");
+
+			// set up data container
+			seroChangeList = new ArrayList <Double> (); 
+			sero_districts_to_test_in = new ArrayList <String> ();
+			seroSampleNumbers = new ArrayList <Integer> ();
+			
+			// read in the raw data
+			boolean started = false;
+			while ((s = seroPrevDataFile.readLine()) != null) {
+				String [] bits = splitRawCSVString(s);
+				int dayVal = Integer.parseInt(bits[dayIndex]);
+				Integer myLevel = Integer.parseInt(bits[levelIndex]);
+				String myDistrict = bits[districts_to_test_in_idx];
+				Integer numTests = Integer.parseInt(bits[numberSampleIdx]);
+				sero_districts_to_test_in.add(myDistrict);
+				seroSampleNumbers.add(numTests);
+				if(!started && myLevel > 0) {
+					seroChangeList.add((double)dayVal);
+					started = true;
+				}
+				else if(started) {
+					seroChangeList.add((double)dayVal);
+					started = false;
+				}
+			}
+			seroPrevDataFile.close();
+		} catch (Exception e) {
+			System.err.println("File input error: " + seroprevalenceSamplingFilename);
 		}
 	}
 	
