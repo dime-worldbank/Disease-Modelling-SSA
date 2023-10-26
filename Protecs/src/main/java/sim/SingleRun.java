@@ -9,7 +9,7 @@ public class SingleRun {
 	public static void main(String [] args) {
 		double beta = 0.016;
 		// set the number of days the simulation will run
-		int numDays = 50;
+		int numDays = 270;
 		// get current time, use to time stamp the results file, first format date time
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");  
 		// name current time 'timestamp'

@@ -253,12 +253,11 @@ public class Person extends MobileAgent {
 		}
 		else {
 			isDeadFromOther = true;
+			System.out.println(this.toString() + " has DIED :(");
 		}
 		isAlive = false;
 		isDead = true;
 		transferTo(null);
-
-		System.out.println(this.toString() + " has DIED :(");
 
 	}
 	
@@ -577,7 +576,10 @@ public class Person extends MobileAgent {
 		boolean answer = this.myWorld.params.districts_to_test_in.stream().anyMatch(x -> x.equals(this.myHousehold.getRootSuperLocation().myId));
 		return answer;
 	}
-		
+	public boolean inASamplingDistrict() {
+		boolean answer = this.myWorld.params.sero_districts_to_test_in.stream().anyMatch(x -> x.equals(this.myHousehold.getRootSuperLocation().myId));
+		return answer;
+	}	
 	public void setInfection(Infection i){ myInfection = i; }
 	public boolean hadCovid() { return this.hadCovid; }
 	public boolean hasAsymptCovid() { return this.asymptomatic; }

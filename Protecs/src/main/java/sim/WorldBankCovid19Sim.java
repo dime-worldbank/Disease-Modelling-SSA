@@ -38,6 +38,11 @@ public class WorldBankCovid19Sim extends SimState {
 	public boolean lockedDown = false;
 	// create a variable to determine whether the model will cause additional births and deaths	
 	public boolean demography = false;
+	// create a variable to determine whether seroprevalance sampling will go ahead
+	public boolean seroSample = false;
+	public int numDaysToSampleSeroprevalence;
+	public int numSamplesPerDay;
+	public Double day_to_start_writing_sero_sample_file;
 	// the names of file names of each output filename		
 	public String outputFilename;
 	public String covidIncOutputFilename; 
@@ -53,9 +58,10 @@ public class WorldBankCovid19Sim extends SimState {
 	public String sim_info_filename;
 	public String covidCountsOutputFilename;
 	public String covidByEconOutputFilename;
-	public String dedectedCovidFilename;
-	public String spatialDedectedCovidFilename;
+	public String detectedCovidFilename;
+	public String spatialdetectedCovidFilename;
 	public String overallSeroprevalence;
+	public String detectedSeroprevalenceFilename;
 	int targetDuration = 0;
 	
 	// ordering information
@@ -86,6 +92,7 @@ public class WorldBankCovid19Sim extends SimState {
 		this.covidIncOutputFilename = outputFilename + "_Incidence_Of_Covid_" + ".txt"; 
 		this.populationOutputFilename = outputFilename + "_Overall_Demographics_" + ".txt";
 		this.overallSeroprevalence = outputFilename + "_Overall_Seroprevalence_" + ".txt";
+		this.detectedSeroprevalenceFilename = outputFilename + "_Detected_Seroprevalence_.txt";
 		this.covidIncDeathOutputFilename = outputFilename + "_Incidence_Of_Covid_Death_" + ".txt";
 		this.otherIncDeathOutputFilename = outputFilename + "_Incidence_Of_Other_Death_" + ".txt";
 		this.birthRateOutputFilename = outputFilename + "_Birth_Rate_" + ".txt";
@@ -97,8 +104,9 @@ public class WorldBankCovid19Sim extends SimState {
 		this.sim_info_filename = outputFilename + "_Sim_Information_" + ".txt";
 		this.covidCountsOutputFilename = outputFilename + "_Age_Gender_Demographics_Covid_" + ".txt";
 		this.covidByEconOutputFilename = outputFilename + "_Economic_Status_Covid_.txt";
-		this.dedectedCovidFilename = outputFilename + "_detected_covid_cases.txt";
-		this.spatialDedectedCovidFilename = outputFilename + "_spatial_detected_covid_cases.txt";
+		this.detectedCovidFilename = outputFilename + "_detected_covid_cases.txt";
+		this.spatialdetectedCovidFilename = outputFilename + "_spatial_detected_covid_cases.txt";
+		
 	}
 	
 	public void start(){
@@ -1589,7 +1597,64 @@ public class WorldBankCovid19Sim extends SimState {
 						
 					}
 				};
-				schedule.scheduleRepeating(reportSeroprevalence, this.param_schedule_reporting, params.ticks_per_day);
+		schedule.scheduleRepeating(reportSeroprevalence, this.param_schedule_reporting, params.ticks_per_day);
+		// Schedule seroprevalence sampling
+		Steppable covidSeroprevalenceSampling = new Steppable() {
+
+					@Override
+					public void step(SimState arg0) {
+						if (seroSample) {
+							WorldBankCovid19Sim myWorld = (WorldBankCovid19Sim) arg0;
+
+							// get the simulation time
+							int time = (int) (arg0.schedule.getTime() / params.ticks_per_day);
+							
+							// we only want to sample from people who are alive and in the correct districts
+							Map<Boolean, Map<Boolean, List<Person>>> is_elligable_for_testing_map = agents.stream().collect(
+													Collectors.groupingBy(
+															Person::isDead,
+															Collectors.groupingBy(
+																	Person::inASamplingDistrict,
+													Collectors.toList()
+													)
+												)
+									);
+							Random testing_random = new Random(myWorld.seed());
+							int number_of_positive_tests = 0;
+							double percent_positive = 0;
+							// generate a list of people to test today
+							try {
+								List<Person> people_tested = pickRandom(is_elligable_for_testing_map.get(false).get(true), numSamplesPerDay, testing_random);
+
+							// iterate over the list of people to test and perform the tests
+							for (Person person:people_tested) {
+								if(person.hasAntibodies()) {
+									number_of_positive_tests ++;
+									}
+								}
+							percent_positive = (double) number_of_positive_tests / numSamplesPerDay;
+							}
+							catch (Exception e) {
+							}
+						
+						String t = "\t";
+						
+						String detected_sero_output = "";
+						
+						if (time == day_to_start_writing_sero_sample_file) {
+							detected_sero_output += "day" + t + "number_of_tests"  + t + "num_with_antibodies"  + t + "seroprevalence"+ "\n"+ String.valueOf(time) + t + numSamplesPerDay + t + number_of_positive_tests + t + percent_positive+ "\n";
+						}
+						else {
+							detected_sero_output += t + numSamplesPerDay + t + number_of_positive_tests + t + percent_positive + "\n";
+						}
+						ImportExport.exportMe(detectedSeroprevalenceFilename, detected_sero_output, time);
+						
+				}
+				}
+				};
+		schedule.scheduleRepeating(covidSeroprevalenceSampling, this.param_schedule_reporting, params.ticks_per_day);
+		
+				
 		// SCHEDULE testing
 				Steppable testing_for_covid = new Steppable() {
 
@@ -1600,7 +1665,12 @@ public class WorldBankCovid19Sim extends SimState {
 								// get the index for the test numbers
 								int index_for_test_number = params.test_dates.indexOf(time);
 								// find the number of tests per 1000 to test today
-								int number_of_tests_today = params.number_of_tests_per_day.get(index_for_test_number);
+								int number_of_tests_today = 0;
+								try {
+									number_of_tests_today = params.number_of_tests_per_day.get(index_for_test_number);
+									}
+								catch (Exception e) {
+								}
 								// we only want to test people who are alive and administer the tests per 1000 based on this 
 								Map<Boolean, Map<Boolean, List<Person>>> is_elligable_for_testing_map = agents.stream().collect(
 														Collectors.groupingBy(
@@ -1645,7 +1715,7 @@ public class WorldBankCovid19Sim extends SimState {
 								else {
 									detected_covid_output += t + number_of_positive_tests + t + number_of_tests_today + t + percent_positive + "\n";
 								}
-								ImportExport.exportMe(dedectedCovidFilename, detected_covid_output, time);
+								ImportExport.exportMe(detectedCovidFilename, detected_covid_output, time);
 //								create a list of district names to iterate over for our logging
 								List <String> districtList = myWorld.params.districtNames;
 
@@ -1688,7 +1758,7 @@ public class WorldBankCovid19Sim extends SimState {
 									spatialOutput += t + String.valueOf(val);
 								}
 								spatialOutput += "\n";
-								ImportExport.exportMe(spatialDedectedCovidFilename, spatialOutput, time);
+								ImportExport.exportMe(spatialdetectedCovidFilename, spatialOutput, time);
 								try {
 									List<Person> people_tested = pickRandom(is_elligable_for_testing_map.get(false).get(true), number_of_tests_today, testing_random);
 								for (Person person:people_tested) {
@@ -1720,7 +1790,30 @@ public class WorldBankCovid19Sim extends SimState {
 			
 		};
 		schedule.scheduleRepeating(0, this.param_schedule_lockdown, lockdownTrigger);
-		
+		// SCHEDULE LOCKDOWNS
+		Steppable seroSamplingTrigger = new Steppable() {
+
+			@Override
+			public void step(SimState arg0) {
+				double currentTime = (int) (arg0.schedule.getTime() / params.ticks_per_day);
+				if(params.seroChangeList.size() == 0)
+					return;
+				double nextChange = params.seroChangeList.get(0);
+				
+				if(currentTime >= nextChange) {
+					// assign the sample number today
+					if (params.seroChangeList.size() > 1) {
+						numDaysToSampleSeroprevalence = (int) (params.seroChangeList.get(1) - params.seroChangeList.get(0));
+						numSamplesPerDay = params.seroSampleNumbers.get(0) / numDaysToSampleSeroprevalence;
+						day_to_start_writing_sero_sample_file = params.seroChangeList.get(0);
+					}
+					params.seroChangeList.remove(0);
+					seroSample = !seroSample;
+					}	
+				}	
+			};
+		schedule.scheduleRepeating(0, this.param_schedule_lockdown, seroSamplingTrigger);
+
 		String filenameSuffix = (this.params.ticks_per_day * this.params.infection_beta) + "_" 
 				+ this.params.lineListWeightingFactor + "_"
 				+ this.targetDuration + "_"
