@@ -7,9 +7,10 @@ import java.util.Random;
 public class SingleRun {
 	
 	public static void main(String [] args) {
-		double beta = 0.016;
+		double beta = 128;
 		// set the number of days the simulation will run
 		int numDays = 270;
+		double mySympt = 0.0875;
 		// get current time, use to time stamp the results file, first format date time
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");  
 		// name current time 'timestamp'
@@ -33,6 +34,9 @@ public class SingleRun {
 
 		// Set how long the simulation should run for
 		mySim.targetDuration = numDays;
+		mySim.params.rate_of_spurious_symptoms = mySympt;
+		mySim.params.infection_beta = mySympt;
+
 		// Begin the simulation
 		mySim.start();
 		// Update the file names of where we will import the infecitons output and the general simulation information output

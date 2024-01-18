@@ -1986,10 +1986,22 @@ public class WorldBankCovid19Sim extends SimState {
 	 * @param args
 	 */
 	public static void main(String [] args){
-		
+		// -----------------------------------------------------------------------------------------------------
+		// ------- intended feed into this from a shell script -------------------------------------------------
+		// args[0] - number of days the simulation runs
+		// args[1] - currently not used to execute jar, but this is typically the data directory
+		// args[2] - Value of beta
+		// args[3] - NEW AS OF TESTING INCLUSION the value of spurious symptom rate 
+		// args[4] - seed of the run
+		// args[5] - the name of the output file
+		// args[6] - the name of the parameter file (directory of files used)
+		// args[7] - the name of the infection output file (should no longer be necessary)
+		// -----------------------------------------------------------------------------------------------------
+
 		// default settings in the absence of commands!
 		int numDays = 7; // by default, one week
 		double myBeta = .016;
+		double mySpuriousRate = 0.01;
 		long seed = 12345;
 		String outputFilename = "dailyReport_" + myBeta + "_" + numDays + "_" + seed + ".txt";
 		String infectionsOutputFilename = "infections_" + myBeta + "_" + numDays + "_" + seed + ".txt"; 
@@ -2004,16 +2016,17 @@ public class WorldBankCovid19Sim extends SimState {
 			
 			numDays = Integer.parseInt(args[0]);
 			myBeta = Double.parseDouble(args[2]);
-			if(args.length > 3) {
-				seed = Long.parseLong(args[3]);
+			mySpuriousRate = Double.parseDouble(args[3]);
+			if(args.length > 4) {
+				seed = Long.parseLong(args[4]);
 				outputFilename = "dailyReport_" + myBeta + "_" + numDays + "_" + seed + ".tsv";
 			}
-			if(args.length > 4)
-				outputFilename = args[4];
 			if(args.length > 5)
-				paramsFilename = args[5];
+				outputFilename = args[5];
 			if(args.length > 6)
-				infectionsOutputFilename = args[6];
+				paramsFilename = args[6];
+			if(args.length > 7)
+				infectionsOutputFilename = args[7];
 		}
 		
 		long startTime = System.currentTimeMillis(); // wallclock measurement of time - embarrassing.
@@ -2033,11 +2046,9 @@ public class WorldBankCovid19Sim extends SimState {
 		// ensure that all parameters are set
 		mySim.params.infection_beta = myBeta / mySim.params.ticks_per_day; // normalised to be per tick
 		mySim.targetDuration = numDays;
-		
+		mySim.params.rate_of_spurious_symptoms = mySpuriousRate;	
 		mySim.start(); // start the simulation
-		
-		mySim.infections_export_filename = infectionsOutputFilename; // overwrite the export filename
-		
+				
 		System.out.println("Running...");
 
 		// run the simulation
