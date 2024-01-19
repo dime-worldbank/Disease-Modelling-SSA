@@ -7,7 +7,7 @@ import java.util.Random;
 public class SingleRun {
 	
 	public static void main(String [] args) {
-		double beta = 128;
+		double beta = 0.128;
 		// set the number of days the simulation will run
 		int numDays = 270;
 		double mySympt = 0.0875;
@@ -16,8 +16,9 @@ public class SingleRun {
 		// name current time 'timestamp'
 		LocalDateTime timestamp = LocalDateTime.now();  
 		// Get location of parameter file
-
-		String paramFilename = "/Users/robbiework/Desktop/verification/params_robbie_test.txt";
+		// /Users/robbiework/Desktop/verification/params_robbie_test.txt
+		// /Users/robbiework/Library/CloudStorage/OneDrive-UniversityCollegeLondon/data/verification/testing_paper/25_perc_run_third_round.txt
+		String paramFilename = "/Users/robbiework/Library/CloudStorage/OneDrive-UniversityCollegeLondon/data/verification/testing_paper/25_perc_run_third_round.txt";
 		// Create a name for the output file
 		String outputFilename = "single_run_" + timestamp.toString();
 		// create a name for the infections output file
