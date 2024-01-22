@@ -23,13 +23,12 @@ public class SingleRun {
 		String outputFilename = "single_run_" + timestamp.toString();
 		// create a name for the infections output file
 		String infectionsOutputFilename = "single_run_infections_" + timestamp.toString() + ".txt";
-		// create a name for the simulation information file
-		String sim_info_filename = "single_run_sim_info_" + timestamp.toString() + ".txt";
+
 		
 		// create Random object
         Random random = new Random();
         // generate random seed from 0 to 1,000,000
-        int seed = random.nextInt(1000000);
+        int seed = 1;
         // create the simulation object
 		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(seed, new Params(paramFilename, true), outputFilename, false);
 
@@ -42,7 +41,6 @@ public class SingleRun {
 		mySim.start();
 		// Update the file names of where we will import the infecitons output and the general simulation information output
 		mySim.infections_export_filename = infectionsOutputFilename;
-		mySim.sim_info_filename = sim_info_filename;
 				
 		// run the simulation step by step
 		while(mySim.schedule.getTime() < Params.ticks_per_day * numDays && !mySim.schedule.scheduleComplete()){

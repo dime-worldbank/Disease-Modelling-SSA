@@ -46,16 +46,10 @@ public class WorldBankCovid19Sim extends SimState {
 	// the names of file names of each output filename		
 	public String outputFilename;
 	public String covidIncOutputFilename; 
-	public String populationOutputFilename;
 	public String covidIncDeathOutputFilename;
-	public String otherIncDeathOutputFilename;
-	public String birthRateOutputFilename;
-	public String distPopSizeOutputFilename;
 	public String newLoggingFilename; 
 	public String infections_export_filename;
 	public String distCovidPrevalenceOutputFilename;
-	public String distPopBreakdownOutputFilename;
-	public String sim_info_filename;
 	public String covidCountsOutputFilename;
 	public String covidByEconOutputFilename;
 	public String detectedCovidFilename;
@@ -90,18 +84,12 @@ public class WorldBankCovid19Sim extends SimState {
 		this.outputFilename = outputFilename + ".txt";
 		this.demography = demography;
 		this.covidIncOutputFilename = outputFilename + "_Incidence_Of_Covid_" + ".txt"; 
-		this.populationOutputFilename = outputFilename + "_Overall_Demographics_" + ".txt";
 		this.overallSeroprevalence = outputFilename + "_Overall_Seroprevalence_" + ".txt";
 		this.detectedSeroprevalenceFilename = outputFilename + "_Detected_Seroprevalence_.txt";
 		this.covidIncDeathOutputFilename = outputFilename + "_Incidence_Of_Covid_Death_" + ".txt";
-		this.otherIncDeathOutputFilename = outputFilename + "_Incidence_Of_Other_Death_" + ".txt";
-		this.birthRateOutputFilename = outputFilename + "_Birth_Rate_" + ".txt";
-		this.distPopSizeOutputFilename = outputFilename + "_District_Level_Population_Size_" + ".txt";
 		this.newLoggingFilename = outputFilename + "_Cases_Per_District_" + ".txt"; 
 		this.infections_export_filename = outputFilename + "_Infections_" + ".txt";
 		this.distCovidPrevalenceOutputFilename = outputFilename + "_Percent_In_District_With_Covid_" + ".txt";
-		this.distPopBreakdownOutputFilename = outputFilename + "_Overall_Demographics_" + ".txt";
-		this.sim_info_filename = outputFilename + "_Sim_Information_" + ".txt";
 		this.covidCountsOutputFilename = outputFilename + "_Age_Gender_Demographics_Covid_" + ".txt";
 		this.covidByEconOutputFilename = outputFilename + "_Economic_Status_Covid_.txt";
 		this.detectedCovidFilename = outputFilename + "_detected_covid_cases.txt";
@@ -180,7 +168,9 @@ public class WorldBankCovid19Sim extends SimState {
 				// update this person's properties
 				
 				inf.time_contagious = 0;
-				// update this person's properties so we can keep track of the number of cases etc				
+				// update this person's properties so we can keep track of the number of cases etc	
+				
+				// START DIFF
 				p.storeCovid();
 				if (inf.getBehaviourName().equals("asymptomatic")) {
 					p.setAsympt();
@@ -188,6 +178,8 @@ public class WorldBankCovid19Sim extends SimState {
 				else {
 					p.setMild();
 				}
+				// END DIFF
+				
 				schedule.scheduleOnce(1, param_schedule_infecting, inf);
 			}
 						
@@ -208,271 +200,7 @@ public class WorldBankCovid19Sim extends SimState {
 		
 		// Functions that control the background demography of the model
 		// Create a function to create births in the population
-		Steppable createBirths = new Steppable() {
-			
-			@Override
-			public void step(SimState arg0) {
-				// create a list of babies
-				ArrayList<Person> newBirths = new ArrayList <Person> ();
-				//	get a reference to the current simulation day		
-				int time = (int) (arg0.schedule.getTime() / params.ticks_per_day);
-				// create an id_offset variable to assign the babies a unique id
-				int id_offset = 0;
-				// iterate over all people (would make sense to do this for woman only)
-				for(Person p:agents) {
-					// create a variable to predict the likelihood of pregnancy
-					double myPregnancyLikelihood = 0.0;
-					// get this person's sex
-					String sex = p.getSex();
-					// if this person is female and gave birth over a year ago the 9 months pregnancy period reset their 
-					//ability to give birth
-					if (sex.equals("female") & (p.getDateGaveBirth() < time - 365 - 9 * 30)) {
-						p.ableToGiveBirth();
-					}
-					// get a reference to their age
-					int age = p.getAge();
-					// if they are a woman, are alive and didn't give birth within the last year consider whether they
-					// will give birth today
-					if(sex.equals("female") & p.getAlive() & !(p.gaveBirthLastYear())){
-						// get the probability of giving birth at this age
-						myPregnancyLikelihood = params.getBirthLikelihoodByAge(
-								params.prob_birth_by_age, age);
-						if(random.nextDouble() < myPregnancyLikelihood) {
-							// this woman has given birth, update their birth status and note the time of birth
-							p.gaveBirth(time);
-							// create attributed for the newborn, id, age, sex, occupation status (lol), their 
-							// household (assume this is the mothers), where the baby is, that it's not going to school
-							// and a copy of the simulation, then create the person
-							int new_id = agents.size() + 1 + id_offset;
-							int baby_age = 0;
-							List<String> sexList = Arrays.asList("male", "female");
-							String sexAssigned = sexList.get(random.nextInt(sexList.size()));
-							String babiesJob = "Not working, inactive, not in universe".toLowerCase();
-							Household babyHousehold = p.getHouseholdAsType();
-							Location babyDistrict = p.getLocation();
-							boolean babySchooling = false;
-							int birthday = time;
-							Person baby = new Person(new_id, // ID 
-									baby_age, // age
-									birthday, // date of birth
-									sexAssigned, // sex
-									babiesJob, // lower case all of the job titles
-									babySchooling,
-									babyHousehold, // household
-									returnSim()
-									);				
-							// update the household and location to include the baby
-							babyHousehold.addPerson(baby);
-							baby.setLocation(babyDistrict);
-							// the baby has decided to go home
-							baby.setActivityNode(movementFramework.getHomeNode());
-							// store the baby in the newBirths array
-							newBirths.add(baby);
-							// Add the person to the district
-							personsToDistrict.get(babyDistrict.getRootSuperLocation()).add(baby);
-							// ++ the id_offset so the next baby will have an id
-							id_offset ++;
-						}
-					}
-				}
-				// store the newborns in the population
-				for (Person baby:newBirths) {
-					agents.add(baby);
-//					System.out.print("baby " + baby.getID() + " has been born \n");
-					}
-				
-			}
-			
-		};
-		if (this.demography) {
-		schedule.scheduleRepeating(createBirths, this.param_schedule_updating_locations, params.ticks_per_day);
-		}
-		// create a function to report on birth rates
-		Steppable reportBirthRates = new Steppable() {
-			
-			@Override
-			public void step(SimState arg0) {
-				//	calculate the birth rate in age groups 15-19, 10-14, ..., 45-49
-				//	create a list to define our age group search ranges
-				List <Integer> upper_age_range = Arrays.asList(20, 25, 30, 35, 40, 45, 50);
-				List <Integer> lower_age_range = Arrays.asList(15, 20, 25, 30, 35, 40, 45);
-				// create list to store the counts of the number of females alive in each age range and the 
-				// number of births in each age range.
-				ArrayList <Integer> female_alive_ages = new ArrayList<Integer>();
-				ArrayList <Integer> female_pregnancy_ages = new ArrayList<Integer>();
-				// create a function to group the population by sex, age and whether they are alive
-				Map<String, Map<Integer, Map<Boolean, Long>>> age_sex_alive_map = agents.stream().collect(
-						Collectors.groupingBy(
-								Person::getSex, 
-								Collectors.groupingBy(
-										Person::getAge, 
-										Collectors.groupingBy(
-												Person::getAlive,
-										Collectors.counting()
-										)
-								)
-						)
-						);
-				// create a function to group the population by sex, age and whether they gave birth
-				Map<String, Map<Integer, Map<Boolean, Map<Boolean, Long>>>> age_sex_map_gave_birth = agents.stream().collect(
-						Collectors.groupingBy(
-								Person::getSex, 
-								Collectors.groupingBy(
-										Person::getAge, 
-										Collectors.groupingBy(
-												Person::gaveBirthLastYear,
-												Collectors.groupingBy(
-														Person::getBirthLogged,
-														Collectors.counting()
-										)
-								)
-						)
-						)
-						);
-				
-				//	We now iterate over the age ranges, create a variable to keep track of the iterations
-				Integer idx = 0;
-				for (Integer val: upper_age_range) {
-					// for each age group we begin to count the number of people who fall into each category, create variables
-					// to store this information in
-					Integer female_count = 0;
-					Integer female_gave_birth_count = 0;
-					// iterate over the ages set in the age ranges (lower value from lower_age_range, upper from upper_age_range)
-					for (int age = lower_age_range.get(idx); age < val; age++) {
-						try {
-							// try function necessary as some ages won't be present in the population
-							// use the functions created earlier to calculate the number of people of each age group who fall
-							// into the categories we are interested in (female, alive)
-							female_count += age_sex_alive_map.get("female").get(age).get(true).intValue();
-						}
-							catch (Exception e) {
-								// age wasn't present in the population, skip
-							}
-						try {
-							// try function necessary as some ages won't be present in the population
-							// use the functions created earlier to calculate the number of people of each age group who fall
-							// into the categories we are interested in (female, alive and gave birth)
-							female_gave_birth_count += age_sex_map_gave_birth.get("female").get(age).get(true).get(false).intValue();
-						}
-							catch (Exception e) {
-								// age wasn't present in the population, skip
-							}
-					}
-					// store what we have found in the lists we created
-					female_alive_ages.add(female_count);
-					female_pregnancy_ages.add(female_gave_birth_count);
-					// update the idx variable for the next iteration
-					idx++;
-				}
-				// calculate the birth rate per 1000 this day
-				int time = (int) (arg0.schedule.getTime() / params.ticks_per_day);
-				String age_dependent_birth_rate = "";
-
-				String t = "\t";
-				String age_categories = t + "15_19" + t + "20_24" + t + "25_29" + t + "30_34" + t + "35_39" + t + "40_44" + t + "45_49" + "\n";
-				if (time == 0) {
-					age_dependent_birth_rate += "day" + age_categories + String.valueOf(time);
-				}
-				else {
-					age_dependent_birth_rate += String.valueOf(time);
-				}
-				age_dependent_birth_rate += t;
-				for (int x = 0; x <female_pregnancy_ages.size(); x++){
-					double births_in_age = female_pregnancy_ages.get(x);
-					double female_alive_in_age = female_alive_ages.get(x);
-					double result = 0;
-					if (female_alive_in_age > 0) {
-						result = births_in_age / female_alive_in_age;
-						}
-	                result *= 1000;
-	                age_dependent_birth_rate += t + String.valueOf(result);
-				}
-				age_dependent_birth_rate += "\n";
-
-
-				// create a string to store this information in
-				// get the day
-				
-				ImportExport.exportMe(birthRateOutputFilename, age_dependent_birth_rate, timer);
-				// to make sure that births aren't counted more than once, update this person's properties
-				for (Person p: agents) {
-					if(p.gaveBirthLastYear()) {
-						p.confirmBirthlogged();
-						}
-					}
-				
-			}
-			};
-		schedule.scheduleRepeating(reportBirthRates, this.param_schedule_reporting, params.ticks_per_day);
-		
-		// SCHEDULE CHECKS ON MORTALITY AND LOGGING
-			
-		Steppable checkMortality = new Steppable() {
-			@Override
-			public void step(SimState arg0) {
-				// create a temp variable to be updated when the likelihood of mortality has been determined
-				double myMortalityLikelihood = 0.0;
-				// iterate over the population
-				for(Person p: agents){
-					// only determine mortality if this person is alive
-					if (p.getAlive()){
-						// get the person's age and sex
-						String sex = p.getSex();
-						int age = p.getAge();
-						// based on their properties determine if they die today
-						if(sex.equals("male")) {
-							myMortalityLikelihood = params.getAllCauseLikelihoodByAge(
-									params.prob_death_by_age_male, age);
-						}
-						else {
-							myMortalityLikelihood = params.getAllCauseLikelihoodByAge(
-									params.prob_death_by_age_female, age);
-						}
-						if(random.nextDouble() < myMortalityLikelihood) {
-							p.die("other");
-						}
-					}
-				}				
-			}
-		};
-			
-		if (this.demography){
-		schedule.scheduleRepeating(checkMortality, this.param_schedule_reporting, params.ticks_per_day);
-		}
-		
-		
-		// to maintain population structure over time, create a function that will update the age of the population
-		Steppable updateAges = new Steppable() {
-			@Override
-			public void step(SimState arg0) {
-				// create a function to group the population by those who are alive and those who's birthday it is
-				Map<Boolean, Map<Integer, List<Person>>> birthday_map = agents.stream().collect(
-						Collectors.groupingBy(
-								Person::getAlive,
-								Collectors.groupingBy(
-										Person::getBirthday
-						)
-						)
-						);
-				int time = (int) (arg0.schedule.getTime() / params.ticks_per_day);
-				
-				List<Person> birthdays = birthday_map.get(true).get(time + 1 % 365);
-				try {
-					for(Person p: birthdays){
-						// update the person's age
-						p.updateAge();
-					}
-				}
-				catch (Exception e) {
-						// No one had a birthday today, skip.
-				}
-			}
-		};
-		
-		if (this.demography){
-		schedule.scheduleRepeating(updateAges, this.param_schedule_reporting, params.ticks_per_day);
-		}
-		
+	
 		// This function tracks the epidemic over time 
 		Steppable testLoggingCases = new Steppable() {
 			
@@ -989,7 +717,7 @@ public class WorldBankCovid19Sim extends SimState {
 
 				// export the output files
 				ImportExport.exportMe(covidIncDeathOutputFilename, covid_inc_death, timer);
-				ImportExport.exportMe(otherIncDeathOutputFilename, other_inc_death, timer);
+//				ImportExport.exportMe(otherIncDeathOutputFilename, other_inc_death, timer);
 //				calculate incidence of Covid in each age group
 				//	covid incidence in age groups 0-1, 1-4, 5-9, 10-14, ..., 95+
 				//	create a list to define our age group search ranges
@@ -1247,280 +975,6 @@ public class WorldBankCovid19Sim extends SimState {
 		
 		schedule.scheduleRepeating(testLoggingCases, this.param_schedule_reporting, params.ticks_per_day);
 		
-		// Create a function to keep track of the population and epidemic at the scale of district level
-		Steppable updateDistrictLevelInfo = new Steppable() {
-			
-			@Override
-			public void step(SimState arg0) {
-
-				// create a function to group the population by who is alive at this district
-				Map<Boolean, Map<String, List<Person>>> aliveAtLocation = agents.stream().collect(
-						Collectors.groupingBy(
-								Person::getAlive,
-								Collectors.groupingBy(
-										Person::getCurrentDistrict
-										)
-						)
-						);
-				// create a function to group the population by who is alive in each district and has covid
-				Map<Boolean, Map<String, Map<Boolean, List<Person>>>> covidAtLocation = agents.stream().collect(
-						Collectors.groupingBy(
-								Person::getAlive,
-								Collectors.groupingBy(
-										Person::getCurrentDistrict,
-										Collectors.groupingBy(
-												Person::hasCovid
-										)
-						)
-						)
-						);
-				Map<Boolean, Map<String, Map<Integer, Map<String, List<Person>>>>> aliveAtLocationAgeSex = agents.stream().collect(
-						Collectors.groupingBy(
-								Person::getAlive,
-								Collectors.groupingBy(
-										Person::getCurrentDistrict,
-										Collectors.groupingBy(
-												Person::getAge,
-												Collectors.groupingBy(
-														Person::getSex
-										)
-						)
-						)
-						)
-						);
-				// get list of ages to iterate over
-				List <Integer> upper_age_range = Arrays.asList(1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 120);
-				List <Integer> lower_age_range = Arrays.asList(0, 1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95);
-				// get a list of districts to iterate over
-				List <String> districts = ((WorldBankCovid19Sim)arg0).params.districtNames;
-						
-						/*Arrays.asList(
-						"d_1", "d_2", "d_3", "d_4", "d_5", "d_6", "d_7", "d_8", "d_9", "d_10", "d_11", "d_12", "d_13", "d_14", "d_15", 
-						"d_16", "d_17", "d_18", "d_19", "d_20", "d_21", "d_22", "d_23", "d_24", "d_25", "d_26", "d_27", "d_28", "d_29", 
-						"d_30", "d_31", "d_32", "d_33", "d_34", "d_35", "d_36", "d_37", "d_38", "d_39", "d_40", "d_41", "d_42", "d_43", 
-						"d_44", "d_45", "d_46", "d_47", "d_48", "d_49", "d_50", "d_51", "d_52", "d_53", "d_54", "d_55", "d_56", "d_57", 
-						"d_58", "d_59", "d_60");*/
-				// create a list to store the number of people and who has covid in each district
-				ArrayList <Integer> districtPopCounts = new ArrayList<Integer>();
-				ArrayList <Integer> districtCovidCounts = new ArrayList<Integer>();
-				// iterate over each district
-				for (String place: districts) {
-					// get population counts in each district
-					districtPopCounts.add(aliveAtLocation.get(true).get(place).size());
-					// get covid counts in each district
-					try {
-					districtCovidCounts.add(covidAtLocation.get(true).get(place).get(true).size());
-					}
-					catch (Exception e) {
-					// age wasn't present in the population, skip
-					districtCovidCounts.add(0);
-					}
-					
-				}
-				// format the output file for population counts
-				int time = (int) (arg0.schedule.getTime() / params.ticks_per_day);
-
-				String pop_size_in_district = "";
-				
-				String t = "\t";
-				if (time == 0) {
-					pop_size_in_district += "day" + t;
-					for (String place: districts) {
-						pop_size_in_district += place + t;
-					}
-					pop_size_in_district += "\n" + String.valueOf(time);
-				}
-				else {
-					pop_size_in_district += "\n" + String.valueOf(time);
-				}
-				// store the population counts per district
-				for (int count: districtPopCounts) {
-					pop_size_in_district += t + count;
-				}
-				// export the file
-				ImportExport.exportMe(distPopSizeOutputFilename, pop_size_in_district, timer);
-				// format the output for the percent of the district with covid
-				String percent_with_covid = "";
-				if (time == 0) {
-					percent_with_covid += "day" + t;
-					for (String place: districts) {
-						percent_with_covid += place + t;
-					}
-					percent_with_covid += "\n" + String.valueOf(time);
-				}
-				else {
-					percent_with_covid += "\n" + String.valueOf(time);
-				}
-				int idx = 0;
-				// calculate the percentage in the district with covid
-				for (float count: districtCovidCounts) {
-					float perc_with_covid = count / districtPopCounts.get(idx);
-					percent_with_covid += t + perc_with_covid;
-					idx++;
-				}
-				// export the file
-				ImportExport.exportMe(distCovidPrevalenceOutputFilename, percent_with_covid, timer);
-				String districtLevelPopBreakdown = "";
-				
-				String district_age_sex_categories = t + "district" + t + "sex" + t + "<1" + t + "1_4" + t + "5_9" + t + "10_14" + t + "15_19" + t + "20_24" + 
-						t + "25_29" + t + "30_34" + t + "35_39" + t + "40_44" + t + "45_49" + t + "50_54" + t + "55_59" + t + 
-						"60_64" + t + "65_69" + t + "70_74" + t + "75_79" + t + "80_84" + t + "85_89" + t + "90_94" + t + "95<" + "\n";
-				if (time == 0) {
-					districtLevelPopBreakdown += "day" + district_age_sex_categories;
-				}
-				for (String place: districts) {
-					districtLevelPopBreakdown += time + t + place;
-					// create lists to store the age gender breakdown of people in this district
-					ArrayList <Integer> male_alive_ages = new ArrayList<Integer>();
-					ArrayList <Integer> female_alive_ages = new ArrayList<Integer>();
-					idx = 0;
-					for (Integer val: upper_age_range) {
-						// for each age group we begin to count the number of people who fall into each category, create variables
-						// to store this information in
-						Integer male_count = 0;
-						Integer female_count = 0;
-						for (int age = lower_age_range.get(idx); age < val; age++) {
-					
-							try {
-								// try function necessary as some ages won't be present in the population
-								// use the functions created earlier to calculate the number of people of each age group who fall
-								// into the categories we are interested in (alive, died from covid, died from other)
-							male_count += aliveAtLocationAgeSex.get(true).get(place).get(age).get("male").size();
-							}
-							catch (Exception e) {
-								// age wasn't present in the population, skip
-							}
-							try {
-								// try function necessary as some ages won't be present in the population
-								// use the functions created earlier to calculate the number of people of each age group who fall
-								// into the categories we are interested in (alive, died from covid, died from other)
-								female_count += aliveAtLocationAgeSex.get(true).get(place).get(age).get("female").size();
-							}
-							catch (Exception e) {
-								// age wasn't present in the population, skip
-							}
-						}
-					// store what we have found in the lists we created
-					male_alive_ages.add(male_count);
-					female_alive_ages.add(female_count);
-				}
-				districtLevelPopBreakdown += t + "m";
-				for (int count: male_alive_ages){
-		            districtLevelPopBreakdown += t + String.valueOf(count);
-				}
-				districtLevelPopBreakdown += "\n";
-				districtLevelPopBreakdown += time + t + place;				
-				districtLevelPopBreakdown += t + "f";
-				for (int count: female_alive_ages){
-		            districtLevelPopBreakdown += t + String.valueOf(count);
-				}
-				districtLevelPopBreakdown += "\n";
-				}
-				ImportExport.exportMe(distPopBreakdownOutputFilename, districtLevelPopBreakdown, timer);
-
-			}
-		};
-		
-		schedule.scheduleRepeating(updateDistrictLevelInfo, this.param_schedule_reporting, params.ticks_per_day);
-		
-		
-				
-		// create a function to report the overall population structure
-		Steppable reportPopStructure = new Steppable(){
-			
-			@Override
-			public void step(SimState arg0) {
-				//	calculate the number of people in each age group 0-1, 1-4, 5-9, 10-14, ..., 95+
-				//	create a list to define our age group search ranges
-				List <Integer> upper_age_range = Arrays.asList(1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 120);
-				List <Integer> lower_age_range = Arrays.asList(0, 1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95);
-				// create list to store the counts of the number of males and females alive in each age range in each district
-				ArrayList <Integer> male_alive_ages = new ArrayList<Integer>();
-				ArrayList <Integer> female_alive_ages = new ArrayList<Integer>();
-				// create a function to group the population by sex, age and whether they are alive
-				Map<String, Map<Integer, Map<Boolean, Long>>> age_sex_alive_map = agents.stream().collect(
-						Collectors.groupingBy(
-								Person::getSex, 
-								Collectors.groupingBy(
-										Person::getAge, 
-										Collectors.groupingBy(
-												Person::getAlive,
-										Collectors.counting()
-										)
-								)
-						)
-						);
-						
-				//	We now iterate over the age ranges, create a variable to keep track of the iterations
-				Integer idx = 0;
-				for (Integer val: upper_age_range) {
-					// for each age group we begin to count the number of people who fall into each category, create variables
-					// to store this information in
-					Integer male_count = 0;
-					Integer female_count = 0;
-					// iterate over the ages set in the age ranges (lower value from lower_age_range, upper from upper_age_range)
-					for (int age = lower_age_range.get(idx); age < val; age++) {
-						try {
-							// try function necessary as some ages won't be present in the population
-							// use the functions created earlier to calculate the number of people of each age group
-							male_count += age_sex_alive_map.get("male").get(age).get(true).intValue();
-						}
-							catch (Exception e) {
-								// age wasn't present in the population, skip
-							}
-						try {
-							// try function necessary as some ages won't be present in the population
-							// use the functions created earlier to calculate the number of people of each age group
-							female_count += age_sex_alive_map.get("female").get(age).get(true).intValue();
-						}
-							catch (Exception e) {
-								// age wasn't present in the population, skip
-							}
-					}
-						
-					// store what we have found in the lists we created
-					male_alive_ages.add(male_count);
-					female_alive_ages.add(female_count);
-					// update the idx variable for the next iteration
-					idx++;
-					
-				}
-				// format the output file
-				int time = (int) (arg0.schedule.getTime() / params.ticks_per_day);
-				String population = "";
-
-				String t = "\t";
-				String age_sex_categories = t + "sex" + t + "<1" + t + "1_4" + t + "5_9" + t + "10_14" + t + "15_19" + t + "20_24" + 
-						t + "25_29" + t + "30_34" + t + "35_39" + t + "40_44" + t + "45_49" + t + "50_54" + t + "55_59" + t + 
-						"60_64" + t + "65_69" + t + "70_74" + t + "75_79" + t + "80_84" + t + "85_89" + t + "90_94" + t + "95<" + "\n";
-				if (time == 0) {
-					population += "day" + age_sex_categories + String.valueOf(time);
-				}
-				else {
-					population += String.valueOf(time);
-				}
-				// get the number of males in each age group
-				population += t + "m";
-
-				for (int x = 0; x <male_alive_ages.size(); x++){
-					int male_alive_in_age = male_alive_ages.get(x);
-					population += t + String.valueOf(male_alive_in_age);
-				}
-				population += "\n";
-				// get the number of females in each age group
-				population += String.valueOf(time) + t + "f";
-				for (int x = 0; x <female_alive_ages.size(); x++){
-					int female_alive_in_age = female_alive_ages.get(x);
-					population += t + String.valueOf(female_alive_in_age);
-				}
-				population += "\n";
-
-				// export the file
-				ImportExport.exportMe(populationOutputFilename, population, timer);
-				
-			}
-		};
-		schedule.scheduleRepeating(reportPopStructure, this.param_schedule_reporting, params.ticks_per_day);
 		// create a function to report the overall population structure
 		Steppable reportSeroprevalence = new Steppable(){
 					
@@ -1790,6 +1244,7 @@ public class WorldBankCovid19Sim extends SimState {
 			
 		};
 		schedule.scheduleRepeating(0, this.param_schedule_lockdown, lockdownTrigger);
+		
 	    Steppable spuriosSymptomTrigger = new Steppable() {
 	        public void step(SimState arg0) {
 	          int time = (int)(arg0.schedule.getTime() / Params.ticks_per_day);

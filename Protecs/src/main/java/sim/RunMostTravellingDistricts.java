@@ -44,7 +44,7 @@ public class RunMostTravellingDistricts {
 				mySim.targetDuration = numDays;
 				mySim.start();
 				mySim.infections_export_filename = infectionsOutputFilename;
-				mySim.sim_info_filename = sim_info_filename;
+				// mySim.sim_info_filename = sim_info_filename;
 					
 				System.out.println("Running...");
 	
