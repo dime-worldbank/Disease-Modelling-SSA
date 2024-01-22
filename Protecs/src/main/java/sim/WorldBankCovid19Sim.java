@@ -1790,6 +1790,45 @@ public class WorldBankCovid19Sim extends SimState {
 			
 		};
 		schedule.scheduleRepeating(0, this.param_schedule_lockdown, lockdownTrigger);
+	    Steppable spuriosSymptomTrigger = new Steppable() {
+	        public void step(SimState arg0) {
+	          int time = (int)(arg0.schedule.getTime() / Params.ticks_per_day);
+	          Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, List<Person>>>>> has_non_asymptomatic_covid = (Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, List<Person>>>>>)WorldBankCovid19Sim.this.agents.stream().collect(
+	              Collectors.groupingBy(
+	                Person::isDead, 
+	                Collectors.groupingBy(
+	                  Person::hasMild, 
+	                  Collectors.groupingBy(
+	                    Person::hasSevere, 
+	                    Collectors.groupingBy(
+	                      Person::hasCritical, 
+	                      Collectors.toList())))));
+	          double number_people_with_symptoms_as_double = WorldBankCovid19Sim.this.params.rate_of_spurious_symptoms * ((List)((Map)((Map)((Map)has_non_asymptomatic_covid.get(Boolean.valueOf(false))).get(Boolean.valueOf(false))).get(Boolean.valueOf(false))).get(Boolean.valueOf(false))).size();
+	          int number_people_with_symptoms = (int)number_people_with_symptoms_as_double;
+	          Random symptom_random = new Random(WorldBankCovid19Sim.this.seed());
+	          List<Person> people_developing_symptoms = (List)WorldBankCovid19Sim.pickRandom((List)((Map)((Map)((Map)has_non_asymptomatic_covid.get(Boolean.valueOf(false))).get(Boolean.valueOf(false))).get(Boolean.valueOf(false))).get(Boolean.valueOf(false)), number_people_with_symptoms, symptom_random);
+	          for (Person p : people_developing_symptoms) {
+	            p.elligableForTesting();
+	            p.setSymptomRemovalDate(time + 7);
+	            p.setSpuriousSymptoms();
+	          } 
+	          Map<Boolean, Map<Boolean, List<Person>>> has_spurios_symptoms = (Map<Boolean, Map<Boolean, List<Person>>>)WorldBankCovid19Sim.this.agents.stream().collect(
+	              Collectors.groupingBy(
+	                Person::isDead, 
+	                Collectors.groupingBy(
+	                  Person::hasSpuriousSymptoms, 
+	                  Collectors.toList())));
+	          List<Person> people_with_symptoms = (List<Person>)((Map)has_spurios_symptoms.get(Boolean.valueOf(false))).get(Boolean.valueOf(true));
+	          if (people_with_symptoms != null)
+	            for (Person p : people_with_symptoms) {
+	              if (p.timeToRemoveSymptoms < time) {
+	                p.notElligableForTesting();
+	                p.removeSpuriousSymptoms();
+	              } 
+	            }  
+	        }
+	      };
+	    this.schedule.scheduleRepeating(0.0D, param_schedule_lockdown, spuriosSymptomTrigger);
 		// SCHEDULE LOCKDOWNS
 		Steppable seroSamplingTrigger = new Steppable() {
 
