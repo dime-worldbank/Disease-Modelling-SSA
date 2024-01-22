@@ -18,7 +18,7 @@ public class SingleRun {
 		// Get location of parameter file
 		// /Users/robbiework/Desktop/verification/params_robbie_test.txt
 		// /Users/robbiework/Library/CloudStorage/OneDrive-UniversityCollegeLondon/data/verification/testing_paper/25_perc_run_third_round.txt
-		String paramFilename = "/Users/robbiework/Library/CloudStorage/OneDrive-UniversityCollegeLondon/data/verification/testing_paper/25_perc_run_third_round.txt";
+		String paramFilename = "/Users/robbiework/Desktop/verification/params_robbie_test.txt";
 		// Create a name for the output file
 		String outputFilename = "single_run_" + timestamp.toString();
 		// create a name for the infections output file
