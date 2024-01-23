@@ -357,10 +357,6 @@ public class Person extends MobileAgent {
     return answer;
   }
   
-  public boolean inASamplingDistrict() {
-		boolean answer = this.myWorld.params.sero_districts_to_test_in.stream().anyMatch(x -> x.equals(this.myHousehold.getRootSuperLocation().myId));
-		return answer;
-	}	
   
   public void setInfection(Infection i) {
     this.myInfection = i;

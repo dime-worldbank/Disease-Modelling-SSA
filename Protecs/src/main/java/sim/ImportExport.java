@@ -147,7 +147,7 @@ public class ImportExport {
 			// shove it out
 			BufferedWriter exportFile = new BufferedWriter(new FileWriter(infections_export_filename, true));
 			exportFile.write("Host\tSource\tTime\tLocOfTransmission" + 
-					"\tContagiousAt\tSymptomaticAt\tSevereAt\tCriticalAt\tRecoveredAt\tDiedAt\tYLD\tYLL\tDALYs\tNTimesInfected"
+					"\tContagiousAt\tSymptomaticAt\tSevereAt\tCriticalAt\tRecoveredAt\tDiedAt\tYLD\tYLL\tDALYs"
 					+ "\n");
 			
 			// export infection data
@@ -259,8 +259,7 @@ public class ImportExport {
 					rec += "\t-";
 				else
 					rec += "\t" + (double) (yll + yld);
-				// record number of times with covid
-				rec += "\t" + i.getHost().getNumberOfTimesInfected();
+
 				
 				rec += "\n";
 				

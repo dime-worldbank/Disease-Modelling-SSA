@@ -18,7 +18,7 @@ public class SingleRun {
 		// Get location of parameter file
 		// /Users/robbiework/Desktop/verification/params_robbie_test.txt
 		// /Users/robbiework/Library/CloudStorage/OneDrive-UniversityCollegeLondon/data/verification/testing_paper/25_perc_run_third_round.txt
-		String paramFilename = "/Users/robbiework/Desktop/verification/params_robbie_test.txt";
+		String paramFilename = "/Users/robbiework/Library/CloudStorage/OneDrive-UniversityCollegeLondon/data/verification/testing_paper/25_perc_local_run.txt";
 		// Create a name for the output file
 		String outputFilename = "single_run_" + timestamp.toString();
 		// create a name for the infections output file
@@ -30,7 +30,7 @@ public class SingleRun {
         // generate random seed from 0 to 1,000,000
         int seed = 1;
         // create the simulation object
-		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(seed, new Params(paramFilename, true), outputFilename);
+		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(seed, new Params(paramFilename), outputFilename);
 
 		// Set how long the simulation should run for
 		mySim.targetDuration = numDays;
