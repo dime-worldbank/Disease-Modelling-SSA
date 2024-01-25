@@ -30,4 +30,5 @@ public class MobilityTesting {
 		WorldBankCovid19Sim myWorld = new WorldBankCovid19Sim(seed, p, "", demography);
 		return myWorld;
 	}
+	
 }

@@ -69,7 +69,6 @@ public class Person extends MobileAgent {
 	//
 	
 	// health
-	boolean isAlive = true;
 	boolean isDead = false;
 
 	boolean asymptomaticLogged = false;
@@ -249,7 +248,6 @@ public class Person extends MobileAgent {
 		else {
 			isDeadFromOther = true;
 		}
-		isAlive = false;
 		isDead = true;
 		transferTo(null);
 
@@ -583,7 +581,6 @@ public class Person extends MobileAgent {
 	public void setMobility(boolean mobile){ this.immobilised = !mobile; }
 	public boolean isImmobilised(){ return this.immobilised; }
 
-	public boolean getAlive() { return this.isAlive; }
 	public boolean getCovidLogged() { return this.covidLogged; }
 	public boolean getAsymptCovidLogged() { return this.asymptomaticLogged; }
 	public boolean getMildCovidLogged() { return this.mildLogged; }
@@ -599,7 +596,7 @@ public class Person extends MobileAgent {
 	public boolean getBirthLogged() { return this.birthLogged; }
 	public int getNumberOfTimesInfected() { return this.numberOfTimesWithCovid; }
 
-	public boolean isDead() { return this.isDead; }
+	public boolean isAlive() { return !this.isDead; }
 
 	public boolean hasCovid() { return this.hasCovid; }
 	
