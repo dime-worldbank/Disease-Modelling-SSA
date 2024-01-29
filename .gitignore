@@ -73,6 +73,7 @@ build/*
 # Java
 !/**/*.java
 !/**/*.jar
+!/**/pom.xml
 
 # Yaml
 !/**/*.yml
