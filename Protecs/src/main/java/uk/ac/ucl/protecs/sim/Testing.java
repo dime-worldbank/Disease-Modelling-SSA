@@ -12,10 +12,6 @@ import uk.ac.ucl.protecs.objects.Person;
 
 public class Testing {
 	
-	// create function to randomly select a person to perform the test on	
-	private static <E> List<E> pickRandom(List<E> list, int n, Random rand) {
-	    return (List<E>)(new Random()).ints(n, 0, list.size()).mapToObj(list::get).collect(Collectors.toList());
-	  }
 	
 	public static Steppable CovidTesting(WorldBankCovid19Sim world) {
 		return new Steppable() {
@@ -48,7 +44,7 @@ public class Testing {
 			double percent_positive = 0;
 			// generate a list of people to test today
 			try {
-				List<Person> people_tested = pickRandom(is_elligable_for_testing_map.get(true).get(true), number_of_tests_today, testing_random);
+				List<Person> people_tested = world.pickRandom(is_elligable_for_testing_map.get(true).get(true), number_of_tests_today, testing_random);
 			// create a counter for the number of positive tests
 			double test_accuracy = 0.97;
 			// iterate over the list of people to test and perform the tests
@@ -121,7 +117,7 @@ public class Testing {
 			spatialOutput += "\n";
 			ImportExport.exportMe(world.spatialdetectedCovidFilename, spatialOutput, world.timer);
 			try {
-				List<Person> people_tested = pickRandom(is_elligable_for_testing_map.get(false).get(true), number_of_tests_today, testing_random);
+				List<Person> people_tested = world.pickRandom(is_elligable_for_testing_map.get(false).get(true), number_of_tests_today, testing_random);
 			for (Person person:people_tested) {
 				if(person.hasTestedPos()) {
 					person.removeTestedPositive();

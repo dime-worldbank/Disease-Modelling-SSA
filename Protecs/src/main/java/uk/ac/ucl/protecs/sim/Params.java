@@ -162,10 +162,12 @@ public class Params {
 		load_line_list(dataDir  + line_list_filename);
 		load_lockdown_changelist(dataDir +  lockdown_changeList_filename);
 		load_infection_params(dataDir  + infection_transition_params_filename);
-
+		if (this.all_cause_mortality_filename != "") {
 		load_all_cause_mortality_params(dataDir + all_cause_mortality_filename);
+		}
+		if (this.birth_rate_filename != "") {
 		load_all_birthrate_params(dataDir + birth_rate_filename);
-
+		}
 		// load the testing data
 		load_testing(dataDir + testDataFilename);
 		load_testing_locations(dataDir + testLocationFilename);
