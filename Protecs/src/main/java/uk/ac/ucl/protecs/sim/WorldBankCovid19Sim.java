@@ -52,6 +52,8 @@ public class WorldBankCovid19Sim extends SimState {
 	public String sim_info_filename;
 	public String covidCountsOutputFilename;
 	public String covidByEconOutputFilename;
+	public String detectedCovidFilename;
+	public String spatialdetectedCovidFilename;
 	int targetDuration = 0;
 	
 	// ordering information
@@ -92,6 +94,8 @@ public class WorldBankCovid19Sim extends SimState {
 		this.sim_info_filename = outputFilename + "_Sim_Information_" + ".txt";
 		this.covidCountsOutputFilename = outputFilename + "_Age_Gender_Demographics_Covid_" + ".txt";
 		this.covidByEconOutputFilename = outputFilename + "_Economic_Status_Covid_.txt";
+		this.detectedCovidFilename = outputFilename + "_detected_covid_cases.txt";
+		this.spatialdetectedCovidFilename = outputFilename + "_spatial_detected_covid_cases.txt";
 	}
 	
 	public void start(){
@@ -210,6 +214,8 @@ public class WorldBankCovid19Sim extends SimState {
 		schedule.scheduleRepeating(Logging.UpdateDistrictLevelInfo(this), this.param_schedule_reporting, params.ticks_per_day);
 
 		schedule.scheduleRepeating(Logging.ReportPopStructure(this), this.param_schedule_reporting, params.ticks_per_day);
+		
+		schedule.scheduleRepeating(Testing.CovidTesting(this), this.param_schedule_reporting, params.ticks_per_day);
 		
 		
 		
@@ -403,7 +409,7 @@ public class WorldBankCovid19Sim extends SimState {
 		String outputFilename = "dailyReport_" + myBeta + "_" + numDays + "_" + seed + ".txt";
 		String infectionsOutputFilename = "infections_" + myBeta + "_" + numDays + "_" + seed + ".txt"; 
 		String paramsFilename = "src/main/resources/params.txt";
-		boolean demography = false;
+		boolean demography = true;
 		// read in any extra settings from the command line
 		if(args.length < 0){
 			System.out.println("usage error");

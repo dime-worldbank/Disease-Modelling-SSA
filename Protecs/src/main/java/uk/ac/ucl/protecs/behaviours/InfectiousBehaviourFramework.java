@@ -6,10 +6,8 @@ import uk.ac.ucl.protecs.behaviours.*;
 import uk.ac.ucl.protecs.objects.*;
 import uk.ac.ucl.protecs.sim.*;
 import sim.engine.Steppable;
-import swise.behaviours.BehaviourFramework;
-import swise.behaviours.BehaviourNode;
-//import uk.ac.ucl.swise.behaviours.BehaviourFramework;
-//import uk.ac.ucl.swise.behaviours.BehaviourNode;
+import uk.ac.ucl.swise.behaviours.BehaviourFramework;
+import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
 public class InfectiousBehaviourFramework extends BehaviourFramework {
 	

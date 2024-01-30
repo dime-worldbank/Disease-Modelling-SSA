@@ -3,8 +3,7 @@ package uk.ac.ucl.protecs.objects;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import sim.engine.SimState;
 import sim.engine.Steppable;
-//import uk.ac.ucl.swise.behaviours.BehaviourNode;
-import swise.behaviours.BehaviourNode;
+import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
 public class Infection implements Steppable {
 
