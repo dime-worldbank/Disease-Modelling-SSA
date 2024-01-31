@@ -12,7 +12,7 @@ public class MobilityTesting {
 	@Test
 	public void OfficeWorkerBehaviours() {
 		//Arrange
-		WorldBankCovid19Sim sim = CreateDummySim(12345, "src/main/resources/params.txt", false, false);
+		WorldBankCovid19Sim sim = CreateDummySim(12345, "src/test/resources/params.txt", false, false);
 		sim.start();
 		sim.schedule.step(sim);
 		

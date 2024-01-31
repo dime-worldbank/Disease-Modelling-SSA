@@ -38,7 +38,8 @@ public class Testing {
 									)
 								)
 					);
-			WorldBankCovid19Sim myWorld = (WorldBankCovid19Sim) arg0;								// create a random state (I need to link this to the existing random state but don't know how)
+			WorldBankCovid19Sim myWorld = (WorldBankCovid19Sim) arg0;			
+			// create a random state (I need to link this to the existing random state but don't know how)
 			Random testing_random = new Random(myWorld.seed());
 			int number_of_positive_tests = 0;
 			double percent_positive = 0;
