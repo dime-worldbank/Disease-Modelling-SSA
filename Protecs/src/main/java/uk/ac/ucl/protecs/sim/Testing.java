@@ -12,11 +12,12 @@ import uk.ac.ucl.protecs.objects.Person;
 
 public class Testing {
 	
-	
+	 
 	public static Steppable CovidTesting(WorldBankCovid19Sim world) {
 		return new Steppable() {
 		@Override
 		public void step(SimState arg0) {
+			// --------------------------- Find the number of tests to give today ------------------------------------------------------------------
 			// get the simulation time
 			int time = (int) (arg0.schedule.getTime() / world.params.ticks_per_day);
 			// get the index for the test numbers
@@ -28,6 +29,8 @@ public class Testing {
 				}
 			catch (Exception e) {
 			}
+			// ----------------------- Filter through the population to only give tests to those who are eligible ---------------------------------
+			
 			// we only want to test people who are alive and administer the tests per 1000 based on this 
 			Map<Boolean, Map<Boolean, List<Person>>> is_elligable_for_testing_map = world.agents.stream().collect(
 									Collectors.groupingBy(
@@ -41,28 +44,37 @@ public class Testing {
 			WorldBankCovid19Sim myWorld = (WorldBankCovid19Sim) arg0;			
 			// create a random state (I need to link this to the existing random state but don't know how)
 			Random testing_random = new Random(myWorld.seed());
-			int number_of_positive_tests = 0;
-			double percent_positive = 0;
-			// generate a list of people to test today
-			try {
-				List<Person> people_tested = world.pickRandom(is_elligable_for_testing_map.get(true).get(true), number_of_tests_today, testing_random);
 			// create a counter for the number of positive tests
+			int number_of_positive_tests = 0;
+			// ------------------------ Go through this group of people and give them a COVID-19 test -----------------------------------------------
+			// generate a list of people to test today
+			List<Person> people_tested = new ArrayList<>();
+			try {
+				people_tested = world.pickRandom(is_elligable_for_testing_map.get(true).get(true), number_of_tests_today, testing_random);
 			double test_accuracy = 0.97;
 			// iterate over the list of people to test and perform the tests
 			for (Person person:people_tested) {
+				// if they have COVID.....
 				if(person.hasCovid()) {
+					// And if this test correctly reports that this person has COVID...
 					if (world.random.nextDouble() < test_accuracy) {
+						// Update the counter and update the persons properties, showing that they have tested positive
 						number_of_positive_tests ++;
 						person.setTestedPositive();
-						// after they have tested positive, they no longer need to be tested again
+						// after they have tested positive, they no longer need to be tested again so remove their eligibility for testing
 						person.notElligableForTesting();
 					}
 				}
 			}
+			}
+			catch (Exception e) {
+			}
+			
+			// ---------------------------------------- Report and log the results of the COVID testing ---------------------------------------------
+			// Calculate the percentage of tests that were positive.
+			double percent_positive = 0;
 			if (number_of_tests_today > 0) {
 				percent_positive = (double) number_of_positive_tests / (double) number_of_tests_today; 
-			}}
-			catch (Exception e) {
 			}
 			String t = "\t";
 			
@@ -117,14 +129,16 @@ public class Testing {
 			}
 			spatialOutput += "\n";
 			ImportExport.exportMe(world.spatialdetectedCovidFilename, spatialOutput, world.timer);
-			try {
-				List<Person> people_tested = world.pickRandom(is_elligable_for_testing_map.get(false).get(true), number_of_tests_today, testing_random);
+			
+			// -------------------------------------- Finally remove the people who have been tested ------------------------------------------------
+			
+			if (people_tested.size() > 0) {
 			for (Person person:people_tested) {
 				if(person.hasTestedPos()) {
 					person.removeTestedPositive();
 					}
 			}
-		} catch (Exception e) {}
+			}
 	}
 	
 	};
