@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 import uk.ac.ucl.protecs.behaviours.*;
 import uk.ac.ucl.protecs.objects.*;
-import ec.util.MersenneTwisterFast;
+//import ec.util.MersenneTwisterFast;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 
@@ -26,6 +26,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public ArrayList <Person> agents;
 	public ArrayList <Household> households;
 	public ArrayList <Infection> infections;
+	public Random random;
 	
 	ArrayList <Location> districts;
 	
@@ -39,6 +40,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public boolean demography = false;
 	// create a variable to determine whether the model will run the testing model
 	public boolean testing = false;
+	public int number_of_covid_tests_today;
 	
 	// the names of file names of each output filename		
 	public String outputFilename;
@@ -85,6 +87,7 @@ public class WorldBankCovid19Sim extends SimState {
 		this.outputFilename = outputFilename + ".txt";
 		this.demography = demography;
 		this.testing = testing;
+		this.random = new Random(this.seed());;
 		// some output files will be dependent on if we decide to include different things in the output, start off with no defaulted names
 		// testing
 		this.detectedCovidFilename = "";
@@ -112,7 +115,9 @@ public class WorldBankCovid19Sim extends SimState {
 	}
 	
 	public void start(){
-		
+		// -------------------------------------------------------------------------------------------------------------------------------------
+		// ------------------------------------------- Initialise the simulation ---------------------------------------------------------------
+		// -------------------------------------------------------------------------------------------------------------------------------------
 		// copy over the relevant information
 		districts = new ArrayList <Location> (params.districts.values());
 		
@@ -134,8 +139,8 @@ public class WorldBankCovid19Sim extends SimState {
 		//InteractionUtilities.create_community_bubbles(this);
 
 		// RESET SEED
-		random = new MersenneTwisterFast(this.seed());
-
+//		random = new MersenneTwisterFast(this.seed());
+//		Random random = new Random(this.seed());
 		// set up the infections
 		infections = new ArrayList <Infection> ();
 		ArrayList <Location> unactivatedDistricts = new ArrayList <Location> (districts);
@@ -208,6 +213,7 @@ public class WorldBankCovid19Sim extends SimState {
 		};
 		schedule.scheduleRepeating(0, this.param_schedule_updating_locations, updateLocationLists);
 		
+		
 
 		if (this.demography) {
 			schedule.scheduleRepeating(Demography.CreateBirths(this), this.param_schedule_updating_locations, params.ticks_per_day);
@@ -236,7 +242,37 @@ public class WorldBankCovid19Sim extends SimState {
 		
 		}
 		
+		String filenameSuffix = (this.params.ticks_per_day * this.params.infection_beta) + "_" 
+				+ this.params.lineListWeightingFactor + "_"
+				+ this.targetDuration + "_"
+				+ this.seed() + ".txt";
+		//outputFilename = "results_" + filenameSuffix;
+//		infections_export_filename = "infections_" + filenameSuffix;
+		// -------------------------------------------------------------------------------------------------------------------------------------
+		// ----------------------------------------------- Update the simulation ---------------------------------------------------------------
+		// -------------------------------------------------------------------------------------------------------------------------------------
 		
+		// ------------------------------ Calculate the number of COVID tests that exist for this day ------------------------------------
+		Steppable covidTestNumber = new Steppable(){
+			
+			@Override
+			public void step(SimState arg0) {
+			// --------------------------- Find the number of tests to give today ------------------------------------------------------------------
+			// get the simulation time
+			int time = (int) (arg0.schedule.getTime());
+			// get the index for the test numbers
+			int index_for_test_number = params.test_dates.indexOf(time);
+			// find the number of tests per 1000 to test today
+			try {
+				number_of_covid_tests_today = params.number_of_tests_per_day.get(index_for_test_number);
+				}
+			catch (Exception e) {
+				number_of_covid_tests_today = 0;
+			}
+			}
+		};
+		schedule.scheduleRepeating(0, this.param_schedule_lockdown, covidTestNumber);
+
 		// SCHEDULE LOCKDOWNS
 		Steppable lockdownTrigger = new Steppable() {
 
@@ -255,13 +291,7 @@ public class WorldBankCovid19Sim extends SimState {
 			
 		};
 		schedule.scheduleRepeating(0, this.param_schedule_lockdown, lockdownTrigger);
-		
-		String filenameSuffix = (this.params.ticks_per_day * this.params.infection_beta) + "_" 
-				+ this.params.lineListWeightingFactor + "_"
-				+ this.targetDuration + "_"
-				+ this.seed() + ".txt";
-		//outputFilename = "results_" + filenameSuffix;
-//		infections_export_filename = "infections_" + filenameSuffix;
+
 
 		ImportExport.exportMe(outputFilename, Location.metricNamesToString(), timer);
 		Steppable reporter = new Steppable(){
@@ -284,7 +314,7 @@ public class WorldBankCovid19Sim extends SimState {
 			}
 		};
 		schedule.scheduleRepeating(reporter, this.param_schedule_reporting, params.ticks_per_day);
-		random = new MersenneTwisterFast(this.seed());
+//		random = new MersenneTwisterFast(this.seed());
 	}
 	
 	public void load_population(String agentsFilename){
@@ -409,8 +439,8 @@ public class WorldBankCovid19Sim extends SimState {
 		return Math.exp(x);
 		
 	}
-	public <E> List<E> pickRandom(List<E> list, int n, Random rand) {
-	    return (List<E>)(new Random()).ints(n, 0, list.size()).mapToObj(list::get).collect(Collectors.toList());
+	public <E> List<E> pickRandom(List<E> list, int n) {
+	    return (List<E>)(this.random).ints(n, 0, list.size()).mapToObj(list::get).collect(Collectors.toList());
 	  }
 	public WorldBankCovid19Sim returnSim() {return this;}
 	

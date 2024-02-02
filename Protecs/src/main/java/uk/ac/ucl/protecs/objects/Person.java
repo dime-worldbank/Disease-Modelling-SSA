@@ -247,11 +247,10 @@ public class Person extends MobileAgent {
 		}
 		else {
 			isDeadFromOther = true;
+			System.out.println(this.toString() + " has DIED :(");
 		}
 		isDead = true;
 		transferTo(null);
-
-		System.out.println(this.toString() + " has DIED :(");
 
 	}
 	
@@ -612,8 +611,8 @@ public class Person extends MobileAgent {
 	public void removeSevere() { this.severe = false; }
 	public void setCritical() { this.critical = true; }
 	public void setRecovered() { this.recovered = true; }
-	public void elligableForTesting() {this.elligableForTesting = true; } 
-	public void notElligableForTesting() {this.elligableForTesting = false; } 
+	public void eligibleForTesting() {this.elligableForTesting = true; } 
+	public void notEligibleForTesting() {this.elligableForTesting = false; } 
 	public void setTested() { this.hasBeenTested = true; }
 	public void setTestedPositive() { this.hasTestedPositive = true; }
 	public void setSymptomRemovalDate(int time) { this.timeToRemoveSymptoms = time; }

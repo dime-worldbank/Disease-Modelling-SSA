@@ -1,9 +1,11 @@
+// -------------------------------------------- This class manages the presence of 'spurious symptoms' in the population. ------------------------------
+// ------------------------------- We assign people disease-like symptoms in order to ensure that some of those who get tested for disease -------------
+// ------------------------------- won't have it, as if only those who have the disease get tested, then the positive rates will be high! --------------
 package uk.ac.ucl.protecs.sim;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.Random;
 
 import sim.engine.SimState;
 import sim.engine.Steppable;
@@ -33,14 +35,12 @@ public class SpuriousSymptoms {
           // We need to work out the number of people who will develop spurious symptoms, calculated are the rate per day, multiplied by number of people who are 
           // 'eligible' for spurious symptoms
           double number_people_with_symptoms_as_double = world.params.rate_of_spurious_symptoms * has_non_asymptomatic_covid.get(true).get(false).get(false).get(false).size();
-          int number_people_with_symptoms = (int)number_people_with_symptoms_as_double;
-          // We need to generate a random state to use the pickRandom function. Use this simulation seed ((CHECK THAT THIS ISN'T THE SOURCE OF THE ISSUE))
-          Random symptom_random = new Random(world.seed());
+          int number_people_with_symptoms = (int)number_people_with_symptoms_as_double;          
           // Pick a selection of the people eligible for developing spurious symptoms
-          List<Person> people_developing_symptoms = world.pickRandom(has_non_asymptomatic_covid.get(true).get(false).get(false).get(false), number_people_with_symptoms, symptom_random);
+          List<Person> people_developing_symptoms = world.pickRandom(has_non_asymptomatic_covid.get(true).get(false).get(false).get(false), number_people_with_symptoms);
           // For each of these people, make them eligible for COVID-19 tests, make them have spurious symptoms, make sure they are removed after 7 days
           for (Person p : people_developing_symptoms) {
-            p.elligableForTesting();
+            p.eligibleForTesting();
             p.setSymptomRemovalDate(time + 7);
             p.setSpuriousSymptoms();
           } 
@@ -61,7 +61,7 @@ public class SpuriousSymptoms {
             	// Go through each individual and then...
               if (p.timeToRemoveSymptoms < time) {
             	// make them unable to go and get a COVID-19 test and then remove their spurious symptoms.
-                p.notElligableForTesting();
+                p.notEligibleForTesting();
                 p.removeSpuriousSymptoms();
               } 
             }  

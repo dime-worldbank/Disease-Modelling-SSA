@@ -17,18 +17,8 @@ public class Testing {
 		return new Steppable() {
 		@Override
 		public void step(SimState arg0) {
-			// --------------------------- Find the number of tests to give today ------------------------------------------------------------------
-			// get the simulation time
 			int time = (int) (arg0.schedule.getTime() / world.params.ticks_per_day);
-			// get the index for the test numbers
-			int index_for_test_number = world.params.test_dates.indexOf(time);
-			// find the number of tests per 1000 to test today
-			int number_of_tests_today = 0;
-			try {
-				number_of_tests_today = world.params.number_of_tests_per_day.get(index_for_test_number);
-				}
-			catch (Exception e) {
-			}
+
 			// ----------------------- Filter through the population to only give tests to those who are eligible ---------------------------------
 			
 			// we only want to test people who are alive and administer the tests per 1000 based on this 
@@ -42,18 +32,18 @@ public class Testing {
 								)
 					);
 			WorldBankCovid19Sim myWorld = (WorldBankCovid19Sim) arg0;			
-			// create a random state (I need to link this to the existing random state but don't know how)
-			Random testing_random = new Random(myWorld.seed());
 			// create a counter for the number of positive tests
 			int number_of_positive_tests = 0;
 			// ------------------------ Go through this group of people and give them a COVID-19 test -----------------------------------------------
 			// generate a list of people to test today
 			List<Person> people_tested = new ArrayList<>();
 			try {
-				people_tested = world.pickRandom(is_elligable_for_testing_map.get(true).get(true), number_of_tests_today, testing_random);
+				people_tested = world.pickRandom(is_elligable_for_testing_map.get(true).get(true), world.number_of_covid_tests_today);
 			double test_accuracy = 0.97;
 			// iterate over the list of people to test and perform the tests
 			for (Person person:people_tested) {
+				// Show that they have had a test
+				person.hasBeenTested();
 				// if they have COVID.....
 				if(person.hasCovid()) {
 					// And if this test correctly reports that this person has COVID...
@@ -61,9 +51,9 @@ public class Testing {
 						// Update the counter and update the persons properties, showing that they have tested positive
 						number_of_positive_tests ++;
 						person.setTestedPositive();
-						// after they have tested positive, they no longer need to be tested again so remove their eligibility for testing
-						person.notElligableForTesting();
 					}
+				// assume that after recieving a test they are no longer eligible for testing
+				person.notEligibleForTesting();
 				}
 			}
 			}
@@ -73,17 +63,17 @@ public class Testing {
 			// ---------------------------------------- Report and log the results of the COVID testing ---------------------------------------------
 			// Calculate the percentage of tests that were positive.
 			double percent_positive = 0;
-			if (number_of_tests_today > 0) {
-				percent_positive = (double) number_of_positive_tests / (double) number_of_tests_today; 
+			if (world.number_of_covid_tests_today > 0) {
+				percent_positive = (double) number_of_positive_tests / (double) world.number_of_covid_tests_today; 
 			}
 			String t = "\t";
 			
 			String detected_covid_output = "";
 			if (time == 0) {
-				detected_covid_output += "day" + t + "number_of_detected_cases" + t + "number_of_tests" + t + "fraction_positive" + "\n"+ String.valueOf(time) + t + number_of_positive_tests + t + number_of_tests_today + t + percent_positive+ "\n";
+				detected_covid_output += "day" + t + "number_of_detected_cases" + t + "number_of_tests" + t + "fraction_positive" + "\n"+ String.valueOf(time) + t + number_of_positive_tests + t + world.number_of_covid_tests_today + t + percent_positive+ "\n";
 			}
 			else {
-				detected_covid_output += t + number_of_positive_tests + t + number_of_tests_today + t + percent_positive + "\n";
+				detected_covid_output += t + number_of_positive_tests + t + world.number_of_covid_tests_today + t + percent_positive + "\n";
 			}
 			ImportExport.exportMe(world.detectedCovidFilename, detected_covid_output, world.timer);
 //			create a list of district names to iterate over for our logging

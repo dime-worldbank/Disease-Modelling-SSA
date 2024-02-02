@@ -2,7 +2,6 @@ package uk.ac.ucl.protecs.behaviours;
 
 
 
-import uk.ac.ucl.protecs.behaviours.*;
 import uk.ac.ucl.protecs.objects.*;
 import uk.ac.ucl.protecs.sim.*;
 import sim.engine.Steppable;
@@ -54,6 +53,7 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				if (i.getHost().isDeadFromOther()) {
 					return Double.MAX_VALUE;
 				}
+
 				//
 				// it may be that the individual is exposed but not yet contagious - check if time has been set
 				//
@@ -77,15 +77,11 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 					if(myWorld.random.nextDouble() < mySymptLikelihood){
 						i.setBehaviourNode(presymptomaticNode);
 						i.getHost().getLocation().getRootSuperLocation().metric_new_cases_sympt++;
-						// Store this person's covid
-						i.getHost().storeCovid();
 					}
 					else{
 						i.setBehaviourNode(asymptomaticNode);
 						if(i.getHost() != null && i.getHost().getLocation() != null) {
 							i.getHost().getLocation().getRootSuperLocation().metric_new_cases_asympt++;
-							// Store this person's covid
-							i.getHost().storeCovid();
 							}
 						else
 							System.out.println("PROBLEM WITH INFECTION HOST OR LOCATION");
@@ -246,7 +242,7 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 					}
 				if (!i.getHost().hasMild()) {
 					i.getHost().setMild();
-					i.getHost().elligableForTesting();
+					i.getHost().eligibleForTesting();
 				}
 
 
@@ -491,7 +487,7 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				i.getHost().getLocation().getRootSuperLocation().metric_new_recovered++;
 				i.getHost().setRecovered();
 				i.getHost().removeCovid();
-				i.getHost().notElligableForTesting();
+				i.getHost().notEligibleForTesting();
 				// the Person may have stopped moving when ill - reactivate!
 				if(i.getHost().isImmobilised()){
 					i.getHost().setMobility(true);

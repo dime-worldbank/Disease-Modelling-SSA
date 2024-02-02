@@ -65,7 +65,7 @@ public class CovidTestingTesting {
 	@Test
 	public void MakeSurethereArenoDifferenceInCovidCases() {
 		// create a no-testing output sim
-		WorldBankCovid19Sim no_testing_sim = CreateDummySim(1, "src/test/resources/covid_testing_params.txt", false, false);
+		WorldBankCovid19Sim no_testing_sim = CreateDummySim(2, "src/test/resources/covid_testing_params.txt", false, false);
 		// start it
 		no_testing_sim.start();
 		// run it for 80 days
@@ -74,9 +74,7 @@ public class CovidTestingTesting {
 		while(no_testing_sim.schedule.getTime() < Params.ticks_per_day * numDays && !no_testing_sim.schedule.scheduleComplete()){
 			no_testing_sim.schedule.step(no_testing_sim);
 		}
-		// make sure there will be no output file 
-		// create a simulation with an output file saved
-		WorldBankCovid19Sim with_testing_sim = CreateDummySim(1, "src/test/resources/covid_testing_params.txt", false, true);
+		WorldBankCovid19Sim with_testing_sim = CreateDummySim(2, "src/test/resources/covid_testing_params.txt", false, true);
 		// start it
 		with_testing_sim.start();
 		// run it for 80 days
@@ -123,7 +121,7 @@ public class CovidTestingTesting {
 	}
 		
 	private WorldBankCovid19Sim CreateDummySim(long seed, String paramsFilename, boolean demography, boolean testing) {
-		Params p = new Params(paramsFilename, false);
+		Params p = new Params(paramsFilename, true);
 		WorldBankCovid19Sim myWorld = new WorldBankCovid19Sim(seed, p, "", demography, testing);
 		return myWorld;
 	}
