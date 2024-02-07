@@ -88,8 +88,8 @@ public class Params {
 	public double criticalToDeath_std =			4.8 * ticks_per_day;
 	public double asymptomaticToRecovery_mean =	8.0 * ticks_per_day;
 	public double asymptomaticToRecovery_std =	2.0 * ticks_per_day;
-	public double sympomaticToRecovery_mean =	8.0 * ticks_per_day;
-	public double sympomaticToRecovery_std =	2.0 * ticks_per_day;
+	public double symptomaticToRecovery_mean =	8.0 * ticks_per_day;
+	public double symptomaticToRecovery_std =	2.0 * ticks_per_day;
 	public double severeToRecovery_mean =		18.1 * ticks_per_day;
 	public double severeToRecovery_std =		6.3 * ticks_per_day;
 	public double criticalToRecovery_mean =		18.1 * ticks_per_day;

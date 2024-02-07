@@ -837,7 +837,13 @@ public class Logging {
 				// iterate over each district
 				for (String place: districts) {
 					// get population counts in each district
-					districtPopCounts.add(aliveAtLocation.get(true).get(place).size());
+					try {
+						districtPopCounts.add(aliveAtLocation.get(true).get(place).size());
+					}
+					catch (Exception e) {
+						// age wasn't present in the population, skip
+						districtPopCounts.add(0);
+						}
 					// get covid counts in each district
 					try {
 					districtCovidCounts.add(covidAtLocation.get(true).get(place).get(true).size());
