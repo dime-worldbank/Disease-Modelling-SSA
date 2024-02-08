@@ -6,7 +6,9 @@ import uk.ac.ucl.protecs.objects.Person;
 import uk.ac.ucl.protecs.helperFunctions.*;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 // ================================================ Testing =======================================================================
 // ===== Here we test that each of the functions in the demography testing are running as intended. Specifically we test that the =
@@ -75,30 +77,12 @@ public class DemographyTesting {
 		turnOffBirthsOrDeaths(sim_with_male_mortality, "Births");
 		turnOffBirthsOrDeaths(sim_with_female_mortality, "Births");
 		// Get initial counts of the number of males and females that are alive in each simulation
-		int with_male_mortality_initial_male_counts = 0;
-		int with_male_mortality_initial_female_counts = 0;
-		int with_female_mortality_initial_male_counts = 0;
-		int with_female_mortality_initial_female_counts = 0;
-		for (Person p: sim_with_male_mortality.agents) {
-			if (p.isAlive()) {
-				if (p.getSex().equals("male")) {
-					with_male_mortality_initial_male_counts ++;
-				}
-				else {
-					with_male_mortality_initial_female_counts ++;
-				}
-			}
-		}
-		for (Person p: sim_with_female_mortality.agents) {
-			if (p.isAlive()) {
-				if (p.getSex().equals("male")) {
-					with_female_mortality_initial_male_counts ++;
-				}
-				else {
-					with_female_mortality_initial_female_counts ++;
-				}
-			}
-		}
+		
+		int with_male_mortality_initial_male_counts = getAliveCountsBySex(sim_with_male_mortality, "male", true);
+		int with_male_mortality_initial_female_counts = getAliveCountsBySex(sim_with_male_mortality, "female", true);
+		int with_female_mortality_initial_male_counts = getAliveCountsBySex(sim_with_female_mortality, "male", true);
+		int with_female_mortality_initial_female_counts = getAliveCountsBySex(sim_with_female_mortality, "female", true);
+
 		// Run the simulation for 100 days
 		int numDays = 100;
 						
@@ -109,30 +93,11 @@ public class DemographyTesting {
 			sim_with_female_mortality.schedule.step(sim_with_female_mortality);
 		}	
 		// Get the counts of the number of males and females that are alive at the end of the simulation
-		int with_male_mortality_final_male_counts = 0;
-		int with_male_mortality_final_female_counts = 0;
-		int with_female_mortality_final_male_counts = 0;
-		int with_female_mortality_final_female_counts = 0;
-		for (Person p: sim_with_male_mortality.agents) {
-			if (p.isAlive()) {
-				if (p.getSex().equals("male")) {
-					with_male_mortality_final_male_counts ++;
-				}
-				else {
-					with_male_mortality_final_female_counts ++;
-				}
-			}
-		}
-		for (Person p: sim_with_female_mortality.agents) {
-			if (p.isAlive()) {
-				if (p.getSex().equals("male")) {
-					with_female_mortality_final_male_counts ++;
-				}
-				else {
-					with_female_mortality_final_female_counts ++;
-				}
-			}
-		}
+		int with_male_mortality_final_male_counts = getAliveCountsBySex(sim_with_male_mortality, "male", true);
+		int with_male_mortality_final_female_counts = getAliveCountsBySex(sim_with_male_mortality, "female", true);
+		int with_female_mortality_final_male_counts = getAliveCountsBySex(sim_with_female_mortality, "male", true);
+		int with_female_mortality_final_female_counts = getAliveCountsBySex(sim_with_female_mortality, "female", true);
+		
 		// for the simulation with male mortality check that the number of alive men has decreased and the number of alive females is the same
 		Assert.assertTrue(
 				(with_male_mortality_initial_male_counts > with_male_mortality_final_male_counts) && 
@@ -193,6 +158,19 @@ public class DemographyTesting {
 			System.out.println("No part of the demography has been turned off");
 		}
 		
+	}
+	
+	public int getAliveCountsBySex(WorldBankCovid19Sim world, String sex, boolean alive) {
+		Map<String, Map<Boolean, Long>> sex_alive_map = world.agents.stream().collect(
+				Collectors.groupingBy(
+						Person::getSex,
+								Collectors.groupingBy(
+										Person::isAlive,
+								Collectors.counting()
+								)
+						)
+				);
+		return sex_alive_map.get(sex).get(alive).intValue();
 	}
 	
 }
