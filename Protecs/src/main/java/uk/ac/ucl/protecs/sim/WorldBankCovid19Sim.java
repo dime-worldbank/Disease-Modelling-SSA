@@ -196,7 +196,7 @@ public class WorldBankCovid19Sim extends SimState {
 			schedule.scheduleRepeating(Demography.CreateBirths(this), this.param_schedule_updating_locations, params.ticks_per_day);
 
 			// SCHEDULE CHECKS ON MORTALITY AND LOGGING
-			schedule.scheduleRepeating(Demography.ReportBirthRates(this), this.param_schedule_reporting, params.ticks_per_day);
+			schedule.scheduleRepeating(Logging.ReportBirthRates(this), this.param_schedule_reporting, params.ticks_per_day);
 			schedule.scheduleRepeating(Demography.CheckMortality(this), this.param_schedule_reporting, params.ticks_per_day);
 
 			// to maintain population structure over time, create a function that will update the age of the population
