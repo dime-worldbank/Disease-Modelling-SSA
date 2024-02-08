@@ -45,7 +45,7 @@ public class Demography {
 					int age = p.getAge();
 					// if they are a woman, are alive and didn't give birth within the last year consider whether they
 					// will give birth today
-					if(sex.equals("female") & !p.isAlive() & !(p.gaveBirthLastYear())){
+					if(sex.equals("female") & p.isAlive() & !(p.gaveBirthLastYear())){
 						// get the probability of giving birth at this age
 						myPregnancyLikelihood = params.getBirthLikelihoodByAge(
 								params.prob_birth_by_age, age);
