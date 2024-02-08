@@ -247,11 +247,12 @@ public class Person extends MobileAgent {
 		}
 		else {
 			isDeadFromOther = true;
+			System.out.println(this.toString() + " has DIED :(");
+
 		}
 		isDead = true;
 		transferTo(null);
 
-		System.out.println(this.toString() + " has DIED :(");
 
 	}
 	

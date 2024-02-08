@@ -12,7 +12,7 @@ public class MobilityTesting {
 	@Test
 	public void OfficeWorkerBehaviours() {
 		//Arrange
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(12345, "src/main/resources/params.txt", false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/main/resources/params.txt", false);
 		sim.start();
 		sim.schedule.step(sim);
 		
