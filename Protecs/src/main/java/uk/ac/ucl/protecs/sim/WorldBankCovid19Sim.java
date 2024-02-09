@@ -236,9 +236,9 @@ public class WorldBankCovid19Sim extends SimState {
 		
 		if (this.testing) {
 			
-		schedule.scheduleRepeating(SpuriousSymptoms.spuriosSymptomTrigger(this), param_schedule_reporting, params.ticks_per_day);
+		schedule.scheduleRepeating(SpuriousSymptoms.spuriosSymptomTrigger(this), this.param_schedule_reporting, params.ticks_per_day);
 		
-		schedule.scheduleRepeating(Testing.CovidTesting(this), param_schedule_reporting, params.ticks_per_day);
+		schedule.scheduleRepeating(Testing.CovidTesting(this), this.param_schedule_reporting, params.ticks_per_day);
 		
 		}
 		

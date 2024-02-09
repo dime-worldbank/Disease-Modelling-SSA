@@ -17,6 +17,7 @@ public class Testing {
 		return new Steppable() {
 		@Override
 		public void step(SimState arg0) {
+			
 			int time = (int) (arg0.schedule.getTime() / world.params.ticks_per_day);
 
 			// ----------------------- Filter through the population to only give tests to those who are eligible ---------------------------------
