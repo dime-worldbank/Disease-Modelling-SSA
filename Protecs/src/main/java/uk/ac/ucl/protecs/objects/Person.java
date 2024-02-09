@@ -93,11 +93,6 @@ public class Person extends MobileAgent {
 	boolean recovered = false;
 	boolean hasCovid = false;
 	boolean hadCovid = false;
-	public boolean elligableForTesting = false;
-	boolean hasBeenTested = false;
-	boolean hasTestedPositive = false;
-	boolean hasSpuriousSymptoms = false;
-	public int timeToRemoveSymptoms = 100000000;
 
 	
 	
@@ -555,17 +550,6 @@ public class Person extends MobileAgent {
 
 	public boolean hasPresymptCovid() { return this.presymptomatic; }
 
-	public boolean hasBeenTested() { return this.hasBeenTested; }
-
-	public boolean hasTestedPos() { return this.hasTestedPositive; }
-
-	public boolean isElligableForTesting() {return this.elligableForTesting; }
-	public boolean hasSpuriousSymptoms() {return this.hasSpuriousSymptoms; }
-
-	public boolean inADistrictTesting() {
-		boolean answer = this.myWorld.params.districts_to_test_in.stream().anyMatch(x -> x.equals(this.myHousehold.getRootSuperLocation().myId));
-		return answer;
-	}
 		
 	public void setInfection(Infection i){ myInfection = i; }
 	public boolean hadCovid() { return this.hadCovid; }
@@ -612,12 +596,7 @@ public class Person extends MobileAgent {
 	public void removeSevere() { this.severe = false; }
 	public void setCritical() { this.critical = true; }
 	public void setRecovered() { this.recovered = true; }
-	public void elligableForTesting() {this.elligableForTesting = true; } 
-	public void notElligableForTesting() {this.elligableForTesting = false; } 
-	public void setTested() { this.hasBeenTested = true; }
-	public void setTestedPositive() { this.hasTestedPositive = true; }
-	public void setSymptomRemovalDate(int time) { this.timeToRemoveSymptoms = time; }
-	public void removeTestedPositive() { this.hasTestedPositive = false; }
+
 	public void removeCovid() { 
 		this.asymptomatic = false;
 		this.mild = false;
@@ -625,12 +604,7 @@ public class Person extends MobileAgent {
 		this.critical = false;
 		this.hasCovid = false; 
 		}
-	public void removeSpuriousSymptoms() { 
-		this.hasSpuriousSymptoms = false;
-	}
-	public void setSpuriousSymptoms() {
-		this.hasSpuriousSymptoms = true;
-	}
+
 	public String getCurrentDistrict() {return this.getHousehold().getRootSuperLocation().myId;}
 
 	// UTILS

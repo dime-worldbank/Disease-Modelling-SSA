@@ -39,7 +39,7 @@ public class RunMostTravellingDistricts {
 			    // generate random seed from 0 to 1,000,000
 			    int seed = random.nextInt(1000000);
 			        
-			    WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(seed, new Params(paramFilename, false), outputFilename, false);
+			    WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(seed, new Params(paramFilename, false), outputFilename, false, false);
 	
 				System.out.println("Loading...");
 	

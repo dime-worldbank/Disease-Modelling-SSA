@@ -36,6 +36,8 @@ public class WorldBankCovid19Sim extends SimState {
 	public boolean lockedDown = false;
 	// create a variable to determine whether the model will cause additional births and deaths	
 	public boolean demography = false;
+	// create a variable to determine if COVID testing will take place
+	public boolean covidTesting = false;
 	
 	// the names of file names of each output filename		
 	public String outputFilename;
@@ -60,6 +62,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public static int param_schedule_updating_locations = 5;
 	public static int param_schedule_infecting = 10;
 	public static int param_schedule_reporting = 100;
+	public static int param_schedule_Testing = 101;
 	
 	public ArrayList <Integer> testingAgeDist = new ArrayList <Integer> ();
 	
@@ -74,11 +77,12 @@ public class WorldBankCovid19Sim extends SimState {
 	 * Constructor function
 	 * @param seed
 	 */
-	public WorldBankCovid19Sim(long seed, Params params, String outputFilename, boolean demography) {
+	public WorldBankCovid19Sim(long seed, Params params, String outputFilename, boolean demography, boolean covidTesting) {
 		super(seed);
 		this.params = params;
 		this.outputFilename = outputFilename + ".txt";
 		this.demography = demography;
+		this.covidTesting = covidTesting;
 		this.covidIncOutputFilename = outputFilename + "_Incidence_Of_Covid_" + ".txt"; 
 		this.populationOutputFilename = outputFilename + "_Overall_Demographics_" + ".txt";
 		this.covidIncDeathOutputFilename = outputFilename + "_Incidence_Of_Covid_Death_" + ".txt";
@@ -191,7 +195,9 @@ public class WorldBankCovid19Sim extends SimState {
 		};
 		schedule.scheduleRepeating(0, this.param_schedule_updating_locations, updateLocationLists);
 		
-
+		if (this.covidTesting) {
+			schedule.scheduleRepeating(CovidTesting.Testing(this), this.param_schedule_Testing, params.ticks_per_day);
+			}
 		if (this.demography) {
 			schedule.scheduleRepeating(Demography.CreateBirths(this), this.param_schedule_updating_locations, params.ticks_per_day);
 
@@ -210,7 +216,6 @@ public class WorldBankCovid19Sim extends SimState {
 		schedule.scheduleRepeating(Logging.UpdateDistrictLevelInfo(this), this.param_schedule_reporting, params.ticks_per_day);
 
 		schedule.scheduleRepeating(Logging.ReportPopStructure(this), this.param_schedule_reporting, params.ticks_per_day);
-		
 		
 		
 		// SCHEDULE LOCKDOWNS
@@ -404,6 +409,7 @@ public class WorldBankCovid19Sim extends SimState {
 		String infectionsOutputFilename = "infections_" + myBeta + "_" + numDays + "_" + seed + ".txt"; 
 		String paramsFilename = "src/main/resources/params.txt";
 		boolean demography = false;
+		boolean covidTesting = false;
 		// read in any extra settings from the command line
 		if(args.length < 0){
 			System.out.println("usage error");
@@ -434,7 +440,7 @@ public class WorldBankCovid19Sim extends SimState {
 		 */
 
 		// set up the simulation
-		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim( seed, new Params(paramsFilename, true), outputFilename, demography);
+		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim( seed, new Params(paramsFilename, true), outputFilename, demography, covidTesting);
 
 
 		System.out.println("Loading...");
