@@ -25,7 +25,9 @@ public class CovidTestingTesting {
 			sim_with_testing.schedule.step(sim_with_testing);
 		}
 		int numWithoutTesting = sim_without_testing.infections.size();
+		System.out.println(sim_without_testing.random.nextDouble());
 		int numWithTesting = sim_with_testing.infections.size();
+		System.out.println(sim_with_testing.random.nextDouble());
 		System.out.println("number without = " + String.valueOf(numWithoutTesting));
 		System.out.println("number with = " + String.valueOf(numWithTesting));
 		Assert.assertTrue(numWithoutTesting == numWithTesting);

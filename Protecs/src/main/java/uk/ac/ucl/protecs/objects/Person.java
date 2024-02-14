@@ -93,7 +93,11 @@ public class Person extends MobileAgent {
 	boolean recovered = false;
 	boolean hasCovid = false;
 	boolean hadCovid = false;
-
+	
+	// Covid testing properties
+	boolean EligibleForCovidTesting = false;
+	boolean hasBeenTestedForCovid = false;
+	boolean testedPositiveForCovid = false;
 	
 	
 	/**
@@ -641,6 +645,15 @@ public class Person extends MobileAgent {
 	
 	public void resetCovidLog() { this.covidLogged = false; this.asymptomaticLogged = false; this.mildLogged = false; this.severeLogged = false; this.criticalLogged = false;}
 
+	// COVID TESTING FUNCTIONS
+	// filtering and setting who should be tested
+	public boolean isEligibleForCovidTesting() {return this.EligibleForCovidTesting; }
+	public void setEligibleForCovidTesting() {this.EligibleForCovidTesting = true; }
+	public void removeEligibilityForCovidTesting() {this.EligibleForCovidTesting = false; }
+	// filtering and setting who has been tested
+	public void setHasBeenTestedForCovid() {this.hasBeenTestedForCovid = true; }
+	public boolean hasBeenTestedForCovid() {return this.hasBeenTestedForCovid; }
+	public void setTestedPositiveForCovid() {this.testedPositiveForCovid = true; }
 
 	public Household getHouseholdAsType() {
 		

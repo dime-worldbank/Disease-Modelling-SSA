@@ -247,7 +247,8 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				if (!i.getHost().hasMild()) {
 					i.getHost().setMild();
 				}
-
+				// make this infection's person eligible for COVID testing
+				if (!i.getHost().isEligibleForCovidTesting()) {i.getHost().setEligibleForCovidTesting();}
 
 				// if the agent is scheduled to recover, make sure that it
 				// does so
@@ -483,6 +484,8 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				if (i.getHost().isDeadFromOther()) {
 					return Double.MAX_VALUE;
 				}
+				// remove this infection's person eligible for COVID testing
+				if (i.getHost().isEligibleForCovidTesting()) {i.getHost().removeEligibilityForCovidTesting();}
 				i.time_recovered = time;
 				// update person's properties
 				i.getHost().setRecovered();
