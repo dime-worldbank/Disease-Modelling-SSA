@@ -11,12 +11,22 @@ import uk.ac.ucl.protecs.objects.Person;
 
 public class CovidTesting implements DiseaseTesting {
 
+	@SuppressWarnings("serial")
 	public static Steppable Testing(WorldBankCovid19Sim world) {
+		
 		return new Steppable() {
 		@Override
 		public void step(SimState arg0) {
+			int time = (int) (arg0.schedule.getTime() / world.params.ticks_per_day);
+			int number_of_tests_today = world.params.number_of_tests_per_day.get(time);
 			try {
 			List <Person> people_to_test = filterForEligibleCandidates(world.agents);
+			if (people_to_test.size() < number_of_tests_today) {
+				people_to_test = DiseaseTesting.pickRandom(world, people_to_test, people_to_test.size());
+				}
+			else{ 
+				people_to_test = DiseaseTesting.pickRandom(world, people_to_test, number_of_tests_today);
+				}
 			for (Person p: people_to_test) {
 				double random_double = world.random.nextDouble();
 				if (random_double > testAccuracy()) {
@@ -27,9 +37,7 @@ public class CovidTesting implements DiseaseTesting {
 					}
 				
 			}
-			} catch (NullPointerException e) {
-				System.out.println("No one to test today");
-			}
+			} catch (NullPointerException e) {}
 			}
 		};
 	}
@@ -67,6 +75,6 @@ public class CovidTesting implements DiseaseTesting {
 			);
 		return is_eligible_for_testing_map.get(true).get(true).get(false);
 	}
-
+	
 }
 	

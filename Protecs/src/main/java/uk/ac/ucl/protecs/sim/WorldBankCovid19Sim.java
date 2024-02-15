@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.Random;
 
 import uk.ac.ucl.protecs.behaviours.*;
 import uk.ac.ucl.protecs.objects.*;
@@ -25,6 +26,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public ArrayList <Person> agents;
 	public ArrayList <Household> households;
 	public ArrayList <Infection> infections;
+	public Random random;
 	
 	ArrayList <Location> districts;
 	
@@ -64,8 +66,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public static int param_schedule_reporting = 100;
 	public static int param_schedule_Testing = 101;
 	
-	public ArrayList <Integer> testingAgeDist = new ArrayList <Integer> ();
-	
+	public ArrayList <Integer> testingAgeDist = new ArrayList <Integer> ();	
 	// record-keeping
 	
 	ArrayList <HashMap <String, Double>> dailyRecord = new ArrayList <HashMap <String, Double>> ();
@@ -83,6 +84,7 @@ public class WorldBankCovid19Sim extends SimState {
 		this.outputFilename = outputFilename + ".txt";
 		this.demography = demography;
 		this.covidTesting = covidTesting;
+		this.random = new Random(this.seed());
 		this.covidIncOutputFilename = outputFilename + "_Incidence_Of_Covid_" + ".txt"; 
 		this.populationOutputFilename = outputFilename + "_Overall_Demographics_" + ".txt";
 		this.covidIncDeathOutputFilename = outputFilename + "_Incidence_Of_Covid_Death_" + ".txt";
@@ -121,7 +123,8 @@ public class WorldBankCovid19Sim extends SimState {
 		//InteractionUtilities.create_community_bubbles(this);
 
 		// RESET SEED
-		random = new MersenneTwisterFast(this.seed());
+//		random = new MersenneTwisterFast(this.seed());
+		random = new Random();
 
 		// set up the infections
 		infections = new ArrayList <Infection> ();
@@ -265,7 +268,9 @@ public class WorldBankCovid19Sim extends SimState {
 			}
 		};
 		schedule.scheduleRepeating(reporter, this.param_schedule_reporting, params.ticks_per_day);
-		random = new MersenneTwisterFast(this.seed());
+//		random = new MersenneTwisterFast(this.seed());
+		random = new Random(this.seed());
+
 	}
 	
 	public void load_population(String agentsFilename){
