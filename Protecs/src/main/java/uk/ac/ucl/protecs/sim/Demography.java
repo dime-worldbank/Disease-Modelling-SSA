@@ -12,7 +12,9 @@ import uk.ac.ucl.protecs.objects.Household;
 import uk.ac.ucl.protecs.objects.Location;
 import uk.ac.ucl.protecs.objects.Person;
 
-public class Demography {
+public class DemographyORIGINAL {
+	
+	
 	
 	public static Steppable CreateBirths(WorldBankCovid19Sim world) {
 		
@@ -23,15 +25,20 @@ public class Demography {
 			
 			@Override
 			public void step(SimState arg0) {
+				
 				// create a list of babies
 				Params params = world.params;
 				ArrayList<Person> newBirths = new ArrayList <Person> ();
+				
 				//	get a reference to the current simulation day		
 				int time = (int) (arg0.schedule.getTime() / params.ticks_per_day);
+				
 				// create an id_offset variable to assign the babies a unique id
 				int id_offset = 0;
+				
 				// iterate over all people (would make sense to do this for woman only)
 				for(Person p:world.agents) {
+				
 					// create a variable to predict the likelihood of pregnancy
 					double myPregnancyLikelihood = 0.0;
 					// get this person's sex
@@ -46,9 +53,11 @@ public class Demography {
 					// if they are a woman, are alive and didn't give birth within the last year consider whether they
 					// will give birth today
 					if(sex.equals("female") & p.isAlive() & !(p.gaveBirthLastYear())){
+						
 						// get the probability of giving birth at this age
-						myPregnancyLikelihood = params.getBirthLikelihoodByAge(
-								params.prob_birth_by_age, age);
+						myPregnancyLikelihood = params.getLikelihoodByAge(
+								params.prob_birth_by_age, params.birth_age_params, age);
+						
 						if(world.random.nextDouble() < myPregnancyLikelihood) {
 							// this woman has given birth, update their birth status and note the time of birth
 							p.gaveBirth(time);
@@ -107,6 +116,7 @@ public class Demography {
 
 				// create a temp variable to be updated when the likelihood of mortality has been determined
 				double myMortalityLikelihood = 0.0;
+				
 				// iterate over the population
 				for(Person p: world.agents){
 					// only determine mortality if this person is alive
@@ -116,12 +126,12 @@ public class Demography {
 						int age = p.getAge();
 						// based on their properties determine if they die today
 						if(sex.equals("male")) {
-							myMortalityLikelihood = params.getAllCauseLikelihoodByAge(
-									params.prob_death_by_age_male, age);
+							myMortalityLikelihood = params.getLikelihoodByAge(
+									params.prob_death_by_age_male, params.all_cause_death_age_params, age);
 						}
 						else {
-							myMortalityLikelihood = params.getAllCauseLikelihoodByAge(
-									params.prob_death_by_age_female, age);
+							myMortalityLikelihood = params.getLikelihoodByAge(
+									params.prob_death_by_age_female, params.all_cause_death_age_params, age);
 						}
 						if(world.random.nextDouble() < myMortalityLikelihood) {
 							p.die("other");

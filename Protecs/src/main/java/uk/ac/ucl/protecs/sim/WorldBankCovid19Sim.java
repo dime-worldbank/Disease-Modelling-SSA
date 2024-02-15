@@ -15,6 +15,9 @@ import java.util.stream.Collectors;
 
 import uk.ac.ucl.protecs.behaviours.*;
 import uk.ac.ucl.protecs.objects.*;
+import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
+import uk.ac.ucl.protecs.objects.diseases.Infection;
+import uk.ac.ucl.protecs.objects.diseases.CoronavirusBehaviourFramework;
 import ec.util.MersenneTwisterFast;
 import sim.engine.SimState;
 import sim.engine.Steppable;
@@ -31,7 +34,7 @@ public class WorldBankCovid19Sim extends SimState {
 	HashMap <Location, ArrayList<Person>> personsToDistrict; 
 	
 	public MovementBehaviourFramework movementFramework;
-	public InfectiousBehaviourFramework infectiousFramework;
+	public CoronavirusBehaviourFramework infectiousFramework;
 	public Params params;
 	public boolean lockedDown = false;
 	// create a variable to determine whether the model will cause additional births and deaths	
@@ -101,7 +104,7 @@ public class WorldBankCovid19Sim extends SimState {
 		
 		// set up the behavioural framework
 		movementFramework = new MovementBehaviourFramework(this);
-		infectiousFramework = new InfectiousBehaviourFramework(this);
+		infectiousFramework = new CoronavirusBehaviourFramework(this);
 		
 		// load the population
 		load_population(params.dataDir + params.population_filename);
@@ -121,12 +124,10 @@ public class WorldBankCovid19Sim extends SimState {
 
 		// set up the infections
 		infections = new ArrayList <Infection> ();
-		ArrayList <Location> unactivatedDistricts = new ArrayList <Location> (districts);
 		for(Location l: params.lineList.keySet()){
 			
 			// activate this location
 			l.setActive(true);
-			unactivatedDistricts.remove(l);
 			
 			// number of people to infect
 			int countInfections = params.lineList.get(l) * params.lineListWeightingFactor;
@@ -161,10 +162,9 @@ public class WorldBankCovid19Sim extends SimState {
 					newlyInfected.add(p);
 				
 				// create new person
-				Infection inf = new Infection(p, null, infectiousFramework.getInfectedEntryPoint(l), this);
+				Infection inf = new CoronavirusInfection(p, null, infectiousFramework.getInfectedEntryPoint(l), this, 0);
 				// update this person's properties
 				
-				inf.time_contagious = 0;
 				// update this person's properties so we can keep track of the number of cases etc				
 				p.storeCovid();
 				if (inf.getBehaviourName().equals("asymptomatic")) {
@@ -193,14 +193,24 @@ public class WorldBankCovid19Sim extends SimState {
 		
 
 		if (this.demography) {
-			schedule.scheduleRepeating(Demography.CreateBirths(this), this.param_schedule_updating_locations, params.ticks_per_day);
+		//	schedule.scheduleRepeating(Demography.CreateBirths(this), this.param_schedule_updating_locations, params.ticks_per_day);
 
 			// SCHEDULE CHECKS ON MORTALITY AND LOGGING
 			schedule.scheduleRepeating(Logging.ReportBirthRates(this), this.param_schedule_reporting, params.ticks_per_day);
-			schedule.scheduleRepeating(Demography.CheckMortality(this), this.param_schedule_reporting, params.ticks_per_day);
+		//	schedule.scheduleRepeating(Demography.CheckMortality(this), this.param_schedule_reporting, params.ticks_per_day);
 
 			// to maintain population structure over time, create a function that will update the age of the population
-			schedule.scheduleRepeating(Demography.UpdateAges(this), this.param_schedule_reporting, params.ticks_per_day);
+	//		schedule.scheduleRepeating(Demography.UpdateAges(this), this.param_schedule_reporting, params.ticks_per_day);
+			Demography myDemography = new Demography();
+			for(Person a: agents) {
+				
+				// if female and in the correct age bracket, calculate how long until they next give birth
+				
+				// calculate how long until they will die
+		
+				Demography.Aging agentAging = myDemography.new Aging(a, params.ticks_per_day);
+				schedule.scheduleOnce(a.getBirthday()*params.ticks_per_day, this.param_schedule_reporting, agentAging);
+			}
 		}
 
 		// This function tracks the epidemic over time 
@@ -297,6 +307,7 @@ public class WorldBankCovid19Sim extends SimState {
 			
 			// read in the raw data
 			//int myIndex = 10;
+			int myIndex = 1;
 			while ((s = agentData.readLine()) != null ){//&& myIndex > 0) {
 				//myIndex--;
 				
@@ -335,7 +346,8 @@ public class WorldBankCovid19Sim extends SimState {
 				
 				// set up the person
 				// create a random birthday
-				int birthday = this.random.nextInt(365) + 1;
+				int birthday = myIndex;//this.random.nextInt(365);
+				myIndex++;
 
 				// create and save the Person agent
 				Person p = new Person(Integer.parseInt(bits[1]), // ID 
@@ -403,7 +415,7 @@ public class WorldBankCovid19Sim extends SimState {
 		String outputFilename = "dailyReport_" + myBeta + "_" + numDays + "_" + seed + ".txt";
 		String infectionsOutputFilename = "infections_" + myBeta + "_" + numDays + "_" + seed + ".txt"; 
 		String paramsFilename = "src/main/resources/params.txt";
-		boolean demography = false;
+		boolean demography = true;
 		// read in any extra settings from the command line
 		if(args.length < 0){
 			System.out.println("usage error");
@@ -447,6 +459,7 @@ public class WorldBankCovid19Sim extends SimState {
 		
 		mySim.infections_export_filename = infectionsOutputFilename; // overwrite the export filename
 		
+		System.out.println("How many agents? " + mySim.agents.size());
 		System.out.println("Running...");
 
 		// run the simulation
