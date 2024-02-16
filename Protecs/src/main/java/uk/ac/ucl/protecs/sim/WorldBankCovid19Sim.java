@@ -210,6 +210,8 @@ public class WorldBankCovid19Sim extends SimState {
 		
 				Demography.Aging agentAging = myDemography.new Aging(a, params.ticks_per_day);
 				schedule.scheduleOnce(a.getBirthday()*params.ticks_per_day, this.param_schedule_reporting, agentAging);
+				Demography.Mortality agentMortality = myDemography.new Mortality(a, params.ticks_per_day);
+				schedule.scheduleOnce(0, this.param_schedule_reporting, agentMortality);
 			}
 		}
 
@@ -307,7 +309,6 @@ public class WorldBankCovid19Sim extends SimState {
 			
 			// read in the raw data
 			//int myIndex = 10;
-			int myIndex = 1;
 			while ((s = agentData.readLine()) != null ){//&& myIndex > 0) {
 				//myIndex--;
 				
@@ -346,8 +347,7 @@ public class WorldBankCovid19Sim extends SimState {
 				
 				// set up the person
 				// create a random birthday
-				int birthday = myIndex;//this.random.nextInt(365);
-				myIndex++;
+				int birthday = this.random.nextInt(365);
 
 				// create and save the Person agent
 				Person p = new Person(Integer.parseInt(bits[1]), // ID 
@@ -409,7 +409,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public static void main(String [] args){
 		
 		// default settings in the absence of commands!
-		int numDays = 7; // by default, one week
+		int numDays = 380; // by default, one week
 		double myBeta = .016;
 		long seed = 12345;
 		String outputFilename = "dailyReport_" + myBeta + "_" + numDays + "_" + seed + ".txt";
