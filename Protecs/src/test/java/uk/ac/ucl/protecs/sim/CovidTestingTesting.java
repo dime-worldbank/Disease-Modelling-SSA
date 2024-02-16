@@ -12,13 +12,13 @@ public class CovidTestingTesting {
 	@Test
 	public void CheckThereAreNoDifferencesInCaseNumbers() {
 		//Arrange
-		WorldBankCovid19Sim sim_without_testing = CreateDummySim(1, "src/main/resources/covid_testing_params.txt", false, false);
+		WorldBankCovid19Sim sim_without_testing = CreateDummySim(12, "src/main/resources/covid_testing_params.txt", false, false);
 		sim_without_testing.start();
 		int numDays = 50;
 		while(sim_without_testing.schedule.getTime() < Params.ticks_per_day * numDays && !sim_without_testing.schedule.scheduleComplete()){
 			sim_without_testing.schedule.step(sim_without_testing);
 		}
-		WorldBankCovid19Sim sim_with_testing = CreateDummySim(1, "src/main/resources/covid_testing_params.txt", false, true);
+		WorldBankCovid19Sim sim_with_testing = CreateDummySim(12, "src/main/resources/covid_testing_params.txt", false, true);
 
 		sim_with_testing.start();
 		while(sim_with_testing.schedule.getTime() < Params.ticks_per_day * numDays && !sim_with_testing.schedule.scheduleComplete()){

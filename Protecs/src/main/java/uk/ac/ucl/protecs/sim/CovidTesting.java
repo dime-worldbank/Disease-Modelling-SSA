@@ -1,6 +1,6 @@
 package uk.ac.ucl.protecs.sim;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -17,30 +17,30 @@ public class CovidTesting implements DiseaseTesting {
 		return new Steppable() {
 		@Override
 		public void step(SimState arg0) {
-			int time = (int) (arg0.schedule.getTime() / world.params.ticks_per_day);
-			int number_of_tests_today = world.params.number_of_tests_per_day.get(time);
-			try {
-			List <Person> people_to_test = filterForEligibleCandidates(world.agents);
-			if (people_to_test.size() < number_of_tests_today) {
-				people_to_test = DiseaseTesting.pickRandom(world, people_to_test, people_to_test.size());
-				}
-			else{ 
-				people_to_test = DiseaseTesting.pickRandom(world, people_to_test, number_of_tests_today);
-				}
-			for (Person p: people_to_test) {
-				double random_double = world.random.nextDouble();
-				if (random_double > testAccuracy()) {
-					updatePropertiesForNegativeTest(p);
-					} 
-				else {
-					updatePropertiesForPositiveTest(p);
-					}
-				
-			}
-			} catch (NullPointerException e) {}
+			runTests(arg0, world);
 			}
 		};
 	}
+	
+	public static void runTests(SimState arg0, WorldBankCovid19Sim world) {
+		// handles the administration of the tests and directs consequences of the tests
+		int dayOfSimulation = (int) (arg0.schedule.getTime() / world.params.ticks_per_day);
+		// get people to test today
+		List <Person> people_to_test_today = filterForEligibleCandidates(world, dayOfSimulation);
+		// test each person, check the results of the test and update the person's properties
+		for (Person p: people_to_test_today) {
+			double random_to_check_if_test_is_accurate = world.random.nextDouble();
+			if (p.hasCovid() && random_to_check_if_test_is_accurate < testAccuracy()){
+				updatePropertiesForPositiveTest(p);
+				} 
+			else {
+				updatePropertiesForNegativeTest(p);
+				}
+			
+			}
+		
+	}
+		
 	public static double testAccuracy() {
 		return 0.97;
 	}
@@ -54,14 +54,14 @@ public class CovidTesting implements DiseaseTesting {
 		p.setHasBeenTestedForCovid();
 	}
 
-	public static List<Person> filterForEligibleCandidates(ArrayList<Person> population) {
+	public static List<Person> filterForEligibleCandidates(WorldBankCovid19Sim world, int time) {
 		// At this stage we want to filter the population to give tests to those who are:
 		// 1) Alive
 		// 2) Have symptomatic COVID (mild, severe and critical)
 		// 3) Haven't been tested before
 		// To do this we will use streams to search over a list of objects and draw those that have these properties
 		// create a function to group the population by location and count new deaths
-		Map<Boolean, Map<Boolean, Map<Boolean, List<Person>>>> is_eligible_for_testing_map = population.stream().collect(
+		Map<Boolean, Map<Boolean, Map<Boolean, List<Person>>>> is_eligible_for_testing_map = world.agents.stream().collect(
 				Collectors.groupingBy(
 						Person::isAlive,
 						Collectors.groupingBy(
@@ -73,8 +73,26 @@ public class CovidTesting implements DiseaseTesting {
 						)
 				)
 			);
-		return is_eligible_for_testing_map.get(true).get(true).get(false);
+		// We also need to only give out the correct number of tests available for the disease this day.
+		int number_of_tests_today = world.params.number_of_tests_per_day.get(time);
+		List <Person> eligible_for_testing = Collections.emptyList();
+		try {
+			eligible_for_testing = is_eligible_for_testing_map.get(true).get(true).get(false);
+
+			if (eligible_for_testing.size() < number_of_tests_today) {
+				eligible_for_testing = DiseaseTesting.pickRandom(world, eligible_for_testing, eligible_for_testing.size());
+				}
+			else{ 
+				eligible_for_testing = DiseaseTesting.pickRandom(world, eligible_for_testing, number_of_tests_today);
+				}
+			}
+		catch (NullPointerException e) {eligible_for_testing = Collections.emptyList();}
+		
+		return eligible_for_testing;
 	}
+
+
+	
 	
 }
 	

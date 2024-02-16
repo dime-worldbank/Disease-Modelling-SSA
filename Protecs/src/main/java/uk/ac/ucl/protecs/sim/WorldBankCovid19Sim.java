@@ -64,7 +64,8 @@ public class WorldBankCovid19Sim extends SimState {
 	public static int param_schedule_updating_locations = 5;
 	public static int param_schedule_infecting = 10;
 	public static int param_schedule_reporting = 100;
-	public static int param_schedule_Testing = 101;
+	public static int param_schedule_COVID_SpuriousSymptoms = 101;
+	public static int param_schedule_COVID_Testing = 102;
 	
 	public ArrayList <Integer> testingAgeDist = new ArrayList <Integer> ();	
 	// record-keeping
@@ -199,7 +200,8 @@ public class WorldBankCovid19Sim extends SimState {
 		schedule.scheduleRepeating(0, this.param_schedule_updating_locations, updateLocationLists);
 		
 		if (this.covidTesting) {
-			schedule.scheduleRepeating(CovidTesting.Testing(this), this.param_schedule_Testing, params.ticks_per_day);
+			schedule.scheduleRepeating(CovidSpuriousSymptoms.manageSymptoms(this), this.param_schedule_COVID_SpuriousSymptoms, params.ticks_per_day);
+			schedule.scheduleRepeating(CovidTesting.Testing(this), this.param_schedule_COVID_Testing, params.ticks_per_day);
 			}
 		if (this.demography) {
 			schedule.scheduleRepeating(Demography.CreateBirths(this), this.param_schedule_updating_locations, params.ticks_per_day);
