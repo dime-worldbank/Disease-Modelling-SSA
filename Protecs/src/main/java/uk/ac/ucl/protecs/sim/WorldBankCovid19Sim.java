@@ -203,15 +203,17 @@ public class WorldBankCovid19Sim extends SimState {
 	//		schedule.scheduleRepeating(Demography.UpdateAges(this), this.param_schedule_reporting, params.ticks_per_day);
 			Demography myDemography = new Demography();
 			for(Person a: agents) {
-				
-				// if female and in the correct age bracket, calculate how long until they next give birth
-				
-				// calculate how long until they will die
-		
+				// Trigger the aging process for this person
 				Demography.Aging agentAging = myDemography.new Aging(a, params.ticks_per_day);
 				schedule.scheduleOnce(a.getBirthday()*params.ticks_per_day, this.param_schedule_reporting, agentAging);
+				// Trigger the process to determine mortality each year
 				Demography.Mortality agentMortality = myDemography.new Mortality(a, params.ticks_per_day, this);
 				schedule.scheduleOnce(0, this.param_schedule_reporting, agentMortality);
+				// if biologically female, trigger checks for giving birth each year
+				if (a.getSex().equals("female")) {
+					Demography.Births agentBirths = myDemography.new Births(a, params.ticks_per_day, this);
+					schedule.scheduleOnce(0, this.param_schedule_reporting, agentBirths);
+				}
 			}
 		}
 
