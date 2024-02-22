@@ -207,6 +207,8 @@ public class Demography {
 			world.agents.add(baby);
 			// Add the person to the district
 			baby.transferTo(babyHousehold);
+			// This is a new birth that hasn't been recorded
+			target.removeBirthLogged();
 		}
 		
 	}

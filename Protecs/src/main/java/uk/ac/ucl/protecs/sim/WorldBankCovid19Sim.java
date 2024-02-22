@@ -193,14 +193,6 @@ public class WorldBankCovid19Sim extends SimState {
 		
 
 		if (this.demography) {
-		//	schedule.scheduleRepeating(Demography.CreateBirths(this), this.param_schedule_updating_locations, params.ticks_per_day);
-
-			// SCHEDULE CHECKS ON MORTALITY AND LOGGING
-			schedule.scheduleRepeating(Logging.ReportBirthRates(this), this.param_schedule_reporting, params.ticks_per_day);
-		//	schedule.scheduleRepeating(Demography.CheckMortality(this), this.param_schedule_reporting, params.ticks_per_day);
-
-			// to maintain population structure over time, create a function that will update the age of the population
-	//		schedule.scheduleRepeating(Demography.UpdateAges(this), this.param_schedule_reporting, params.ticks_per_day);
 			Demography myDemography = new Demography();
 			for(Person a: agents) {
 				// Trigger the aging process for this person
@@ -215,6 +207,11 @@ public class WorldBankCovid19Sim extends SimState {
 					schedule.scheduleOnce(0, this.param_schedule_reporting, agentBirths);
 				}
 			}
+			Logging logger = new Logging();
+			Logging.BirthRateReporter birthRateLog = logger.new BirthRateReporter(this);
+			schedule.scheduleOnce(364 * params.ticks_per_day, this.param_schedule_reporting, birthRateLog);
+
+			
 		}
 
 		// This function tracks the epidemic over time 
@@ -411,7 +408,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public static void main(String [] args){
 		
 		// default settings in the absence of commands!
-		int numDays = 380; // by default, one week
+		int numDays = 750; // by default, one week
 		double myBeta = .016;
 		long seed = 12345;
 		String outputFilename = "dailyReport_" + myBeta + "_" + numDays + "_" + seed + ".txt";

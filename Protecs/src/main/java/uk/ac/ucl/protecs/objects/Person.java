@@ -660,6 +660,7 @@ public class Person extends MobileAgent {
 		this.dayGaveBirth = Integer.MAX_VALUE;
 	}
 	public void confirmBirthlogged() { this.birthLogged = true; }
+	public void removeBirthLogged() { this.birthLogged = false; }
 	public void confirmCovidLogged() { this.covidLogged = true; }
 	public void confirmAsymptLogged() {this.asymptomaticLogged = true; }
 	public void confirmMildLogged() {this.mildLogged = true; }
