@@ -7,15 +7,15 @@ public class BulkRun {
 	
 	public static void main(String [] args) {
 		
-		String filenameBase = "/Users/robbiework/eclipse-workspace/Disease-Modelling-SSA/data/verification/", 
+		String filenameBase = "/Users/robbiework/Desktop/local_eclipse_runs/", 
 				filenameSuffix = ".txt";
-		String outputFilepath = "/Users/robbiework/eclipse-workspace/Disease-Modelling-SSA/java/WorldBankCovid19/outputs/";
+		String outputFilepath = "/Users/robbiework/Desktop/local_eclipse_runs/";
 		
-		String [] paramsFilenames = {"params_robbie_test"};//, "params_defaultMultiDist", "params_multiStatusMultiDist"};   
+		String [] paramsFilenames = {"demography_params_local"};//, "params_defaultMultiDist", "params_multiStatusMultiDist"};   
 		boolean [] demography = {true};//, false};
 		
-		double myBeta = 0.3;
-		int numDays = 100;
+		double myBeta = 0;
+		int numDays = 400;
 
 		String outputPrefix = "_bulkTest_" + myBeta + "_" + numDays + "_";
 			
@@ -26,7 +26,7 @@ public class BulkRun {
 				for(int i = 0; i < 3; i++) {
 					
 					String paramFilename = filenameBase + s + filenameSuffix;
-					String outputFilename = outputFilepath + s + outputPrefix + i;
+					String outputFilename = outputFilepath + "third_DEM" + outputPrefix + i;
 					String infectionsFilename = outputFilepath + "infections_" + s + outputPrefix + i; 
 					
 					// include demography in filename if we're testing more than one
