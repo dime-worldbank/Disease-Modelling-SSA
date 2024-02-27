@@ -21,6 +21,8 @@ import java.util.stream.Stream;
 
 
 import uk.ac.ucl.protecs.behaviours.MovementBehaviourFramework;
+import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
+import uk.ac.ucl.protecs.objects.diseases.Infection;
 
 
 public class Person extends MobileAgent {
@@ -162,7 +164,6 @@ public class Person extends MobileAgent {
 		else
 			myWorld.schedule.scheduleOnce(this, myWorld.param_schedule_movement);
 			
-		
 		// HACK TO ENSURE INTERACTION AWAY FROM HOME DISTRICT
 		// check if out of home district
 /*		if(visiting) {
@@ -247,11 +248,12 @@ public class Person extends MobileAgent {
 		}
 		else {
 			isDeadFromOther = true;
+			System.out.println(this.toString() + " has DIED :(");
+
 		}
 		isDead = true;
 		transferTo(null);
 
-		System.out.println(this.toString() + " has DIED :(");
 
 	}
 	
@@ -374,7 +376,7 @@ public class Person extends MobileAgent {
 				double myProb = myWorld.random.nextDouble();
 				if(otherPerson.myInfection == null 
 						&& myProb < myWorld.params.infection_beta){
-					Infection inf = new Infection(otherPerson, this, myWorld.infectiousFramework.getHomeNode(), myWorld);
+					Infection inf = new CoronavirusInfection(otherPerson, this, myWorld.infectiousFramework.getHomeNode(), myWorld);
 					myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting);
 //					infecteds += otherPerson.toString() + " infected with prob " + myProb + "; ";
 				}
@@ -436,7 +438,7 @@ public class Person extends MobileAgent {
 			// check if they are already infected; if they are not, infect with with probability BETA
 			if(p.myInfection == null 
 					&& myWorld.random.nextDouble() < myWorld.params.infection_beta){
-				Infection inf = new Infection(p, this, myWorld.infectiousFramework.getHomeNode(), myWorld);
+				Infection inf = new CoronavirusInfection(p, this, myWorld.infectiousFramework.getHomeNode(), myWorld);
 				myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting);
 			}
 
@@ -491,7 +493,7 @@ public class Person extends MobileAgent {
 				// check if they are already infected; if they are not, infect with with probability BETA
 				if(p.myInfection == null 
 						&& myWorld.random.nextDouble() < myWorld.params.infection_beta){
-					Infection inf = new Infection(p, this, myWorld.infectiousFramework.getHomeNode(), myWorld);
+					Infection inf = new CoronavirusInfection(p, this, myWorld.infectiousFramework.getHomeNode(), myWorld);
 					myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting);
 				}
 
@@ -658,6 +660,7 @@ public class Person extends MobileAgent {
 		this.dayGaveBirth = Integer.MAX_VALUE;
 	}
 	public void confirmBirthlogged() { this.birthLogged = true; }
+	public void removeBirthLogged() { this.birthLogged = false; }
 	public void confirmCovidLogged() { this.covidLogged = true; }
 	public void confirmAsymptLogged() {this.asymptomaticLogged = true; }
 	public void confirmMildLogged() {this.mildLogged = true; }
