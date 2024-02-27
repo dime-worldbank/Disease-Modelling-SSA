@@ -289,8 +289,8 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 					// if not, they will recover: schedule this instead
 					else {
 						double time_until_recovered = myWorld.nextRandomLognormal(
-								myWorld.params.sympomaticToRecovery_mean, 
-								myWorld.params.sympomaticToRecovery_std);
+								myWorld.params.symptomaticToRecovery_mean, 
+								myWorld.params.symptomaticToRecovery_std);
 						assert time_until_recovered > 0 : "time until recovery not scheduled in future";
 
 						i.time_recovered = time + time_until_recovered;
