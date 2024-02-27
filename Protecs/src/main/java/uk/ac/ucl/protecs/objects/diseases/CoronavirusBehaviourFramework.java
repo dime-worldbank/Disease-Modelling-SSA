@@ -1,4 +1,4 @@
-package uk.ac.ucl.protecs.behaviours;
+package uk.ac.ucl.protecs.objects.diseases;
 
 
 
@@ -9,15 +9,15 @@ import sim.engine.Steppable;
 import uk.ac.ucl.swise.behaviours.BehaviourFramework;
 import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
-public class InfectiousBehaviourFramework extends BehaviourFramework {
+public class CoronavirusBehaviourFramework extends BehaviourFramework {
 	
 	WorldBankCovid19Sim myWorld;
 	BehaviourNode susceptibleNode = null, exposedNode = null, presymptomaticNode= null, asymptomaticNode = null,
-			mildNode = null, severeNode = null, criticalNode = null, recoveredNode = null, deadNode = null; 
+			mildNode = null, severeNode = null, criticalNode = null, recoveredNode = null, deadNode = null;
 	
 	// PARAMS to control development of disease
 	
-	public InfectiousBehaviourFramework(WorldBankCovid19Sim model){
+	public CoronavirusBehaviourFramework(WorldBankCovid19Sim model){
 		myWorld = model;
 		
 		// the default status
@@ -50,7 +50,7 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 			 */
 			@Override
 			public double next(Steppable s, double time) {
-				Infection i = (Infection) s;
+				CoronavirusInfection i = (CoronavirusInfection) s;
 				if (i.getHost().isDeadFromOther()) {
 					return Double.MAX_VALUE;
 				}
@@ -69,7 +69,7 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 
 					// moderate this based on the age of the host
 					double mySymptLikelihood = myWorld.params.getLikelihoodByAge(
-							myWorld.params.infection_p_sym_by_age, i.getHost().getAge());
+							myWorld.params.infection_p_sym_by_age, myWorld.params.infection_age_params, i.getHost().getAge());
 					assert (mySymptLikelihood >= 0.0) & (mySymptLikelihood <= 1.0) : "probability out of bounds";
 					assert (i.getHost() != null && i.getHost().getLocation() != null) : "PROBLEM WITH INFECTION HOST OR LOCATION";
 
@@ -98,7 +98,7 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				//
 				
 				double mySusceptLikelihood = myWorld.params.getLikelihoodByAge(
-						myWorld.params.infection_r_sus_by_age, i.getHost().getAge());
+						myWorld.params.infection_r_sus_by_age, myWorld.params.infection_age_params, i.getHost().getAge());
 				if(myWorld.random.nextDouble() < mySusceptLikelihood){
 					
 					// timekeep this
@@ -148,7 +148,7 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 			public double next(Steppable s, double time) {
 				
 				// while presympotmatic, the agent is still infectious
-				Infection i = (Infection) s;
+				CoronavirusInfection i = (CoronavirusInfection) s;
 				if (i.getHost().isDeadFromOther()) {
 					return Double.MAX_VALUE;
 				}
@@ -191,7 +191,7 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 			public double next(Steppable s, double time) {
 				
 				// although asympotmatic, the agent is still infectious
-				Infection i = (Infection) s;
+				CoronavirusInfection i = (CoronavirusInfection) s;
 				if (i.getHost().isDeadFromOther()) {
 					return Double.MAX_VALUE;
 				}
@@ -236,7 +236,7 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 			public double next(Steppable s, double time) {
 				
 				// the agent is infectious
-				Infection i = (Infection) s;
+				CoronavirusInfection i = (CoronavirusInfection) s;
 				if (i.getHost().isDeadFromOther()) {
 					return Double.MAX_VALUE;
 				}
@@ -276,8 +276,8 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 
 					// determine if the patient will become sicker
 					double mySevereLikelihood = myWorld.params.getLikelihoodByAge(
-							myWorld.params.infection_p_sev_by_age, i.getHost().getAge());
-					assert (mySevereLikelihood >= 0.0) & (mySevereLikelihood <= 1.0) : "probablilty not valid";
+							myWorld.params.infection_p_sev_by_age, myWorld.params.infection_age_params, i.getHost().getAge());
+					assert (mySevereLikelihood > 0.0) & (mySevereLikelihood < 1.0) : "probablilty not valid";
 					if(myWorld.random.nextDouble() < mySevereLikelihood){
 						double time_until_severe = myWorld.nextRandomLognormal(
 								myWorld.params.symptomaticToSevere_mean, 
@@ -289,8 +289,8 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 					// if not, they will recover: schedule this instead
 					else {
 						double time_until_recovered = myWorld.nextRandomLognormal(
-								myWorld.params.symptomaticToRecovery_mean, 
-								myWorld.params.symptomaticToRecovery_std);
+								myWorld.params.sympomaticToRecovery_mean, 
+								myWorld.params.sympomaticToRecovery_std);
 						assert time_until_recovered > 0 : "time until recovery not scheduled in future";
 
 						i.time_recovered = time + time_until_recovered;
@@ -320,7 +320,7 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 			public double next(Steppable s, double time) {
 				
 				// the agent is infectious
-				Infection i = (Infection) s;
+				CoronavirusInfection i = (CoronavirusInfection) s;
 				if (i.getHost().isDeadFromOther()) {
 					return Double.MAX_VALUE;
 				}
@@ -349,8 +349,8 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				else if(i.time_recovered == Double.MAX_VALUE && i.time_start_critical == Double.MAX_VALUE){
 
 					double myCriticalLikelihood = myWorld.params.getLikelihoodByAge(
-							myWorld.params.infection_p_cri_by_age, i.getHost().getAge());
-					assert (myCriticalLikelihood >= 0.0) & (myCriticalLikelihood <= 1.0) : "probablilty not valid";
+							myWorld.params.infection_p_cri_by_age, myWorld.params.infection_age_params, i.getHost().getAge());
+					assert (myCriticalLikelihood > 0.0) & (myCriticalLikelihood < 1.0) : "probablilty not valid";
 
 					// determine if the patient will become sicker
 					if(myWorld.random.nextDouble() < myCriticalLikelihood){
@@ -396,7 +396,7 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 			public double next(Steppable s, double time) {
 				
 				// the agent is infectious
-				Infection i = (Infection) s;
+				CoronavirusInfection i = (CoronavirusInfection) s;
 				if (i.getHost().isDeadFromOther()) {
 					return Double.MAX_VALUE;
 				}
@@ -433,9 +433,9 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 				else if(i.time_recovered == Double.MAX_VALUE && i.time_died == Double.MAX_VALUE ){
 
 					double myDeathLikelihood = myWorld.params.getLikelihoodByAge(
-							myWorld.params.infection_p_dea_by_age, i.getHost().getAge());
+							myWorld.params.infection_p_dea_by_age, myWorld.params.infection_age_params, i.getHost().getAge());
 					
-					assert (myDeathLikelihood >= 0.0) & (myDeathLikelihood <= 1.0) : "probablilty not valid";
+					assert (myDeathLikelihood > 0.0) & (myDeathLikelihood < 1.0) : "probablilty not valid";
 
 					// determine if the patient will die
 					if(myWorld.random.nextDouble() < myDeathLikelihood){
@@ -480,7 +480,7 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 			@Override
 			public double next(Steppable s, double time) {
 
-				Infection i = (Infection) s;
+				CoronavirusInfection i = (CoronavirusInfection) s;
 				if (i.getHost().isDeadFromOther()) {
 					return Double.MAX_VALUE;
 				}
@@ -517,7 +517,7 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 
 			@Override
 			public double next(Steppable s, double time) {
-				Infection i = (Infection) s;
+				CoronavirusInfection i = (CoronavirusInfection) s;
 				// remove covid from person object
 				i.getHost().removeCovid();
 				i.getHost().die("covid");
