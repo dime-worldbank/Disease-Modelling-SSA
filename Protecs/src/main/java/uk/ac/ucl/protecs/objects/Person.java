@@ -680,9 +680,12 @@ public class Person extends MobileAgent {
 	public void setCovidSpuriousSymptomRemovalDate(int time) {
 		this.timeToRemoveCovidSpuriousSymptoms = time;
 	}
+	public int getCovidSpuriousSymptomRemovalDate() {
+		return this.timeToRemoveCovidSpuriousSymptoms;
+	}
 	public boolean removeCovidSpuriousSymptomsToday() {
 		int time = (int)(myWorld.schedule.getTime() / Params.ticks_per_day);
-		return (this.timeToRemoveCovidSpuriousSymptoms == time);
+		return (this.timeToRemoveCovidSpuriousSymptoms > time);
 	}
 	
 }

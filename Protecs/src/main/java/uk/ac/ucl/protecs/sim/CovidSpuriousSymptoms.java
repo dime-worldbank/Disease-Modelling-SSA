@@ -25,29 +25,34 @@ public static Steppable manageSymptoms(WorldBankCovid19Sim world) {
 	}
 
 	public static void giveSymptoms(WorldBankCovid19Sim world, int time) {
-		List<Person> people_to_give_symptoms_to = filterForEligiblePeople(world, time);
-		System.out.println("Giving spurious symptoms to " + String.valueOf(people_to_give_symptoms_to.size()) + "people");
+		List<Person> people_to_give_symptoms_to = filterForEligiblePeople(world);
+		try {
 		for (Person p : people_to_give_symptoms_to) {
 			setSymptomsInPerson(p, time, world);
           } 
-		
+		} catch (NullPointerException e) {
+			// No one is eligible for giving symptoms today
+		}
 	};
 	
 	public static void removeSymptoms(WorldBankCovid19Sim world, int time) {
-		List<Person> people_with_symptoms_to_remove = filterForSymptomsToRemove(world, time);
-		System.out.println("Removing spurious symptoms from " + String.valueOf(people_with_symptoms_to_remove.size()) + "people");
-
+		List<Person> people_with_symptoms_to_remove = filterForSymptomsToRemove(world);
+		try {
             for (Person p : people_with_symptoms_to_remove) {
             	removeSymptomsInPerson(p);
               } 
+		} catch (NullPointerException e) {
+			// No one is eligible for symptom removal today
+		}
+		
 	};
 
 	
-	public static List<Person>  filterForEligiblePeople(WorldBankCovid19Sim world, int time){
+	public static List<Person>  filterForEligiblePeople(WorldBankCovid19Sim world){
 		List<Person> people_developing_symptoms = Collections.emptyList();
 		try {
 
-		Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, List<Person>>>>> has_non_asymptomatic_covid = (Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, List<Person>>>>>) world.agents.stream().collect(
+		Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, List<Person>>>>>> has_non_asymptomatic_covid = (Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, List<Person>>>>>>) world.agents.stream().collect(
 	              Collectors.groupingBy(
 	                Person::isAlive, 
 	                Collectors.groupingBy(
@@ -56,23 +61,26 @@ public static Steppable manageSymptoms(WorldBankCovid19Sim world) {
 	                    Person::hasSevere, 
 	                    Collectors.groupingBy(
 	                      Person::hasCritical, 
+	                      Collectors.groupingBy(
+	                      	Person::hasCovidSpuriousSymptoms,
 	                      Collectors.toList()
 	                      )
+	                    )
 	                    )
 	                  )
 	                )
 	              );
 		
-		double number_people_with_symptoms_as_double = world.params.rate_of_spurious_symptoms * has_non_asymptomatic_covid.get(true).get(false).get(false).get(false).size();
+		double number_people_with_symptoms_as_double = world.params.rate_of_spurious_symptoms * has_non_asymptomatic_covid.get(true).get(false).get(false).get(false).get(false).size();
         int number_people_with_symptoms = (int)number_people_with_symptoms_as_double;          
         // Pick a selection of the people eligible for developing spurious symptoms
-        people_developing_symptoms = SpuriousSymptoms.pickRandom(world, has_non_asymptomatic_covid.get(true).get(false).get(false).get(false), number_people_with_symptoms);
+        people_developing_symptoms = SpuriousSymptoms.pickRandom(world, has_non_asymptomatic_covid.get(true).get(false).get(false).get(false).get(false), number_people_with_symptoms);
 		}
 		catch (Exception e) {people_developing_symptoms = Collections.emptyList();}
 		return people_developing_symptoms;
 		};
 		
-	public static List<Person>  filterForSymptomsToRemove(WorldBankCovid19Sim world, int time){
+	public static List<Person>  filterForSymptomsToRemove(WorldBankCovid19Sim world){
 		List<Person> people_with_symptoms_to_remove = Collections.emptyList();
 		try {
 			
@@ -104,6 +112,6 @@ public static Steppable manageSymptoms(WorldBankCovid19Sim world) {
 	public static void removeSymptomsInPerson(Person p) {
 		p.removeCovidSpuriousSymptoms();
 		p.removeEligibilityForCovidTesting();
-		p.setCovidSpuriousSymptomRemovalDate(Integer.MIN_VALUE);
+		p.setCovidSpuriousSymptomRemovalDate(Integer.MAX_VALUE);
 	};
 }

@@ -24,12 +24,12 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void TestSusceptibleEndpoints() {
 		// create a simulation and start
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/test/resources/InfectiousBehaviourTestParams.txt", false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/test/resources/InfectiousBehaviourTestParams.txt", false, false);
 		sim.start();
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
 		// seed a number of the specific node to the run
-		SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("susceptible"));
+		helperFunctions.SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("susceptible"));
 		// Set up a duration to run the simulation
 		int numDays = 100; 
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
@@ -42,7 +42,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void TestExposedEndpoints() {
 		// create a simulation and start
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/test/resources/InfectiousBehaviourTestParams.txt", false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/test/resources/InfectiousBehaviourTestParams.txt", false, false);
 		sim.start();
 		// Ensure that no one disease progression occurs beyond the exposed stage
 		HaltDiseaseProgressionAtStage(sim, "Presymptomatic");
@@ -51,7 +51,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
 		// seed a number of the specific node to the run
-		SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("exposed"));
+		helperFunctions.SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("exposed"));
 		// Set up a duration to run the simulation
 		int numDays = 100; 
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
@@ -64,13 +64,13 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void TestPresymptomaticEndpoints() {
 		// create a simulation and start
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/test/resources/InfectiousBehaviourTestParams.txt", false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/test/resources/InfectiousBehaviourTestParams.txt", false, false);
 		sim.start();
 		
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
 		// Make everyone have a critical infection
-		SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("presymptomatic"));
+		helperFunctions.SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("presymptomatic"));
 		// Make Sure no one's disease progresses beyond a Mild infection
 		HaltDiseaseProgressionAtStage(sim, "Mild");
 		// Set up a duration to run the simulation
@@ -87,12 +87,12 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void TestAsymptomaticEndpoints() {
 		// create a simulation and start
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/test/resources/InfectiousBehaviourTestParams.txt", false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/test/resources/InfectiousBehaviourTestParams.txt", false, false);
 		sim.start();
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
 		// Make everyone have a critical infection
-		SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("asymptomatic"));
+		helperFunctions.SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("asymptomatic"));
 		// Set up a duration to run the simulation
 		int numDays = 100; 
 		// Run the simulation and record the infectious behaviour nodes activated in this simulation
@@ -106,13 +106,13 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void TestMildEndpoints() {
 		// create a simulation and start
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/test/resources/InfectiousBehaviourTestParams.txt", false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/test/resources/InfectiousBehaviourTestParams.txt", false, false);
 		sim.start();
 		
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
 		// Make everyone have a critical infection
-		SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("mild"));
+		helperFunctions.SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("mild"));
 		// Ensure that no one disease progression occurs beyond the severe stage
 		HaltDiseaseProgressionAtStage(sim, "Severe");
 		// Set up a duration to run the simulation
@@ -127,13 +127,13 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void TestSevereEndpoints() {
 		// create a simulation and start
-		WorldBankCovid19Sim sim =helperFunctions.CreateDummySimWithRandomSeed("src/test/resources/InfectiousBehaviourTestParams.txt", false);
+		WorldBankCovid19Sim sim =helperFunctions.CreateDummySimWithRandomSeed("src/test/resources/InfectiousBehaviourTestParams.txt", false, false);
 		sim.start();
 		
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
 		// Make everyone have a critical infection
-		SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("severe"));
+		helperFunctions.SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("severe"));
 		// Ensure that no one disease progression occurs beyond the critical stage
 		HaltDiseaseProgressionAtStage(sim, "Critical");
 		// Set up a duration to run the simulation
@@ -148,13 +148,13 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void TestCriticalEndpoints() {
 		// create a simulation and start
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/test/resources/InfectiousBehaviourTestParams.txt", false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/test/resources/InfectiousBehaviourTestParams.txt", false, false);
 		sim.start();
 		
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
 		// Make everyone have a critical infection
-		SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("critical"));
+		helperFunctions.SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("critical"));
 		// Set up a duration to run the simulation
 		int numDays = 100; 
 		// Run the simulation and record the infectious behaviour nodes activated in this simulation
@@ -167,12 +167,12 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void TestRecoveredEndpoints() {
 		// create a simulation and start
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/test/resources/InfectiousBehaviourTestParams.txt", false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/test/resources/InfectiousBehaviourTestParams.txt", false, false);
 		sim.start();
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
 		// seed a number of the specific node to the run
-		SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("recovered"));
+		helperFunctions.SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("recovered"));
 		// Set up a duration to run the simulation
 		int numDays = 100; 
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
@@ -185,12 +185,12 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void TestDeadEndpoints() {
 		// create a simulation and start
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/test/resources/InfectiousBehaviourTestParams.txt", false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/test/resources/InfectiousBehaviourTestParams.txt", false, false);
 		sim.start();
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
 		// seed a number of the specific node to the run
-		SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("dead"));
+		helperFunctions.SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("dead"));
 		// Set up a duration to run the simulation
 		int numDays = 100; 
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
@@ -248,19 +248,6 @@ public class CoronavirusInfectiousBehaviourTesting {
 			System.out.print("No parameters changed");
 		}
 		
-	}
-	
-	private void SetFractionInfectionsWithCertainNode(double fraction, WorldBankCovid19Sim world, BehaviourNode Node) {
-		// Make this function assigns an infectious behaviour node of your choice to a certain percentage of the population
-		for (Person p: world.agents) {
-			double rand = world.random.nextDouble();
-			if (!p.hasCovid() && rand <= fraction) {
-				CoronavirusInfection inf = new CoronavirusInfection(p, null, world.infectiousFramework.getHomeNode(), world);
-				inf.setBehaviourNode(Node);
-				// kick off the infectious behaviour framework
-				inf.step(world);
-			}
-		}
 	}
 	
 	private void StopRecoveryHappening(WorldBankCovid19Sim world) {
