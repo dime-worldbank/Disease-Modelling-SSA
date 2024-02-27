@@ -6,14 +6,13 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 import java.util.stream.Collectors;
 
-import uk.ac.ucl.protecs.objects.diseases.*;
 import uk.ac.ucl.protecs.objects.Person;
 import uk.ac.ucl.protecs.sim.Params;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.swise.behaviours.BehaviourNode;
+import uk.ac.ucl.protecs.helperFunctions.*;
 
 public class CoronavirusInfectiousBehaviourTesting {
 	// ==================================== Testing ==================================================================
@@ -24,12 +23,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 	
 	@Test
 	public void TestSusceptibleEndpoints() {
-		// create a random seed and record in case test fails
-		Random random = new Random();
-		int seed = random.nextInt(1000000);
-		System.out.println("Seed for this run = " + String.valueOf(seed));
 		// create a simulation and start
-		WorldBankCovid19Sim sim = CreateDummySim(seed, "src/test/resources/InfectiousBehaviourTestParams.txt", false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/test/resources/InfectiousBehaviourTestParams.txt", false);
 		sim.start();
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
@@ -46,12 +41,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 	}
 	@Test
 	public void TestExposedEndpoints() {
-		// create a random seed and record in case test fails
-		Random random = new Random();
-		int seed = random.nextInt(1000000);
-		System.out.println("Seed for this run = " + String.valueOf(seed));
 		// create a simulation and start
-		WorldBankCovid19Sim sim = CreateDummySim(seed, "src/test/resources/InfectiousBehaviourTestParams.txt", false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/test/resources/InfectiousBehaviourTestParams.txt", false);
 		sim.start();
 		// Ensure that no one disease progression occurs beyond the exposed stage
 		HaltDiseaseProgressionAtStage(sim, "Presymptomatic");
@@ -72,12 +63,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 	}
 	@Test
 	public void TestPresymptomaticEndpoints() {
-		// create a random seed and record in case test fails
-		Random random = new Random();
-		int seed = random.nextInt(1000000);
-		System.out.println("Seed for this run = " + String.valueOf(seed));
 		// create a simulation and start
-		WorldBankCovid19Sim sim = CreateDummySim(seed, "src/test/resources/InfectiousBehaviourTestParams.txt", false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/test/resources/InfectiousBehaviourTestParams.txt", false);
 		sim.start();
 		
 		// Make sure there are no new infections
@@ -99,12 +86,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		}
 	@Test
 	public void TestAsymptomaticEndpoints() {
-		// create a random seed and record in case test fails
-		Random random = new Random();
-		int seed = random.nextInt(1000000);
-		System.out.println("Seed for this run = " + String.valueOf(seed));
 		// create a simulation and start
-		WorldBankCovid19Sim sim = CreateDummySim(seed, "src/test/resources/InfectiousBehaviourTestParams.txt", false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/test/resources/InfectiousBehaviourTestParams.txt", false);
 		sim.start();
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
@@ -122,12 +105,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 	
 	@Test
 	public void TestMildEndpoints() {
-		// create a random seed and record in case test fails
-		Random random = new Random();
-		int seed = random.nextInt(1000000);
-		System.out.println("Seed for this run = " + String.valueOf(seed));
 		// create a simulation and start
-		WorldBankCovid19Sim sim = CreateDummySim(seed, "src/test/resources/InfectiousBehaviourTestParams.txt", false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/test/resources/InfectiousBehaviourTestParams.txt", false);
 		sim.start();
 		
 		// Make sure there are no new infections
@@ -147,12 +126,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		}
 	@Test
 	public void TestSevereEndpoints() {
-		// create a random seed and record in case test fails
-		Random random = new Random();
-		int seed = random.nextInt(1000000);
-		System.out.println("Seed for this run = " + String.valueOf(seed));
 		// create a simulation and start
-		WorldBankCovid19Sim sim = CreateDummySim(seed, "src/test/resources/InfectiousBehaviourTestParams.txt", false);
+		WorldBankCovid19Sim sim =helperFunctions.CreateDummySimWithRandomSeed("src/test/resources/InfectiousBehaviourTestParams.txt", false);
 		sim.start();
 		
 		// Make sure there are no new infections
@@ -172,12 +147,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		}
 	@Test
 	public void TestCriticalEndpoints() {
-		// create a random seed and record in case test fails
-		Random random = new Random();
-		int seed = random.nextInt(1000000);
-		System.out.println("Seed for this run = " + String.valueOf(seed));
 		// create a simulation and start
-		WorldBankCovid19Sim sim = CreateDummySim(seed, "src/test/resources/InfectiousBehaviourTestParams.txt", false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/test/resources/InfectiousBehaviourTestParams.txt", false);
 		sim.start();
 		
 		// Make sure there are no new infections
@@ -195,12 +166,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		}
 	@Test
 	public void TestRecoveredEndpoints() {
-		// create a random seed and record in case test fails
-		Random random = new Random();
-		int seed = random.nextInt(1000000);
-		System.out.println("Seed for this run = " + String.valueOf(seed));
 		// create a simulation and start
-		WorldBankCovid19Sim sim = CreateDummySim(seed, "src/test/resources/InfectiousBehaviourTestParams.txt", false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/test/resources/InfectiousBehaviourTestParams.txt", false);
 		sim.start();
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
@@ -217,12 +184,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 	}
 	@Test
 	public void TestDeadEndpoints() {
-		// create a random seed and record in case test fails
-		Random random = new Random();
-		int seed = random.nextInt(1000000);
-		System.out.println("Seed for this run = " + String.valueOf(seed));
 		// create a simulation and start
-		WorldBankCovid19Sim sim = CreateDummySim(seed, "src/test/resources/InfectiousBehaviourTestParams.txt", false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/test/resources/InfectiousBehaviourTestParams.txt", false);
 		sim.start();
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
@@ -240,12 +203,6 @@ public class CoronavirusInfectiousBehaviourTesting {
 	
 	
     // ================================ Helper functions ==================================================
-	private WorldBankCovid19Sim CreateDummySim(long seed, String paramsFilename, boolean demography) {
-		// creates the simulation object
-		Params p = new Params(paramsFilename, false);
-		WorldBankCovid19Sim myWorld = new WorldBankCovid19Sim(seed, p, "", demography);
-		return myWorld;
-	}
 	
 	private void HaltDiseaseProgressionAtStage(WorldBankCovid19Sim world, String stage) {
 		// You present this function with a stage in the disease which you want to halt the infection, then this
