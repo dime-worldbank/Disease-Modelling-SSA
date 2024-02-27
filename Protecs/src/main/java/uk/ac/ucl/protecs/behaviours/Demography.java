@@ -45,12 +45,15 @@ public class Demography {
 		// steps taken
 		@Override
 		public void step(SimState arg0) {
+			if(this.target.isAlive()) {
 			if (this.tickToCauseMortality < Integer.MAX_VALUE) {
 				causeDeath();
 			}
 			else {
+				
 				determineMortality(arg0);
-			}			
+			}		
+			}
 		}
 		// functions used
 		private void causeDeath() {
@@ -123,25 +126,28 @@ public class Demography {
 		public void step(SimState arg0) {
 			// If a due date has been created cause a birth on this day
 			if (this.tickToCauseBirth < Integer.MAX_VALUE) {
-				createBirth(arg0);
-				postBirthRescheduling(arg0);
+				createBirth(arg0, target.isAlive());
+				postBirthRescheduling(arg0, target.isAlive());
 			}
 			else {
-				determineGivingBirth(arg0);
+				determineGivingBirth(arg0, target.isAlive());
 				
 			}
 			
 		}
-		private void postBirthRescheduling(SimState arg0) {
+		private void postBirthRescheduling(SimState arg0, boolean isAlive) {
+			if (isAlive) {
 			// reset tickToCauseBirth so this pathway can be used again
 			this.tickToCauseBirth = Integer.MAX_VALUE;
 			// reschedule the check to occur next year
-			int currentYear = (int) (arg0.schedule.getTime() / world.params.ticks_per_day);
-			currentYear = currentYear % 365;
-			int nextYear = currentYear + 1;
+			int currentTime = (int) (arg0.schedule.getTime() / world.params.ticks_per_day);
+			int currentYear = (int) Math.floor(currentTime / 365);
+			int nextYear = (currentYear + 1) * 365;
 			arg0.schedule.scheduleOnce(nextYear * world.params.ticks_per_day, this);
 		}
-		private void determineGivingBirth(SimState arg0) {
+		}
+		private void determineGivingBirth(SimState arg0, boolean isAlive) {
+			if (isAlive) {
 			double myPregnancyLikelihood = world.params.getLikelihoodByAge(
 					world.params.prob_birth_by_age, world.params.birth_age_params, target.getAge());
 			String nextStep = "noBirth";
@@ -170,11 +176,12 @@ public class Demography {
 				System.out.println("Giving birth not determined");
 				}
 			}
-
+		}
 			
 		}
 		
-		private void createBirth(SimState arg0) {
+		private void createBirth(SimState arg0, boolean isAlive) {
+			if (isAlive) {
 			int time = (int) (arg0.schedule.getTime() / world.params.ticks_per_day);
 			target.gaveBirth(time);
 			// create attributed for the newborn, id, age, sex, occupation status (lol), their 
@@ -209,6 +216,7 @@ public class Demography {
 			baby.transferTo(babyHousehold);
 			// This is a new birth that hasn't been recorded
 			target.removeBirthLogged();
+		}
 		}
 		
 	}

@@ -109,7 +109,6 @@ public class Logging {
 			else {
 				age_dependent_birth_rate += String.valueOf(time);
 			}
-			age_dependent_birth_rate += t;
 			for (int x = 0; x <female_pregnancy_ages.size(); x++){
 				double births_in_age = female_pregnancy_ages.get(x);
 				double female_alive_in_age = female_alive_ages.get(x);
