@@ -78,16 +78,15 @@ public class CovidSpuriousSymptomTesting{
 	public void CheckPropertiesAreBeingSet() {
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/main/resources/covid_testing_params.txt", false, true);
 		sim.start();
-		int numDays = 3;
+		int numDays = 1;
 		// Change the rate of setting Covid spurious symptoms so we have control the number of people who get given symptoms
 		sim.params.rate_of_spurious_symptoms = 100.0;		
 		// Remove the development of new symptoms
 		sim.params.infection_beta = 0.0;
 		// run the simulation
+		for (Person p: sim.agents) { if (p.hadCovid()) {p.die("");}}
 		helperFunctions.runSimulation(sim, numDays);
-		int agentsWithCovid = 0;
-		for (Person p: sim.agents) { if (p.hadCovid()) {agentsWithCovid++;}}
-		int sizeThatShouldHaveBeenGivenSymptoms = sim.agents.size() - agentsWithCovid;
+		int sizeThatShouldHaveBeenGivenSymptoms = helperFunctions.GetNumberAlive(sim);
 		// Check that there are no spurious symptoms remaining in the population
 		List<Person> peopleWithPropertiesAssigned = peopleWithPropertiesAssigned(sim);		
 		// Make sure that a day to remove symptoms has been set

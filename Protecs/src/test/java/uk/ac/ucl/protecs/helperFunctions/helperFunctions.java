@@ -52,4 +52,10 @@ public class helperFunctions {
 		}
 	}
 	
+	public static int GetNumberAlive(WorldBankCovid19Sim world) {
+		int counter = 0;
+		for (Person p: world.agents) {if (p.isAlive()) {counter++;}}
+		return counter;
+	}
+	
 }
