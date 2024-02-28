@@ -16,7 +16,7 @@ public class Demography {
 	public class Aging implements Steppable {
 
 		Person target;
-		int ticksUntilNextBirthday = 365;
+		int ticksUntilNextBirthday;
 		
 		public Aging(Person p, int ticksPerDay) {
 			this.target = p;

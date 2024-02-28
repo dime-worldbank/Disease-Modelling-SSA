@@ -5,10 +5,30 @@ import uk.ac.ucl.protecs.helperFunctions.*;
 import org.junit.Test;
 
 import uk.ac.ucl.protecs.objects.Person;
+
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class CovidTestingTesting {
+	
+	@Test
+	public void CheckTestsOnlyHappenForThoseWithSymptomsOfCovid() {
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/main/resources/covid_testing_params.txt", false, true);
+		sim.start();
+		int numDays = 5;
+		helperFunctions.runSimulation(sim, numDays);
+		List<Person> hasBeenTested = peopleWhoHaveBeenTested(sim);
+		int numWithSpurious = 0;
+		int numWithSymptomaticCovid = 0;
+		for (Person p: hasBeenTested) {
+			if (p.hasCovidSpuriousSymptoms()) {numWithSpurious++;}
+			if (p.hasCovid() & !p.hasAsymptCovid()) {numWithSymptomaticCovid++;}
+		}
+		Assert.assertTrue(hasBeenTested.size() == numWithSpurious + numWithSymptomaticCovid);
+		
+	}
+	
 
 //	@Test
 //	public void CheckThereAreNoDifferencesInCaseNumbers() {
@@ -34,5 +54,13 @@ public class CovidTestingTesting {
 //		Assert.assertTrue(numWithoutTesting == numWithTesting);
 //
 //	}
-	
+	public List<Person> peopleWhoHaveBeenTested(WorldBankCovid19Sim world){
+		Map<Boolean, List<Person>> propertiesChecked = (Map<Boolean,List<Person>>) world.agents.stream().collect(
+	            Collectors.groupingBy(
+	              Person::hasBeenTestedForCovid,
+	                    Collectors.toList()
+		            )
+	               );
+		return propertiesChecked.get(true);
+	}
 }
