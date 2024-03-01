@@ -58,7 +58,7 @@ public class Demography {
 		// functions used
 		private void causeDeath() {
 			if (target.isAlive()) {
-				target.die("");
+				target.die("<default>");
 				}
 		}
 
@@ -154,9 +154,6 @@ public class Demography {
 			if (arg0.random.nextDouble() <= myPregnancyLikelihood) {
 				nextStep = "Birth";
 				}
-			if (!target.isAlive()) {
-				nextStep = "noBirth";
-			}
 			switch (nextStep) {
 			// ------------------------------------------------------------------------------------------------------------
 			case "Birth":{
