@@ -9,7 +9,7 @@ public class SpuriousSymptomBehaviourFramework extends BehaviourFramework{
 
 	
 	WorldBankCovid19Sim myWorld;
-	BehaviourNode susceptibleNode = null, exposedNode = null;
+	BehaviourNode susceptibleNode = null, exposedNode = null, deadNode = null;
 	
 	// PARAMS to control development of disease
 	
@@ -24,7 +24,34 @@ public class SpuriousSymptomBehaviourFramework extends BehaviourFramework{
 
 			@Override
 			public double next(Steppable s, double time) {
-				return Double.MAX_VALUE;
+				// regulate the flare up of symptoms here
+				CoronavirusSpuriousSymptom symptom = (CoronavirusSpuriousSymptom) s;
+				// default next step of progression is no symptoms, check if they will develop symptoms this week
+				String nextStep = "noSymptoms";
+				if (myWorld.random.nextDouble() <= myWorld.params.rate_of_spurious_symptoms) {
+					nextStep = "causeSymptoms";
+				}
+				// need to check that those who died don't do anything, do this here
+				if (!symptom.host.isAlive()) {
+					nextStep = "hasDied";
+					}
+				// based on the next step string variable, choose the next thing to do for this person's spurious symptoms.
+				switch (nextStep) {
+				case "causeSymptoms":{
+					symptom.setBehaviourNode(exposedNode);
+					return myWorld.params.ticks_per_week;
+				}
+				case "hasDied":{
+					symptom.setBehaviourNode(deadNode);
+					return Double.MAX_VALUE;
+				}
+				case "noSymptoms":{
+					// don't check again for a week
+					return myWorld.params.ticks_per_week;
+				}
+				default:
+					return myWorld.params.ticks_per_week;
+				}
 			}
 
 			@Override
@@ -48,7 +75,8 @@ public class SpuriousSymptomBehaviourFramework extends BehaviourFramework{
 			public double next(Steppable s, double time) {
 				CoronavirusSpuriousSymptom symptom = (CoronavirusSpuriousSymptom) s;
 				// can't have COVID symptoms if you aren't alive
-				if (symptom.getHost().isDeadFromOther()) {
+				if (!symptom.getHost().isAlive()) {
+					symptom.setBehaviourNode(deadNode);
 					return Double.MAX_VALUE;
 				}
 				// Use switch statement to clearly create conditional actions based on the current state of this person's symptoms 
@@ -57,25 +85,24 @@ public class SpuriousSymptomBehaviourFramework extends BehaviourFramework{
 				if (symptom.timeRecovered == Double.MAX_VALUE) {
 					action = "initialSetUp";
 				}
-				if (time < symptom.timeRecovered) {
-					action = "maintainSymptoms";
-				}
 				if (time >= symptom.timeRecovered) {
 					action = "recover";
 				}
 				switch (action) {
 					case "initialSetUp":{
+						System.out.println("setting");
+						symptom.timeLastTriggered = time;
 						symptom.getHost().setCovidSpuriousSymptoms();
-						double timeUntilRecovered = symptom.timeCreated + 7.0;
+						double timeUntilRecovered = symptom.timeLastTriggered + myWorld.params.ticks_per_week;
 						symptom.timeRecovered = timeUntilRecovered;
-						return timeUntilRecovered;
-						}
-					case "maintainSymptoms":{
 						return 1;
-					}
+						}
 					case "recover":{
+						System.out.println("recovering");
 						symptom.setBehaviourNode(susceptibleNode);
 						symptom.getHost().removeCovidSpuriousSymptoms();
+						symptom.timeLastTriggered = Double.MAX_VALUE;
+						symptom.timeRecovered = Double.MAX_VALUE;
 						return Double.MAX_VALUE;
 					}
 					default:
@@ -91,6 +118,48 @@ public class SpuriousSymptomBehaviourFramework extends BehaviourFramework{
 			}
 			
 		};
+		deadNode = new BehaviourNode(){
+
+			@Override
+			public String getTitle() { return "dead"; }
+
+			@Override
+			public double next(Steppable s, double time) {
+				CoronavirusSpuriousSymptom symptom = (CoronavirusSpuriousSymptom) s;
+				// remove covid from person object
+				symptom.getHost().removeCovidSpuriousSymptoms();;								
+				return Double.MAX_VALUE; // no need to run ever again
+			}
+
+			@Override
+			public boolean isEndpoint() {
+				// TODO Auto-generated method stub
+				return true;
+			}
+			
+		};
+		}
+	
 		
-	} 
+		public BehaviourNode setNode(String behaviour) {
+			BehaviourNode toreturn;
+
+			switch (behaviour) {
+			case "susceptible":{
+				toreturn = susceptibleNode;
+				break;
+			}
+			case "exposed":{
+				toreturn = exposedNode;
+				break;
+			}
+			default:
+				System.out.println("No node requested");
+				toreturn = susceptibleNode;
+			}
+			return toreturn;
+
+		}
+		public BehaviourNode getStandardEntryPoint(){ return susceptibleNode; }
+
 }

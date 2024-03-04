@@ -10,7 +10,9 @@ import java.util.Random;
 import uk.ac.ucl.protecs.behaviours.*;
 import uk.ac.ucl.protecs.objects.*;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
+import uk.ac.ucl.protecs.objects.diseases.CoronavirusSpuriousSymptom;
 import uk.ac.ucl.protecs.objects.diseases.Infection;
+import uk.ac.ucl.protecs.objects.diseases.SpuriousSymptomBehaviourFramework;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusBehaviourFramework;
 import sim.engine.SimState;
 import sim.engine.Steppable;
@@ -21,6 +23,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public ArrayList <Person> agents;
 	public ArrayList <Household> households;
 	public ArrayList <Infection> infections;
+	public ArrayList <CoronavirusSpuriousSymptom> CovidSpuriousSymptoms;
 	public Random random;
 	
 	ArrayList <Location> districts;
@@ -29,6 +32,7 @@ public class WorldBankCovid19Sim extends SimState {
 	
 	public MovementBehaviourFramework movementFramework;
 	public CoronavirusBehaviourFramework infectiousFramework;
+	public SpuriousSymptomBehaviourFramework spuriousFramework;
 	public Params params;
 	public boolean lockedDown = false;
 	// create a variable to determine whether the model will cause additional births and deaths	
@@ -104,6 +108,7 @@ public class WorldBankCovid19Sim extends SimState {
 		// set up the behavioural framework
 		movementFramework = new MovementBehaviourFramework(this);
 		infectiousFramework = new CoronavirusBehaviourFramework(this);
+		spuriousFramework = new SpuriousSymptomBehaviourFramework(this);
 		
 		// load the population
 		load_population(params.dataDir + params.population_filename);
@@ -192,8 +197,15 @@ public class WorldBankCovid19Sim extends SimState {
 		schedule.scheduleRepeating(0, this.param_schedule_updating_locations, updateLocationLists);
 		
 		if (this.covidTesting) {
-			schedule.scheduleRepeating(CovidSpuriousSymptoms.manageSymptoms(this), this.param_schedule_COVID_SpuriousSymptoms, params.ticks_per_day);
-			schedule.scheduleRepeating(CovidTesting.Testing(this), this.param_schedule_COVID_Testing, params.ticks_per_day);
+			CovidSpuriousSymptoms = new ArrayList <CoronavirusSpuriousSymptom> ();
+			for (Person a: agents) {
+				// create spurious symptom objects
+				CoronavirusSpuriousSymptom CovSpuriousSymptoms = new CoronavirusSpuriousSymptom(a, this, 0);
+				// make the object do things
+				schedule.scheduleOnce(1, param_schedule_infecting, CovSpuriousSymptoms);
+			}
+//			schedule.scheduleRepeating(CovidSpuriousSymptoms.manageSymptoms(this), this.param_schedule_COVID_SpuriousSymptoms, params.ticks_per_day);
+//			schedule.scheduleRepeating(CovidTesting.Testing(this), this.param_schedule_COVID_Testing, params.ticks_per_day);
 			}
 		if (this.demography) {
 			Demography myDemography = new Demography();
@@ -412,14 +424,14 @@ public class WorldBankCovid19Sim extends SimState {
 	public static void main(String [] args){
 		
 		// default settings in the absence of commands!
-		int numDays = 7; // by default, one week
+		int numDays = 400; // by default, one week
 		double myBeta = .016;
 		long seed = 12345;
 		String outputFilename = "dailyReport_" + myBeta + "_" + numDays + "_" + seed + ".txt";
 		String infectionsOutputFilename = "infections_" + myBeta + "_" + numDays + "_" + seed + ".txt"; 
 		String paramsFilename = "src/main/resources/params.txt";
 		boolean demography = false;
-		boolean covidTesting = false;
+		boolean covidTesting = true;
 		// read in any extra settings from the command line
 		if(args.length < 0){
 			System.out.println("usage error");

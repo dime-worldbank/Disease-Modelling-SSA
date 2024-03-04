@@ -14,21 +14,28 @@ public class CoronavirusSpuriousSymptom implements Infection{
 	WorldBankCovid19Sim myWorld;
 	double timeCreated = Double.MAX_VALUE;
 	double timeRecovered = Double.MAX_VALUE;
+	double timeLastTriggered = Double.MAX_VALUE;
+	
 	
 	// behaviours
 	BehaviourNode currentBehaviourNode = null;
 	
-	public CoronavirusSpuriousSymptom(Person p, BehaviourNode initNode, WorldBankCovid19Sim sim) {
+	public CoronavirusSpuriousSymptom(Person p, WorldBankCovid19Sim sim, int time) {
 		this.host = p;
 		this.source = p;
 		this.infectedAtLocation = p.getLocation();
-		this.timeCreated = sim.schedule.getTime();
+		this.timeCreated = time;
+		this.myWorld = sim;
+		setBehaviourNode(sim.spuriousFramework.getStandardEntryPoint());
+		this.myWorld.CovidSpuriousSymptoms.add(this);
+
 	}
 
 	@Override
 	public void step(SimState arg0) {
-		// TODO Auto-generated method stub
-		
+		double time = myWorld.schedule.getTime(); // find the current time
+		double myDelta = this.currentBehaviourNode.next(this, time);
+		arg0.schedule.scheduleOnce(time + myDelta, myWorld.param_schedule_infecting, this);
 	}
 
 	@Override
@@ -76,8 +83,7 @@ public class CoronavirusSpuriousSymptom implements Infection{
 
 	@Override
 	public String writeOut() {
-		// TODO Auto-generated method stub
-		return null;
+		return "P_" + String.valueOf(this.host.getID()) + " Inf at: " + String.valueOf(this.infectedAtLocation) + " created at: " + String.valueOf(this.timeCreated) + " Doing: " + String.valueOf(this.currentBehaviourNode.getTitle());
 	}
 	
 }
