@@ -209,7 +209,7 @@ public class WorldBankCovid19Sim extends SimState {
 			}
 			Logging logger = new Logging();
 			Logging.BirthRateReporter birthRateLog = logger.new BirthRateReporter(this);
-			schedule.scheduleOnce(364 * params.ticks_per_day, this.param_schedule_reporting, birthRateLog);
+			schedule.scheduleOnce(params.ticks_per_year, this.param_schedule_reporting, birthRateLog);
 
 			
 		}
@@ -408,13 +408,13 @@ public class WorldBankCovid19Sim extends SimState {
 	public static void main(String [] args){
 		
 		// default settings in the absence of commands!
-		int numDays = 7; // by default, one week
+		int numDays = 400; // by default, one week
 		double myBeta = .016;
 		long seed = 12345;
 		String outputFilename = "dailyReport_" + myBeta + "_" + numDays + "_" + seed + ".txt";
 		String infectionsOutputFilename = "infections_" + myBeta + "_" + numDays + "_" + seed + ".txt"; 
 		String paramsFilename = "src/main/resources/params.txt";
-		boolean demography = false;
+		boolean demography = true;
 		// read in any extra settings from the command line
 		if(args.length < 0){
 			System.out.println("usage error");
