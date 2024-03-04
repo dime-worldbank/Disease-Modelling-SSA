@@ -1,8 +1,5 @@
 package uk.ac.ucl.protecs.sim;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-
 public class BulkRun {
 	
 	public static void main(String [] args) {

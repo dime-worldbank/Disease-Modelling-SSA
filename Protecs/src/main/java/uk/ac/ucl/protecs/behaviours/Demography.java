@@ -8,7 +8,6 @@ import sim.engine.Steppable;
 import uk.ac.ucl.protecs.objects.Household;
 import uk.ac.ucl.protecs.objects.Location;
 import uk.ac.ucl.protecs.objects.Person;
-import uk.ac.ucl.protecs.sim.Params;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 
 public class Demography {

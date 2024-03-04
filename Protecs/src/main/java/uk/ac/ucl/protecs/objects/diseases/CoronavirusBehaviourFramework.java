@@ -2,7 +2,6 @@ package uk.ac.ucl.protecs.objects.diseases;
 
 
 
-import uk.ac.ucl.protecs.behaviours.*;
 import uk.ac.ucl.protecs.objects.*;
 import uk.ac.ucl.protecs.sim.*;
 import sim.engine.Steppable;

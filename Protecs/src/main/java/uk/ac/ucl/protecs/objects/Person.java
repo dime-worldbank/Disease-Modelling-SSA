@@ -3,24 +3,13 @@ package uk.ac.ucl.protecs.objects;
 import uk.ac.ucl.protecs.sim.Params;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import sim.engine.SimState;
-import sim.engine.Steppable;
 import uk.ac.ucl.swise.agents.MobileAgent;
 import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.stream.Stream;
 
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-
-import uk.ac.ucl.protecs.behaviours.MovementBehaviourFramework;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.objects.diseases.Infection;
 
