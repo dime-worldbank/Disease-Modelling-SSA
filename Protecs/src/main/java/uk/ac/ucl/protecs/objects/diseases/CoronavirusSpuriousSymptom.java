@@ -20,14 +20,14 @@ public class CoronavirusSpuriousSymptom implements Infection{
 	// behaviours
 	BehaviourNode currentBehaviourNode = null;
 	
-	public CoronavirusSpuriousSymptom(Person p, WorldBankCovid19Sim sim, int time) {
+	public CoronavirusSpuriousSymptom(Person p, WorldBankCovid19Sim sim, BehaviourNode initNode, int time) {
 		this.host = p;
 		this.source = p;
 		this.infectedAtLocation = p.getLocation();
+		this.currentBehaviourNode = initNode;
 		this.timeCreated = time;
 		this.myWorld = sim;
-		setBehaviourNode(sim.spuriousFramework.getStandardEntryPoint());
-		this.myWorld.CovidSpuriousSymptoms.add(this);
+		this.myWorld.CovidSpuriousSymptomsList.add(this);
 
 	}
 

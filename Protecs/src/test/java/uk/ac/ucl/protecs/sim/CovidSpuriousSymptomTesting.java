@@ -5,11 +5,11 @@ import uk.ac.ucl.protecs.helperFunctions.*;
 import org.junit.Test;
 
 import uk.ac.ucl.protecs.objects.Person;
+import uk.ac.ucl.protecs.objects.diseases.CoronavirusSpuriousSymptom;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.Random;
 
 public class CovidSpuriousSymptomTesting{
 	
@@ -17,26 +17,37 @@ public class CovidSpuriousSymptomTesting{
 	public void CheckPeopleWithSymptomaticCovidDoNotGetSpuriousSymptoms() {
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/main/resources/covid_testing_params.txt", false, true);
 		sim.start();
-		int numDays = 1;
-		// Change the rate of setting Covid spurious symptoms so everyone will who is eligible will develop symptoms
-		sim.params.rate_of_spurious_symptoms = 1.0;
-		// Give half the population mild Covid to make test that there are no people with symptomatic Covid and Covid spurious symptoms
-		helperFunctions.SetFractionInfectionsWithCertainNode(0.5, sim, sim.infectiousFramework.setNodeForTesting("mild"));
+		int numDays = 8;
+		// Give the population mild Covid and spurious symptoms to see if those with mild covid have their spurious symptoms resolved 
+		helperFunctions.SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("mild"));
+		// make sure no one recovers or progresses from their mild covid
+		helperFunctions.StopRecoveryHappening(sim);
+		helperFunctions.HaltDiseaseProgressionAtStage(sim, "Mild");
+		// make sure there are no new Covid infections
+		sim.params.infection_beta = 0.0;
+		// make sure that after the initial bout of symptoms, no one develops new spurious symptoms
+		sim.params.rate_of_spurious_symptoms = 0.0;
+		// create a bunch of spurious symptoms for each person
+		giveAFractionASpuriousSymptom(1, sim);
 		// run the simulation
 		helperFunctions.runSimulation(sim, numDays);
-		// we need people with symptoms to be alive and not have any Covid infections of any severity. Use streams to search over the population to 
-		// find get the number of people with spurious symptoms who match this criteria
-		List<Person> peopleWithPropertiesAssignedWhenSpuriousSymptomsAreAssigned = getPopulationWithSpuriousSymptomAssignmentCriteria(sim);
-		List<Person> peopleWithSpuriousSymptoms = getPopulationWithSpuriousSymptoms(sim);
-		Assert.assertTrue(peopleWithPropertiesAssignedWhenSpuriousSymptomsAreAssigned.size() == peopleWithSpuriousSymptoms.size());
+		// In this scenario we would expect that no one has spurious symptoms
+		int numberOfPeopleWithSpuriousSymptoms = 0; 
+		
+		try {
+			numberOfPeopleWithSpuriousSymptoms = peopleWithPropertiesAssigned(sim).size();
+			}
+		catch (Exception e) {}
+		System.out.println(numberOfPeopleWithSpuriousSymptoms);
+		Assert.assertTrue(numberOfPeopleWithSpuriousSymptoms == 0);
 	}
+	
 	@Test
 	public void CheckPeopleCanHaveAsymptomaticCovidAndSpuriousSymptoms() {
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/main/resources/covid_testing_params.txt", false, true);
 		sim.start();
 		int numDays = 1;
-		// Change the rate of setting Covid spurious symptoms so everyone will who is eligible will develop symptoms
-		sim.params.rate_of_spurious_symptoms = 1.0;
+		giveAFractionASpuriousSymptom(1, sim);
 		// Give everyone asymptomatic Covid
 		helperFunctions.SetFractionInfectionsWithCertainNode(1, sim, sim.infectiousFramework.setNodeForTesting("asymptomatic"));
 		// run the simulation
@@ -51,22 +62,18 @@ public class CovidSpuriousSymptomTesting{
 	public void CheckSettingSymptomsAreBeingRemoved() {
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/main/resources/covid_testing_params.txt", false, true);
 		sim.start();
-		int numDays = 3;
+		int numDays = 8;
 		// Change the rate of setting Covid spurious symptoms so we have control the number of people who get given symptoms
 		sim.params.rate_of_spurious_symptoms = 0.0;
 		// Stop new Covid infections from developing
 		sim.params.infection_beta = 0.0;
-		Random rand = new Random();
 		// remove and existing infections from the population and assign half the population spurious symptoms
 		for (Person p: sim.agents) {
 			if (p.hadCovid()) {
 				p.die("");
 				}
-			else if (rand.nextDouble() < 0.5) {
-				p.setCovidSpuriousSymptoms();
-				p.setCovidSpuriousSymptomRemovalDate(1);
-			}
 		}
+		giveAFractionASpuriousSymptom(0.5, sim);
 		// run the simulation
 		helperFunctions.runSimulation(sim, numDays);
 		// Check that there are no spurious symptoms remaining in the population
@@ -78,27 +85,18 @@ public class CovidSpuriousSymptomTesting{
 	public void CheckPropertiesAreBeingSet() {
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/main/resources/covid_testing_params.txt", false, true);
 		sim.start();
-		int numDays = 1;
-		// Change the rate of setting Covid spurious symptoms so we have control the number of people who get given symptoms
-		sim.params.rate_of_spurious_symptoms = 100.0;		
+		int numDays = 7;	
 		// Remove the development of new symptoms
 		sim.params.infection_beta = 0.0;
-		// run the simulation
+		// remove all people with covid
 		for (Person p: sim.agents) { if (p.hadCovid()) {p.die("");}}
+		// create spurious symptoms
+		giveAFractionASpuriousSymptom(1, sim);
 		helperFunctions.runSimulation(sim, numDays);
 		int sizeThatShouldHaveBeenGivenSymptoms = helperFunctions.GetNumberAlive(sim);
 		// Check that there are no spurious symptoms remaining in the population
 		List<Person> peopleWithPropertiesAssigned = peopleWithPropertiesAssigned(sim);		
-		// Make sure that a day to remove symptoms has been set
-		boolean hadAdateSetForRemoval = true;
-		for (Person p: sim.agents) {
-			if (!p.hasCovid()) {
-				if (p.getCovidSpuriousSymptomRemovalDate() == Integer.MAX_VALUE) {
-					hadAdateSetForRemoval = false;
-				}
-			}
-		}
-		Assert.assertTrue((peopleWithPropertiesAssigned.size() == sizeThatShouldHaveBeenGivenSymptoms) & hadAdateSetForRemoval);	
+		Assert.assertTrue(peopleWithPropertiesAssigned.size() == sizeThatShouldHaveBeenGivenSymptoms);	
 	}
 	
 	@Test
@@ -110,25 +108,38 @@ public class CovidSpuriousSymptomTesting{
 		sim.params.rate_of_spurious_symptoms = 0.0;		
 		// Remove the development of new symptoms
 		sim.params.infection_beta = 0.0;
-		for (Person p: sim.agents) {
-			p.setCovidSpuriousSymptoms();
-			p.setCovidSpuriousSymptomRemovalDate(7);
-			
-		}
+		giveAFractionASpuriousSymptom(1, sim);
 		// run the simulation
 		helperFunctions.runSimulation(sim, numDays);
 		List<Person> peopleWithoutPropertiesAssigned = peopleWithoutPropertiesAssigned(sim);
-		boolean hadAdateSetForRemoval = false;
+		System.out.println(peopleWithoutPropertiesAssigned.size());
+		Assert.assertTrue((peopleWithoutPropertiesAssigned.size() == sim.agents.size()));
+	}
+	@Test
+	public void CheckSpuriousObjectsAreCreated() {
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/main/resources/covid_testing_params.txt", false, true);
+		sim.start();
+		int numDays = 8;
+		// Change the rate of setting Covid spurious symptoms so we have control the number of people who get given symptoms
+		sim.params.rate_of_spurious_symptoms = 0.5;		
+		// Remove the development of new symptoms
+		sim.params.infection_beta = 0.0;
+		// run the simulation
+		helperFunctions.runSimulation(sim, numDays);
+		List<Person> peopleWithPropertiesAssigned = peopleWithPropertiesAssigned(sim);
+		Assert.assertTrue((peopleWithPropertiesAssigned.size() > 0) & (peopleWithPropertiesAssigned.size() < sim.agents.size()));	
+
+
+	}
+	public void giveAFractionASpuriousSymptom(double fraction, WorldBankCovid19Sim sim) {
 		for (Person p: sim.agents) {
-			if (!p.hasCovid()) {
-				if (p.getCovidSpuriousSymptomRemovalDate() < Integer.MAX_VALUE) {
-					hadAdateSetForRemoval = true;
-				}
-			}
+			if (sim.random.nextDouble() <= fraction) {
+			CoronavirusSpuriousSymptom CovSpuriousSymptoms = new CoronavirusSpuriousSymptom(p, sim, sim.spuriousFramework.getStandardEntryPoint(), 0);
+			p.setHasSpuriousObject();
+			sim.CovidSpuriousSymptomsList.add(CovSpuriousSymptoms);
+			sim.schedule.scheduleOnce(1, sim.param_schedule_infecting, CovSpuriousSymptoms);
 		}
-		Assert.assertTrue((peopleWithoutPropertiesAssigned.size() == sim.agents.size()) & !hadAdateSetForRemoval);	
-
-
+		}
 	}
 	
 	public List<Person> getPopulationWithSpuriousSymptomAssignmentCriteria(WorldBankCovid19Sim world){

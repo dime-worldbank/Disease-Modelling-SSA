@@ -26,6 +26,7 @@ public class SpuriousSymptomBehaviourFramework extends BehaviourFramework{
 			public double next(Steppable s, double time) {
 				// regulate the flare up of symptoms here
 				CoronavirusSpuriousSymptom symptom = (CoronavirusSpuriousSymptom) s;
+				symptom.getHost().removeCovidSpuriousSymptoms();
 				// default next step of progression is no symptoms, check if they will develop symptoms this week
 				String nextStep = "noSymptoms";
 				if (myWorld.random.nextDouble() <= myWorld.params.rate_of_spurious_symptoms) {
@@ -35,6 +36,9 @@ public class SpuriousSymptomBehaviourFramework extends BehaviourFramework{
 				if (!symptom.host.isAlive()) {
 					nextStep = "hasDied";
 					}
+				if (symptom.host.hasSymptomaticCovid()) {
+					nextStep = "noSymptoms";
+				}
 				// based on the next step string variable, choose the next thing to do for this person's spurious symptoms.
 				switch (nextStep) {
 				case "causeSymptoms":{
@@ -79,6 +83,12 @@ public class SpuriousSymptomBehaviourFramework extends BehaviourFramework{
 					symptom.setBehaviourNode(deadNode);
 					return Double.MAX_VALUE;
 				}
+				// can't have spurious COVID symptoms if actually have covid
+				if (symptom.host.hasSymptomaticCovid()) {
+					symptom.setBehaviourNode(susceptibleNode);
+					symptom.getHost().removeCovidSpuriousSymptoms();
+					return 1;
+				}
 				// Use switch statement to clearly create conditional actions based on the current state of this person's symptoms 
 				String action = "";
 				// if this is there first time then they will have a time of creation and no recovery time set
@@ -90,20 +100,21 @@ public class SpuriousSymptomBehaviourFramework extends BehaviourFramework{
 				}
 				switch (action) {
 					case "initialSetUp":{
-						System.out.println("setting");
+						symptom.getHost().setHasSpuriousObject();
 						symptom.timeLastTriggered = time;
 						symptom.getHost().setCovidSpuriousSymptoms();
+						symptom.getHost().setEligibleForCovidTesting();
 						double timeUntilRecovered = symptom.timeLastTriggered + myWorld.params.ticks_per_week;
 						symptom.timeRecovered = timeUntilRecovered;
 						return 1;
 						}
 					case "recover":{
-						System.out.println("recovering");
-						symptom.setBehaviourNode(susceptibleNode);
 						symptom.getHost().removeCovidSpuriousSymptoms();
+						symptom.getHost().removeEligibilityForCovidTesting();
 						symptom.timeLastTriggered = Double.MAX_VALUE;
 						symptom.timeRecovered = Double.MAX_VALUE;
-						return Double.MAX_VALUE;
+						symptom.setBehaviourNode(susceptibleNode);
+						return 1;
 					}
 					default:
 						return 1;
@@ -127,7 +138,7 @@ public class SpuriousSymptomBehaviourFramework extends BehaviourFramework{
 			public double next(Steppable s, double time) {
 				CoronavirusSpuriousSymptom symptom = (CoronavirusSpuriousSymptom) s;
 				// remove covid from person object
-				symptom.getHost().removeCovidSpuriousSymptoms();;								
+				symptom.getHost().removeCovidSpuriousSymptoms();								
 				return Double.MAX_VALUE; // no need to run ever again
 			}
 
@@ -160,6 +171,6 @@ public class SpuriousSymptomBehaviourFramework extends BehaviourFramework{
 			return toreturn;
 
 		}
-		public BehaviourNode getStandardEntryPoint(){ return susceptibleNode; }
+		public BehaviourNode getStandardEntryPoint(){ return exposedNode; }
 
 }

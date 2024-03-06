@@ -91,6 +91,7 @@ public class Person extends MobileAgent {
 	boolean testedPositiveForCovid = false;
 
 	boolean hasSpuriousSymptomsForCovid = false;
+	boolean hasSpuriousObject = false;
 
 	Integer timeToRemoveCovidSpuriousSymptoms = Integer.MAX_VALUE;
 	
@@ -666,6 +667,13 @@ public class Person extends MobileAgent {
 	public boolean hasCovidSpuriousSymptoms() {
 		return this.hasSpuriousSymptomsForCovid;
 	}
+	public boolean hasSpuriousObject() {
+		return this.hasSpuriousObject;
+	}
+	public void setHasSpuriousObject() {
+		this.hasSpuriousObject = true;
+	}
+	
 	public void setCovidSpuriousSymptomRemovalDate(int time) {
 		this.timeToRemoveCovidSpuriousSymptoms = time;
 	}
@@ -675,6 +683,13 @@ public class Person extends MobileAgent {
 	public boolean removeCovidSpuriousSymptomsToday() {
 		int time = (int)(myWorld.schedule.getTime() / Params.ticks_per_day);
 		return (this.timeToRemoveCovidSpuriousSymptoms > time);
+	}
+
+	public boolean hasSymptomaticCovid() {
+		if (this.hasCovid() & !this.hasAsymptCovid()) {
+			return true;
+		}
+		return false;
 	}
 	
 }

@@ -23,7 +23,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public ArrayList <Person> agents;
 	public ArrayList <Household> households;
 	public ArrayList <Infection> infections;
-	public ArrayList <CoronavirusSpuriousSymptom> CovidSpuriousSymptoms;
+	public ArrayList <CoronavirusSpuriousSymptom> CovidSpuriousSymptomsList;
 	public Random random;
 	
 	ArrayList <Location> districts;
@@ -197,13 +197,14 @@ public class WorldBankCovid19Sim extends SimState {
 		schedule.scheduleRepeating(0, this.param_schedule_updating_locations, updateLocationLists);
 		
 		if (this.covidTesting) {
-			CovidSpuriousSymptoms = new ArrayList <CoronavirusSpuriousSymptom> ();
-			for (Person a: agents) {
-				// create spurious symptom objects
-				CoronavirusSpuriousSymptom CovSpuriousSymptoms = new CoronavirusSpuriousSymptom(a, this, 0);
-				// make the object do things
-				schedule.scheduleOnce(1, param_schedule_infecting, CovSpuriousSymptoms);
-			}
+			CovidSpuriousSymptomsList = new ArrayList <CoronavirusSpuriousSymptom> ();
+//			for (Person a: agents) {
+//				// create spurious symptom objects
+//				CoronavirusSpuriousSymptom CovSpuriousSymptoms = new CoronavirusSpuriousSymptom(a, this, this.spuriousFramework.getStandardEntryPoint(), 0);
+//				// make the object do things
+//				schedule.scheduleOnce(1, param_schedule_infecting, CovSpuriousSymptoms);
+//			}
+			schedule.scheduleRepeating(CovidSpuriousSymptoms.createSymptomObject(this));
 //			schedule.scheduleRepeating(CovidSpuriousSymptoms.manageSymptoms(this), this.param_schedule_COVID_SpuriousSymptoms, params.ticks_per_day);
 //			schedule.scheduleRepeating(CovidTesting.Testing(this), this.param_schedule_COVID_Testing, params.ticks_per_day);
 			}
@@ -424,7 +425,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public static void main(String [] args){
 		
 		// default settings in the absence of commands!
-		int numDays = 400; // by default, one week
+		int numDays = 70; // by default, one week
 		double myBeta = .016;
 		long seed = 12345;
 		String outputFilename = "dailyReport_" + myBeta + "_" + numDays + "_" + seed + ".txt";
@@ -470,7 +471,7 @@ public class WorldBankCovid19Sim extends SimState {
 		// ensure that all parameters are set
 		mySim.params.infection_beta = myBeta / mySim.params.ticks_per_day; // normalised to be per tick
 		mySim.targetDuration = numDays;
-		
+		mySim.params.rate_of_spurious_symptoms = 1;
 		mySim.start(); // start the simulation
 		
 		mySim.infections_export_filename = infectionsOutputFilename; // overwrite the export filename
