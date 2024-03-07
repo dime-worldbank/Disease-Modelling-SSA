@@ -62,14 +62,17 @@ public class CovidTesting implements DiseaseTesting {
 		// 3) Haven't been tested before
 		// To do this we will use streams to search over a list of objects and draw those that have these properties
 		// create a function to group the population by location and count new deaths
-		Map<Boolean, Map<Boolean, Map<Boolean, List<Person>>>> is_eligible_for_testing_map = world.agents.stream().collect(
+		Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, List<Person>>>>> is_eligible_for_testing_map = world.agents.stream().collect(
 				Collectors.groupingBy(
 						Person::isAlive,
 						Collectors.groupingBy(
 								Person::isEligibleForCovidTesting,
 								Collectors.groupingBy(
-										Person::hasBeenTestedForCovid,
-								Collectors.toList()
+									Person::inADistrictTesting,
+									Collectors.groupingBy(
+											Person::hasBeenTestedForCovid,
+									Collectors.toList()
+									)
 								)
 						)
 				)
@@ -78,7 +81,7 @@ public class CovidTesting implements DiseaseTesting {
 		int number_of_tests_today = world.params.number_of_tests_per_day.get(time);
 		List <Person> eligible_for_testing = Collections.emptyList();
 		try {
-			eligible_for_testing = is_eligible_for_testing_map.get(true).get(true).get(false);
+			eligible_for_testing = is_eligible_for_testing_map.get(true).get(true).get(true).get(false);
 
 			if (eligible_for_testing.size() < number_of_tests_today) {
 				eligible_for_testing = DiseaseTesting.pickRandom(world, eligible_for_testing, eligible_for_testing.size());
