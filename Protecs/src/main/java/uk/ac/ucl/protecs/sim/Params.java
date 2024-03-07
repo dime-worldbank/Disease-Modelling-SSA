@@ -2,12 +2,10 @@ package uk.ac.ucl.protecs.sim;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +16,7 @@ public class Params {
 	public boolean verbose = true;
 	
 	public double infection_beta = 0.016;
-	public double rate_of_spurious_symptoms = 0.004;
+	public double rate_of_spurious_symptoms = 0.1;
 	public int lineListWeightingFactor = 1; // the line list contains only detected instances, which can be biased 
 											// - weight this if we suspect it's undercounting
 	public boolean setting_perfectMixing = false; // if TRUE: there are no work or social bubbles; individuals have
@@ -88,8 +86,8 @@ public class Params {
 	public double criticalToDeath_std =			4.8 * ticks_per_day;
 	public double asymptomaticToRecovery_mean =	8.0 * ticks_per_day;
 	public double asymptomaticToRecovery_std =	2.0 * ticks_per_day;
-	public double sympomaticToRecovery_mean =	8.0 * ticks_per_day;
-	public double sympomaticToRecovery_std =	2.0 * ticks_per_day;
+	public double symptomaticToRecovery_mean =	8.0 * ticks_per_day;
+	public double symptomaticToRecovery_std =	2.0 * ticks_per_day;
 	public double severeToRecovery_mean =		18.1 * ticks_per_day;
 	public double severeToRecovery_std =		6.3 * ticks_per_day;
 	public double criticalToRecovery_mean =		18.1 * ticks_per_day;
@@ -130,6 +128,7 @@ public class Params {
 	// time
 	public static int hours_per_tick = 4; // the number of hours each tick represents
 	public static int ticks_per_day = 24 / hours_per_tick;
+	public static int ticks_per_week = ticks_per_day * 7;
 	
 	public static int hour_start_day_weekday = 8 / hours_per_tick;
 	public static int hour_start_day_otherday = 8 / hours_per_tick;
@@ -863,7 +862,7 @@ public class Params {
 	
 	// Epidemic data access
 	public double getSuspectabilityByAge(int age){
-		return infection_beta * getLikelihoodByAge(infection_r_sus_by_age, age);
+		return infection_beta * getLikelihoodByAge(infection_r_sus_by_age, infection_age_params, age);
 	}
 	
 	// Mobility data access
@@ -938,25 +937,12 @@ public class Params {
 		else return false;
 	}
 
-	public double getLikelihoodByAge(ArrayList <Double> distrib, int age){
-		for(int i = 0; i < infection_age_params.size(); i++){
-			if(age < infection_age_params.get(i))
+	public double getLikelihoodByAge(ArrayList <Double> distrib, ArrayList<Integer> compareToDistrib, int age){
+		for(int i = 0; i < compareToDistrib.size(); i++){
+			if(age < compareToDistrib.get(i))
 				return distrib.get(i);
 		}
 		return -1; // somehow poorly formatted?
 	}
-	public double getBirthLikelihoodByAge(ArrayList <Double> distrib, int age){
-		for(int i = 0; i < birth_age_params.size(); i++){
-			if(age < birth_age_params.get(i))
-				return distrib.get(i);
-		}
-		return -1; // somehow poorly formatted?
-	}
-	public double getAllCauseLikelihoodByAge(ArrayList <Double> distrib, int age){
-		for(int i = 0; i < all_cause_death_age_params.size(); i++){
-			if(age < all_cause_death_age_params.get(i))
-				return distrib.get(i);
-		}
-		return -1; // somehow poorly formatted?
-	}
+
 }
