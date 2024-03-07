@@ -7,7 +7,7 @@ import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 
 public class helperFunctions {
 	
-	public static WorldBankCovid19Sim CreateDummySimWithRandomSeed(String paramsFilename, boolean demography) {
+	public static WorldBankCovid19Sim CreateDummySim(String paramsFilename, boolean demography) {
 		Random rand = new Random();
 		int seed = rand.nextInt(100000000);
 		System.out.println("Running with seed = " + String.valueOf(seed));
@@ -15,7 +15,7 @@ public class helperFunctions {
 		WorldBankCovid19Sim myWorld = new WorldBankCovid19Sim(seed, p, "", demography);
 		return myWorld;
 	}
-	public static WorldBankCovid19Sim CreateDummySimWithChosenSeed(int seed, String paramsFilename, boolean demography) {
+	public static WorldBankCovid19Sim CreateDummySim(int seed, String paramsFilename, boolean demography) {
 		System.out.println("Running with seed = " + String.valueOf(seed));
 		Params p = new Params(paramsFilename, false);
 		WorldBankCovid19Sim myWorld = new WorldBankCovid19Sim(seed, p, "", demography);

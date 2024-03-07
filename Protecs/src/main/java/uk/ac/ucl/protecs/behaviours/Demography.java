@@ -39,7 +39,7 @@ public class Demography {
 		WorldBankCovid19Sim world;
 		public Mortality( Person p, int ticksPerDay, WorldBankCovid19Sim myWorld ) {
 			this.target = p;
-			this.ticksUntilNextMortalityCheck = 365 * ticksPerDay;
+			this.ticksUntilNextMortalityCheck = myWorld.params.ticks_per_year;
 			this.world = myWorld;
 		} 
 		// steps taken
@@ -58,7 +58,7 @@ public class Demography {
 		// functions used
 		private void causeDeath() {
 			if (target.isAlive()) {
-				target.die("");
+				target.die("<default>");
 				}
 		}
 
@@ -140,10 +140,10 @@ public class Demography {
 			// reset tickToCauseBirth so this pathway can be used again
 			this.tickToCauseBirth = Integer.MAX_VALUE;
 			// reschedule the check to occur next year
-			int currentTime = (int) (arg0.schedule.getTime() / world.params.ticks_per_day);
-			int currentYear = (int) Math.floor(currentTime / 365);
-			int nextYear = (currentYear + 1) * 365;
-			arg0.schedule.scheduleOnce(nextYear * world.params.ticks_per_day, this);
+			int currentTime = (int) arg0.schedule.getTime();
+			int currentYear = (int) Math.floor(currentTime / world.params.ticks_per_year);
+			int nextYear = (currentYear + 1);
+			arg0.schedule.scheduleOnce(nextYear * world.params.ticks_per_year, this);
 		}
 		}
 		private void determineGivingBirth(SimState arg0, boolean isAlive) {
@@ -154,9 +154,6 @@ public class Demography {
 			if (arg0.random.nextDouble() <= myPregnancyLikelihood) {
 				nextStep = "Birth";
 				}
-			if (!target.isAlive()) {
-				nextStep = "noBirth";
-			}
 			switch (nextStep) {
 			// ------------------------------------------------------------------------------------------------------------
 			case "Birth":{
