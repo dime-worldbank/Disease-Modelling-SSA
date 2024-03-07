@@ -22,7 +22,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void TestSusceptibleEndpoints() {
 		// create a simulation and start
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/test/resources/InfectiousBehaviourTestParams.txt", false, false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/test/resources/InfectiousBehaviourTestParams.txt", false, false);
 		sim.start();
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
@@ -40,7 +40,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void TestExposedEndpoints() {
 		// create a simulation and start
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/test/resources/InfectiousBehaviourTestParams.txt", false, false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/test/resources/InfectiousBehaviourTestParams.txt", false, false);
 		sim.start();
 		// Ensure that no one disease progression occurs beyond the exposed stage
 		helperFunctions.HaltDiseaseProgressionAtStage(sim, "Presymptomatic");
@@ -62,7 +62,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void TestPresymptomaticEndpoints() {
 		// create a simulation and start
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/test/resources/InfectiousBehaviourTestParams.txt", false, false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/test/resources/InfectiousBehaviourTestParams.txt", false, false);
 		sim.start();
 		
 		// Make sure there are no new infections
@@ -85,7 +85,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void TestAsymptomaticEndpoints() {
 		// create a simulation and start
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/test/resources/InfectiousBehaviourTestParams.txt", false, false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/test/resources/InfectiousBehaviourTestParams.txt", false, false);
 		sim.start();
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
@@ -104,7 +104,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void TestMildEndpoints() {
 		// create a simulation and start
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/test/resources/InfectiousBehaviourTestParams.txt", false, false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/test/resources/InfectiousBehaviourTestParams.txt", false, false);
 		sim.start();
 		
 		// Make sure there are no new infections
@@ -125,7 +125,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void TestSevereEndpoints() {
 		// create a simulation and start
-		WorldBankCovid19Sim sim =helperFunctions.CreateDummySimWithRandomSeed("src/test/resources/InfectiousBehaviourTestParams.txt", false, false);
+		WorldBankCovid19Sim sim =helperFunctions.CreateDummySim("src/test/resources/InfectiousBehaviourTestParams.txt", false, false);
 		sim.start();
 		
 		// Make sure there are no new infections
@@ -146,7 +146,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void TestCriticalEndpoints() {
 		// create a simulation and start
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/test/resources/InfectiousBehaviourTestParams.txt", false, false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/test/resources/InfectiousBehaviourTestParams.txt", false, false);
 		sim.start();
 		
 		// Make sure there are no new infections
@@ -165,7 +165,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void TestRecoveredEndpoints() {
 		// create a simulation and start
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/test/resources/InfectiousBehaviourTestParams.txt", false, false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/test/resources/InfectiousBehaviourTestParams.txt", false, false);
 		sim.start();
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
@@ -183,7 +183,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void TestDeadEndpoints() {
 		// create a simulation and start
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/test/resources/InfectiousBehaviourTestParams.txt", false, false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/test/resources/InfectiousBehaviourTestParams.txt", false, false);
 		sim.start();
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
