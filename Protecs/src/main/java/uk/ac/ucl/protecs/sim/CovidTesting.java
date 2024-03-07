@@ -78,7 +78,14 @@ public class CovidTesting implements DiseaseTesting {
 				)
 			);
 		// We also need to only give out the correct number of tests available for the disease this day.
-		int number_of_tests_today = world.params.number_of_tests_per_day.get(time);
+		// we need to be able to run this regardless of if a number of tests has been specified for this day
+		int number_of_tests_today;
+		try {
+			number_of_tests_today = world.params.number_of_tests_per_day.get(time);
+		}
+		catch (Exception e) {
+			number_of_tests_today = 0;
+		}
 		List <Person> eligible_for_testing = Collections.emptyList();
 		try {
 			eligible_for_testing = is_eligible_for_testing_map.get(true).get(true).get(true).get(false);
