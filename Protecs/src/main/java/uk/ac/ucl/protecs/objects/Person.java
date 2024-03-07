@@ -699,5 +699,10 @@ public class Person extends MobileAgent {
 		}
 		return false;
 	}
+
+	public void removeCovidTestingLogging() {
+		this.covidTestLogged = false;
+		
+	}
 	
 }

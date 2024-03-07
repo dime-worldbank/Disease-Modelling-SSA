@@ -141,15 +141,16 @@ public class Logging {
 		
 		WorldBankCovid19Sim world;
 		boolean firstTimeReporting;
+
 		
 		public CovidTestReporter(WorldBankCovid19Sim myWorld) {
 			this.world = myWorld;
 			this.firstTimeReporting = true;
+
 		}
 
 		@Override
 		public void step(SimState arg0) {
-			Params params = world.params;
 			int dayOfSimulation = (int) (arg0.schedule.getTime() / world.params.ticks_per_day);
 			int numberOfTestsPerDay;
 			try {
@@ -158,8 +159,9 @@ public class Logging {
 			catch (Exception e) {
 				numberOfTestsPerDay = 0;
 			}
+
 			// create a function to group the population by sex, age and whether they gave birth
-			Map<Boolean, Map<Boolean, List<Person>>> hasTestedPositiveForCovid = (Map<Boolean, Map<Boolean,List<Person>>>) world.agents.stream().collect(
+			Map<Boolean, Map<Boolean, List<Person>>> hasNewlyTestedPositiveForCovid = (Map<Boolean, Map<Boolean,List<Person>>>) world.agents.stream().collect(
 					Collectors.groupingBy(Person::hasTestedPositiveForCovid,
 											Collectors.groupingBy(
 														Person::getCovidTestLogged,
@@ -169,7 +171,7 @@ public class Logging {
 			);
 			int numberOfPositiveTests = 0;
 			try {
-				numberOfPositiveTests = hasTestedPositiveForCovid.get(true).get(false).size();
+				numberOfPositiveTests = hasNewlyTestedPositiveForCovid.get(true).get(false).size();
 			}catch (Exception e) {
 				numberOfPositiveTests = 0;
 			}
@@ -191,11 +193,15 @@ public class Logging {
 			
 			ImportExport.exportMe(world.covidTestingOutputFilename, covidTestingOutput, world.timer);
 			// to make sure that births aren't counted more than once, update this person's properties
-			for (Person p: world.agents) {
+			try {
+			for (Person p: hasNewlyTestedPositiveForCovid.get(true).get(false)) {
 				if(!p.getCovidTestLogged()) {
 					p.confirmCovidTestingLogged();
 					}
 				}
+			} catch (Exception e) {}
+			
+
 		}
 		
 	}

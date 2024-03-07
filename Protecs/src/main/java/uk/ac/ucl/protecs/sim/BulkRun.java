@@ -32,7 +32,7 @@ public class BulkRun {
 						infectionsFilename += "_" + b.toString();
 					}
 
-					WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(i, new Params(paramFilename, true), outputFilename, b, false);
+					WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(i, new Params(paramFilename, true), outputFilename, b, true);
 					
 					System.out.println("Loading...");
 

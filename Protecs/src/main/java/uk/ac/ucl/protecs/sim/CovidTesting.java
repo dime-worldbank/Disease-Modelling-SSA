@@ -49,6 +49,7 @@ public class CovidTesting implements DiseaseTesting {
 	public static void updatePropertiesForPositiveTest(Person p) {
 		p.setHasBeenTestedForCovid();
 		p.setTestedPositiveForCovid();
+		p.removeCovidTestingLogging();
 	}
 
 	public static void updatePropertiesForNegativeTest(Person p) {

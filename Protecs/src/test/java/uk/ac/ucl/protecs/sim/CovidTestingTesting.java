@@ -30,6 +30,16 @@ public class CovidTestingTesting {
 		Assert.assertTrue(hasBeenTested.size() == numWithSpurious + numWithSymptomaticCovid);
 		
 	}
+	@Test
+	public void JustRunOnBiggerPop() {
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/covid_testing_params.txt", false, true);
+		sim.start();
+		int numDays = 50;
+
+		helperFunctions.runSimulation(sim, numDays);
+		
+		
+	}
 	
 
 //	@Test
