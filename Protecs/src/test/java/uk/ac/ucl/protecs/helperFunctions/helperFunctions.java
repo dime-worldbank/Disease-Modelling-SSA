@@ -11,7 +11,7 @@ import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
 public class helperFunctions {
 	
-	public static WorldBankCovid19Sim CreateDummySimWithRandomSeed(String paramsFilename, boolean demography, boolean testing) {
+	public static WorldBankCovid19Sim CreateDummySim(String paramsFilename, boolean demography, boolean testing) {
 		Random rand = new Random();
 		int seed = rand.nextInt(100000000);
 		System.out.println("Running with seed = " + String.valueOf(seed));
@@ -19,7 +19,7 @@ public class helperFunctions {
 		WorldBankCovid19Sim myWorld = new WorldBankCovid19Sim(seed, p, "", demography, testing);
 		return myWorld;
 	}
-	public static WorldBankCovid19Sim CreateDummySimWithChosenSeed(int seed, String paramsFilename, boolean demography, boolean testing) {
+	public static WorldBankCovid19Sim CreateDummySim(int seed, String paramsFilename, boolean demography, boolean testing) {
 		System.out.println("Running with seed = " + String.valueOf(seed));
 		Params p = new Params(paramsFilename, false);
 		WorldBankCovid19Sim myWorld = new WorldBankCovid19Sim(seed, p, "", demography, testing);

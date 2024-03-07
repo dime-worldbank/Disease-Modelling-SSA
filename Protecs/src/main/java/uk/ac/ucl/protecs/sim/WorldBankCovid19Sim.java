@@ -224,7 +224,7 @@ public class WorldBankCovid19Sim extends SimState {
 			}
 			Logging logger = new Logging();
 			Logging.BirthRateReporter birthRateLog = logger.new BirthRateReporter(this);
-			schedule.scheduleOnce(364 * params.ticks_per_day, this.param_schedule_reporting, birthRateLog);
+			schedule.scheduleOnce(params.ticks_per_year, this.param_schedule_reporting, birthRateLog);
 
 			
 		}
