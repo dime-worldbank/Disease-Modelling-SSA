@@ -16,14 +16,16 @@ public class CovidTestingTesting {
 	public void CheckTestsOnlyHappenForThoseWithSymptomsOfCovid() {
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySimWithRandomSeed("src/main/resources/covid_testing_params.txt", false, true);
 		sim.start();
-		int numDays = 5;
+		int numDays = 1;
+		helperFunctions.SetFractionInfectionsWithCertainNode(0.5, sim, sim.infectiousFramework.setNodeForTesting("mild"));
+		helperFunctions.StopRecoveryHappening(sim);
 		helperFunctions.runSimulation(sim, numDays);
 		List<Person> hasBeenTested = peopleWhoHaveBeenTested(sim);
 		int numWithSpurious = 0;
 		int numWithSymptomaticCovid = 0;
 		for (Person p: hasBeenTested) {
 			if (p.hasCovidSpuriousSymptoms()) {numWithSpurious++;}
-			if (p.hasCovid() & !p.hasAsymptCovid()) {numWithSymptomaticCovid++;}
+			if (p.hasSymptomaticCovid()) {numWithSymptomaticCovid++;}
 		}
 		Assert.assertTrue(hasBeenTested.size() == numWithSpurious + numWithSymptomaticCovid);
 		

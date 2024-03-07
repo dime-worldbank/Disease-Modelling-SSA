@@ -89,6 +89,7 @@ public class Person extends MobileAgent {
 	boolean EligibleForCovidTesting = false;
 	boolean hasBeenTestedForCovid = false;
 	boolean testedPositiveForCovid = false;
+	boolean covidTestLogged = false;
 
 	boolean hasSpuriousSymptomsForCovid = false;
 	boolean hasSpuriousObject = false;
@@ -651,7 +652,14 @@ public class Person extends MobileAgent {
 	public void setHasBeenTestedForCovid() {this.hasBeenTestedForCovid = true; }
 	public boolean hasBeenTestedForCovid() {return this.hasBeenTestedForCovid; }
 	public void setTestedPositiveForCovid() {this.testedPositiveForCovid = true; }
-
+	public boolean hasTestedPositiveForCovid() {return this.testedPositiveForCovid; }
+	public boolean getCovidTestLogged() {return this.covidTestLogged;}
+	public void confirmCovidTestingLogged() {this.covidTestLogged = true; }
+	public boolean inADistrictTesting() {
+	    boolean answer = this.myWorld.params.districts_to_test_in.stream().anyMatch(x -> x.equals((this.myHousehold.getRootSuperLocation()).myId));
+	    return answer;
+	  }
+	
 	public Household getHouseholdAsType() {
 		
 		return this.myHousehold;

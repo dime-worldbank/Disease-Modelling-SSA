@@ -136,6 +136,64 @@ public class Logging {
 		}
 		
 	}
+	
+	public class CovidTestReporter implements Steppable{
+		
+		WorldBankCovid19Sim world;
+		boolean firstTimeReporting;
+		
+		public CovidTestReporter(WorldBankCovid19Sim myWorld) {
+			this.world = myWorld;
+			this.firstTimeReporting = true;
+		}
+
+		@Override
+		public void step(SimState arg0) {
+			Params params = world.params;
+			int dayOfSimulation = (int) (arg0.schedule.getTime() / world.params.ticks_per_day);
+			System.out.println("Happening on day " + String.valueOf(dayOfSimulation));
+			int numberOfTestsPerDay = world.params.number_of_tests_per_day.get(dayOfSimulation);
+			// create a function to group the population by sex, age and whether they gave birth
+			Map<Boolean, Map<Boolean, List<Person>>> hasTestedPositiveForCovid = (Map<Boolean, Map<Boolean,List<Person>>>) world.agents.stream().collect(
+					Collectors.groupingBy(Person::hasTestedPositiveForCovid,
+											Collectors.groupingBy(
+														Person::getCovidTestLogged,
+														Collectors.toList()
+								)
+						)
+			);
+			int numberOfPositiveTests = 0;
+			try {
+				numberOfPositiveTests = hasTestedPositiveForCovid.get(true).get(false).size();
+			}catch (Exception e) {
+				numberOfPositiveTests = 0;
+			}
+			
+			double fractionPositive = (double) numberOfPositiveTests / numberOfTestsPerDay;
+			String covidTestingOutput = "";
+
+			String t = "\t";
+			String outputColumnNames = t + "numberOfTests" + t + "numberOfPositiveTests" + t + "fractionPositive" + "\n";
+			if (this.firstTimeReporting) {
+				covidTestingOutput += "day" + outputColumnNames + String.valueOf(dayOfSimulation);
+				this.firstTimeReporting = false;
+			}
+			else {
+				covidTestingOutput += String.valueOf(dayOfSimulation);
+			}
+			covidTestingOutput += t + String.valueOf(numberOfTestsPerDay) + t + String.valueOf(numberOfPositiveTests) + t + String.valueOf(fractionPositive) + "\n";
+			
+			
+			ImportExport.exportMe(world.covidTestingOutputFilename, covidTestingOutput, world.timer);
+			// to make sure that births aren't counted more than once, update this person's properties
+			for (Person p: world.agents) {
+				if(!p.getCovidTestLogged()) {
+					p.confirmCovidTestingLogged();
+					}
+				}
+		}
+		
+	}
 
 	
 	public static Steppable TestLoggingCase(WorldBankCovid19Sim world) {
