@@ -130,6 +130,7 @@ public class Params {
 	// time
 	public static int hours_per_tick = 4; // the number of hours each tick represents
 	public static int ticks_per_day = 24 / hours_per_tick;
+	public static int ticks_per_year = ticks_per_day * 365;
 	
 	public static int hour_start_day_weekday = 8 / hours_per_tick;
 	public static int hour_start_day_otherday = 8 / hours_per_tick;
@@ -863,7 +864,7 @@ public class Params {
 	
 	// Epidemic data access
 	public double getSuspectabilityByAge(int age){
-		return infection_beta * getLikelihoodByAge(infection_r_sus_by_age, age);
+		return infection_beta * getLikelihoodByAge(infection_r_sus_by_age, infection_age_params, age);
 	}
 	
 	// Mobility data access
@@ -938,25 +939,12 @@ public class Params {
 		else return false;
 	}
 
-	public double getLikelihoodByAge(ArrayList <Double> distrib, int age){
-		for(int i = 0; i < infection_age_params.size(); i++){
-			if(age < infection_age_params.get(i))
+	public double getLikelihoodByAge(ArrayList <Double> distrib, ArrayList<Integer> compareToDistrib, int age){
+		for(int i = 0; i < compareToDistrib.size(); i++){
+			if(age < compareToDistrib.get(i))
 				return distrib.get(i);
 		}
 		return -1; // somehow poorly formatted?
 	}
-	public double getBirthLikelihoodByAge(ArrayList <Double> distrib, int age){
-		for(int i = 0; i < birth_age_params.size(); i++){
-			if(age < birth_age_params.get(i))
-				return distrib.get(i);
-		}
-		return -1; // somehow poorly formatted?
-	}
-	public double getAllCauseLikelihoodByAge(ArrayList <Double> distrib, int age){
-		for(int i = 0; i < all_cause_death_age_params.size(); i++){
-			if(age < all_cause_death_age_params.get(i))
-				return distrib.get(i);
-		}
-		return -1; // somehow poorly formatted?
-	}
+
 }

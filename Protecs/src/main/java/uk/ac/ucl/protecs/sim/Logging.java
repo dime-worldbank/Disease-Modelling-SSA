@@ -12,6 +12,132 @@ import uk.ac.ucl.protecs.objects.Person;
 
 public class Logging {
 	
+	public class BirthRateReporter implements Steppable{
+		
+		WorldBankCovid19Sim world;
+		boolean firstTimeReporting;
+		
+		public BirthRateReporter(WorldBankCovid19Sim myWorld) {
+			this.world = myWorld;
+			this.firstTimeReporting = true;
+		}
+
+		@Override
+		public void step(SimState arg0) {
+			Params params = world.params;
+
+			//	calculate the birth rate in age groups 15-19, 10-14, ..., 45-49
+			//	create a list to define our age group search ranges
+			List <Integer> upper_age_range = Arrays.asList(20, 25, 30, 35, 40, 45, 50);
+			List <Integer> lower_age_range = Arrays.asList(15, 20, 25, 30, 35, 40, 45);
+			// create list to store the counts of the number of females alive in each age range and the 
+			// number of births in each age range.
+			ArrayList <Integer> female_alive_ages = new ArrayList<Integer>();
+			ArrayList <Integer> female_pregnancy_ages = new ArrayList<Integer>();
+			// create a function to group the population by sex, age and whether they are alive
+			Map<String, Map<Integer, Map<Boolean, Long>>> age_sex_alive_map = world.agents.stream().collect(
+					Collectors.groupingBy(
+							Person::getSex, 
+							Collectors.groupingBy(
+									Person::getAge, 
+									Collectors.groupingBy(
+											Person::isAlive,
+									Collectors.counting()
+									)
+							)
+					)
+					);
+			// create a function to group the population by sex, age and whether they gave birth
+			Map<String, Map<Integer, Map<Boolean, Map<Boolean, Long>>>> age_sex_map_gave_birth = world.agents.stream().collect(
+					Collectors.groupingBy(
+							Person::getSex, 
+							Collectors.groupingBy(
+									Person::getAge, 
+									Collectors.groupingBy(
+											Person::gaveBirthLastYear,
+											Collectors.groupingBy(
+													Person::getBirthLogged,
+													Collectors.counting()
+									)
+							)
+					)
+					)
+					);
+//			We now iterate over the age ranges, create a variable to keep track of the iterations
+			Integer idx = 0;
+			for (Integer val: upper_age_range) {
+				// for each age group we begin to count the number of people who fall into each category, create variables
+				// to store this information in
+				Integer female_count = 0;
+				Integer female_gave_birth_count = 0;
+				// iterate over the ages set in the age ranges (lower value from lower_age_range, upper from upper_age_range)
+				for (int age = lower_age_range.get(idx); age < val; age++) {
+					try {
+						// try function necessary as some ages won't be present in the population
+						// use the functions created earlier to calculate the number of people of each age group who fall
+						// into the categories we are interested in (female, alive)
+						female_count += age_sex_alive_map.get("female").get(age).get(true).intValue();
+					}
+						catch (Exception e) {
+							// age wasn't present in the population, skip
+						}
+					try {
+						// try function necessary as some ages won't be present in the population
+						// use the functions created earlier to calculate the number of people of each age group who fall
+						// into the categories we are interested in (female, alive and gave birth)
+						female_gave_birth_count += age_sex_map_gave_birth.get("female").get(age).get(true).get(false).intValue();
+					}
+						catch (Exception e) {
+							// age wasn't present in the population, skip
+						}
+				}
+				// store what we have found in the lists we created
+				female_alive_ages.add(female_count);
+				female_pregnancy_ages.add(female_gave_birth_count);
+				// update the idx variable for the next iteration
+				idx++;
+			}
+			// calculate the birth rate per 1000 this day
+			int time = (int) (arg0.schedule.getTime() / params.ticks_per_day);
+			String age_dependent_birth_rate = "";
+
+			String t = "\t";
+			String age_categories = t + "15_19" + t + "20_24" + t + "25_29" + t + "30_34" + t + "35_39" + t + "40_44" + t + "45_49" + "\n";
+			if (this.firstTimeReporting) {
+				age_dependent_birth_rate += "day" + age_categories + String.valueOf(time);
+			}
+			else {
+				age_dependent_birth_rate += String.valueOf(time);
+			}
+			for (int x = 0; x <female_pregnancy_ages.size(); x++){
+				double births_in_age = female_pregnancy_ages.get(x);
+				double female_alive_in_age = female_alive_ages.get(x);
+				double result = births_in_age / female_alive_in_age;
+                result *= 1000;
+                age_dependent_birth_rate += t + String.valueOf(result);
+			}
+			age_dependent_birth_rate += "\n";
+			
+			// create a string to store this information in
+			// get the day
+			
+			ImportExport.exportMe(world.birthRateOutputFilename, age_dependent_birth_rate, world.timer);
+			// to make sure that births aren't counted more than once, update this person's properties
+			for (Person p: world.agents) {
+				if(p.gaveBirthLastYear()) {
+					p.confirmBirthlogged();
+					}
+				}
+
+			int currentYear = 1 + (int) Math.floor(time / 365);
+			int nextYear = currentYear + 1;
+			arg0.schedule.scheduleOnce((365 * nextYear - 1) * params.ticks_per_day, world.param_schedule_reporting, this);
+			this.firstTimeReporting = false;
+		}
+		
+	}
+
+	
 	public static Steppable TestLoggingCase(WorldBankCovid19Sim world) {
 
 		return new Steppable() {
@@ -1050,6 +1176,127 @@ public class Logging {
 						
 					}
 				};		
+	}
+	
+	public static Steppable ReportBirthRatesOLD(WorldBankCovid19Sim world) {
+		// create a function to report on birth rates
+		return new Steppable() {
+			
+			@Override
+			public void step(SimState arg0) {
+				Params params = world.params;
+
+				//	calculate the birth rate in age groups 15-19, 10-14, ..., 45-49
+				//	create a list to define our age group search ranges
+				List <Integer> upper_age_range = Arrays.asList(20, 25, 30, 35, 40, 45, 50);
+				List <Integer> lower_age_range = Arrays.asList(15, 20, 25, 30, 35, 40, 45);
+				// create list to store the counts of the number of females alive in each age range and the 
+				// number of births in each age range.
+				ArrayList <Integer> female_alive_ages = new ArrayList<Integer>();
+				ArrayList <Integer> female_pregnancy_ages = new ArrayList<Integer>();
+				// create a function to group the population by sex, age and whether they are alive
+				Map<String, Map<Integer, Map<Boolean, Long>>> age_sex_alive_map = world.agents.stream().collect(
+						Collectors.groupingBy(
+								Person::getSex, 
+								Collectors.groupingBy(
+										Person::getAge, 
+										Collectors.groupingBy(
+												Person::isAlive,
+										Collectors.counting()
+										)
+								)
+						)
+						);
+				// create a function to group the population by sex, age and whether they gave birth
+				Map<String, Map<Integer, Map<Boolean, Map<Boolean, Long>>>> age_sex_map_gave_birth = world.agents.stream().collect(
+						Collectors.groupingBy(
+								Person::getSex, 
+								Collectors.groupingBy(
+										Person::getAge, 
+										Collectors.groupingBy(
+												Person::gaveBirthLastYear,
+												Collectors.groupingBy(
+														Person::getBirthLogged,
+														Collectors.counting()
+										)
+								)
+						)
+						)
+						);
+				
+				//	We now iterate over the age ranges, create a variable to keep track of the iterations
+				Integer idx = 0;
+				for (Integer val: upper_age_range) {
+					// for each age group we begin to count the number of people who fall into each category, create variables
+					// to store this information in
+					Integer female_count = 0;
+					Integer female_gave_birth_count = 0;
+					// iterate over the ages set in the age ranges (lower value from lower_age_range, upper from upper_age_range)
+					for (int age = lower_age_range.get(idx); age < val; age++) {
+						try {
+							// try function necessary as some ages won't be present in the population
+							// use the functions created earlier to calculate the number of people of each age group who fall
+							// into the categories we are interested in (female, alive)
+							female_count += age_sex_alive_map.get("female").get(age).get(true).intValue();
+						}
+							catch (Exception e) {
+								// age wasn't present in the population, skip
+							}
+						try {
+							// try function necessary as some ages won't be present in the population
+							// use the functions created earlier to calculate the number of people of each age group who fall
+							// into the categories we are interested in (female, alive and gave birth)
+							female_gave_birth_count += age_sex_map_gave_birth.get("female").get(age).get(true).get(false).intValue();
+						}
+							catch (Exception e) {
+								// age wasn't present in the population, skip
+							}
+					}
+					// store what we have found in the lists we created
+					female_alive_ages.add(female_count);
+					female_pregnancy_ages.add(female_gave_birth_count);
+					// update the idx variable for the next iteration
+					idx++;
+				}
+				// calculate the birth rate per 1000 this day
+				int time = (int) (arg0.schedule.getTime() / params.ticks_per_day);
+				String age_dependent_birth_rate = "";
+
+				String t = "\t";
+				String age_categories = t + "15_19" + t + "20_24" + t + "25_29" + t + "30_34" + t + "35_39" + t + "40_44" + t + "45_49" + "\n";
+				if (time == 0) {
+					age_dependent_birth_rate += "day" + age_categories + String.valueOf(time);
+				}
+				else {
+					age_dependent_birth_rate += String.valueOf(time);
+				}
+				age_dependent_birth_rate += t;
+				for (int x = 0; x <female_pregnancy_ages.size(); x++){
+					double births_in_age = female_pregnancy_ages.get(x);
+					double female_alive_in_age = female_alive_ages.get(x);
+					double result = births_in_age / female_alive_in_age;
+	                result *= 1000;
+	                age_dependent_birth_rate += t + String.valueOf(result);
+				}
+				age_dependent_birth_rate += "\n";
+
+
+				// create a string to store this information in
+				// get the day
+				
+				ImportExport.exportMe(world.birthRateOutputFilename, age_dependent_birth_rate, world.timer);
+				// to make sure that births aren't counted more than once, update this person's properties
+				for (Person p: world.agents) {
+					if(p.gaveBirthLastYear()) {
+						p.confirmBirthlogged();
+						}
+					}
+				
+				
+			}
+			};
+			
+			
 	}
 	
 }
