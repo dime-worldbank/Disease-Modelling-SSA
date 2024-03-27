@@ -125,6 +125,7 @@ drop _merge date2
 gen prop1=total_count/day_pop*100
 
 bys dow region region_lag period: egen avg_pcttot_i5=mean(prop1)
+bys dow region region_lag period: egen avg_cnttot_i5=mean(total_count)
 
 duplicates drop dow region period region_lag, force
 keep region region_lag period dow avg*
@@ -133,30 +134,59 @@ rename region_lag home_region
 
 
 bys home_region dow period: egen tot=sum(avg_pcttot)
+bys home_region dow period: egen tot_cnt=sum(avg_cnttot)
+
 sum tot, detail
-replace avg=100-tot if home_region==region
+sum tot_cnt, d
+replace avg_pct=100-tot if home_region==region
 
 keep region home_region period dow avg*
 tostring(home_region), replace
 rename dow weekday
 replace home_region="w_" + home_region
 sort home_region period weekday region
-by home_region period weekday: gen w_=sum(avg)
+by home_region period weekday: gen w_=sum(avg_pct)
+by home_region period weekday: gen w_cnt_=sum(avg_cnt)
+
 replace w_=round(w_, 0.0001)
-drop avg
+replace w_cnt=round(w_cnt, 0.0001)
+drop avg_*
+
+***PRE LOCKDOWN
+
+*percentages 
 
 preserve
 keep if period=="pre"
-drop period
+drop period w_cnt
 reshape wide w_, i(home_region weekday) j(region, string)
 export delimited "output/ward_level/daily_transition_probability-ward-pre-lockdown_i5.csv", replace
 restore
 
+*version with raw counts for robbie
+preserve
+keep if period=="pre"
+drop period w_
+reshape wide w_cnt, i(home_region weekday) j(region, string)
+export delimited "output/ward_level/daily_transition_count-ward-pre-lockdown_i5.csv", replace
+restore
+
+*****POST LOCKDOWN
+
 preserve
 keep if period=="apr"
-drop period
+drop period w_cnt_
 reshape wide w_, i(home_region weekday) j(region, string)
 export delimited "output/ward_level/daily_transition_probability-ward-post-lockdown_i5.csv", replace
+restore
+
+*version with raw counts for robbie
+
+preserve
+keep if period=="apr"
+drop period w_
+reshape wide w_, i(home_region weekday) j(region, string)
+export delimited "output/ward_level/daily_transition_count-ward-post-lockdown_i5.csv", replace
 restore
 
 *******Most mobile wards
