@@ -1,0 +1,5 @@
+district,count
+d_1,3
+d_19,3
+d_2,24
+d_36,6

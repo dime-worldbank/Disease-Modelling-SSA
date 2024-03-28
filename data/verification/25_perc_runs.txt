@@ -1,0 +1,2 @@
+1	100	/home/rmjlra2/Model/Disease-Modelling-SSA/data/verification/	0.3	1	output_census_25perc_0.3_1.txt	/home/rmjlra2/Model/Disease-Modelling-SSA/data/verification/params_robbie_25perc.txt	inf_output_census_25perc_0.3_1.txt
+2	100	/home/rmjlra2/Model/Disease-Modelling-SSA/data/verification/	0.3	2	output_census_25perc_0.3_2.txt	/home/rmjlra2/Model/Disease-Modelling-SSA/data/verification/params_robbie_25perc.txt	inf_output_census_25perc_0.3_2.txt
