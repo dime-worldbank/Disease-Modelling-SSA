@@ -1,0 +1,25 @@
+,person_id,age,sex,household_id,workplace_id,district_id,economic_status,economic_activity_location_id,school_goers,manufacturing_workers
+0,0,27,female,1146000,district_1_office_1,1,Office workers,1.0,0,0.0
+1,0,27,male,1146000,district_1_office_1,1,Office workers,1.0,0,0.0
+2,0,30,female,1146000,district_1_office_1,1,Office workers,1.0,0,0.0
+3,0,27,female,1146000,district_1_office_2,1,Office workers,1.0,0,0.0
+4,0,27,male,1146000,district_1_office_2,1,Office workers,1.0,0,0.0
+5,0,30,female,1146000,district_1_office_2,1,Office workers,1.0,0,0.0
+6,1,40,male,2300000,district_2_office_2,2,Office workers,1.0,0,0.0
+7,2,20,male,4198000,district_1_unemployed_1,1,"Not working, inactive, not in universe",1.0,0,0.0
+8,2,20,male,4198000,district_1_unemployed_2,1,"Not working, inactive, not in universe",1.0,0,0.0
+9,2,20,male,4198000,district_1_unemployed_3,1,"Not working, inactive, not in universe",1.0,0,0.0
+10,2,20,male,4198000,district_1_unemployed_4,1,"Not working, inactive, not in universe",1.0,0,0.0
+11,3,41,female,3465000,district_1_school_1,1,Teachers,1.0,1,0.0
+12,3,41,female,3465000,district_1_school_1,1,Teachers,1.0,1,0.0
+13,3,41,female,3465000,district_1_school_1,1,Teachers,1.0,1,0.0
+14,3,41,female,3465000,district_1_school_1,1,Teachers,1.0,1,0.0
+15,3,41,female,3465000,district_1_school_1,1,Teachers,1.0,1,0.0
+16,4,15,female,882000,district_2_unemployed_1,2,"Not working, inactive, not in universe",1.0,0,0.0
+17,4,15,female,882000,district_2_unemployed_2,2,"Not working, inactive, not in universe",1.0,0,0.0
+18,4,15,female,882000,district_2_unemployed_3,2,"Not working, inactive, not in universe",1.0,0,0.0
+19,4,15,female,882000,district_2_unemployed_4,2,"Not working, inactive, not in universe",1.0,0,0.0
+20,5,23,female,2524000,district_1_homemaker_1,1,Homemakers/Housework,1.0,0,0.0
+21,6,16,female,4751000,district_1_student_1,1,Current Students,1.0,1,0.0
+22,7,19,female,902000,district_2_student_1,2,Current Students,1.0,1,0.0
+23,8,57,female,6668000,district_1_student_1,1,Service workers,1.0,0,0.0

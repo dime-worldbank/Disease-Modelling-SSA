@@ -25,7 +25,7 @@ public class Person extends MobileAgent {
 
 	// larger group membership
 	Household myHousehold;
-
+	Workplace myWorkplace;
 	// personal/demographic attributes
 	int age;
 	int birthday;
@@ -109,7 +109,7 @@ public class Person extends MobileAgent {
 	 * @param economic_activity_location Location for weekday economic activity (workplace, school, etc.)
 	 * @param world Copy of the simulation
 	 */
-	public Person(int id, int age, int birthday, String sex, String economic_status, boolean schoolGoer, Household hh, WorldBankCovid19Sim world){
+	public Person(int id, int age, int birthday, String sex, String economic_status, boolean schoolGoer, Household hh, Workplace w, WorldBankCovid19Sim world){
 		super();
 
 		// demographic characteristics
@@ -128,6 +128,7 @@ public class Person extends MobileAgent {
 
 		// record-keeping
 		myHousehold = hh;
+		myWorkplace = w;
 		myWorld = world;
 		
 		// agents are initialised uninfected

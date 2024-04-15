@@ -22,6 +22,8 @@ public class WorldBankCovid19Sim extends SimState {
 	// the objects which make up the system
 	public ArrayList <Person> agents;
 	public ArrayList <Household> households;
+	public ArrayList <Workplace> workplaces;
+
 	public ArrayList <Infection> infections;
 	public ArrayList <CoronavirusSpuriousSymptom> CovidSpuriousSymptomsList;
 	public Random random;
@@ -112,8 +114,18 @@ public class WorldBankCovid19Sim extends SimState {
 		infectiousFramework = new CoronavirusBehaviourFramework(this);
 		spuriousFramework = new SpuriousSymptomBehaviourFramework(this);
 		
+		// initialise the agent storage
+		// holders for construction
+		agents = new ArrayList <Person> ();
+		households = new ArrayList <Household> ();
+		workplaces = new ArrayList <Workplace> ();
+
+		// initialise the holder
+		personsToDistrict = new HashMap <Location, ArrayList<Person>>();
+
+		
 		// load the population
-		load_population(params.dataDir + params.population_filename);
+		LoadPopulation.load_population(params.dataDir + params.population_filename, this);
 		
 		// if there are no agents, SOMETHING IS WRONG. Flag this issue!
 		if(agents.size() == 0) {
@@ -290,110 +302,7 @@ public class WorldBankCovid19Sim extends SimState {
 
 	}
 	
-	public void load_population(String agentsFilename){
-		try {
-			
-			// holders for construction
-			agents = new ArrayList <Person> ();
-			households = new ArrayList <Household> ();
-			
-			// initialise the holder
-			personsToDistrict = new HashMap <Location, ArrayList<Person>>();
-			for(Location l: districts){
-				personsToDistrict.put(l, new ArrayList <Person> ());
-			}
-
-			
-			// use a helpful holder to find households by their names
-			HashMap <String, Household> rawHouseholds = new HashMap <String, Household> ();
-			
-			System.out.println("Reading in agents from " + agentsFilename);
-			
-			// Open the file
-			FileInputStream fstream = new FileInputStream(agentsFilename);
-
-			// Convert our input stream to a BufferedReader
-			BufferedReader agentData = new BufferedReader(new InputStreamReader(fstream));
-			String s;
-
-			// get rid of the header
-			s = agentData.readLine();
-			//Params.parseHeader(s.split(',')); TODO fix meeee
-			
-			System.out.print("BEGIN READING IN PEOPLE...");
-			
-			// read in the raw data
-			//int myIndex = 10;
-			while ((s = agentData.readLine()) != null ){//&& myIndex > 0) {
-				//myIndex--;
-				
-				// separate the columns from the raw text
-				String[] bits = Params.splitRawCSVString(s);
-				
-				// make sure the larger units are set up before we create the individual
-
-				// set up the Household for the Person
-				String hhName = bits[4];
-				Household h = rawHouseholds.get(hhName);
-
-				// target district
-				String myDistrictName = "d_" + bits[5]; // TODO AN ABOMINATION, STANDARDISE IT
-				Location myDistrict = params.districts.get(myDistrictName);
-
-				boolean schoolGoer = bits[8].equals("1");
-				
-				// if the Household doesn't already exist, create it and save it
-				if(h == null){
-					
-					// set up the Household
-					h = new Household(hhName, myDistrict);
-					rawHouseholds.put(hhName, h);
-					households.add(h);
-				}
-				
-				// identify the location in which the person, possibly, works
-				
-				/*String econLocBase = bits[7];
-				int econLocBaseBits = (int) Double.parseDouble(econLocBase);
-				String economicActivityLocationName = "d_" + econLocBaseBits;
-				Location econLocation = params.districts.get(economicActivityLocationName);
-				// TODO: they might not work anywhere! Further, they might work in a particular subset of the location! Specify here further!
-				*/
-				
-				// set up the person
-				// create a random birthday
-				int birthday = this.random.nextInt(365);
-
-				// create and save the Person agent
-				Person p = new Person(Integer.parseInt(bits[1]), // ID 
-						Integer.parseInt(bits[2]), // age
-						birthday, // birthday to update population
-						bits[3], // sex
-						bits[6].toLowerCase(), // lower case all of the job titles
-						schoolGoer,
-						h,
-						this
-						);
-				h.addPerson(p);
-				//p.setLocation(myDistrict);
-				p.setActivityNode(movementFramework.getHomeNode());
-				agents.add(p);
-				personsToDistrict.get(myDistrict).add(p);
-				
-				// schedule the agent to run at the beginning of the simulation
-				this.schedule.scheduleOnce(0, this.param_schedule_movement, p);
-				//this.schedule.scheduleRepeating(p);
-			}
-			
-			// clean up after ourselves!
-			agentData.close();
-							
-			System.out.println("FINISHED READING PEOPLE");
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.err.println("File input error: " + agentsFilename);
-		}
-	}
+	
 	
 
 
