@@ -1,10 +1,10 @@
-,person_id,age,sex,household_id,district_id,economic_status,economic_activity_location_id,school_goers,manufacturing_workers
-0,0,27,female,1146000,1,Office workers,1.0,0,0.0
-1,1,40,male,2300000,2,Office workers,1.0,0,0.0
-2,2,20,male,4198000,1,"Not working, inactive, not in universe",1.0,0,0.0
-3,3,41,female,3465000,1,Teachers,1.0,1,0.0
-4,4,15,female,882000,2,"Not working, inactive, not in universe",1.0,0,0.0
-5,5,23,female,2524000,1,Homemakers/Housework,1.0,0,0.0
-6,6,16,female,4751000,1,Current Students,1.0,1,0.0
-7,7,19,female,902000,2,Current Students,1.0,1,0.0
-8,8,57,female,6668000,1,Service workers,1.0,0,0.0
+,person_id,age,sex,household_id,workplace_id,district_id,economic_status,economic_activity_location_id,school_goers,manufacturing_workers
+0,0,27,female,1146000,district_1_Office workers_5,1,Office workers,1.0,0,0.0
+1,1,40,male,2300000,district_2_Office workers_2,2,Office workers,1.0,0,0.0
+2,2,20,male,4198000,"district_1_Not working, inactive, not in universe_4",1,"Not working, inactive, not in universe",1.0,0,0.0
+3,3,41,female,3465000,district_1_Teachers_3,1,Teachers,1.0,1,0.0
+4,4,15,female,882000,"district_2_Not working, inactive, not in universe_4",2,"Not working, inactive, not in universe",1.0,0,0.0
+5,5,23,female,2524000,district_1_Homemakers/Housework_4,1,Homemakers/Housework,1.0,0,0.0
+6,6,16,female,4751000,district_1_Current Students_4,1,Current Students,1.0,1,0.0
+7,7,19,female,902000,district_2_Current Students_3,2,Current Students,1.0,1,0.0
+8,8,57,female,6668000,district_1_Service workers_1,1,Service workers,1.0,0,0.0

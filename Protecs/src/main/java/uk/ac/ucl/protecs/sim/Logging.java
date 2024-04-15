@@ -151,7 +151,6 @@ public class Logging {
 		public void step(SimState arg0) {
 			Params params = world.params;
 			int dayOfSimulation = (int) (arg0.schedule.getTime() / world.params.ticks_per_day);
-			System.out.println("Happening on day " + String.valueOf(dayOfSimulation));
 			int numberOfTestsPerDay = world.params.number_of_tests_per_day.get(dayOfSimulation);
 			// create a function to group the population by sex, age and whether they gave birth
 			Map<Boolean, Map<Boolean, List<Person>>> hasTestedPositiveForCovid = (Map<Boolean, Map<Boolean,List<Person>>>) world.agents.stream().collect(
