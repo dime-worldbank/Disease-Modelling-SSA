@@ -8,7 +8,6 @@ import sim.engine.Steppable;
 import uk.ac.ucl.protecs.objects.Household;
 import uk.ac.ucl.protecs.objects.Location;
 import uk.ac.ucl.protecs.objects.Person;
-import uk.ac.ucl.protecs.sim.Params;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 
 public class Demography {
@@ -16,7 +15,7 @@ public class Demography {
 	public class Aging implements Steppable {
 
 		Person target;
-		int ticksUntilNextBirthday = 365;
+		int ticksUntilNextBirthday;
 		
 		public Aging(Person p, int ticksPerDay) {
 			this.target = p;

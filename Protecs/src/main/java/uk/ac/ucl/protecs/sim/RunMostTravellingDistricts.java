@@ -1,14 +1,8 @@
 package uk.ac.ucl.protecs.sim;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Random;
-
-import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
-import uk.ac.ucl.protecs.sim.Params;
 
 public class RunMostTravellingDistricts {
 	
@@ -39,7 +33,7 @@ public class RunMostTravellingDistricts {
 			    // generate random seed from 0 to 1,000,000
 			    int seed = random.nextInt(1000000);
 			        
-			    WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(seed, new Params(paramFilename, false), outputFilename, false);
+			    WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(seed, new Params(paramFilename, false), outputFilename, false, false);
 	
 				System.out.println("Loading...");
 	

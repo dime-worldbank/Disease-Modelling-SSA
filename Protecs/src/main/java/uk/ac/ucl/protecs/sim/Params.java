@@ -2,12 +2,10 @@ package uk.ac.ucl.protecs.sim;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +16,7 @@ public class Params {
 	public boolean verbose = true;
 	
 	public double infection_beta = 0.016;
-	public double rate_of_spurious_symptoms = 0.004;
+	public double rate_of_spurious_symptoms = 0.1;
 	public int lineListWeightingFactor = 1; // the line list contains only detected instances, which can be biased 
 											// - weight this if we suspect it's undercounting
 	public boolean setting_perfectMixing = false; // if TRUE: there are no work or social bubbles; individuals have
@@ -130,6 +128,7 @@ public class Params {
 	// time
 	public static int hours_per_tick = 4; // the number of hours each tick represents
 	public static int ticks_per_day = 24 / hours_per_tick;
+	public static int ticks_per_week = ticks_per_day * 7;
 	public static int ticks_per_year = ticks_per_day * 365;
 	
 	public static int hour_start_day_weekday = 8 / hours_per_tick;
