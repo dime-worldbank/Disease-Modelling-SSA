@@ -12,7 +12,7 @@ economic_status_num_daily_interacts_filename: numWeeklyInteractionsByStatus.txt
 econ_interaction_distrib_filename: interactionMatrixByStatus.txt
 
 community_num_interaction_perTick: 5
-setting_perfectMixing: true
+setting_perfectMixing: false
 
 line_list_filename: line_list_dummy.txt
 infection_transition_params_filename: covasim_infect_transitions.txt

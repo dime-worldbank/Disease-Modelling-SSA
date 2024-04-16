@@ -55,46 +55,92 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 				// if it's morning, go out for the day
 				if(hour >= myWorld.params.hour_start_day_weekday){ 
 
-					Location target;
-					target = myWorld.params.getTargetMoveDistrict(p, day, myWorld.random.nextDouble(), myWorld.lockedDown);
-					assert target.getId().startsWith("d_"): "target is a null location";
-					// define workday
-					boolean goToWork = (p.isSchoolGoer() || target == p.getCommunityLocation()) // schoolgoer or going to own district
-							&& myWorld.params.isWeekday(day);
-
-					if(myWorld.params.setting_perfectMixing) // in perfect mixing, just go to the community!
-						goToWork = false;
-					
-					p.transferTo(target);
-					assert (p.getLocation().equals(target)) : "Transfer to target didn't work";
-
-					// update appropriately
-					if(goToWork){ // working
-						p.setActivityNode(workNode);
-						p.setAtWork(true);
-						p.setVisiting(false);
-						return myWorld.params.hours_at_work_weekday;
-					}
-					
-					else if(target == p.getCommunityLocation()) { // in home district, not working
-						p.setActivityNode(communityNode);
-						p.setAtWork(false);	
-						assert p.getHousehold().getSuper().getId().equals(target.getId()) : 
-							"set to travel to a within district but didn't, home/target " + p.getHousehold().getSuper().getId() + " " + target.getId();
-						return myWorld.params.hour_end_day_otherday - hour; // stay out until time to go home!
-					}
-					
-					else{ // travelling to another district!
-						p.setActivityNode(communityNode);
-						p.setAtWork(false);
-						p.setVisiting(true);
-						assert ! p.getHousehold().getSuper().equals(target) : 
-							"set to travel to a different district but didn't, home/target " + p.getHousehold().getSuper().getId() + " " + target.getId();
-						return myWorld.params.hour_end_day_otherday - hour; // stay out until time to go home!
-					}
+					return determineDailyRoutine(p, hour, day);
 				}
 				return 1; // otherwise it's not the morning - stay home for now, but check in again later!
 			}
+			
+			private double determineDailyRoutine(Person p, int hour, int day) {
+				Location target;
+				target = myWorld.params.getTargetMoveDistrict(p, day, myWorld.random.nextDouble(), myWorld.lockedDown);
+				assert target.getId().startsWith("d_"): "target is a null location";
+				// define workday
+				// talk to Sophie about this, need to work out who is going to work and when etc... For now we will assume everyone goes to their workplace
+				boolean goToWork = true;
+
+				if(myWorld.params.setting_perfectMixing) // in perfect mixing, just go to the community!
+					goToWork = false;
+				
+				p.transferTo(target);
+				assert (p.getLocation().equals(target)) : "Transfer to target didn't work";
+
+				// update appropriately
+				if(goToWork){ // working
+					System.out.println("P_" + p.getID() + " is going to work");
+					p.setActivityNode(workNode);
+					p.transferTo(p.getWorkLocation());
+					p.setAtWork(true);
+					p.setVisiting(false);
+					return myWorld.params.hours_at_work_weekday;
+				}
+				
+				else if(target == p.getCommunityLocation()) { // in home district, not working
+					p.setActivityNode(communityNode);
+					p.setAtWork(false);	
+					assert p.getHousehold().getSuper().getId().equals(target.getId()) : 
+						"set to travel to a within district but didn't, home/target " + p.getHousehold().getSuper().getId() + " " + target.getId();
+					return myWorld.params.hour_end_day_otherday - hour; // stay out until time to go home!
+				}
+				
+				else{ // travelling to another district!
+					p.setActivityNode(communityNode);
+					p.setAtWork(false);
+					p.setVisiting(true);
+					assert ! p.getHousehold().getSuper().equals(target) : 
+						"set to travel to a different district but didn't, home/target " + p.getHousehold().getSuper().getId() + " " + target.getId();
+					return myWorld.params.hour_end_day_otherday - hour; // stay out until time to go home!
+				}
+			}
+			
+//			private double oldDetermineDailyRoutine(Person p, int hour, int day) {
+//				Location target;
+//				target = myWorld.params.getTargetMoveDistrict(p, day, myWorld.random.nextDouble(), myWorld.lockedDown);
+//				assert target.getId().startsWith("d_"): "target is a null location";
+//				// define workday
+//				boolean goToWork = (p.isSchoolGoer() || target == p.getCommunityLocation()) // schoolgoer or going to own district
+//						&& myWorld.params.isWeekday(day);
+//
+//				if(myWorld.params.setting_perfectMixing) // in perfect mixing, just go to the community!
+//					goToWork = false;
+//				
+//				p.transferTo(target);
+//				assert (p.getLocation().equals(target)) : "Transfer to target didn't work";
+//
+//				// update appropriately
+//				if(goToWork){// working
+//					p.setActivityNode(workNode);
+//					p.setAtWork(true);
+//					p.setVisiting(false);
+//					return myWorld.params.hours_at_work_weekday;
+//				}
+//				
+//				else if(target == p.getCommunityLocation()) { // in home district, not working
+//					p.setActivityNode(communityNode);
+//					p.setAtWork(false);	
+//					assert p.getHousehold().getSuper().getId().equals(target.getId()) : 
+//						"set to travel to a within district but didn't, home/target " + p.getHousehold().getSuper().getId() + " " + target.getId();
+//					return myWorld.params.hour_end_day_otherday - hour; // stay out until time to go home!
+//				}
+//				
+//				else{ // travelling to another district!
+//					p.setActivityNode(communityNode);
+//					p.setAtWork(false);
+//					p.setVisiting(true);
+//					assert ! p.getHousehold().getSuper().equals(target) : 
+//						"set to travel to a different district but didn't, home/target " + p.getHousehold().getSuper().getId() + " " + target.getId();
+//					return myWorld.params.hour_end_day_otherday - hour; // stay out until time to go home!
+//				}
+//			}
 
 			@Override
 			public boolean isEndpoint() {
@@ -118,6 +164,7 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 				
 				// if it's too late, go straight home
 				if(hour > myWorld.params.hour_end_day_weekday){
+//					System.out.println("P_" + p.getID() + " is going home from work");
 					p.transferTo(p.getHousehold());
 					p.setActivityNode(homeNode);
 					p.setAtWork(false);
@@ -126,6 +173,7 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 				
 				// if there is some time before going home, go out into the community!
 				else if(hour <= myWorld.params.hour_end_day_weekday) {
+//					System.out.println("P_" + p.getID() + " is leaving work to go to the community");
 					p.transferTo(p.getCommunityLocation());
 					p.setActivityNode(communityNode);
 					p.setAtWork(false);

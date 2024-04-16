@@ -40,6 +40,7 @@ public class Person extends MobileAgent {
 	
 	// social attributes
 	Location communityLocation;
+	Location workLocation;
 	HashSet <Person> workBubble;
 	HashSet <Person> communityBubble;
 	
@@ -95,6 +96,7 @@ public class Person extends MobileAgent {
 	boolean hasSpuriousObject = false;
 
 	Integer timeToRemoveCovidSpuriousSymptoms = Integer.MAX_VALUE;
+
 	
 	
 	/**
@@ -134,6 +136,8 @@ public class Person extends MobileAgent {
 		// agents are initialised uninfected
 		
 		communityLocation = myHousehold.getRootSuperLocation();
+		workLocation = myWorkplace.getRootSuperLocation();
+
 		workBubble = new HashSet <Person> ();
 		communityBubble = new HashSet <Person> ();
 		
@@ -517,6 +521,10 @@ public class Person extends MobileAgent {
 	public boolean isHome(){ return currentLocation == myHousehold;}
 
 	public Location getCommunityLocation(){ return communityLocation;}
+
+	public Location getWorkLocation() {
+		return workLocation;
+	}
 	public boolean atWorkNow(){ return this.atWork; }
 	public void setAtWork(boolean atWork) { this.atWork = atWork; }
 	
@@ -700,5 +708,6 @@ public class Person extends MobileAgent {
 		}
 		return false;
 	}
+
 	
 }
