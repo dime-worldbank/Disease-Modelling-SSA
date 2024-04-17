@@ -5,6 +5,10 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import uk.ac.ucl.protecs.objects.Household;
 import uk.ac.ucl.protecs.objects.Workplace;
@@ -109,7 +113,21 @@ public class LoadPopulation{
 			// clean up after ourselves!
 			agentData.close();
 							
-			System.out.println("FINISHED READING PEOPLE");
+			System.out.println("FINISHED READING PEOPLE, now make workplace bubbles");
+			Map<String, List<Person>> belongingToBubble = sim.agents.stream().collect(
+					Collectors.groupingBy(
+							Person::checkWorkplaceID
+							)
+					);
+			for (Workplace w: sim.workplaces) {
+				List<Person> peopleInThisBubble = belongingToBubble.get(w.returnID());
+				// change this list to a hash set so we can store it
+				HashSet<Person> bubble = new HashSet<Person>(peopleInThisBubble);
+				// existing structure is a 
+				for (Person p: peopleInThisBubble) {
+					p.setWorkBubble(bubble);
+					}
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.err.println("File input error: " + agentsFilename);

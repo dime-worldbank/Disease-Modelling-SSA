@@ -76,7 +76,6 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 
 				// update appropriately
 				if(goToWork){ // working
-					System.out.println("P_" + p.getID() + " is going to work");
 					p.setActivityNode(workNode);
 					p.transferTo(p.getWorkLocation());
 					p.setAtWork(true);
