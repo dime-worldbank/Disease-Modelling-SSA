@@ -51,7 +51,6 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 				if(myWorld.random.nextDouble() > myEconStatProb)
 					return myWorld.params.ticks_per_day; // rest until tomorrow
 
-				
 				// if it's morning, go out for the day
 				if(hour >= myWorld.params.hour_start_day_weekday){ 
 
@@ -65,19 +64,26 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 				target = myWorld.params.getTargetMoveDistrict(p, day, myWorld.random.nextDouble(), myWorld.lockedDown);
 				assert target.getId().startsWith("d_"): "target is a null location";
 				// define workday
-				// talk to Sophie about this, need to work out who is going to work and when etc... For now we will assume everyone goes to their workplace
-				boolean goToWork = true;
+				// talk to Sophie about this, need to work out who is going to work and when etc... For now we will assume everyone goes to their workplace 50% of the time
+				
+				// if unemployed or homemaker don't go to work, else 80% change go to work
+				boolean goToWork = false;
+				if (myWorld.random.nextDouble() < myWorld.params.prob_go_to_work) {
+					goToWork = true;
+					target = p.getWorkLocation();
+
+				}
+
 
 				if(myWorld.params.setting_perfectMixing) // in perfect mixing, just go to the community!
 					goToWork = false;
 				
 				p.transferTo(target);
 				assert (p.getLocation().equals(target)) : "Transfer to target didn't work";
-
 				// update appropriately
 				if(goToWork){ // working
 					p.setActivityNode(workNode);
-					p.transferTo(p.getWorkLocation());
+					p.transferTo(target);
 					p.setAtWork(true);
 					p.setVisiting(false);
 					return myWorld.params.hours_at_work_weekday;
@@ -159,11 +165,9 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 				
 				// extract time info
 				int hour = ((int)time) % Params.ticks_per_day;
-
 				
 				// if it's too late, go straight home
 				if(hour > myWorld.params.hour_end_day_weekday){
-//					System.out.println("P_" + p.getID() + " is going home from work");
 					p.transferTo(p.getHousehold());
 					p.setActivityNode(homeNode);
 					p.setAtWork(false);
@@ -172,7 +176,6 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 				
 				// if there is some time before going home, go out into the community!
 				else if(hour <= myWorld.params.hour_end_day_weekday) {
-//					System.out.println("P_" + p.getID() + " is leaving work to go to the community");
 					p.transferTo(p.getCommunityLocation());
 					p.setActivityNode(communityNode);
 					p.setAtWork(false);

@@ -113,14 +113,16 @@ public class LoadPopulation{
 			// clean up after ourselves!
 			agentData.close();
 							
-			System.out.println("FINISHED READING PEOPLE, now make workplace bubbles");
+			System.out.println("FINISHED READING PEOPLE");
+			System.out.print("CREATING WORKPLACE BUBBLES...");
+
 			Map<String, List<Person>> belongingToBubble = sim.agents.stream().collect(
 					Collectors.groupingBy(
 							Person::checkWorkplaceID
 							)
 					);
 			for (Workplace w: sim.workplaces) {
-				List<Person> peopleInThisBubble = belongingToBubble.get(w.returnID());
+				List<Person> peopleInThisBubble = belongingToBubble.get(w.getId());
 				// change this list to a hash set so we can store it
 				HashSet<Person> bubble = new HashSet<Person>(peopleInThisBubble);
 				// existing structure is a 
@@ -128,6 +130,8 @@ public class LoadPopulation{
 					p.setWorkBubble(bubble);
 					}
 			}
+			System.out.println("FINISHED CREATING WORKPLACE BUBBLES");
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.err.println("File input error: " + agentsFilename);

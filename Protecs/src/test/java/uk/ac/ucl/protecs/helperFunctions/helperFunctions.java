@@ -34,10 +34,15 @@ public class helperFunctions {
 		}
 	}
 	public static void runSimulation(WorldBankCovid19Sim sim, int numDays) {
-		while(sim.schedule.getTime() < Params.ticks_per_day * numDays && !sim.schedule.scheduleComplete()){
+		while(sim.schedule.getTime() < sim.params.ticks_per_day * numDays && !sim.schedule.scheduleComplete()){
 			sim.schedule.step(sim);
 		}
-	}		
+	}
+	public static void runSimulationForTicks(WorldBankCovid19Sim sim, int numTicks) {
+		while(sim.schedule.getTime() < numTicks && !sim.schedule.scheduleComplete()){
+			sim.schedule.step(sim);
+		}
+	}	
 		
 	public static void SetFractionInfectionsWithCertainNode(double fraction, WorldBankCovid19Sim world, BehaviourNode Node) {
 		// Make this function assigns an infectious behaviour node of your choice to a certain percentage of the population

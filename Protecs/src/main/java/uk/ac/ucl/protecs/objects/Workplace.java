@@ -2,11 +2,10 @@ package uk.ac.ucl.protecs.objects;
 
 public class Workplace extends Location {
 	
-	String myWorkplaceId;
 	
 	public Workplace(String id, Location l){
 		super();
-		myWorkplaceId = "wp" + id;
+		myId = "wp" + id;
 		mySuperLocation = l;
 	}
 	
@@ -22,7 +21,5 @@ public class Workplace extends Location {
 		updatePersonsHere();
 		return result;
 	}
-	public String returnID() {
-		return this.myWorkplaceId;
-	}
+
 }

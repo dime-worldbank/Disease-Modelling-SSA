@@ -13,6 +13,7 @@ import uk.ac.ucl.protecs.objects.*;
 
 public class Params {
 	
+
 	public boolean verbose = true;
 	
 	public double infection_beta = 0.016;
@@ -21,6 +22,8 @@ public class Params {
 											// - weight this if we suspect it's undercounting
 	public boolean setting_perfectMixing = false; // if TRUE: there are no work or social bubbles; individuals have
 	// equal chance of interacting with anyone else in the simulation
+	public double prob_go_to_work = 0.8;
+
 
 	
 	public HashMap <String, Double> economic_status_weekday_movement_prob;

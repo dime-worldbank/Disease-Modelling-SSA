@@ -240,6 +240,7 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 					return Double.MAX_VALUE;
 				}
 				i.getHost().infectNeighbours();
+
 				if (i.getHost().hasPresymptCovid()) {
 					i.getHost().removePresympt();
 					}
@@ -324,6 +325,7 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 					return Double.MAX_VALUE;
 				}
 				i.getHost().infectNeighbours();
+
 				if (i.getHost().hasMild()) {
 					i.getHost().removeMild();
 					}
@@ -400,6 +402,7 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 					return Double.MAX_VALUE;
 				}
 				i.getHost().infectNeighbours();
+
 
 				if (i.getHost().hasSevere()) {
 					i.getHost().removeSevere();

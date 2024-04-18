@@ -17,20 +17,25 @@ public class WorkplaceTesting{
 	// ===== Here we test that the model is reading in workplaces from the census csv file and are being stored as workplace objects. =
 	// ===== We check that subsequently the workplace bubbles are created and are associated with the workplace location created. =====
 	// ===== We check that the bubbles are then created for each person, and that those who share a workplace have everyone associated=
-	// ===== with that workplace has been included in the bubble ======================================================================
+	// ===== with that workplace has been included in the bubble.                                                               =======
+	// ===== We check that people travel to their workplace location in the model.                                              =======
 	// ================================================================================================================================
 	
 	@Test
 	public void checkPopulationWorkplacesAreBeingLoaded() {
+		// workplaces are read in from the csv file now, initialise the simulation
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/workplace_bubbles_params.txt", false, false);
 		sim.start();
+		// check that the workplace locations have been created
 		Assert.assertTrue(sim.workplaces.size() > 0);
 
 	}
 	@Test
 	public void checkWorkplaceBubblesAreBeingMade() {
+		// bubbles are created after during the loading in process of the population
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/workplace_bubbles_params.txt", false, false);
 		sim.start();
+		// check that everyone has a bubble associated with their workplace
 		boolean hasBeenGivenABubble = true;
 		for (Person p: sim.agents) {
 			if (p.getWorkBubble().isEmpty()) {hasBeenGivenABubble = false;}
@@ -39,17 +44,20 @@ public class WorkplaceTesting{
 	}
 	@Test
 	public void checkWorkplaceBubblesContainEveryoneInWorkplace() {
+		// bubbles are created after during the loading in process of the population
+
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/workplace_bubbles_params.txt", false, false);
 		sim.start();
+		// create a function to search through the population and get people belonging to certain bubbles
 		Map<String, List<Person>> belongingToBubble = sim.agents.stream().collect(
 				Collectors.groupingBy(
 						Person::checkWorkplaceID
 						)
 				);
 		boolean bubbleContainsEveryoneInWorkplace = true;
-
+		// check that for each person, everyone who belongs to the workplace features in their bubble
 		for (Workplace w: sim.workplaces) {
-			String workplaceID = w.returnID();
+			String workplaceID = w.getId();
 			List<Person> thisBubble = belongingToBubble.get(workplaceID);
 			HashSet<Person> bubbleAsHashset = new HashSet<Person>(thisBubble);
 			for (Person p: thisBubble) {
@@ -59,6 +67,29 @@ public class WorkplaceTesting{
 		Assert.assertTrue(bubbleContainsEveryoneInWorkplace);
 
 	}
+	@Test
+	public void checkPeopleGoToTheirWorkplace() {
+		// check the movement of the population to their workplaces
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/workplace_bubbles_params.txt", false, false);
+		// make sure that everyone leaves the house that day
+		for (String key : sim.params.economic_status_weekday_movement_prob.keySet()) {
+			sim.params.economic_status_weekday_movement_prob.put(key, (double) 1);         
+			}
+		// make everyone decide to go to their workplace
+		sim.params.prob_go_to_work = 1d;
+		sim.start();
+		// run for three ticks (people leave the house at tick 2 and leave work at tick 4)
+		int numTicks = 3;
+		helperFunctions.runSimulationForTicks(sim, numTicks);
+		// determine if everyone has travelled to their workplace
+		boolean allAtWork = true;
+		for (Person p: sim.agents) {
+			if (!(p.getLocation() instanceof Workplace)) {allAtWork = false;}
+		}
+		Assert.assertTrue(allAtWork);
+		
+	}
+	
 	
 	@Test
 	public void dev() {

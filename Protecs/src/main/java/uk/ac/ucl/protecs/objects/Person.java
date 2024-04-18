@@ -136,7 +136,7 @@ public class Person extends MobileAgent {
 		// agents are initialised uninfected
 		
 		communityLocation = myHousehold.getRootSuperLocation();
-		workLocation = myWorkplace.getRootSuperLocation();
+		workLocation = myWorkplace;
 
 		workBubble = new HashSet <Person> ();
 		communityBubble = new HashSet <Person> ();
@@ -267,15 +267,19 @@ public class Person extends MobileAgent {
 			return;
 		}
 		// if there is no one else other than the individual at the location, save computation time and return out
-		else if(this.currentLocation.getPersonsHere().length < 2) return;
+		else if(this.currentLocation.getPersonsHere().length < 2) {
+			return;
+			}
 		
 		if(myWorld.params.setting_perfectMixing) {
 			
 			perfectMixingInteractions();
 			return;
 		}
-		else
+		else {
 			structuredMixingInteractions();
+			return;
+		}
 	}
 		// now apply the rules based on the setting
 
@@ -386,7 +390,7 @@ public class Person extends MobileAgent {
 	
 	private void structuredMixingInteractions() {
 		if(currentLocation instanceof Household){
-
+			assert (this.atWork == false): "at work but having interactions at home";
 			interactWithin(currentLocation.personsHere, null, currentLocation.personsHere.size());
 			
 		}
@@ -394,62 +398,12 @@ public class Person extends MobileAgent {
 		else if(currentLocation instanceof Workplace){
 			// set up the stats
 			// TODO: Set this up S.T. the number of interactions related to the person's occupation
-			Double d = 10d;
-			int myNumInteractions = (int) Math.round(d);		
+			int myNumInteractions = currentLocation.personsHere.size();		
 			// interact
 			interactWithin(workBubble, currentLocation.personsHere, myNumInteractions);
 		}
-		Object [] peopleHere = this.currentLocation.getPersonsHere();
-		int numPeople = peopleHere.length;
-		// only need to calculate interactions if there are more than one person present at this location
-		if (numPeople > 1) {
-		double someInteractions = myWorld.params.community_num_interaction_perTick;
-		if(this.atWork)
-			someInteractions = myWorld.params.economic_num_interactions_weekday_perTick.get(this.economic_status);
-		
-		double myNumInteractions = Math.min(numPeople - 1, someInteractions);
-		
-		// this number may be probabilistic - e.g. 3.5. In this case, in 50% of ticks they should
-		// interact with 4 people, and in 50% of ticks they should interact with only 3.
-		
-		// Thus, we calculate the probability of the extra person
-		double diff = myNumInteractions - Math.floor(myNumInteractions); // number between 0 and 1
-		
-		// if the random number is less than this, we bump the number up to the higher number this tick
-		if(myWorld.random.nextDouble() < diff)
-				myNumInteractions = Math.ceil(myNumInteractions);
-		
-		
-		// don't interact with the same person twice
-		HashSet <Person> otherPeople = new HashSet <Person> ();
-		otherPeople.add(this);
-		
-		for(int i = 0; i < myNumInteractions; i++) {
-			Person otherPerson = (Person) peopleHere[myWorld.random.nextInt(numPeople)];
-			
-			// don't interact with the same person multiple times
-			if(otherPeople.contains(otherPerson)) {
-				i -= 1;
-				continue;
-			}
-			else
-				otherPeople.add(otherPerson);
-			
 
-			//System.out.print(", " + otherPerson.age);
-			myWorld.testingAgeDist.add(otherPerson.age);
-			
-			// check if they are already infected; if they are not, infect with with probability BETA
-			double myProb = myWorld.random.nextDouble();
-			if(otherPerson.myInfection == null 
-					&& myProb < myWorld.params.infection_beta){
-				Infection inf = new CoronavirusInfection(otherPerson, this, myWorld.infectiousFramework.getHomeNode(), myWorld);
-				myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting);
-//					infecteds += otherPerson.toString() + " infected with prob " + myProb + "; ";
-			}
-
-		}
-	}
+	
 	}
 
 
@@ -604,7 +558,7 @@ public class Person extends MobileAgent {
 	
 	public void addToWorkBubble(Collection <Person> newPeople){ workBubble.addAll(newPeople);}	
 	public HashSet <Person> getWorkBubble(){ return workBubble; }
-	public String checkWorkplaceID() { return myWorkplace.returnID(); }
+	public String checkWorkplaceID() { return myWorkplace.getId(); }
 	public void setWorkBubble(HashSet <Person> newBubble) { workBubble = newBubble; }
 
 	public void addToCommunityBubble(Collection <Person> newPeople){ communityBubble.addAll(newPeople);}
