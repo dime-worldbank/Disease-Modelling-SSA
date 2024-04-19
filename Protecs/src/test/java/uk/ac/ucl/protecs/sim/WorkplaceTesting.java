@@ -19,6 +19,7 @@ public class WorkplaceTesting{
 	// ===== We check that the bubbles are then created for each person, and that those who share a workplace have everyone associated=
 	// ===== with that workplace has been included in the bubble.                                                               =======
 	// ===== We check that people travel to their workplace location in the model.                                              =======
+	// ===== We check that the parameters being used to predict workplace contacts are being loaded                             =======
 	// ================================================================================================================================
 	
 	@Test
@@ -87,6 +88,17 @@ public class WorkplaceTesting{
 			if (!(p.getLocation() instanceof Workplace)) {allAtWork = false;}
 		}
 		Assert.assertTrue(allAtWork);
+		
+	}
+	@Test
+	public void testWorkplaceContactsCountDataisBeingLoaded() {
+		// check the parameters associated with workplace contacts are being loaded
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/workplace_bubbles_params.txt", false, false);
+		sim.start();
+		boolean contactCountDataLoaded = sim.params.workplaceContactCounts.size() > 0;
+		boolean contactProbabilityDataLoaded = sim.params.workplaceContactProbability.keySet().size() > 0;
+		boolean contactOccupationDataLoaded = sim.params.workplaceContactProbability.values().size() > 0;
+		Assert.assertTrue(contactCountDataLoaded & contactProbabilityDataLoaded & contactOccupationDataLoaded);
 		
 	}
 	

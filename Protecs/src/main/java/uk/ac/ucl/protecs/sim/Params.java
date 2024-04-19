@@ -30,6 +30,9 @@ public class Params {
 	public HashMap <String, Double> economic_status_otherday_movement_prob;
 	
 	public HashMap <String, Double> economic_num_interactions_weekday_perTick;
+	public HashMap <String, List<Double>> workplaceContactProbability;
+	public ArrayList <String> occupationNames;
+	public ArrayList <Integer> workplaceContactCounts;
 	public static int community_num_interaction_perTick = 3;
 
 	public static int community_bubble_size = 30;
@@ -126,6 +129,8 @@ public class Params {
 	
 	public String testDataFilename = "";
 	public String testLocationFilename = "";
+	
+	public String workplaceContactsFilename;
 		
 	
 	// time
@@ -172,6 +177,9 @@ public class Params {
 		// load the testing data
 		load_testing(dataDir + testDataFilename);
 		load_testing_locations(dataDir + testLocationFilename);
+		
+		// load the workplace contacts data
+		load_workplace_contacts(dataDir + workplaceContactsFilename);
 		
 	}
 	
@@ -310,7 +318,7 @@ public class Params {
 	public void load_testing(String testDataFilename) {
 		try {
 			
-			System.out.println("Reading in testing data from " + testDataFilename);
+			if(verbose)System.out.println("Reading in testing data from " + testDataFilename);
 			
 			// Open the tracts file
 			FileInputStream fstream = new FileInputStream(testDataFilename);
@@ -350,7 +358,7 @@ public class Params {
 	public void load_testing_locations(String testLocationsFilename) {
 		try {
 			
-			System.out.println("Reading in testing locations from " + testLocationsFilename);
+			if (verbose) System.out.println("Reading in testing locations from " + testLocationsFilename);
 			
 			// Open the tracts file
 			FileInputStream fstream = new FileInputStream(testLocationsFilename);
@@ -381,6 +389,76 @@ public class Params {
 		} catch (Exception e) {
 			System.err.println("File input error: " + testLocationsFilename);
 		}
+	}
+	
+	public void load_workplace_contacts(String workplaceFilename){
+
+		// set up structure to hold transition probability
+		workplaceContactProbability = new HashMap <String, List<Double>> ();
+
+		// set up structure to hold transition probability
+		occupationNames = new ArrayList <String> ();
+		workplaceContactCounts = new ArrayList <Integer>();
+
+		
+		try {
+			
+			if(verbose)
+				System.out.println("Reading in workplace contact data from " + workplaceFilename);
+			
+			// Open the tracts file
+			FileInputStream fstream = new FileInputStream(workplaceFilename);
+
+			// Convert our input stream to a BufferedReader
+			BufferedReader workplaceData = new BufferedReader(new InputStreamReader(fstream));
+			
+			String s;
+
+			// extract the header
+			s = workplaceData.readLine();
+			
+			// map the header into column names
+			String [] header = splitRawCSVString(s);
+			HashMap <String, Integer> rawColumnNames = new HashMap <String, Integer> ();
+			for(int i = 0; i < header.length; i++){
+				rawColumnNames.put(header[i], new Integer(i));
+			}
+			int occupationIndex = rawColumnNames.get("Work contacts yesterday");
+			
+			// assemble use of district names for other purposes
+			for(int i = occupationIndex + 1; i < header.length; i++){
+				workplaceContactCounts.add(Integer.parseInt(header[i]));
+			}
+			// set up holders for the information
+			
+			
+			if(verbose)
+				System.out.println("BEGIN READING IN WORKPLACE CONTACTS");
+			
+			
+			// read in the raw data
+			while ((s = workplaceData.readLine()) != null) {
+				String [] bits = splitRawCSVString(s);
+				
+				// extract the occupation
+				String occupationName = bits[occupationIndex];
+				
+				// set up a new set workplace contact count probabilities
+				ArrayList <Double> cumulativeProbCount = new ArrayList <Double> ();
+				for(int i = occupationIndex + 1; i < bits.length; i++){
+					cumulativeProbCount.add(Double.parseDouble(bits[i]));
+				}
+
+				// save the transitions
+//				dailyTransitionProbs.get(dayOfWeek).put( districtName, transferFromDistrict);
+				workplaceContactProbability.put(occupationName, cumulativeProbCount);
+			}
+			// clean up after ourselves
+			workplaceData.close();
+		} catch (Exception e) {
+			System.err.println("File input error: " + workplaceFilename);
+		}
+		
 	}
 	
 	public void load_infection_params(String filename){
