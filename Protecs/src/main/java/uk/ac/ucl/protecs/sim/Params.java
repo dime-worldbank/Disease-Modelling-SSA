@@ -967,6 +967,16 @@ public class Params {
 			else return economic_status_otherday_movement_prob.get(econ_status);
 		}
 	}
+	
+	public int getWorkplaceContactCount(String occupation, double random) {
+		List <Double> probabilityOfCount = workplaceContactProbability.get(occupation);
+		int indexOfCount = 0;
+		for (double probability: probabilityOfCount) {
+			if (random < probability) break;
+			indexOfCount ++;
+		}
+		return workplaceContactCounts.get(indexOfCount);
+	}
 
 	/**
 	 * Get the probability of leaving a district.

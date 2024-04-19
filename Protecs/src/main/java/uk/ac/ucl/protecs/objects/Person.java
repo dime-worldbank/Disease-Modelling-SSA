@@ -381,7 +381,7 @@ public class Person extends MobileAgent {
 			double myProb = myWorld.random.nextDouble();
 			if(otherPerson.myInfection == null 
 					&& myProb < myWorld.params.infection_beta){
-				Infection inf = new CoronavirusInfection(otherPerson, this, myWorld.infectiousFramework.getHomeNode(), myWorld);
+				CoronavirusInfection inf = new CoronavirusInfection(otherPerson, this, myWorld.infectiousFramework.getHomeNode(), myWorld);
 				myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting);
 			}
 
@@ -396,9 +396,8 @@ public class Person extends MobileAgent {
 		}
 		// they may be at their economic activity site!
 		else if(currentLocation instanceof Workplace){
-			// set up the stats
-			// TODO: Set this up S.T. the number of interactions related to the person's occupation
-			int myNumInteractions = currentLocation.personsHere.size();		
+			int myNumInteractions = myWorld.params.getWorkplaceContactCount(this.getEconStatus(), this.myWorld.random.nextDouble());
+			if (myNumInteractions > currentLocation.personsHere.size()) myNumInteractions = currentLocation.personsHere.size();
 			// interact
 			interactWithin(workBubble, currentLocation.personsHere, myNumInteractions);
 		}
@@ -455,7 +454,7 @@ public class Person extends MobileAgent {
 			// check if they are already infected; if they are not, infect with with probability BETA
 			if(p.myInfection == null 
 					&& myWorld.random.nextDouble() < myWorld.params.infection_beta){
-				Infection inf = new CoronavirusInfection(p, this, myWorld.infectiousFramework.getHomeNode(), myWorld);
+				CoronavirusInfection inf = new CoronavirusInfection(p, this, myWorld.infectiousFramework.getHomeNode(), myWorld);
 				myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting);
 			}
 

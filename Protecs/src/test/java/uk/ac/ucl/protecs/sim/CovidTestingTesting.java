@@ -17,6 +17,7 @@ public class CovidTestingTesting {
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/covid_testing_params.txt", false, true);
 		sim.start();
 		int numDays = 1;
+		sim.params.infection_beta = 0;
 		helperFunctions.SetFractionInfectionsWithCertainNode(0.5, sim, sim.infectiousFramework.setNodeForTesting("mild"));
 		helperFunctions.StopRecoveryHappening(sim);
 		helperFunctions.runSimulation(sim, numDays);
@@ -27,6 +28,9 @@ public class CovidTestingTesting {
 			if (p.hasCovidSpuriousSymptoms()) {numWithSpurious++;}
 			if (p.hasSymptomaticCovid()) {numWithSymptomaticCovid++;}
 		}
+		System.out.println("num tested: " + hasBeenTested.size());
+		System.out.println("num spurious: " + numWithSpurious);
+		System.out.println("num symptomatic: " + numWithSymptomaticCovid);
 		Assert.assertTrue(hasBeenTested.size() == numWithSpurious + numWithSymptomaticCovid);
 		
 	}
