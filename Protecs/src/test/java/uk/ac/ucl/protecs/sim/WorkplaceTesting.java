@@ -101,16 +101,6 @@ public class WorkplaceTesting{
 		Assert.assertTrue(contactCountDataLoaded & contactProbabilityDataLoaded & contactOccupationDataLoaded);
 		
 	}
-	
-	
-	@Test
-	public void dev() {
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/workplace_bubbles_params.txt", false, false);
-		sim.start();
-		Assert.assertTrue(sim.workplaces.size() > 0);
-		int numDays = 20;
-		helperFunctions.runSimulation(sim, numDays);
-	}
-	
+
 	
 }
