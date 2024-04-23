@@ -1,10 +1,35 @@
 ,person_id,age,sex,household_id,workplace_id,district_id,economic_status,economic_activity_location_id,school_goers,manufacturing_workers
-0,0,27,female,1146000,district_1_Office workers_5,1,Office workers,1.0,0,0.0
-1,1,40,male,2300000,district_2_Office workers_2,2,Office workers,1.0,0,0.0
-2,2,20,male,4198000,"district_1_Not working, inactive, not in universe_4",1,"Not working, inactive, not in universe",1.0,0,0.0
-3,3,41,female,3465000,district_1_Teachers_3,1,Teachers,1.0,1,0.0
-4,4,15,female,882000,"district_2_Not working, inactive, not in universe_4",2,"Not working, inactive, not in universe",1.0,0,0.0
-5,5,23,female,2524000,district_1_Homemakers/Housework_4,1,Homemakers/Housework,1.0,0,0.0
-6,6,16,female,4751000,district_1_Current Students_4,1,Current Students,1.0,1,0.0
-7,7,19,female,902000,district_2_Current Students_3,2,Current Students,1.0,1,0.0
-8,8,57,female,6668000,district_1_Service workers_1,1,Service workers,1.0,0,0.0
+0,0,27,female,1146000,district_1_ag_estates_1,1,ag_estates,1.0,0,0.0
+1,1,27,female,1146001,district_1_ag_estates_1,1,ag_estates,1.0,0,0.0
+2,2,27,female,1146002,district_1_ag_estates_2,1,ag_estates,1.0,0,0.0
+3,3,27,female,1146003,district_1_ag_estates_2,1,ag_estates,1.0,0,0.0
+4,4,40,male,2300000,district_1_manu_mining_trades_1,1,manu_mining_trades,1.0,0,0.0
+5,5,40,male,2300001,district_1_manu_mining_trades_1,1,manu_mining_trades,1.0,0,0.0
+6,6,40,male,2300002,district_2_manu_mining_trades_1,2,manu_mining_trades,1.0,0,0.0
+7,7,40,male,2300003,district_2_manu_mining_trades_1,2,manu_mining_trades,1.0,0,0.0
+8,8,20,male,4198000,district_1_police_army_1,1,police_army,1.0,0,0.0
+9,9,20,male,4198001,district_1_police_army_1,1,police_army,1.0,0,0.0
+10,10,20,male,4198002,district_1_police_army_2,1,police_army,1.0,0,0.0
+11,11,20,male,4198003,district_1_police_army_2,1,police_army,1.0,0,0.0
+12,12,41,female,3465000,district_1_education_1,1,education,1.0,1,0.0
+13,13,41,female,3465001,district_1_education_1,1,education,1.0,1,0.0
+14,14,41,female,3465002,district_2_education_1,2,education,1.0,1,0.0
+15,15,41,female,3465003,district_2_education_1,2,education,1.0,1,0.0
+16,16,15,female,882000,district_2_healthcare_social_work_1,2,healthcare_social_work,1.0,0,0.0
+17,17,15,female,882001,district_2_healthcare_social_work_1,2,healthcare_social_work,1.0,0,0.0
+18,18,23,female,2524000,district_1_service_retail_1,1,service_retail,1.0,0,0.0
+19,19,23,female,2524000,district_1_service_retail_1,1,service_retail,1.0,0,0.0
+20,20,16,female,4751000,district_1_informal_petty_trade_1,1,informal_petty_trade,1.0,1,0.0
+21,21,16,female,4751000,district_1_informal_petty_trade_1,1,informal_petty_trade,1.0,1,0.0
+22,22,19,female,902000,district_2_subsistence_ag_1,2,subsistence_ag,1.0,1,0.0
+23,23,19,female,902000,district_2_subsistence_ag_1,2,subsistence_ag,1.0,1,0.0
+24,24,57,female,6668000,district_1_unemployed_not_ag_1,1,unemployed_not_ag,1.0,0,0.0
+25,25,57,female,6668000,district_1_unemployed_not_ag_1,1,unemployed_not_ag,1.0,0,0.0
+26,26,27,female,1146000,district_1_other_1,1,other,1.0,0,0.0
+27,27,27,female,1146000,district_1_other_1,1,other,1.0,0,0.0
+28,28,27,female,1146000,district_1_transport_sector_1,1,transport_sector,1.0,0,0.0
+29,29,27,female,1146000,district_1_transport_sector_1,1,transport_sector,1.0,0,0.0
+30,30,27,female,1146000,district_1_office_worker_1,1,office_worker,1.0,0,0.0
+31,31,27,female,1146000,district_1_office_worker_1,1,office_worker,1.0,0,0.0
+32,32,27,female,1146000,district_1_religious_1,1,religious,1.0,0,0.0
+33,33,27,female,1146000,district_1_religious_1,1,religious,1.0,0,0.0

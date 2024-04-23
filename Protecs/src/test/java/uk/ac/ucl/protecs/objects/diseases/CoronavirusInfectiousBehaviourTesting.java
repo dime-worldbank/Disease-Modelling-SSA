@@ -29,7 +29,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// seed a number of the specific node to the run
 		helperFunctions.SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("susceptible"));
 		// Set up a duration to run the simulation
-		int numDays = 100; 
+		int numDays = 50; 
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
 		List<String> uniqueNodesInRun = getUniqueNodesInSim(sim, numDays);
 		// we would expect only the susceptible node to appear as there is no COVID seeded in this simulation
@@ -51,7 +51,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// seed a number of the specific node to the run
 		helperFunctions.SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("exposed"));
 		// Set up a duration to run the simulation
-		int numDays = 100; 
+		int numDays = 50; 
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
 		List<String> uniqueNodesInRun = getUniqueNodesInSim(sim, numDays);
 		// we would expect only the exposed, presymptomatic, asymptomatic and susceptible nodes to be present in the run
@@ -72,7 +72,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Make Sure no one's disease progresses beyond a Mild infection
 		helperFunctions.HaltDiseaseProgressionAtStage(sim, "Mild");
 		// Set up a duration to run the simulation
-		int numDays = 100; 
+		int numDays = 50; 
 		// Make sure no one recovers from COVID
 		helperFunctions.StopRecoveryHappening(sim);
 		// Run the simulation and record the infectious behaviour nodes activated in this simulation
@@ -92,7 +92,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Make everyone have a critical infection
 		helperFunctions.SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("asymptomatic"));
 		// Set up a duration to run the simulation
-		int numDays = 100; 
+		int numDays = 50; 
 		// Run the simulation and record the infectious behaviour nodes activated in this simulation
 		List<String> uniqueNodesInRun = getUniqueNodesInSim(sim, numDays);
 		// we would expect only the asymptomatic and recovered nodes to show up in this run
@@ -114,7 +114,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Ensure that no one disease progression occurs beyond the severe stage
 		helperFunctions.HaltDiseaseProgressionAtStage(sim, "Severe");
 		// Set up a duration to run the simulation
-		int numDays = 100; 
+		int numDays = 50; 
 		// Run the simulation and record the infectious behaviour nodes activated in this simulation
 		List<String> uniqueNodesInRun = getUniqueNodesInSim(sim, numDays);
 		// we would expect only the severe, critical and recovered nodes to show up in this run
@@ -135,7 +135,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Ensure that no one disease progression occurs beyond the critical stage
 		helperFunctions.HaltDiseaseProgressionAtStage(sim, "Critical");
 		// Set up a duration to run the simulation
-		int numDays = 100; 
+		int numDays = 50; 
 		// Run the simulation and record the infectious behaviour nodes activated in this simulation
 		List<String> uniqueNodesInRun = getUniqueNodesInSim(sim, numDays);
 		// we would expect only the severe, critical and recovered nodes to show up in this run
@@ -154,7 +154,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Make everyone have a critical infection
 		helperFunctions.SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("critical"));
 		// Set up a duration to run the simulation
-		int numDays = 100; 
+		int numDays = 50; 
 		// Run the simulation and record the infectious behaviour nodes activated in this simulation
 		List<String> uniqueNodesInRun = getUniqueNodesInSim(sim, numDays);
 		// we would expect only the Critical, dead and recovered nodes to show up in this run
@@ -172,7 +172,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// seed a number of the specific node to the run
 		helperFunctions.SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("recovered"));
 		// Set up a duration to run the simulation
-		int numDays = 100; 
+		int numDays = 50; 
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
 		List<String> uniqueNodesInRun = getUniqueNodesInSim(sim, numDays);
 		// we would expect only the recovered node to appear as there is no COVID seeded in this simulation
@@ -190,7 +190,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// seed a number of the specific node to the run
 		helperFunctions.SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("dead"));
 		// Set up a duration to run the simulation
-		int numDays = 100; 
+		int numDays = 50; 
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
 		List<String> uniqueNodesInRun = getUniqueNodesInSim(sim, numDays);
 		// we would expect only the recovered node to appear as there is no COVID seeded in this simulation

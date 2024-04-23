@@ -114,6 +114,7 @@ public class LoadPopulation{
 			agentData.close();
 							
 			System.out.println("FINISHED READING PEOPLE");
+			if (!sim.params.setting_perfectMixing) {
 			System.out.print("CREATING WORKPLACE BUBBLES...");
 
 			Map<String, List<Person>> belongingToBubble = sim.agents.stream().collect(
@@ -131,6 +132,7 @@ public class LoadPopulation{
 					}
 			}
 			System.out.println("FINISHED CREATING WORKPLACE BUBBLES");
+			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
