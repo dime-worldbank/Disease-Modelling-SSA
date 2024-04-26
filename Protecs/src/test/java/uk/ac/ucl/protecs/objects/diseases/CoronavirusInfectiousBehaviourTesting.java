@@ -40,6 +40,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 	}
+	
 	@Test
 	public void exposedBehaviourNodesLeadToSusceptiblePresymptomaticAndAsymptomaticOnly() {
 		// create a simulation and start
@@ -62,6 +63,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 	}
+	
 	@Test
 	public void presymptomaticBehaviourNodesLeadToMildCasesOnly() {
 		// create a simulation and start
@@ -85,6 +87,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		}
+	
 	@Test
 	public void asymptomaticBehaviourNodesLeadsToRecoveredOnly() {
 		// create a simulation and start
@@ -125,6 +128,28 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		}
+	
+	@Test
+	public void confirmMildInfectionsResolveToRecoveredWhenTheyDoNotProgress() {
+		// create a simulation and start
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt", false);
+		sim.start();
+		// Ensure that no one disease progression occurs beyond the exposed stage
+		HaltDiseaseProgressionAtStage(sim, "Severe");
+		// Make sure there are no new infections
+		sim.params.infection_beta = 0;
+		// seed a number of the specific node to the run
+		SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("mild"));
+		// Set up a duration to run the simulation
+		int numDays = 100; 
+		// Run the simulation and record the infectious behaviour nodes reached in this simulation
+		List<String> uniqueNodesInRun = getFinalNodesInSim(sim, numDays);
+		// we would expect only the exposed, presymptomatic, asymptomatic and susceptible nodes to be present in the run
+		List<String> expectedNodes = Arrays.asList("recovered");
+		// Make sure than no other nodes are reaching in the simulation
+		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
+	}
+	
 	@Test
 	public void severeBehaviourNodesLeadToCriticalAndRecoveredOnly() {
 		// create a simulation and start
@@ -146,6 +171,28 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		}
+	
+	@Test
+	public void confirmSevereInfectionsResolveToRecoveredWhenTheyDoNotProgress() {
+		// create a simulation and start
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt", false);
+		sim.start();
+		// Ensure that no one disease progression occurs beyond the exposed stage
+		HaltDiseaseProgressionAtStage(sim, "Critical");
+		// Make sure there are no new infections
+		sim.params.infection_beta = 0;
+		// seed a number of the specific node to the run
+		SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("severe"));
+		// Set up a duration to run the simulation
+		int numDays = 100; 
+		// Run the simulation and record the infectious behaviour nodes reached in this simulation
+		List<String> uniqueNodesInRun = getFinalNodesInSim(sim, numDays);
+		// we would expect only the exposed, presymptomatic, asymptomatic and susceptible nodes to be present in the run
+		List<String> expectedNodes = Arrays.asList("recovered");
+		// Make sure than no other nodes are reaching in the simulation
+		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
+	}
+	
 	@Test
 	public void criticaBehaviourlNodesLeadToDeadOrRecoveredOnly() {
 		// create a simulation and start
@@ -165,6 +212,27 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		}
+	
+	@Test
+	public void confirmCriticalInfectionsResolveToRecoveredWhenTheyDoNotProgress() {
+		// create a simulation and start
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt", false);
+		sim.start();
+		// Ensure that no one disease progression occurs beyond the exposed stage
+		HaltDiseaseProgressionAtStage(sim, "Critical");
+		// Make sure there are no new infections
+		sim.params.infection_beta = 0;
+		// seed a number of the specific node to the run
+		SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("critical"));
+		// Set up a duration to run the simulation
+		int numDays = 100; 
+		// Run the simulation and record the infectious behaviour nodes reached in this simulation
+		List<String> uniqueNodesInRun = getFinalNodesInSim(sim, numDays);
+		// we would expect only the exposed, presymptomatic, asymptomatic and susceptible nodes to be present in the run
+		List<String> expectedNodes = Arrays.asList("recovered");
+		// Make sure than no other nodes are reaching in the simulation
+		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
+	}
 	@Test
 	public void recoveredBehaviourNodesStayRecovered() {
 		// create a simulation and start
@@ -301,9 +369,28 @@ public class CoronavirusInfectiousBehaviourTesting {
 		}
 		}
 				
+		List<String> UniqueNodes = new ArrayList<String>(behaviourNodeBin);
 
-		// If we halt progression for symptomatic COVID, we don't want to see .
-		List<String> UniqueNodes = behaviourNodeBin.stream().distinct().collect(Collectors.toList());
+		return UniqueNodes;
+	}
+	private List<String> getFinalNodesInSim(WorldBankCovid19Sim world, int numDaysToRun){
+		// This function runs the simulation for a predetermined number of days.
+		// At the end of the simulation, the function returns a list of the behaviour nodes being 'performed' by the infections.
+		
+		// Create a list to store the unique node stages that occur in each step
+		HashSet <String> behaviourNodeBin = new HashSet<String>();
+		
+		// Simulate over the time period and get the disease stages present in the simulation
+		while(world.schedule.getTime() < Params.ticks_per_day * numDaysToRun && !world.schedule.scheduleComplete()){
+			// create a list to store the disease nodes that occur in the simulation
+			ArrayList <String> nodesBin = new ArrayList<String>();
+			world.schedule.step(world);
+		}
+		for (Infection i: world.infections) {
+			behaviourNodeBin.add(i.getBehaviourName());
+		}
+		
+		List<String> UniqueNodes = new ArrayList<String>(behaviourNodeBin);
 
 		return UniqueNodes;
 	}
