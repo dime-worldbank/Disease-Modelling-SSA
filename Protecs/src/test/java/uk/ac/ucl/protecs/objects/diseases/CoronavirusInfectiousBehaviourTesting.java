@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,7 +23,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	// === against the infectious behaviour nodes that were activated by the simulation. ==============================
 	
 	@Test
-	public void TestSusceptibleEndpoints() {
+	public void ifThereAreNoCovidInfectionsPeopleStaySusceptible() {
 		// create a simulation and start
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt", false);
 		sim.start();
@@ -40,7 +41,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 	}
 	@Test
-	public void TestExposedEndpoints() {
+	public void exposedBehaviourNodesLeadToSusceptiblePresymptomaticAndAsymptomaticOnly() {
 		// create a simulation and start
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt", false);
 		sim.start();
@@ -62,7 +63,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 	}
 	@Test
-	public void TestPresymptomaticEndpoints() {
+	public void presymptomaticBehaviourNodesLeadToMildCasesOnly() {
 		// create a simulation and start
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt", false);
 		sim.start();
@@ -85,7 +86,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		}
 	@Test
-	public void TestAsymptomaticEndpoints() {
+	public void asymptomaticBehaviourNodesLeadsToRecoveredOnly() {
 		// create a simulation and start
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt", false);
 		sim.start();
@@ -104,7 +105,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		}
 	
 	@Test
-	public void TestMildEndpoints() {
+	public void mildBehaviourNodesLeadToSevereAndRecoveredOnly() {
 		// create a simulation and start
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt", false);
 		sim.start();
@@ -125,7 +126,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		}
 	@Test
-	public void TestSevereEndpoints() {
+	public void severeBehaviourNodesLeadToCriticalAndRecoveredOnly() {
 		// create a simulation and start
 		WorldBankCovid19Sim sim =helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt", false);
 		sim.start();
@@ -146,7 +147,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		}
 	@Test
-	public void TestCriticalEndpoints() {
+	public void criticaBehaviourlNodesLeadToDeadOrRecoveredOnly() {
 		// create a simulation and start
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt", false);
 		sim.start();
@@ -165,7 +166,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		}
 	@Test
-	public void TestRecoveredEndpoints() {
+	public void recoveredBehaviourNodesStayRecovered() {
 		// create a simulation and start
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt", false);
 		sim.start();
@@ -183,7 +184,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 	}
 	@Test
-	public void TestDeadEndpoints() {
+	public void deadBehaviourNodesStayDead() {
 		// create a simulation and start
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt", false);
 		sim.start();
@@ -283,7 +284,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// the course of the simulation.
 		
 		// Create a list to store the unique node stages that occur in each step
-		ArrayList <String> UniqueEachStep = new ArrayList<String> ();
+		HashSet <String> behaviourNodeBin = new HashSet<String>();
+		
 		// Simulate over the time period and get the disease stages present in the simulation
 		while(world.schedule.getTime() < Params.ticks_per_day * numDaysToRun && !world.schedule.scheduleComplete()){
 			// create a list to store the disease nodes that occur in the simulation
@@ -294,14 +296,14 @@ public class CoronavirusInfectiousBehaviourTesting {
 				nodesBin.add(i.getBehaviourName());
 			}
 			for (String node: nodesBin.stream().distinct().collect(Collectors.toList())) {
-				if (!UniqueEachStep.contains(node)) {UniqueEachStep.add(node);}
+				behaviourNodeBin.add(node);
 			}
 		}
 		}
 				
 
 		// If we halt progression for symptomatic COVID, we don't want to see .
-		List<String> UniqueNodes = UniqueEachStep.stream().distinct().collect(Collectors.toList());
+		List<String> UniqueNodes = behaviourNodeBin.stream().distinct().collect(Collectors.toList());
 
 		return UniqueNodes;
 	}
