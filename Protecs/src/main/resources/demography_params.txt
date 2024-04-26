@@ -1,4 +1,4 @@
-dataDir: src/test/resources/
+dataDir: src/main/resources/
 
 population_filename: new_large_census.csv
 
