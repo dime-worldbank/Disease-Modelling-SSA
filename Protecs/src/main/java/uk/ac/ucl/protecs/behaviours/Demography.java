@@ -13,6 +13,16 @@ import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 
 public class Demography {
 	
+	enum MortalitySteps {
+		death,
+		noDeath
+	}
+	
+	enum BirthSteps {
+		birth,
+		noBirth
+	}
+	
 	public class Aging implements Steppable {
 
 		Person target;
@@ -45,6 +55,9 @@ public class Demography {
 		// steps taken
 		@Override
 		public void step(SimState arg0) {
+			// This step performs the determining/causing mortality. Each year, a person will have a chance to have a date of
+			// death selected. Initially everyone goes through the determineMortality function. Which creates the date of death/reschedules
+			// itself for the start of next year if no date is selected.
 			if(this.target.isAlive()) {
 			if (this.tickToCauseMortality < Integer.MAX_VALUE) {
 				causeDeath();
@@ -67,12 +80,14 @@ public class Demography {
 			// do switch operation on the person's sex to determine likelihood of mortality
 			switch (target.getSex()) {
 			// ------------------------------------------------------------------------------------------------------------
+			// get probability of dying this year if male
 			case "male": {
 				myMortalityLikelihood = world.params.getLikelihoodByAge(
 					world.params.prob_death_by_age_male, world.params.all_cause_death_age_params, target.getAge());
 				break;
 			}
 			// ------------------------------------------------------------------------------------------------------------
+			// get probability of dying this year if female
 			case "female": {
 				myMortalityLikelihood = world.params.getLikelihoodByAge(
 						world.params.prob_death_by_age_female, world.params.all_cause_death_age_params, target.getAge());	
@@ -82,23 +97,24 @@ public class Demography {
 			default: System.out.println("Sex/age based mortality not found");
 			}
 				
-			// check if this person is going to die in the next year
-			String nextStep = "noDeath";
+			// check if this person is going to die in the next year. Set up default choice here.
+			MortalitySteps nextStep = MortalitySteps.noDeath;
 			
 			if (arg0.random.nextDouble() <= myMortalityLikelihood){
-				nextStep = "Death";
+				nextStep = MortalitySteps.death;
 				}
-			
+			// act on next step
 			switch (nextStep) {
 			// ------------------------------------------------------------------------------------------------------------
-			case "Death":{
+			case death:{
 				// choose a day to die this year, then schedule this death to take place
 				this.tickToCauseMortality = arg0.random.nextInt(365) * world.params.ticks_per_day;
 				arg0.schedule.scheduleOnce(arg0.schedule.getTime() + this.tickToCauseMortality, this);
 				break;
 			}
 			// ------------------------------------------------------------------------------------------------------------
-			case "noDeath":{
+			case noDeath:{
+				// reschedule this whole mortality deciding process to begin next year.
 				arg0.schedule.scheduleOnce(arg0.schedule.getTime() + this.ticksUntilNextMortalityCheck, this);
 				break;
 			}
@@ -150,20 +166,20 @@ public class Demography {
 			if (isAlive) {
 			double myPregnancyLikelihood = world.params.getLikelihoodByAge(
 					world.params.prob_birth_by_age, world.params.birth_age_params, target.getAge());
-			String nextStep = "noBirth";
+			BirthSteps nextStep = BirthSteps.noBirth;
 			if (arg0.random.nextDouble() <= myPregnancyLikelihood) {
-				nextStep = "Birth";
+				nextStep = BirthSteps.birth;
 				}
 			switch (nextStep) {
 			// ------------------------------------------------------------------------------------------------------------
-			case "Birth":{
+			case birth:{
 				// schedule day for the birth
 				this.tickToCauseBirth = arg0.random.nextInt(365) * world.params.ticks_per_day;
 				arg0.schedule.scheduleOnce(arg0.schedule.getTime() + this.tickToCauseBirth, this);	
 				break;
 				}
 			// ------------------------------------------------------------------------------------------------------------
-			case "noBirth":{
+			case noBirth:{
 				// schedule a check for birth next year
 				arg0.schedule.scheduleOnce(arg0.schedule.getTime() + this.ticksUntilNextBirthCheck, this);
 				break;
