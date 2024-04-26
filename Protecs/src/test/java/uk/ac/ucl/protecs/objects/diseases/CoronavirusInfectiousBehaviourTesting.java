@@ -269,7 +269,26 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 	}
-	
+	@Test
+	public void ifWeGiveEveryoneAnInfectionEventuallyTheyWillRecoveredOrDie() {
+		// create a simulation and start
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt", false);
+		sim.start();
+		// Make sure there are no new infections
+		sim.params.infection_beta = 0;
+		// Make sure that people exposed don't revert back to being susceptible
+		MakeExposedInfectionsCauseDisease(sim);
+		// seed a number of the specific node to the run
+		SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("exposed"));
+		// Set up a duration to run the simulation
+		int numDays = 100; 
+		// Run the simulation and record the infectious behaviour nodes reached in this simulation
+		List<String> uniqueNodesInRun = getFinalNodesInSim(sim, numDays);
+		// we would expect only the recovered node to appear as there is no COVID seeded in this simulation
+		List<String> expectedNodes = Arrays.asList("recovered", "dead");
+		// Make sure than no other nodes are reaching in the simulation
+		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
+	}
 	
     // ================================ Helper functions ==================================================
 	
@@ -317,6 +336,14 @@ public class CoronavirusInfectiousBehaviourTesting {
 			System.out.print("No parameters changed");
 		}
 		
+	}
+	
+	private void MakeExposedInfectionsCauseDisease(WorldBankCovid19Sim world) {
+		int idx = 0;
+		for (double val: world.params.infection_p_sym_by_age) {
+			world.params.infection_r_sus_by_age.set(idx, 1.0);
+			idx ++;
+		}
 	}
 	
 	private void SetFractionInfectionsWithCertainNode(double fraction, WorldBankCovid19Sim world, BehaviourNode Node) {
