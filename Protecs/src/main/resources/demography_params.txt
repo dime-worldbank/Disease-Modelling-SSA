@@ -1,6 +1,6 @@
 dataDir: src/test/resources/
 
-population_filename: larger_pop_census_dummy.csv
+population_filename: new_large_census.csv
 
 district_transition_LOCKDOWN_filename: dailyDistrictTransitionProb_preLockdown.csv
 district_transition_PRELOCKDOWN_filename: dailyDistrictTransitionProb_preLockdown.csv

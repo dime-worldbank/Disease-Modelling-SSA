@@ -1,6 +1,6 @@
-dataDir: src/main/resources/
+dataDir: src/test/resources/
 
-population_filename: dev_workplace_bubbles_pop.csv
+population_filename: new_large_census.csv
 
 district_transition_LOCKDOWN_filename: dailyDistrictTransitionProb_preLockdown.csv
 district_transition_PRELOCKDOWN_filename: dailyDistrictTransitionProb_preLockdown.csv

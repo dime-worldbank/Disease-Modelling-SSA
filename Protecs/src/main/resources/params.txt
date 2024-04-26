@@ -1,4 +1,4 @@
-dataDir: src/main/resources/
+dataDir: src/test/resources/
 
 population_filename: census_dummy.csv
 
@@ -22,7 +22,7 @@ lineListWeightingFactor: 1
 all_cause_mortality_filename: test_mortality_rates.txt
 birth_rate_filename: test_birth_rates.txt
 
-testDataFilename: num_tests_by_date.txt
+testDataFilename: dummy_n_tests.txt
 testLocationFilename: most_travelled_from_testing.txt
 
 workplaceContactsFilename: contact_counts_1.csv
