@@ -64,13 +64,13 @@ public class DemographyTesting {
 		Random rand = new Random();
 		int seed = rand.nextInt(1000000000);
 		// Create the simulation objects
-		WorldBankCovid19Sim sim_with_male_mortality = helperFunctions.CreateDummySim(seed, "src/main/resources/demography_params.txt", true);
+		WorldBankCovid19Sim sim_with_male_mortality = helperFunctions.CreateDummySimWithSeed(seed, "src/main/resources/demography_params.txt", true);
 		sim_with_male_mortality.start();
 		// turn off female mortality in this simulation
 		helperFunctions.setParameterListsToValue(sim_with_male_mortality, sim_with_male_mortality.params.prob_death_by_age_female, 0.0);
 		helperFunctions.setParameterListsToValue(sim_with_male_mortality, sim_with_male_mortality.params.prob_death_by_age_male, 0.5);
 
-		WorldBankCovid19Sim sim_with_female_mortality = helperFunctions.CreateDummySim(seed, "src/main/resources/demography_params.txt", true);
+		WorldBankCovid19Sim sim_with_female_mortality = helperFunctions.CreateDummySimWithSeed(seed, "src/main/resources/demography_params.txt", true);
 		// turn off female mortality in this simulation
 		helperFunctions.setParameterListsToValue(sim_with_female_mortality, sim_with_female_mortality.params.prob_death_by_age_male, 0.0);
 		helperFunctions.setParameterListsToValue(sim_with_female_mortality, sim_with_female_mortality.params.prob_death_by_age_female, 0.5);
