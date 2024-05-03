@@ -404,11 +404,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		HashSet <String> behaviourNodeBin = new HashSet<String>();
 		
 		// Simulate over the time period and get the disease stages present in the simulation
-		while(world.schedule.getTime() < Params.ticks_per_day * numDaysToRun && !world.schedule.scheduleComplete()){
-			// create a list to store the disease nodes that occur in the simulation
-			ArrayList <String> nodesBin = new ArrayList<String>();
-			world.schedule.step(world);
-		}
+		helperFunctions.runSimulation(world, numDaysToRun);
+		
 		for (Infection i: world.infections) {
 			behaviourNodeBin.add(i.getBehaviourName());
 		}
