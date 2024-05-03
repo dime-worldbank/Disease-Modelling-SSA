@@ -270,7 +270,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 	}
 	@Test
-	public void ifWeGiveEveryoneAnInfectionEventuallyTheyWillRecoveredOrDie() {
+	public void ifWeGiveEveryoneAnInfectionEventuallyTheyWillRecoverOrDie() {
 		// create a simulation and start
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt", false);
 		sim.start();
