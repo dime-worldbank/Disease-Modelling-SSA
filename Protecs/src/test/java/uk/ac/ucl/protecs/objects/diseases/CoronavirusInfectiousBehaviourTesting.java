@@ -34,7 +34,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Set up a duration to run the simulation
 		int numDays = 100; 
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
-		List<String> uniqueNodesInRun = getUniqueNodesInSim(sim, numDays);
+		HashSet<String> uniqueNodesInRun = getUniqueNodesInSim(sim, numDays);
 		// we would expect only the susceptible node to appear as there is no COVID seeded in this simulation
 		List<String> expectedNodes = Arrays.asList("susceptible");
 		// Make sure than no other nodes are reaching in the simulation
@@ -57,7 +57,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Set up a duration to run the simulation
 		int numDays = 100; 
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
-		List<String> uniqueNodesInRun = getUniqueNodesInSim(sim, numDays);
+		HashSet<String> uniqueNodesInRun = getUniqueNodesInSim(sim, numDays);
 		// we would expect only the exposed, presymptomatic, asymptomatic and susceptible nodes to be present in the run
 		List<String> expectedNodes = Arrays.asList("exposed", "susceptible", "presymptomatic", "asymptomatic");
 		// Make sure than no other nodes are reaching in the simulation
@@ -81,7 +81,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Make sure no one recovers from COVID
 		StopRecoveryHappening(sim);
 		// Run the simulation and record the infectious behaviour nodes activated in this simulation
-		List<String> uniqueNodesInRun = getUniqueNodesInSim(sim, numDays);
+		HashSet<String> uniqueNodesInRun = getUniqueNodesInSim(sim, numDays);
 		// we would expect only the presymptomatic and mild node to show up in this run
 		List<String> expectedNodes = Arrays.asList("presymptomatic", "mild_case");
 		// Make sure than no other nodes are reaching in the simulation
@@ -100,7 +100,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Set up a duration to run the simulation
 		int numDays = 100; 
 		// Run the simulation and record the infectious behaviour nodes activated in this simulation
-		List<String> uniqueNodesInRun = getUniqueNodesInSim(sim, numDays);
+		HashSet<String> uniqueNodesInRun = getUniqueNodesInSim(sim, numDays);
 		// we would expect only the asymptomatic and recovered nodes to show up in this run
 		List<String> expectedNodes = Arrays.asList("asymptomatic", "recovered");
 		// Make sure than no other nodes are reaching in the simulation
@@ -122,7 +122,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Set up a duration to run the simulation
 		int numDays = 100; 
 		// Run the simulation and record the infectious behaviour nodes activated in this simulation
-		List<String> uniqueNodesInRun = getUniqueNodesInSim(sim, numDays);
+		HashSet<String> uniqueNodesInRun = getUniqueNodesInSim(sim, numDays);
 		// we would expect only the severe, critical and recovered nodes to show up in this run
 		List<String> expectedNodes = Arrays.asList("mild_case", "severe_case", "recovered");
 		// Make sure than no other nodes are reaching in the simulation
@@ -165,7 +165,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Set up a duration to run the simulation
 		int numDays = 100; 
 		// Run the simulation and record the infectious behaviour nodes activated in this simulation
-		List<String> uniqueNodesInRun = getUniqueNodesInSim(sim, numDays);
+		HashSet<String> uniqueNodesInRun = getUniqueNodesInSim(sim, numDays);
 		// we would expect only the severe, critical and recovered nodes to show up in this run
 		List<String> expectedNodes = Arrays.asList("severe_case", "critical_case", "recovered");
 		// Make sure than no other nodes are reaching in the simulation
@@ -206,7 +206,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Set up a duration to run the simulation
 		int numDays = 100; 
 		// Run the simulation and record the infectious behaviour nodes activated in this simulation
-		List<String> uniqueNodesInRun = getUniqueNodesInSim(sim, numDays);
+		HashSet<String> uniqueNodesInRun = getUniqueNodesInSim(sim, numDays);
 		// we would expect only the Critical, dead and recovered nodes to show up in this run
 		List<String> expectedNodes = Arrays.asList("critical_case", "dead", "recovered");
 		// Make sure than no other nodes are reaching in the simulation
@@ -245,7 +245,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Set up a duration to run the simulation
 		int numDays = 100; 
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
-		List<String> uniqueNodesInRun = getUniqueNodesInSim(sim, numDays);
+		HashSet<String> uniqueNodesInRun = getUniqueNodesInSim(sim, numDays);
 		// we would expect only the recovered node to appear as there is no COVID seeded in this simulation
 		List<String> expectedNodes = Arrays.asList("recovered");
 		// Make sure than no other nodes are reaching in the simulation
@@ -263,7 +263,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Set up a duration to run the simulation
 		int numDays = 100; 
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
-		List<String> uniqueNodesInRun = getUniqueNodesInSim(sim, numDays);
+		HashSet<String> uniqueNodesInRun = getUniqueNodesInSim(sim, numDays);
 		// we would expect only the recovered node to appear as there is no COVID seeded in this simulation
 		List<String> expectedNodes = Arrays.asList("dead");
 		// Make sure than no other nodes are reaching in the simulation
@@ -372,7 +372,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		world.params.criticalToRecovery_std = 0;
 	}
 	
-	private List<String> getUniqueNodesInSim(WorldBankCovid19Sim world, int numDaysToRun){
+	private HashSet<String> getUniqueNodesInSim(WorldBankCovid19Sim world, int numDaysToRun){
 		// This function runs the simulation for a predetermined number of days. Every simulation day, this function will store the 
 		// infectious disease nodes that the infections are doing each day.
 		// At the end of the simulation, the function returns a list of the unique infectious behaviour nodes that have happened over
@@ -384,21 +384,17 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Simulate over the time period and get the disease stages present in the simulation
 		while(world.schedule.getTime() < Params.ticks_per_day * numDaysToRun && !world.schedule.scheduleComplete()){
 			// create a list to store the disease nodes that occur in the simulation
-			ArrayList <String> nodesBin = new ArrayList<String>();
+
 			world.schedule.step(world);
 			if (world.schedule.getTime() % Params.ticks_per_day == 1.0) {
 			for (Infection i: world.infections) {
-				nodesBin.add(i.getBehaviourName());
+				behaviourNodeBin.add(i.getBehaviourName());
 			}
-			for (String node: nodesBin.stream().distinct().collect(Collectors.toList())) {
-				behaviourNodeBin.add(node);
-			}
+
 		}
 		}
 				
-		List<String> UniqueNodes = new ArrayList<String>(behaviourNodeBin);
-
-		return UniqueNodes;
+		return behaviourNodeBin;
 	}
 	private List<String> getFinalNodesInSim(WorldBankCovid19Sim world, int numDaysToRun){
 		// This function runs the simulation for a predetermined number of days.
