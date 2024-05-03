@@ -14,16 +14,12 @@ public class helperFunctions {
 	public static WorldBankCovid19Sim CreateDummySim(String paramsFilename, boolean demography, boolean testing) {
 		Random rand = new Random();
 		int seed = rand.nextInt(100000000);
-		System.out.println("Running with seed = " + String.valueOf(seed));
-		Params p = new Params(paramsFilename, false);
-		WorldBankCovid19Sim myWorld = new WorldBankCovid19Sim(seed, p, "", demography, testing);
-		return myWorld;
+		return CreateDummySimWithSeed(seed, paramsFilename, demography, testing);
 	}
-	public static WorldBankCovid19Sim CreateDummySim(int seed, String paramsFilename, boolean demography, boolean testing) {
+	public static WorldBankCovid19Sim CreateDummySimWithSeed(int seed, String paramsFilename, boolean demography, boolean testing) {
 		System.out.println("Running with seed = " + String.valueOf(seed));
 		Params p = new Params(paramsFilename, false);
-		WorldBankCovid19Sim myWorld = new WorldBankCovid19Sim(seed, p, "", demography, testing);
-		return myWorld;
+		return new WorldBankCovid19Sim(seed, p, "", demography, testing);
 	}
 	
 	public static void setParameterListsToValue(WorldBankCovid19Sim world, ArrayList <Double> list_to_change, double value_to_set) {
