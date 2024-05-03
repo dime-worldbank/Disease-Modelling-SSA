@@ -277,7 +277,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
 		// Make sure that people exposed don't revert back to being susceptible
-		MakeExposedInfectionsCauseDisease(sim);
+		ForceExposedInfectionsCauseDisease(sim);
 		// seed a number of the specific node to the run
 		SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("exposed"));
 		// Set up a duration to run the simulation
@@ -338,7 +338,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		
 	}
 	
-	private void MakeExposedInfectionsCauseDisease(WorldBankCovid19Sim world) {
+	private void ForceExposedInfectionsCauseDisease(WorldBankCovid19Sim world) {
 		int idx = 0;
 		for (double val: world.params.infection_p_sym_by_age) {
 			world.params.infection_r_sus_by_age.set(idx, 1.0);
