@@ -27,7 +27,7 @@ public class DemographyTesting {
 		// Increase the birth rate to ensure births take place
 		helperFunctions.setParameterListsToValue(sim, sim.params.prob_birth_by_age, 1.0);
 		// Run the simulation for 100 days
-		int numDays = 100;
+		int numDays = 100; 
 		
 		int original_number_of_agents = sim.agents.size();
 		helperFunctions.runSimulation(sim, numDays);
@@ -60,13 +60,13 @@ public class DemographyTesting {
 		Random rand = new Random();
 		int seed = rand.nextInt(1000000000);
 		// Create the simulation objects
-		WorldBankCovid19Sim sim_with_male_mortality = helperFunctions.CreateDummySim(seed, "src/main/resources/demography_params.txt", true, false);
+		WorldBankCovid19Sim sim_with_male_mortality = helperFunctions.CreateDummySimWithSeed(seed, "src/main/resources/demography_params.txt", true, false);
 		sim_with_male_mortality.start();
 		// turn off female mortality in this simulation
 		helperFunctions.setParameterListsToValue(sim_with_male_mortality, sim_with_male_mortality.params.prob_death_by_age_female, 0.0);
 		helperFunctions.setParameterListsToValue(sim_with_male_mortality, sim_with_male_mortality.params.prob_death_by_age_male, 0.5);
 
-		WorldBankCovid19Sim sim_with_female_mortality = helperFunctions.CreateDummySim(seed, "src/main/resources/demography_params.txt", true, false);
+		WorldBankCovid19Sim sim_with_female_mortality = helperFunctions.CreateDummySimWithSeed(seed, "src/main/resources/demography_params.txt", true, false);
 		// turn off female mortality in this simulation
 		helperFunctions.setParameterListsToValue(sim_with_female_mortality, sim_with_female_mortality.params.prob_death_by_age_male, 0.0);
 		helperFunctions.setParameterListsToValue(sim_with_female_mortality, sim_with_female_mortality.params.prob_death_by_age_female, 0.5);
