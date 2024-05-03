@@ -14,7 +14,7 @@ public class CovidTestingTesting {
 	
 	@Test
 	public void CheckTestsOnlyHappenForThoseWithSymptomsOfCovid() {
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/test/resources/covid_testing_params.txt", false, true);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/covid_testing_params.txt", false, true);
 		sim.start();
 		int numDays = 1;
 		sim.params.infection_beta = 0;

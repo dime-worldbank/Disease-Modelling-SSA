@@ -25,7 +25,7 @@ public class WorkplaceTesting{
 	@Test
 	public void checkPopulationWorkplacesAreBeingLoaded() {
 		// workplaces are read in from the csv file now, initialise the simulation
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/test/resources/workplace_bubbles_params.txt", false, false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/workplace_bubbles_params.txt", false, false);
 		sim.start();
 		// check that the workplace locations have been created
 		Assert.assertTrue(sim.workplaces.size() > 0);
@@ -34,7 +34,7 @@ public class WorkplaceTesting{
 	@Test
 	public void checkWorkplaceBubblesAreBeingMade() {
 		// bubbles are created after during the loading in process of the population
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/test/resources/workplace_bubbles_params.txt", false, false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/workplace_bubbles_params.txt", false, false);
 		sim.start();
 		// check that everyone has a bubble associated with their workplace
 		boolean hasBeenGivenABubble = true;
@@ -47,7 +47,7 @@ public class WorkplaceTesting{
 	public void checkWorkplaceBubblesContainEveryoneInWorkplace() {
 		// bubbles are created after during the loading in process of the population
 
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/test/resources/workplace_bubbles_params.txt", false, false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/workplace_bubbles_params.txt", false, false);
 		sim.start();
 		// create a function to search through the population and get people belonging to certain bubbles
 		Map<String, List<Person>> belongingToBubble = sim.agents.stream().collect(
@@ -71,7 +71,7 @@ public class WorkplaceTesting{
 	@Test
 	public void checkPeopleGoToTheirWorkplace() {
 		// check the movement of the population to their workplaces
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/test/resources/workplace_bubbles_params.txt", false, false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/workplace_bubbles_params.txt", false, false);
 		// make sure that everyone leaves the house that day
 		for (String key : sim.params.economic_status_weekday_movement_prob.keySet()) {
 			sim.params.economic_status_weekday_movement_prob.put(key, (double) 1);         
@@ -93,7 +93,7 @@ public class WorkplaceTesting{
 	@Test
 	public void testWorkplaceContactsCountDataisBeingLoaded() {
 		// check the parameters associated with workplace contacts are being loaded
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/test/resources/workplace_bubbles_params.txt", false, false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/workplace_bubbles_params.txt", false, false);
 		sim.start();
 		boolean contactCountDataLoaded = sim.params.workplaceContactCounts.size() > 0;
 		boolean contactProbabilityDataLoaded = sim.params.workplaceContactProbability.keySet().size() > 0;
