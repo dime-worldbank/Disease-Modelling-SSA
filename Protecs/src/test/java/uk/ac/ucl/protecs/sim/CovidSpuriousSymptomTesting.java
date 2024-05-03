@@ -35,7 +35,7 @@ public class CovidSpuriousSymptomTesting{
 		int numberOfPeopleWithSpuriousSymptoms = 0; 
 		
 		try {
-			numberOfPeopleWithSpuriousSymptoms = peopleWithPropertiesAssigned(sim).size();
+			numberOfPeopleWithSpuriousSymptoms = checkSpuriousSymptomAndTestingEligibilityHasBeenAssigned(sim, true).size();
 			}
 		catch (Exception e) {}
 		System.out.println(numberOfPeopleWithSpuriousSymptoms);
@@ -59,7 +59,7 @@ public class CovidSpuriousSymptomTesting{
 	}
 	
 	@Test
-	public void CheckSettingSymptomsAreBeingRemoved() {
+	public void CheckSettingCovidSpuriousSymptomAndTestingEligibilityPropertiesAreBeingRemovedAfterAWeek() {
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/covid_testing_params.txt", false, true);
 		sim.start();
 		int numDays = 8;
@@ -77,12 +77,13 @@ public class CovidSpuriousSymptomTesting{
 		// run the simulation
 		helperFunctions.runSimulation(sim, numDays);
 		// Check that there are no spurious symptoms remaining in the population
-		List<Person> peopleWithSpuriousSymptoms = getPopulationWithSpuriousSymptoms(sim);
-		Assert.assertTrue(peopleWithSpuriousSymptoms == null);	
+		List<Person> peopleWithoutSpuriousSymptoms = checkSpuriousSymptomAndTestingEligibilityHasBeenAssigned(sim, false);
+		System.out.println("stop");
+		Assert.assertTrue(peopleWithoutSpuriousSymptoms.size() == sim.agents.size());	
 	}
 	
 	@Test
-	public void CheckPropertiesAreBeingSet() {
+	public void CheckCovidSpuriousSymptomAndTestingEligibilityPropertiesAreBeingSetWhenCreated() {
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/covid_testing_params.txt", false, true);
 		sim.start();
 		int numDays = 7;	
@@ -95,26 +96,11 @@ public class CovidSpuriousSymptomTesting{
 		helperFunctions.runSimulation(sim, numDays);
 		int sizeThatShouldHaveBeenGivenSymptoms = helperFunctions.GetNumberAlive(sim);
 		// Check that there are no spurious symptoms remaining in the population
-		List<Person> peopleWithPropertiesAssigned = peopleWithPropertiesAssigned(sim);		
+		List<Person> peopleWithPropertiesAssigned = checkSpuriousSymptomAndTestingEligibilityHasBeenAssigned(sim, true);		
 		Assert.assertTrue(peopleWithPropertiesAssigned.size() == sizeThatShouldHaveBeenGivenSymptoms);	
 	}
 	
-	@Test
-	public void CheckPropertiesAreBeingRemoved() {
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/covid_testing_params.txt", false, true);
-		sim.start();
-		int numDays = 8;
-		// Change the rate of setting Covid spurious symptoms so we have control the number of people who get given symptoms
-		sim.params.rate_of_spurious_symptoms = 0.0;		
-		// Remove the development of new symptoms
-		sim.params.infection_beta = 0.0;
-		giveAFractionASpuriousSymptom(1, sim);
-		// run the simulation
-		helperFunctions.runSimulation(sim, numDays);
-		List<Person> peopleWithoutPropertiesAssigned = peopleWithoutPropertiesAssigned(sim);
-		System.out.println(peopleWithoutPropertiesAssigned.size());
-		Assert.assertTrue((peopleWithoutPropertiesAssigned.size() == sim.agents.size()));
-	}
+
 	@Test
 	public void CheckSpuriousObjectsAreCreated() {
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/covid_testing_params.txt", false, true);
@@ -126,7 +112,7 @@ public class CovidSpuriousSymptomTesting{
 		sim.params.infection_beta = 0.0;
 		// run the simulation
 		helperFunctions.runSimulation(sim, numDays);
-		List<Person> peopleWithPropertiesAssigned = peopleWithPropertiesAssigned(sim);
+		List<Person> peopleWithPropertiesAssigned = checkSpuriousSymptomAndTestingEligibilityHasBeenAssigned(sim, true);
 		Assert.assertTrue((peopleWithPropertiesAssigned.size() > 0) & (peopleWithPropertiesAssigned.size() < sim.agents.size()));	
 
 
@@ -190,7 +176,8 @@ public class CovidSpuriousSymptomTesting{
 		
 		return hasSpuriousSymptomsAndAsympt.get(true).get(true);
 		}
-	public List<Person> peopleWithPropertiesAssigned(WorldBankCovid19Sim world){
+	
+	public List<Person> checkSpuriousSymptomAndTestingEligibilityHasBeenAssigned(WorldBankCovid19Sim world, boolean hasBeenAssigned){
 		
 		Map<Boolean, Map<Boolean, List<Person>>> propertiesChecked = (Map<Boolean, Map<Boolean, List<Person>>>) world.agents.stream().collect(
 	            Collectors.groupingBy(
@@ -202,20 +189,6 @@ public class CovidSpuriousSymptomTesting{
 		            )
 	               );
 		
-		return propertiesChecked.get(true).get(true);
-		}
-	public List<Person> peopleWithoutPropertiesAssigned(WorldBankCovid19Sim world){
-		
-		Map<Boolean, Map<Boolean, List<Person>>> propertiesChecked = (Map<Boolean, Map<Boolean, List<Person>>>) world.agents.stream().collect(
-	            Collectors.groupingBy(
-	              Person::hasCovidSpuriousSymptoms, 
-		            Collectors.groupingBy(
-		            	Person::isEligibleForCovidTesting,
-	                    Collectors.toList()
-	                    )
-		            )
-	               );
-		
-		return propertiesChecked.get(false).get(false);
+		return propertiesChecked.get(hasBeenAssigned).get(hasBeenAssigned);
 		}
 }
