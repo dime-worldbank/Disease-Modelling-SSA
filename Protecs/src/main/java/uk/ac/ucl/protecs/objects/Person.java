@@ -17,7 +17,6 @@ import java.util.stream.Stream;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 import uk.ac.ucl.protecs.behaviours.MovementBehaviourFramework;
@@ -47,7 +46,7 @@ public class Person extends MobileAgent {
 	
 	// locational attributes
 	Location currentLocation;
-	boolean schoolGoer = false; // allowed to move between districts?
+	boolean schoolGoer = false; // allowed to move between admin zones?
 	
 	// social attributes
 	Location communityLocation;
@@ -164,8 +163,8 @@ public class Person extends MobileAgent {
 		else
 			myWorld.schedule.scheduleOnce(this, myWorld.param_schedule_movement);
 			
-		// HACK TO ENSURE INTERACTION AWAY FROM HOME DISTRICT
-		// check if out of home district
+		// HACK TO ENSURE INTERACTION AWAY FROM HOME ADMIN ZONE
+		// check if out of home admin zone
 /*		if(visiting) {
 			
 			// if this Person is not infected, check if they catch anything from their neighbours!
@@ -564,8 +563,8 @@ public class Person extends MobileAgent {
 	public boolean isElligableForTesting() {return this.elligableForTesting; }
 	public boolean hasSpuriousSymptoms() {return this.hasSpuriousSymptoms; }
 
-	public boolean inADistrictTesting() {
-		boolean answer = this.myWorld.params.districts_to_test_in.stream().anyMatch(x -> x.equals(this.myHousehold.getRootSuperLocation().myId));
+	public boolean inAnAdminZoneTesting() {
+		boolean answer = this.myWorld.params.admin_zones_to_test_in.stream().anyMatch(x -> x.equals(this.myHousehold.getRootSuperLocation().myId));
 		return answer;
 	}
 		
@@ -633,7 +632,7 @@ public class Person extends MobileAgent {
 	public void setSpuriousSymptoms() {
 		this.hasSpuriousSymptoms = true;
 	}
-	public String getCurrentDistrict() {return this.getHousehold().getRootSuperLocation().myId;}
+	public String getCurrentAdminZone() {return this.getHousehold().getRootSuperLocation().myId;}
 
 	// UTILS
 	

@@ -58,10 +58,10 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 				if(hour >= myWorld.params.hour_start_day_weekday){ 
 
 					Location target;
-					target = myWorld.params.getTargetMoveDistrict(p, day, myWorld.random.nextDouble(), myWorld.lockedDown);
+					target = myWorld.params.getTargetMoveAdminZone(p, day, myWorld.random.nextDouble(), myWorld.lockedDown);
 					assert target.getId().startsWith("d_"): "target is a null location";
 					// define workday
-					boolean goToWork = (p.isSchoolGoer() || target == p.getCommunityLocation()) // schoolgoer or going to own district
+					boolean goToWork = (p.isSchoolGoer() || target == p.getCommunityLocation()) // schoolgoer or going to own admin zone
 							&& myWorld.params.isWeekday(day);
 
 					if(myWorld.params.setting_perfectMixing) // in perfect mixing, just go to the community!
@@ -78,20 +78,20 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 						return myWorld.params.hours_at_work_weekday;
 					}
 					
-					else if(target == p.getCommunityLocation()) { // in home district, not working
+					else if(target == p.getCommunityLocation()) { // in home admin zone, not working
 						p.setActivityNode(communityNode);
 						p.setAtWork(false);	
 						assert p.getHousehold().getSuper().getId().equals(target.getId()) : 
-							"set to travel to a within district but didn't, home/target " + p.getHousehold().getSuper().getId() + " " + target.getId();
+							"set to travel to a within admin zone but didn't, home/target " + p.getHousehold().getSuper().getId() + " " + target.getId();
 						return myWorld.params.hour_end_day_otherday - hour; // stay out until time to go home!
 					}
 					
-					else{ // travelling to another district!
+					else{ // travelling to another admin zone!
 						p.setActivityNode(communityNode);
 						p.setAtWork(false);
 						p.setVisiting(true);
 						assert ! p.getHousehold().getSuper().equals(target) : 
-							"set to travel to a different district but didn't, home/target " + p.getHousehold().getSuper().getId() + " " + target.getId();
+							"set to travel to a different admin zone but didn't, home/target " + p.getHousehold().getSuper().getId() + " " + target.getId();
 						return myWorld.params.hour_end_day_otherday - hour; // stay out until time to go home!
 					}
 				}

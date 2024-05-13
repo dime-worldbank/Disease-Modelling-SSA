@@ -1,8 +1,5 @@
 package uk.ac.ucl.protecs.objects.diseases;
 
-
-
-import uk.ac.ucl.protecs.behaviours.*;
 import uk.ac.ucl.protecs.objects.*;
 import uk.ac.ucl.protecs.sim.*;
 import sim.engine.Steppable;
@@ -420,9 +417,9 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 					i.setBehaviourNode(deadNode);
 					
 					if(!i.getHost().isDeadFromCovid()) {
-						Location myDistrict = i.getHost().getLocation().getRootSuperLocation();
-						myDistrict.metric_died_count++;
-						myDistrict.metric_new_deaths++;
+						Location myAdminZone = i.getHost().getLocation().getRootSuperLocation();
+						myAdminZone.metric_died_count++;
+						myAdminZone.metric_new_deaths++;
 					}
 					else
 						System.out.println("hmm how did you get here?");

@@ -2,12 +2,10 @@ package uk.ac.ucl.protecs.sim;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -43,12 +41,12 @@ public class Params {
 
 	// holders for locational data
 	
-	HashMap <String, Location> districts;
-	ArrayList <String> districtNames;
+	HashMap <String, Location> adminZones;
+	ArrayList <String> adminZoneNames;
 	ArrayList <Map<String, List<Double>>> dailyTransitionPrelockdownProbs;
 	ArrayList <Map<String, List<Double>>> dailyTransitionLockdownProbs;
 
-	HashMap <Location, Double> districtLeavingProb;
+	HashMap <Location, Double> adminZoneLeavingProb;
 	
 	// holders for economic-related data
 	
@@ -65,7 +63,7 @@ public class Params {
 	// holders for testing
 	public ArrayList <Integer> test_dates;
 	public ArrayList <Integer> number_of_tests_per_day;
-	public ArrayList <String> districts_to_test_in;
+	public ArrayList <String> admin_zones_to_test_in;
 	
 	// parameters drawn from Kerr et al 2020 - https://www.medrxiv.org/content/10.1101/2020.05.10.20097469v3.full.pdf
 	public ArrayList <Integer> infection_age_params;
@@ -107,9 +105,9 @@ public class Params {
 	
 	
 	public String population_filename = "";
-	public String district_transition_LOCKDOWN_filename = "";
-	public String district_transition_PRELOCKDOWN_filename = "";
-	public String district_leaving_filename = "";
+	public String admin_zone_transition_LOCKDOWN_filename = "";
+	public String admin_zone_transition_PRELOCKDOWN_filename = "";
+	public String admin_zone_leaving_filename = "";
 	
 	public String economic_status_weekday_movement_prob_filename = "";
 	public String economic_status_otherday_movement_prob_filename = "";
@@ -147,9 +145,9 @@ public class Params {
 		this.verbose = isVerbose;
 		readInParamFile(paramsFilename);
 		
-		dailyTransitionLockdownProbs = load_district_data(dataDir + district_transition_LOCKDOWN_filename);
-		dailyTransitionPrelockdownProbs = load_district_data(dataDir + district_transition_PRELOCKDOWN_filename);
-		load_district_leaving_data(dataDir + district_leaving_filename); // TODO get rid of this OR ELSE formalise variant for use
+		dailyTransitionLockdownProbs = load_admin_zone_data(dataDir + admin_zone_transition_LOCKDOWN_filename);
+		dailyTransitionPrelockdownProbs = load_admin_zone_data(dataDir + admin_zone_transition_PRELOCKDOWN_filename);
+		load_admin_zone_leaving_data(dataDir + admin_zone_leaving_filename); // TODO get rid of this OR ELSE formalise variant for use
 		
 		economic_status_weekday_movement_prob = readInEconomicData(dataDir + economic_status_weekday_movement_prob_filename, "economic_status", "movement_probability");
 		economic_status_otherday_movement_prob = readInEconomicData(dataDir + economic_status_otherday_movement_prob_filename, "economic_status", "movement_probability");
@@ -239,7 +237,7 @@ public class Params {
 			// map the header into column names relative to location
 			String [] header = splitRawCSVString(s);
 			HashMap <String, Integer> columnNames = parseHeader(header);
-			int districtNameIndex = columnNames.get("district");
+			int adminZoneNameIndex = columnNames.get("admin_zone");
 			int countIndex = columnNames.get("count");
 			
 			// set up data container
@@ -248,9 +246,9 @@ public class Params {
 			// read in the raw data
 			while ((s = lineListDataFile.readLine()) != null) {
 				String [] bits = splitRawCSVString(s);
-				Location myDistrict = districts.get(bits[districtNameIndex]);
+				Location myAdminZone = adminZones.get(bits[adminZoneNameIndex]);
 				Integer myCount = Integer.parseInt(bits[countIndex]);
-				lineList.put(myDistrict, myCount);
+				lineList.put(myAdminZone, myCount);
 			}
 			assert (lineList.size() > 0): "lineList not loaded";
 
@@ -347,7 +345,7 @@ public class Params {
 	
 	public void load_testing_locations(String testLocationsFilename) {
 		try {
-			
+			// TODO: Sort out how this works to allow names to be passed rather than numbers
 			System.out.println("Reading in testing locations from " + testLocationsFilename);
 			
 			// Open the tracts file
@@ -363,18 +361,18 @@ public class Params {
 			// map the header into column names relative to location
 			String [] header = splitRawCSVString(s);
 			HashMap <String, Integer> columnNames = parseHeader(header);
-			int district_numbers = columnNames.get("number");
+			int admin_zone_numbers = columnNames.get("number");
 			
 			// set up data containers
-			districts_to_test_in = new ArrayList <String> ();
+			admin_zones_to_test_in = new ArrayList <String> ();
 			
 			// read in the raw data
 			while ((s = testingDataFile.readLine()) != null) {
 				String [] bits = splitRawCSVString(s);
-				String district_to_test_in = "d_" + bits[district_numbers];
-				districts_to_test_in.add(district_to_test_in);
+				String zone_to_test_in = "d_" + bits[admin_zone_numbers];
+				admin_zones_to_test_in.add(zone_to_test_in);
 			}
-			assert (districts_to_test_in.size() > 0): "Number of districts to test in not loaded";
+			assert (admin_zones_to_test_in.size() > 0): "Number of admin zone to test in not loaded";
 
 		} catch (Exception e) {
 			System.err.println("File input error: " + testLocationsFilename);
@@ -621,35 +619,34 @@ public class Params {
 		}
 	}
 	
-	public ArrayList <Map<String, List<Double>>> load_district_data(String districtFilename){
+	public ArrayList <Map<String, List<Double>>> load_admin_zone_data(String adminZoneFilename){
 		
 		// set up structure to hold transition probability
 		ArrayList <Map<String, List<Double>>> probHolder = new ArrayList <Map<String, List<Double>>> ();
 		for(int i = 0; i < 7; i++){
 			probHolder.add(new HashMap <String, List<Double>> ());
 		}
-		districtNames = new ArrayList <String> ();
+		adminZoneNames = new ArrayList <String> ();
 
 
 		// set up holders
-		districts = new HashMap <String, Location> ();
-		//HashSet <String> districtNames = new HashSet <String> ();
-		districtNames = new ArrayList <String> ();
+		adminZones = new HashMap <String, Location> ();
+		adminZoneNames = new ArrayList <String> ();
 		
 		try {
 			
 			if(verbose)
-				System.out.println("Reading in district transfer information from " + districtFilename);
+				System.out.println("Reading in admin zone transfer information from " + adminZoneFilename);
 			
 			// Open the tracts file
-			FileInputStream fstream = new FileInputStream(districtFilename);
+			FileInputStream fstream = new FileInputStream(adminZoneFilename);
 
 			// Convert our input stream to a BufferedReader
-			BufferedReader districtData = new BufferedReader(new InputStreamReader(fstream));
+			BufferedReader adminZoneData = new BufferedReader(new InputStreamReader(fstream));
 			String s;
 
 			// extract the header
-			s = districtData.readLine();
+			s = adminZoneData.readLine();
 			
 			// map the header into column names relative to location
 			String [] header = splitRawCSVString(s);
@@ -660,54 +657,50 @@ public class Params {
 			int weekdayIndex = rawColumnNames.get("weekday");
 			int homeregionIndex = rawColumnNames.get("home_region");
 			
-			// assemble use of district names for other purposes
+			// assemble use of admin zone names for other purposes
 			for(int i = homeregionIndex + 1; i < header.length; i++){
-				districtNames.add(header[i]);
+				adminZoneNames.add(header[i]);
 			}
 			// set up holders for the information
 			
 			
 			if(verbose)
-				System.out.println("BEGIN READING IN DISTRICTS");
+				System.out.println("BEGIN READING IN ADMIN ZONES");
 			
 			// read in the raw data
-			while ((s = districtData.readLine()) != null) {
+			while ((s = adminZoneData.readLine()) != null) {
 				String [] bits = splitRawCSVString(s);
 				
-				// extract the day of the week and the district name
+				// extract the day of the week and the admin zone name
 				int dayOfWeek = Integer.parseInt(bits[weekdayIndex]);
-				String districtName = bits[homeregionIndex];
+				String adminZoneName = bits[homeregionIndex];
 				
-				// save the district name
-				//districtNames.add(districtName);
-				
-				// set up a new set of transfers from the given district
-				// the key here is the name of the district, and the value is transition probability
-				HashMap <String, Double> transferFromDistrict = new HashMap <String, Double> ();
+				// set up a new set of transfers from the given admin zone
+				// the key here is the name of the admin zone, and the value is transition probability
+				HashMap <String, Double> transferFromAdminZone = new HashMap <String, Double> ();
 				ArrayList <Double> cumulativeProbTransfer = new ArrayList <Double> ();
 				for(int i = homeregionIndex + 1; i < bits.length; i++){
-					transferFromDistrict.put(header[i], Double.parseDouble(bits[i]));
+					transferFromAdminZone.put(header[i], Double.parseDouble(bits[i]));
 					cumulativeProbTransfer.add(Double.parseDouble(bits[i])/100.);
 				}
 
 				// save the transitions
-//				dailyTransitionProbs.get(dayOfWeek).put( districtName, transferFromDistrict);
-				probHolder.get(dayOfWeek).put( districtName, cumulativeProbTransfer);
+				probHolder.get(dayOfWeek).put( adminZoneName, cumulativeProbTransfer);
 			}
 			
-			// create Locations for each district
-			for(String d: districtNames){
+			// create Locations for each admin zone
+			for(String d: adminZoneNames){
 				Location l = new Location(d);
-				districts.put(d, l);
+				adminZones.put(d, l);
 			}
 			
 			// clean up after ourselves
-			districtData.close();
-			assert (districts.size() > 0): "Districts not loaded";
-			assert (probHolder.size() > 0): "Probability of transition between districts not loaded";
+			adminZoneData.close();
+			assert (adminZones.size() > 0): "Admin zone not loaded";
+			assert (probHolder.size() > 0): "Probability of transition between admin zones not loaded";
 			return probHolder;
 		} catch (Exception e) {
-			System.err.println("File input error: " + districtFilename);
+			System.err.println("File input error: " + adminZoneFilename);
 			return null;
 		}
 	}
@@ -764,25 +757,25 @@ public class Params {
 		return null;
 	}
 
-	public void load_district_leaving_data(String districtFilename){
+	public void load_admin_zone_leaving_data(String adminZoneFilename){
 		
 		// set up structure to hold transition probability
-		districtLeavingProb = new HashMap <Location, Double> ();
+		adminZoneLeavingProb = new HashMap <Location, Double> ();
 		
 		try {
 			
 			if(verbose)
-				System.out.println("Reading in district transfer information from " + districtFilename);
+				System.out.println("Reading in admin zone transfer information from " + adminZoneFilename);
 			
 			// Open the tracts file
-			FileInputStream fstream = new FileInputStream(districtFilename);
+			FileInputStream fstream = new FileInputStream(adminZoneFilename);
 
 			// Convert our input stream to a BufferedReader
-			BufferedReader districtData = new BufferedReader(new InputStreamReader(fstream));
+			BufferedReader adminZoneData = new BufferedReader(new InputStreamReader(fstream));
 			String s;
 
 			// extract the header
-			s = districtData.readLine();
+			s = adminZoneData.readLine();
 			
 			// map the header into column names relative to location
 			String [] header = splitRawCSVString(s);
@@ -790,7 +783,7 @@ public class Params {
 			for(int i = 0; i < header.length; i++){
 				rawColumnNames.put(header[i], new Integer(i));
 			}
-			int locationIndex = rawColumnNames.get("district_id");
+			int locationIndex = rawColumnNames.get("admin_zone_id");
 			int probIndex = rawColumnNames.get("pctdif_distance");
 			
 
@@ -798,27 +791,27 @@ public class Params {
 				System.out.println("BEGIN READING IN LEAVING PROBABILITIES");
 			
 			// read in the raw data
-			while ((s = districtData.readLine()) != null) {
+			while ((s = adminZoneData.readLine()) != null) {
 				String [] bits = splitRawCSVString(s);
 				
-				// extract the day of the week and the district name
-				String dId = bits[locationIndex];
+				// extract the day of the week and the admin zone name
+				String lId = bits[locationIndex];
 				Double prob = Double.parseDouble(bits[probIndex]);
 				
 				// extract the associated Location and check for problems
-				Location myLocation = districts.get(dId);
+				Location myLocation = adminZones.get(lId);
 				if(myLocation == null){
-					System.out.println("WARNING: no districted named " + dId + " as requested in district leaving file. Skipping!");
+					System.out.println("WARNING: no admin zone named " + lId + " as requested in admin zone leaving file. Skipping!");
 					continue;
 				}
 				
-				districtLeavingProb.put(myLocation, prob);
+				adminZoneLeavingProb.put(myLocation, prob);
 			}
-			assert (districtLeavingProb.size() > 0): "District leaving probability not loaded";
+			assert (adminZoneLeavingProb.size() > 0): "admin zone leaving probability not loaded";
 			// clean up after ourselves
-			districtData.close();
+			adminZoneData.close();
 		} catch (Exception e) {
-			System.err.println("File input error: " + districtFilename);
+			System.err.println("File input error: " + adminZoneFilename);
 		}
 	}
 
@@ -889,27 +882,22 @@ public class Params {
 	}
 
 	/**
-	 * Get the probability of leaving a district.
-	 * @param l A location, which may be a sub-location of the District. In this case, the module
-	 * finds the "District" super-Location of the Location and returns the associated chance of leaving.
+	 * Get the probability of leaving a admin zone.
+	 * @param l A location, which may be a sub-location of the admin zone. In this case, the module
+	 * finds the "admin zone" super-Location of the Location and returns the associated chance of leaving.
 	 * @return
 	 */
-	/*public double getProbToLeaveDistrict(Location l){
-		Location dummy = l;
-		while(districtLeavingProb.get(dummy) == null && dummy.getSuper() != null)
-			dummy = dummy.getSuper();
-		return districtLeavingProb.get(dummy);
-	} */
+
 	
-	public Location getTargetMoveDistrict(Person p, int day, double rand, boolean lockedDown){
+	public Location getTargetMoveAdminZone(Person p, int day, double rand, boolean lockedDown){
 		
-		// extract current District from the location
+		// extract current admin zone from the location
 		Location l = p.getLocation();
 		Location dummy = l;
-		while(districtLeavingProb.get(dummy) == null && dummy.getSuper() != null)
+		while(adminZoneLeavingProb.get(dummy) == null && dummy.getSuper() != null)
 			dummy = dummy.getSuper();
 
-		// get the transition probability for the given district on the given day
+		// get the transition probability for the given admin zone on the given day
 		ArrayList <Double> myTransitionProbs;
 		if(lockedDown)
 			myTransitionProbs = (ArrayList <Double>) dailyTransitionLockdownProbs.get(day).get(dummy.getId());
@@ -918,7 +906,7 @@ public class Params {
 		// now compare the random roll to the probability distribution.
 		for(int i = 0; i < myTransitionProbs.size(); i++){
 			if(rand <= myTransitionProbs.get(i)) {// hooray! We've found the right bucket!
-				Location resultLoc = districts.get(districtNames.get(i));
+				Location resultLoc = adminZones.get(adminZoneNames.get(i));
 				return resultLoc; // return the location associated with this position
 			}
 		}

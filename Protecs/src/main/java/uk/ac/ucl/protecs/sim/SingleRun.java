@@ -16,7 +16,7 @@ public class SingleRun {
 		LocalDateTime timestamp = LocalDateTime.now();  
 		// Get location of parameter file
 
-		String paramFilename = "/Users/robbiework/eclipse-workspace/Disease-Modelling-SSA/data/verification/params_robbie_test.txt";
+		String paramFilename = "src/main/resources/params_ward_run.txt";
 		// Create a name for the output file
 		String outputFilename = "single_run_" + timestamp.toString() + ".txt";
 		// create a name for the infections output file
@@ -29,7 +29,7 @@ public class SingleRun {
         // generate random seed from 0 to 1,000,000
         int seed = random.nextInt(1000000);
         // create the simulation object
-		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(seed, new Params(paramFilename, false), outputFilename, false);
+		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(seed, new Params(paramFilename, true), outputFilename, false);
 
 		// Set how long the simulation should run for
 		mySim.targetDuration = numDays;
