@@ -23,6 +23,7 @@ public class Params {
 											// - weight this if we suspect it's undercounting
 	public boolean setting_perfectMixing = false; // if TRUE: there are no work or social bubbles; individuals have
 	// equal chance of interacting with anyone else in the simulation
+	public boolean demography = false;
 
 	
 	public HashMap <String, Double> economic_status_weekday_movement_prob;
@@ -125,6 +126,8 @@ public class Params {
 	
 	public String testDataFilename = "";
 	public String testLocationFilename = "";
+	
+	public String simOptionsFilename = "";
 		
 	
 	// time

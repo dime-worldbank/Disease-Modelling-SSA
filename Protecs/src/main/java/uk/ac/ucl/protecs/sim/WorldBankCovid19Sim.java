@@ -1,17 +1,12 @@
 package uk.ac.ucl.protecs.sim;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.FileInputStream;
-import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+
 
 import uk.ac.ucl.protecs.behaviours.*;
 import uk.ac.ucl.protecs.objects.*;
@@ -37,8 +32,6 @@ public class WorldBankCovid19Sim extends SimState {
 	public CoronavirusBehaviourFramework infectiousFramework;
 	public Params params;
 	public boolean lockedDown = false;
-	// create a variable to determine whether the model will cause additional births and deaths	
-	public boolean demography = false;
 	
 	// the names of file names of each output filename		
 	public String outputFilename;
@@ -77,11 +70,10 @@ public class WorldBankCovid19Sim extends SimState {
 	 * Constructor function
 	 * @param seed
 	 */
-	public WorldBankCovid19Sim(long seed, Params params, String outputFilename, boolean demography) {
+	public WorldBankCovid19Sim(long seed, Params params, String outputFilename) {
 		super(seed);
 		this.params = params;
 		this.outputFilename = outputFilename + ".txt";
-		this.demography = demography;
 		this.covidIncOutputFilename = outputFilename + "_Incidence_Of_Covid_" + ".txt"; 
 		this.populationOutputFilename = outputFilename + "_Overall_Demographics_" + ".txt";
 		this.covidIncDeathOutputFilename = outputFilename + "_Incidence_Of_Covid_Death_" + ".txt";
@@ -192,7 +184,7 @@ public class WorldBankCovid19Sim extends SimState {
 		schedule.scheduleRepeating(0, this.param_schedule_updating_locations, updateLocationLists);
 		
 
-		if (this.demography) {
+		if (this.params.demography) {
 			Demography myDemography = new Demography();
 			for(Person a: agents) {
 				// Trigger the aging process for this person
@@ -414,7 +406,6 @@ public class WorldBankCovid19Sim extends SimState {
 		String outputFilename = "dailyReport_" + myBeta + "_" + numDays + "_" + seed + ".txt";
 		String infectionsOutputFilename = "infections_" + myBeta + "_" + numDays + "_" + seed + ".txt"; 
 		String paramsFilename = "src/main/resources/params.txt";
-		boolean demography = true;
 		// read in any extra settings from the command line
 		if(args.length < 0){
 			System.out.println("usage error");
@@ -445,7 +436,7 @@ public class WorldBankCovid19Sim extends SimState {
 		 */
 
 		// set up the simulation
-		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim( seed, new Params(paramsFilename, true), outputFilename, demography);
+		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim( seed, new Params(paramsFilename, true), outputFilename);
 
 
 		System.out.println("Loading...");
