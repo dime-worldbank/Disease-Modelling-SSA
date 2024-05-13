@@ -1,7 +1,5 @@
 package uk.ac.ucl.protecs.behaviours;
 
-import uk.ac.ucl.protecs.behaviours.*;
-//import uk.ac.ucl.protecs.objects.*;
 import uk.ac.ucl.protecs.objects.Location;
 import uk.ac.ucl.protecs.objects.Person;
 import uk.ac.ucl.protecs.sim.*;
@@ -20,11 +18,27 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 	
 	WorldBankCovid19Sim myWorld;
 	BehaviourNode workNode = null, communityNode = null, homeNode = null;
-
+	
+	public enum mobilityNodeTitle{
+        Home("home"), Work("work"), Community("community");
+         
+        String key;
+     
+        mobilityNodeTitle(String key) { this.key = key; }
+    
+        static mobilityNodeTitle getValue(String x) {
+            if ("home".equals(x)) { return Home; }
+            else if ("work".equals(x)) { return Work; }
+            else if ("community".equals(x)) { return Community; }
+            else throw new IllegalArgumentException();
+        }
+   }
 	public MovementBehaviourFramework(WorldBankCovid19Sim model){
 		myWorld = model;
 		
 		homeNode = new BehaviourNode(){
+			
+			public mobilityNodeTitle getNodeEnum() {return mobilityNodeTitle.getValue("home");}
 
 			@Override
 			public String getTitle() {return "Home";}
@@ -105,6 +119,8 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 		};
 		
 		workNode = new BehaviourNode(){
+			
+			public mobilityNodeTitle getNodeEnum() {return mobilityNodeTitle.getValue("work");}
 
 			@Override
 			public String getTitle() { return "At work"; }
@@ -145,7 +161,9 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 		};
 		
 		communityNode = new BehaviourNode(){
-
+			
+			public mobilityNodeTitle getNodeEnum() {return mobilityNodeTitle.getValue("community");}
+			
 			@Override
 			public String getTitle() { return "In community"; }
 
