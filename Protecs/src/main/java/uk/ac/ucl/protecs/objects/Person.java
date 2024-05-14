@@ -30,13 +30,13 @@ public class Person extends MobileAgent {
 	int age;
 	private final int birthday;
 	// only two options considered for biological sex, therefore use enum
-	private enum SEX {
+	public enum SEX {
 		MALE("male"), FEMALE("female");
 		String key;
 	     
 		SEX(String key) { this.key = key; }
     
-        static SEX getValue(String x) {
+        public static SEX getValue(String x) {
         	switch (x) {
         	case "male":
         		return MALE;
@@ -47,9 +47,8 @@ public class Person extends MobileAgent {
         	}
         }
 	}
-	private final String sex;
 	
-	SEX DEVSEX;
+	private final SEX sex;
 
 	// economic attributes. Economic status is read in from census file and can be accessed, but not changed
 	private final String economic_status;
@@ -125,7 +124,7 @@ public class Person extends MobileAgent {
 	 * @param economic_activity_location Location for weekday economic activity (workplace, school, etc.)
 	 * @param world Copy of the simulation
 	 */
-	public Person(int id, int age, int birthday, String sex, String economic_status, boolean schoolGoer, Household hh, WorldBankCovid19Sim world){
+	public Person(int id, int age, int birthday, SEX sex, String economic_status, boolean schoolGoer, Household hh, WorldBankCovid19Sim world){
 		super();
 
 		// demographic characteristics
@@ -133,9 +132,8 @@ public class Person extends MobileAgent {
 		this.myId = id;
 		this.age = age;
 		this.birthday = birthday;
-		this.sex = sex;
 		
-		this.DEVSEX = SEX.getValue(sex);
+		this.sex = sex;
 		
 		// economic characteristics
 		this.economic_status = economic_status;
@@ -563,8 +561,7 @@ public class Person extends MobileAgent {
 	
 	public int getAge(){ return age;}
 	public int getBirthday() {return birthday; }
-	public String getSex() { return sex; }
-	public SEX getDevSex() {return this.DEVSEX;};
+	public SEX getSex() {return this.sex;};
 	public String getEconStatus(){ return economic_status;}
 	public Location getHousehold(){ return myHousehold; }
 

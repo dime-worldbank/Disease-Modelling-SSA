@@ -10,6 +10,7 @@ import java.util.HashSet;
 
 import uk.ac.ucl.protecs.behaviours.*;
 import uk.ac.ucl.protecs.objects.*;
+import uk.ac.ucl.protecs.objects.Person.SEX;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.objects.diseases.Infection;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusBehaviourFramework;
@@ -194,7 +195,7 @@ public class WorldBankCovid19Sim extends SimState {
 				Demography.Mortality agentMortality = myDemography.new Mortality(a, params.ticks_per_day, this);
 				schedule.scheduleOnce(0, this.param_schedule_reporting, agentMortality);
 				// if biologically female, trigger checks for giving birth each year
-				if (a.getSex().equals("female")) {
+				if (a.getSex().equals(SEX.FEMALE)) {
 					Demography.Births agentBirths = myDemography.new Births(a, params.ticks_per_day, this);
 					schedule.scheduleOnce(0, this.param_schedule_reporting, agentBirths);
 				}
@@ -344,7 +345,7 @@ public class WorldBankCovid19Sim extends SimState {
 				Person p = new Person(Integer.parseInt(bits[1]), // ID 
 						Integer.parseInt(bits[2]), // age
 						birthday, // birthday to update population
-						bits[3], // sex
+						SEX.getValue(bits[3]), // sex
 						bits[6].toLowerCase(), // lower case all of the job titles
 						schoolGoer,
 						h,
@@ -400,7 +401,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public static void main(String [] args){
 		
 		// default settings in the absence of commands!
-		int numDays = 7; // by default, one week
+		int numDays = 400; // by default, one week
 		double myBeta = .016;
 		long seed = 12345;
 		String outputFilename = "dailyReport_" + myBeta + "_" + numDays + "_" + seed + ".txt";
@@ -443,6 +444,7 @@ public class WorldBankCovid19Sim extends SimState {
 
 		// ensure that all parameters are set
 		mySim.params.infection_beta = myBeta / mySim.params.ticks_per_day; // normalised to be per tick
+		mySim.params.demography = true;
 		mySim.targetDuration = numDays;
 		
 		mySim.start(); // start the simulation
@@ -465,9 +467,7 @@ public class WorldBankCovid19Sim extends SimState {
 		mySim.timer = endTime - startTime;
 		
 		System.out.println("...run finished after " + mySim.timer + " ms");
-		for (Person p: mySim.agents) {
-			System.out.println(p.getDevSex());
-		}
+
 	}
 
 
