@@ -10,6 +10,7 @@ import java.util.HashSet;
 
 import uk.ac.ucl.protecs.behaviours.*;
 import uk.ac.ucl.protecs.objects.*;
+import uk.ac.ucl.protecs.objects.Person.OCCUPATION;
 import uk.ac.ucl.protecs.objects.Person.SEX;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.objects.diseases.Infection;
@@ -345,8 +346,8 @@ public class WorldBankCovid19Sim extends SimState {
 				Person p = new Person(Integer.parseInt(bits[1]), // ID 
 						Integer.parseInt(bits[2]), // age
 						birthday, // birthday to update population
-						SEX.getValue(bits[3]), // sex
-						bits[6].toLowerCase(), // lower case all of the job titles
+						SEX.getValue(bits[3].toLowerCase()), // sex
+						OCCUPATION.getValue(bits[6].toLowerCase()), // lower case all of the job titles
 						schoolGoer,
 						h,
 						this
@@ -401,7 +402,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public static void main(String [] args){
 		
 		// default settings in the absence of commands!
-		int numDays = 400; // by default, one week
+		int numDays = 7; // by default, one week
 		double myBeta = .016;
 		long seed = 12345;
 		String outputFilename = "dailyReport_" + myBeta + "_" + numDays + "_" + seed + ".txt";
@@ -467,6 +468,7 @@ public class WorldBankCovid19Sim extends SimState {
 		mySim.timer = endTime - startTime;
 		
 		System.out.println("...run finished after " + mySim.timer + " ms");
+		
 
 	}
 

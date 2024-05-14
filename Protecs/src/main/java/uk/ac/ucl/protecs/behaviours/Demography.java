@@ -8,6 +8,7 @@ import sim.engine.Steppable;
 import uk.ac.ucl.protecs.objects.Household;
 import uk.ac.ucl.protecs.objects.Location;
 import uk.ac.ucl.protecs.objects.Person;
+import uk.ac.ucl.protecs.objects.Person.OCCUPATION;
 import uk.ac.ucl.protecs.objects.Person.SEX;
 import uk.ac.ucl.protecs.sim.Params;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
@@ -206,7 +207,7 @@ public class Demography {
 			// although we use an enum for biological sex, upon creation of a person a string is passed to choose sex. This is because
 			List<SEX> sexList = Arrays.asList(SEX.MALE, SEX.FEMALE);
 			SEX sexAssigned = sexList.get(world.random.nextInt(sexList.size()));
-			String babiesJob = "Not working, inactive, not in universe".toLowerCase();
+			OCCUPATION babiesJob = OCCUPATION.UNEMPLOYED;
 			Household babyHousehold = target.getHouseholdAsType();
 			Location babyDistrict = target.getLocation();
 			boolean babySchooling = false;

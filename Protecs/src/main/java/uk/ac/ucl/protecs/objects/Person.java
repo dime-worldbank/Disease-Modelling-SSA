@@ -51,7 +51,43 @@ public class Person extends MobileAgent {
 	private final SEX sex;
 
 	// economic attributes. Economic status is read in from census file and can be accessed, but not changed
-	private final String economic_status;
+	public enum OCCUPATION{
+		OFFICE_WORKER("office workers"), UNEMPLOYED("not working, inactive, not in universe"), TEACHER("teachers"),
+		HOMEMAKER("homemakers/housework"), STUDENT("current students"), SERVICE_WORKERS("service workers"), AGRICULTURE("agriculture workers"),
+		INDUSTRY("industry workers"), ARMY("in the army"), DISABLED_NOT_WORKING("disabled and not working");
+		public String key;
+	     
+		OCCUPATION(String key) { this.key = key; }
+		
+		public static OCCUPATION getValue(String x) {
+        	switch (x) {
+        	case "office workers":
+        		return OFFICE_WORKER;
+        	case "not working, inactive, not in universe":
+        		return UNEMPLOYED;
+        	case "teachers":
+        		return TEACHER;
+        	case "homemakers/housework":
+        		return HOMEMAKER;
+        	case "service workers":
+        		return SERVICE_WORKERS;
+        	case "current students":
+        		return STUDENT;
+        	case "agriculture workers":
+        		return AGRICULTURE;
+        	case "industry workers":
+        		return INDUSTRY;
+        	case "in the army":
+        		return ARMY;
+        	case "disabled and not working":
+        		return DISABLED_NOT_WORKING;
+        	default:
+        		throw new IllegalArgumentException();
+        	}
+		
+		}
+	}
+	private final OCCUPATION economic_status;
 	
 	// locational attributes
 	Location currentLocation;
@@ -124,7 +160,7 @@ public class Person extends MobileAgent {
 	 * @param economic_activity_location Location for weekday economic activity (workplace, school, etc.)
 	 * @param world Copy of the simulation
 	 */
-	public Person(int id, int age, int birthday, SEX sex, String economic_status, boolean schoolGoer, Household hh, WorldBankCovid19Sim world){
+	public Person(int id, int age, int birthday, SEX sex, OCCUPATION economic_status, boolean schoolGoer, Household hh, WorldBankCovid19Sim world){
 		super();
 
 		// demographic characteristics
@@ -562,7 +598,7 @@ public class Person extends MobileAgent {
 	public int getAge(){ return age;}
 	public int getBirthday() {return birthday; }
 	public SEX getSex() {return this.sex;};
-	public String getEconStatus(){ return economic_status;}
+	public OCCUPATION getEconStatus(){ return economic_status;}
 	public Location getHousehold(){ return myHousehold; }
 
 	public boolean hasPresymptCovid() { return this.presymptomatic; }

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import uk.ac.ucl.protecs.objects.*;
+import uk.ac.ucl.protecs.objects.Person.OCCUPATION;
 
 public class Params {
 	
@@ -876,16 +877,17 @@ public class Params {
 	 * @param econ_status Name of economic_status
 	 * @return
 	 */
-	public double getEconProbByDay(int day, String econ_status){
+	public double getEconProbByDay(int day, OCCUPATION econ_status){
+		String occ_as_string = econ_status.key;
 		if(day < 5){
-			if(!economic_status_weekday_movement_prob.containsKey(econ_status))
+			if(!economic_status_weekday_movement_prob.containsKey(occ_as_string))
 				return -1;
-			else return economic_status_weekday_movement_prob.get(econ_status);
+			else return economic_status_weekday_movement_prob.get(occ_as_string);
 		}
 		else {
-			if(!economic_status_otherday_movement_prob.containsKey(econ_status))
+			if(!economic_status_otherday_movement_prob.containsKey(occ_as_string))
 				return -1;
-			else return economic_status_otherday_movement_prob.get(econ_status);
+			else return economic_status_otherday_movement_prob.get(occ_as_string);
 		}
 	}
 
