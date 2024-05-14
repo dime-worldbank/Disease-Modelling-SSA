@@ -1,26 +1,15 @@
 package uk.ac.ucl.protecs.objects;
 
-import uk.ac.ucl.protecs.sim.Params;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import sim.engine.SimState;
-import sim.engine.Steppable;
 import uk.ac.ucl.swise.agents.MobileAgent;
 import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.stream.Stream;
-
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
-import uk.ac.ucl.protecs.behaviours.MovementBehaviourFramework;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.objects.diseases.Infection;
 
@@ -32,22 +21,43 @@ public class Person extends MobileAgent {
 	//
 	
 	// personal ID to distinguish from other agents
-	int myId;
+	private final int myId;
 
 	// larger group membership
 	Household myHousehold;
 
-	// personal/demographic attributes
+	// personal/demographic attributes. Age is changed in demography so cannot be private, birthday is generated at creation and should be constant
 	int age;
-	int birthday;
-	String sex;
+	private final int birthday;
+	// only two options considered for biological sex, therefore use enum
+	private enum SEX {
+		MALE("male"), FEMALE("female");
+		String key;
+	     
+		SEX(String key) { this.key = key; }
+    
+        static SEX getValue(String x) {
+        	switch (x) {
+        	case "male":
+        		return MALE;
+        	case "female":
+        		return FEMALE;
+        	default:
+        		throw new IllegalArgumentException();
+        	}
+        }
+	}
+	private final String sex;
+	
+	SEX DEVSEX;
 
-	// economic attributes
-	String economic_status;
+	// economic attributes. Economic status is read in from census file and can be accessed, but not changed
+	private final String economic_status;
 	
 	// locational attributes
 	Location currentLocation;
-	boolean schoolGoer = false; // allowed to move between districts?
+	// schoolGoer is read in and never changed, ensure this is private
+	private final boolean schoolGoer; // allowed to move between districts?
 	
 	// social attributes
 	Location communityLocation;
@@ -124,6 +134,8 @@ public class Person extends MobileAgent {
 		this.age = age;
 		this.birthday = birthday;
 		this.sex = sex;
+		
+		this.DEVSEX = SEX.getValue(sex);
 		
 		// economic characteristics
 		this.economic_status = economic_status;
@@ -552,6 +564,7 @@ public class Person extends MobileAgent {
 	public int getAge(){ return age;}
 	public int getBirthday() {return birthday; }
 	public String getSex() { return sex; }
+	public SEX getDevSex() {return this.DEVSEX;};
 	public String getEconStatus(){ return economic_status;}
 	public Location getHousehold(){ return myHousehold; }
 

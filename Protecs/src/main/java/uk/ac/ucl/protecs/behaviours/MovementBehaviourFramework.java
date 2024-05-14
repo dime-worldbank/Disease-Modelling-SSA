@@ -27,10 +27,17 @@ public class MovementBehaviourFramework extends BehaviourFramework {
         mobilityNodeTitle(String key) { this.key = key; }
     
         static mobilityNodeTitle getValue(String x) {
-            if ("home".equals(x)) { return Home; }
-            else if ("work".equals(x)) { return Work; }
-            else if ("community".equals(x)) { return Community; }
-            else throw new IllegalArgumentException();
+        	
+        	switch (x) {
+        	case "home":
+        		return Home;
+        	case "work":
+        		return Work;
+        	case "community":
+        		return Community;
+        	default:
+        		throw new IllegalArgumentException();
+        	}
         }
    }
 	public MovementBehaviourFramework(WorldBankCovid19Sim model){

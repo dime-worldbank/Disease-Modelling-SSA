@@ -126,9 +126,7 @@ public class Params {
 	
 	public String testDataFilename = "";
 	public String testLocationFilename = "";
-	
-	public String simOptionsFilename = "";
-		
+			
 	
 	// time
 	public static int hours_per_tick = 4; // the number of hours each tick represents
