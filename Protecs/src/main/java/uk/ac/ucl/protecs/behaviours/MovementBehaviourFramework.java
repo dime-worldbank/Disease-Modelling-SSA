@@ -20,7 +20,7 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 	BehaviourNode workNode = null, communityNode = null, homeNode = null;
 	
 	public enum mobilityNodeTitle{
-        Home("home"), Work("work"), Community("community");
+        HOME("home"), WORK("work"), COMMUNITY("community");
          
         String key;
      
@@ -30,11 +30,11 @@ public class MovementBehaviourFramework extends BehaviourFramework {
         	
         	switch (x) {
         	case "home":
-        		return Home;
+        		return HOME;
         	case "work":
-        		return Work;
+        		return WORK;
         	case "community":
-        		return Community;
+        		return COMMUNITY;
         	default:
         		throw new IllegalArgumentException();
         	}
@@ -45,10 +45,8 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 		
 		homeNode = new BehaviourNode(){
 			
-			public mobilityNodeTitle getNodeEnum() {return mobilityNodeTitle.getValue("home");}
-
 			@Override
-			public String getTitle() {return "Home";}
+			public String getTitle() {return mobilityNodeTitle.HOME.key;}
 
 			@Override
 			public double next(Steppable s, double time) {
@@ -127,10 +125,8 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 		
 		workNode = new BehaviourNode(){
 			
-			public mobilityNodeTitle getNodeEnum() {return mobilityNodeTitle.getValue("work");}
-
 			@Override
-			public String getTitle() { return "At work"; }
+			public String getTitle() { return mobilityNodeTitle.WORK.key; }
 
 			@Override
 			public double next(Steppable s, double time) {
@@ -168,11 +164,9 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 		};
 		
 		communityNode = new BehaviourNode(){
-			
-			public mobilityNodeTitle getNodeEnum() {return mobilityNodeTitle.getValue("community");}
-			
+						
 			@Override
-			public String getTitle() { return "In community"; }
+			public String getTitle() { return mobilityNodeTitle.COMMUNITY.key; }
 
 			@Override
 			public double next(Steppable s, double time) {
