@@ -59,7 +59,6 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 
 					Location target;
 					target = myWorld.params.getTargetMoveAdminZone(p, day, myWorld.random.nextDouble(), myWorld.lockedDown);
-					assert target.getId().startsWith("d_"): "target is a null location";
 					// define workday
 					boolean goToWork = (p.isSchoolGoer() || target == p.getCommunityLocation()) // schoolgoer or going to own admin zone
 							&& myWorld.params.isWeekday(day);

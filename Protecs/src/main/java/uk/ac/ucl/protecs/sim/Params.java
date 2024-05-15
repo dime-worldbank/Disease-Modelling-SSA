@@ -890,7 +890,6 @@ public class Params {
 
 	
 	public Location getTargetMoveAdminZone(Person p, int day, double rand, boolean lockedDown){
-		
 		// extract current admin zone from the location
 		Location l = p.getLocation();
 		Location dummy = l;
