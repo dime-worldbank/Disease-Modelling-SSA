@@ -14,8 +14,8 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 			mildNode = null, severeNode = null, criticalNode = null, recoveredNode = null, deadNode = null;
 	
 	public enum CoronavirusBehaviourNodeTitle{
-		susceptibleNode("susceptible"), exposedNode("exposed"), presymptomaticNode("presymptomatic"), asymptomaticNode("asymptomatic"), 
-		mildNode("mild"), severeNode("severe"), criticalNode("critical"), recoveredNode("recovered"), deadNode("dead");
+		SUSCEPTIBLE("susceptible"), EXPOSED("exposed"), PRESYMPTOMATIC("presymptomatic"), ASYMPTOMATIC("asymptomatic"), 
+		MILD("mild"), SEVERE("severe"), CRITICAL("critical"), RECOVERED("recovered"), DEAD("dead");
          
         String key;
      
@@ -24,23 +24,23 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
         static CoronavirusBehaviourNodeTitle getValue(String x) {
         	switch (x) {
         	case "susceptible":
-        		return susceptibleNode;
+        		return SUSCEPTIBLE;
         	case "exposed":
-        		return exposedNode;
+        		return EXPOSED;
         	case "presymptomatic":
-        		return presymptomaticNode;
+        		return PRESYMPTOMATIC;
         	case "asymptomatic":
-        		return asymptomaticNode;
+        		return ASYMPTOMATIC;
         	case "mild":
-        		return mildNode;	
+        		return MILD;	
         	case "severe":
-        		return severeNode;	
+        		return SEVERE;	
         	case "critical":
-        		return criticalNode;
+        		return CRITICAL;
         	case "recovered":
-        		return recoveredNode;
+        		return RECOVERED;
         	case "dead":
-        		return deadNode;
+        		return DEAD;
         	default:
         		throw new IllegalArgumentException();
         	}
@@ -55,10 +55,8 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 		// the default status
 		susceptibleNode = new BehaviourNode(){
 			
-			public CoronavirusBehaviourNodeTitle getNodeEnum() {return CoronavirusBehaviourNodeTitle.getValue("susceptible");}
-
 			@Override
-			public String getTitle() { return "susceptible"; }
+			public String getTitle() { return CoronavirusBehaviourNodeTitle.SUSCEPTIBLE.key; }
 
 			@Override
 			public double next(Steppable s, double time) {
@@ -76,11 +74,8 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 		// the agent has been exposed - determine whether the infection will develop
 		exposedNode = new BehaviourNode(){
 			
-			public CoronavirusBehaviourNodeTitle getNodeEnum() {return CoronavirusBehaviourNodeTitle.getValue("exposed");}
-
-			
 			@Override
-			public String getTitle() { return "exposed"; }
+			public String getTitle() { return CoronavirusBehaviourNodeTitle.EXPOSED.key; }
 
 			/**
 			 * After being exposed, the disease may develop in a number of ways.
@@ -178,10 +173,9 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 		// the agent is infectious, but not yet showing symptoms
 		presymptomaticNode = new BehaviourNode(){
 			
-			public CoronavirusBehaviourNodeTitle getNodeEnum() {return CoronavirusBehaviourNodeTitle.getValue("presymptomatic");}
 			
 			@Override
-			public String getTitle() { return "presymptomatic"; }
+			public String getTitle() { return CoronavirusBehaviourNodeTitle.PRESYMPTOMATIC.key; }
 
 			@Override
 			public double next(Steppable s, double time) {
@@ -223,11 +217,9 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 		// the agent is infectious, but will not show symptoms. They will eventually recover.
 		asymptomaticNode = new BehaviourNode(){
 			
-			public CoronavirusBehaviourNodeTitle getNodeEnum() {return CoronavirusBehaviourNodeTitle.getValue("asymptomatic");}
-
 
 			@Override
-			public String getTitle() { return "asymptomatic"; }
+			public String getTitle() { return CoronavirusBehaviourNodeTitle.ASYMPTOMATIC.key; }
 
 			@Override
 			public double next(Steppable s, double time) {
@@ -270,12 +262,9 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 		
 		// the agent has a mild case and is infectious. They may recover, or else progress to a severe case.
 		mildNode = new BehaviourNode(){
-			
-			public CoronavirusBehaviourNodeTitle getNodeEnum() {return CoronavirusBehaviourNodeTitle.getValue("mild");}
-
 
 			@Override
-			public String getTitle() { return "mild_case"; }
+			public String getTitle() { return CoronavirusBehaviourNodeTitle.MILD.key; }
 
 			@Override
 			public double next(Steppable s, double time) {
@@ -358,10 +347,8 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 		// the agent has a severe case and is infectious. They may recover, or else progress to a critical case.
 		severeNode = new BehaviourNode(){
 
-			public CoronavirusBehaviourNodeTitle getNodeEnum() {return CoronavirusBehaviourNodeTitle.getValue("severe");}
-
 			@Override
-			public String getTitle() { return "severe_case"; }
+			public String getTitle() { return CoronavirusBehaviourNodeTitle.SEVERE.key; }
 
 			@Override
 			public double next(Steppable s, double time) {
@@ -436,11 +423,8 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 		// the agent has a critical case and is infectious. They may recover, or else progress to death.
 		criticalNode = new BehaviourNode(){
 			
-			public CoronavirusBehaviourNodeTitle getNodeEnum() {return CoronavirusBehaviourNodeTitle.getValue("critical");}
-
-			
 			@Override
-			public String getTitle() { return "critical_case"; }
+			public String getTitle() { return CoronavirusBehaviourNodeTitle.CRITICAL.key; }
 
 			@Override
 			public double next(Steppable s, double time) {
@@ -523,12 +507,9 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 		
 		// the agent has recovered.
 		recoveredNode = new BehaviourNode(){
-			
-			public CoronavirusBehaviourNodeTitle getNodeEnum() {return CoronavirusBehaviourNodeTitle.getValue("recovered");}
-
 
 			@Override
-			public String getTitle() { return "recovered"; }
+			public String getTitle() { return CoronavirusBehaviourNodeTitle.RECOVERED.key; }
 
 			@Override
 			public double next(Steppable s, double time) {
@@ -564,12 +545,9 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 		};
 		
 		deadNode = new BehaviourNode(){
-			
-			public CoronavirusBehaviourNodeTitle getNodeEnum() {return CoronavirusBehaviourNodeTitle.getValue("dead");}
-
 
 			@Override
-			public String getTitle() { return "dead"; }
+			public String getTitle() { return CoronavirusBehaviourNodeTitle.DEAD.key; }
 
 			@Override
 			public double next(Steppable s, double time) {
@@ -595,43 +573,43 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 		entryPoint = exposedNode;
 	}
 	
-	public BehaviourNode setNodeForTesting(String behaviour) {
+	public BehaviourNode setNodeForTesting(CoronavirusBehaviourNodeTitle behaviour) {
 		BehaviourNode toreturn;
 
 		switch (behaviour) {
-		case "susceptible":{
+		case SUSCEPTIBLE:{
 			toreturn = susceptibleNode;
 			break;
 		}
-		case "exposed":{
+		case EXPOSED:{
 			toreturn = exposedNode;
 			break;
 		}
-		case "presymptomatic":{
+		case PRESYMPTOMATIC:{
 			toreturn = presymptomaticNode;
 			break;
 		}
-		case "asymptomatic":{
+		case ASYMPTOMATIC:{
 			toreturn = asymptomaticNode;
 			break;
 		}
-		case "mild":{
+		case MILD:{
 			toreturn = mildNode;
 			break;
 		}
-		case "severe":{
+		case SEVERE:{
 			toreturn = severeNode;
 			break;
 		}
-		case "critical":{
+		case CRITICAL:{
 			toreturn = criticalNode;
 			break;
 		}
-		case "recovered":{
+		case RECOVERED:{
 			toreturn = recoveredNode;
 			break;
 		}
-		case "dead":{
+		case DEAD:{
 			toreturn = deadNode;
 			break;
 		}
@@ -642,6 +620,7 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 			
 		return toreturn;
 	}
+	
 	public BehaviourNode getStandardEntryPoint(){ return susceptibleNode; }
 	public BehaviourNode getInfectedEntryPoint(Location l){
 				
