@@ -1,6 +1,6 @@
 dataDir: src/main/resources/
 
-population_filename: census_dummy_ipums_wards.csv
+population_filename: census_ipums_5perc.csv
 
 admin_zone_transition_LOCKDOWN_filename: ipums_daily_transition_count-ward-pre-lockdown_i5_correct_rounding.csv
 admin_zone_transition_PRELOCKDOWN_filename: ipums_daily_transition_count-ward-pre-lockdown_i5_correct_rounding.csv
