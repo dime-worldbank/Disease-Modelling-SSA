@@ -6,9 +6,11 @@ import java.util.List;
 import java.util.Random;
 
 import uk.ac.ucl.protecs.objects.Person;
+import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.objects.diseases.Infection;
 import uk.ac.ucl.protecs.sim.Params;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
+import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
 public class helperFunctions {
 	
@@ -75,6 +77,81 @@ public class helperFunctions {
 			System.out.println("No option recognised");
 			return null;
 		}
+		}
+		
+	}
+	public static void SetFractionObjectsWithCertainBehaviourNode(double fraction, WorldBankCovid19Sim world, BehaviourNode Node, NodeOption option) {
+		
+		switch (option) {
+		case CoronavirusInfectiousBehaviour:{
+		// Make this function assigns an infectious behaviour node of your choice to a certain percentage of the population
+		for (Person p: world.agents) {
+			double rand = world.random.nextDouble();
+			if (!p.hasCovid() && rand <= fraction) {
+				CoronavirusInfection inf = new CoronavirusInfection(p, null, world.infectiousFramework.getHomeNode(), world);
+				inf.setBehaviourNode(Node);
+				// kick off the infectious behaviour framework
+				inf.step(world);
+			}
+		}
+		break;
+		}
+		case MovementBehaviour:{
+		// Make this function assigns an infectious behaviour node of your choice to a certain percentage of the population
+		for (Person p: world.agents) {
+			double rand = world.random.nextDouble();
+			if (rand <= fraction) {
+				p.setActivityNode(Node);
+				// kick off the infectious behaviour framework
+				p.step(world);
+			}
+		}
+		break;
+		}
+		default:{
+			System.out.println("No option recognised");
+		}
+	}
+	}
+	
+	public static List<String> getFinalBehaviourNodesInSim(WorldBankCovid19Sim world, int numDaysToRun, NodeOption option){
+		// This function runs the simulation for a predetermined number of days.
+		// At the end of the simulation, the function returns a list of the behaviour nodes being 'performed' by the object.
+		// Create a list to store the unique node stages that occur in each step
+
+		HashSet <String> behaviourNodeBin = new HashSet<String>();
+
+		switch (option) {
+		case CoronavirusInfectiousBehaviour:{
+		
+		// Simulate over the time period and get the disease stages present in the simulation
+		while(world.schedule.getTime() < Params.ticks_per_day * numDaysToRun && !world.schedule.scheduleComplete()){
+			// create a list to store the disease nodes that occur in the simulation
+			world.schedule.step(world);
+		}
+		for (Infection i: world.infections) {
+			behaviourNodeBin.add(i.getBehaviourName());
+		}
+		
+		List<String> UniqueNodes = new ArrayList<String>(behaviourNodeBin);
+		return UniqueNodes;
+		}
+		case MovementBehaviour:{
+			
+			// Simulate over the time period and get the disease stages present in the simulation
+			while(world.schedule.getTime() < Params.ticks_per_day * numDaysToRun && !world.schedule.scheduleComplete()){
+				// create a list to store the disease nodes that occur in the simulation
+				world.schedule.step(world);
+			}
+			for (Person p: world.agents) {
+				behaviourNodeBin.add(p.getActivityNode().getTitle());
+			}
+			
+			List<String> UniqueNodes = new ArrayList<String>(behaviourNodeBin);
+			return UniqueNodes;
+			}
+		default:
+			return null;
 		}
 		
 	}

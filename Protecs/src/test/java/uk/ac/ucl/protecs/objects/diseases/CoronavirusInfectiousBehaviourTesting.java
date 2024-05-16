@@ -30,7 +30,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
 		// seed a number of the specific node to the run
-		SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("susceptible"));
+		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setCoronavirusBehaviourNodeForTesting("susceptible"),
+				NodeOption.CoronavirusInfectiousBehaviour);
 		// Set up a duration to run the simulation
 		int numDays = 100; 
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
@@ -53,8 +54,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
 		// seed a number of the specific node to the run
-		SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("exposed"));
-		// Set up a duration to run the simulation
+		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setCoronavirusBehaviourNodeForTesting("exposed"),
+				NodeOption.CoronavirusInfectiousBehaviour);		// Set up a duration to run the simulation
 		int numDays = 100; 
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
 		HashSet<String> uniqueNodesInRun = helperFunctions.getUniqueNodesOverCourseofSim(sim, numDays, NodeOption.CoronavirusInfectiousBehaviour, 1.0);
@@ -73,8 +74,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
 		// Make everyone have a critical infection
-		SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("presymptomatic"));
-		// Make Sure no one's disease progresses beyond a Mild infection
+		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setCoronavirusBehaviourNodeForTesting("presymptomatic"),
+				NodeOption.CoronavirusInfectiousBehaviour);		// Make Sure no one's disease progresses beyond a Mild infection
 		HaltDiseaseProgressionAtStage(sim, "Mild");
 		// Set up a duration to run the simulation
 		int numDays = 100; 
@@ -96,8 +97,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
 		// Make everyone have a critical infection
-		SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("asymptomatic"));
-		// Set up a duration to run the simulation
+		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setCoronavirusBehaviourNodeForTesting("asymptomatic"),
+				NodeOption.CoronavirusInfectiousBehaviour);		// Set up a duration to run the simulation
 		int numDays = 100; 
 		// Run the simulation and record the infectious behaviour nodes activated in this simulation
 		HashSet<String> uniqueNodesInRun = helperFunctions.getUniqueNodesOverCourseofSim(sim, numDays, NodeOption.CoronavirusInfectiousBehaviour, 1.0);;
@@ -116,8 +117,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
 		// Make everyone have a critical infection
-		SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("mild"));
-		// Ensure that no one disease progression occurs beyond the severe stage
+		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setCoronavirusBehaviourNodeForTesting("mild"),
+				NodeOption.CoronavirusInfectiousBehaviour);		// Ensure that no one disease progression occurs beyond the severe stage
 		HaltDiseaseProgressionAtStage(sim, "Severe");
 		// Set up a duration to run the simulation
 		int numDays = 100; 
@@ -139,8 +140,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
 		// seed a number of the specific node to the run
-		SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("mild"));
-		// Set up a duration to run the simulation
+		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setCoronavirusBehaviourNodeForTesting("mild"),
+				NodeOption.CoronavirusInfectiousBehaviour);		// Set up a duration to run the simulation
 		int numDays = 100; 
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
 		List<String> uniqueNodesInRun = getFinalNodesInSim(sim, numDays);
@@ -159,7 +160,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
 		// Make everyone have a critical infection
-		SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("severe"));
+		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setCoronavirusBehaviourNodeForTesting("severe"),
+				NodeOption.CoronavirusInfectiousBehaviour);		
 		// Ensure that no one disease progression occurs beyond the critical stage
 		HaltDiseaseProgressionAtStage(sim, "Critical");
 		// Set up a duration to run the simulation
@@ -182,7 +184,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
 		// seed a number of the specific node to the run
-		SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("severe"));
+		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setCoronavirusBehaviourNodeForTesting("severe"),
+				NodeOption.CoronavirusInfectiousBehaviour);		
 		// Set up a duration to run the simulation
 		int numDays = 100; 
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
@@ -202,7 +205,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
 		// Make everyone have a critical infection
-		SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("critical"));
+		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setCoronavirusBehaviourNodeForTesting("critical"),
+				NodeOption.CoronavirusInfectiousBehaviour);		
 		// Set up a duration to run the simulation
 		int numDays = 100; 
 		// Run the simulation and record the infectious behaviour nodes activated in this simulation
@@ -223,7 +227,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
 		// seed a number of the specific node to the run
-		SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("critical"));
+		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setCoronavirusBehaviourNodeForTesting("critical"),
+				NodeOption.CoronavirusInfectiousBehaviour);		
 		// Set up a duration to run the simulation
 		int numDays = 100; 
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
@@ -241,7 +246,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
 		// seed a number of the specific node to the run
-		SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("recovered"));
+		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setCoronavirusBehaviourNodeForTesting("recovered"),
+				NodeOption.CoronavirusInfectiousBehaviour);
 		// Set up a duration to run the simulation
 		int numDays = 100; 
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
@@ -259,7 +265,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
 		// seed a number of the specific node to the run
-		SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("dead"));
+		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setCoronavirusBehaviourNodeForTesting("dead"),
+				NodeOption.CoronavirusInfectiousBehaviour);		
 		// Set up a duration to run the simulation
 		int numDays = 100; 
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
@@ -279,7 +286,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Make sure that people exposed don't revert back to being susceptible
 		ForceExposedInfectionsCauseDisease(sim);
 		// seed a number of the specific node to the run
-		SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("exposed"));
+		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setCoronavirusBehaviourNodeForTesting("exposed"),
+				NodeOption.CoronavirusInfectiousBehaviour);		
 		// Set up a duration to run the simulation
 		int numDays = 100; 
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
@@ -343,19 +351,6 @@ public class CoronavirusInfectiousBehaviourTesting {
 		for (double val: world.params.infection_p_sym_by_age) {
 			world.params.infection_r_sus_by_age.set(idx, 1.0);
 			idx ++;
-		}
-	}
-	
-	private void SetFractionInfectionsWithCertainNode(double fraction, WorldBankCovid19Sim world, BehaviourNode Node) {
-		// Make this function assigns an infectious behaviour node of your choice to a certain percentage of the population
-		for (Person p: world.agents) {
-			double rand = world.random.nextDouble();
-			if (!p.hasCovid() && rand <= fraction) {
-				CoronavirusInfection inf = new CoronavirusInfection(p, null, world.infectiousFramework.getHomeNode(), world);
-				inf.setBehaviourNode(Node);
-				// kick off the infectious behaviour framework
-				inf.step(world);
-			}
 		}
 	}
 	

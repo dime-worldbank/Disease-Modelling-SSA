@@ -1,7 +1,6 @@
 package uk.ac.ucl.protecs.behaviours;
 
 import uk.ac.ucl.protecs.behaviours.*;
-//import uk.ac.ucl.protecs.objects.*;
 import uk.ac.ucl.protecs.objects.Location;
 import uk.ac.ucl.protecs.objects.Person;
 import uk.ac.ucl.protecs.sim.*;
@@ -20,6 +19,28 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 	
 	WorldBankCovid19Sim myWorld;
 	BehaviourNode workNode = null, communityNode = null, homeNode = null;
+	
+	public enum mobilityNodeTitle{
+        HOME("home"), WORK("work"), COMMUNITY("community");
+
+        String key;
+
+        mobilityNodeTitle(String key) { this.key = key; }
+
+        static mobilityNodeTitle getValue(String x) {
+
+        	switch (x) {
+        	case "home":
+        		return HOME;
+        	case "work":
+        		return WORK;
+        	case "community":
+        		return COMMUNITY;
+        	default:
+        		throw new IllegalArgumentException();
+        	}
+        }
+   }
 
 	public MovementBehaviourFramework(WorldBankCovid19Sim model){
 		myWorld = model;
@@ -27,7 +48,7 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 		homeNode = new BehaviourNode(){
 
 			@Override
-			public String getTitle() {return "Home";}
+			public String getTitle() {return mobilityNodeTitle.HOME.key;}
 
 			@Override
 			public double next(Steppable s, double time) {
@@ -106,7 +127,7 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 		workNode = new BehaviourNode(){
 
 			@Override
-			public String getTitle() { return "At work"; }
+			public String getTitle() { return mobilityNodeTitle.WORK.key; }
 
 			@Override
 			public double next(Steppable s, double time) {
@@ -146,7 +167,7 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 		communityNode = new BehaviourNode(){
 
 			@Override
-			public String getTitle() { return "In community"; }
+			public String getTitle() { return mobilityNodeTitle.COMMUNITY.key; }
 
 			@Override
 			public double next(Steppable s, double time) {
@@ -178,5 +199,29 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 	
 	public BehaviourNode getHomeNode(){
 		return entryPoint;
+	}
+	
+	public BehaviourNode setMobilityNodeForTesting(mobilityNodeTitle behaviour) {
+		BehaviourNode toreturn;
+
+		switch (behaviour) {
+		case HOME:{
+			toreturn = homeNode;
+			break;
+		}
+		case WORK:{
+			toreturn = workNode;
+			break;
+		}
+		case COMMUNITY:{
+			toreturn = communityNode;
+			break;
+		}
+		default:
+			toreturn = homeNode;
+			break;
+		}
+			
+		return toreturn;
 	}
 }

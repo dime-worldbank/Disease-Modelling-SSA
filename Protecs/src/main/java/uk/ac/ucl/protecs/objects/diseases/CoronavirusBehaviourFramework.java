@@ -536,7 +536,7 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 		entryPoint = exposedNode;
 	}
 	
-	public BehaviourNode setNodeForTesting(String behaviour) {
+	public BehaviourNode setCoronavirusBehaviourNodeForTesting(String behaviour) {
 		BehaviourNode toreturn;
 
 		switch (behaviour) {
