@@ -24,7 +24,7 @@ public class helperFunctions {
 	}
 	public static WorldBankCovid19Sim CreateDummySimWithSeed(int seed, String paramsFilename, boolean demography) {
 		System.out.println("Running with seed = " + String.valueOf(seed));
-		Params p = new Params(paramsFilename, false);
+		Params p = new Params(paramsFilename, true);
 		return new WorldBankCovid19Sim(seed, p, "", demography);
 	}
 	

@@ -1,10 +1,10 @@
 dataDir: src/main/resources/
 
-population_filename: census_ipums_5perc.csv
+population_filename: census_dummy.csv
 
-admin_zone_transition_LOCKDOWN_filename: ipums_daily_transition_count-ward-pre-lockdown_i5_correct_rounding.csv
-admin_zone_transition_PRELOCKDOWN_filename: ipums_daily_transition_count-ward-pre-lockdown_i5_correct_rounding.csv
-admin_zone_leaving_filename: ipums_leaving_file.csv
+admin_zone_transition_LOCKDOWN_filename: dailyDistrictTransitionProb_postLockdown.csv
+admin_zone_transition_PRELOCKDOWN_filename: dailyDistrictTransitionProb_preLockdown.csv
+admin_zone_leaving_filename: intra_district_decreased_mobility_rates.csv
 
 economic_status_weekday_movement_prob_filename: econStatusMovementProb_otherday.txt
 economic_status_otherday_movement_prob_filename: econStatusMovementProb_weekday.txt
@@ -14,9 +14,9 @@ econ_interaction_distrib_filename: interactionMatrixByStatus.txt
 community_num_interaction_perTick: 5
 setting_perfectMixing: true
 
-line_list_filename: ward_line_list.txt
+line_list_filename: line_list_dummy.txt
 infection_transition_params_filename: covasim_infect_transitions.txt
-lockdown_changeList_filename: lockdownChangelistDefault.txt
+lockdown_changeList_filename: lockdownChangelist.txt
 lineListWeightingFactor: 1
 
 all_cause_mortality_filename: test_mortality_rates.txt

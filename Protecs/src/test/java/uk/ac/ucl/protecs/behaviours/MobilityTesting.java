@@ -8,6 +8,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import uk.ac.ucl.protecs.objects.Person;
+import uk.ac.ucl.protecs.sim.Params;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.helperFunctions.*;
 import uk.ac.ucl.protecs.helperFunctions.helperFunctions.NodeOption;
@@ -60,8 +61,23 @@ public class MobilityTesting {
 	
 	@Test
 	public void LockdownReducesTheNumberOfVisitsToTheCommunity() {
-		// TODO
+		// TODO This is something that will probably have to be developed. Lockdown doesn't seem to do anything to prevent people going into the 
+		// community at the moment
 		Assert.assertTrue(true);
+	}
+	
+	@Test
+	public void LockdownReducesTheNumberOfVisitsToOtherAdminZones() {
+		WorldBankCovid19Sim sim_no_lockdown = helperFunctions.CreateDummySim("src/main/resources/params.txt", false);
+		sim_no_lockdown.start();
+		
+		int noLockdownOutboundTripCounts = outboundTripCountInSim(sim_no_lockdown, 100);
+		
+		WorldBankCovid19Sim sim_with_lockdown = helperFunctions.CreateDummySim("src/main/resources/params_with_lockdown.txt", false);
+		sim_with_lockdown.start();
+
+		int lockdownOutboundTripCounts = outboundTripCountInSim(sim_with_lockdown, 100);
+		Assert.assertTrue(noLockdownOutboundTripCounts > lockdownOutboundTripCounts);
 	}
 	
 	// TESTS FOR IMPERFECT MIXING
@@ -71,6 +87,23 @@ public class MobilityTesting {
 	public void PeopleAtWorkGoToTheCommunityOrHomeAfterwards() {
 		// TODO
 		Assert.assertTrue(true);
+	}
+	
+	public int outboundTripCountInSim(WorldBankCovid19Sim world, int numDaysToRun) {
+		// Simulate over the time period and get the disease stages present in the simulation
+		int number_of_visits_to_other_admin_zones = 0;
+		while(world.schedule.getTime() < Params.ticks_per_day * numDaysToRun && !world.schedule.scheduleComplete()){
+			world.schedule.step(world);
+			if (world.schedule.getTime() % world.params.ticks_per_day == 2.0) {
+				for (Person p: world.agents) {
+					if (p.visitingNow()) {
+						number_of_visits_to_other_admin_zones++;
+					}				
+				}
+			}
+		}
+		
+		return number_of_visits_to_other_admin_zones;
 	}
 	
 }
