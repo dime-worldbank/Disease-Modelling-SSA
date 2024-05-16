@@ -1,14 +1,30 @@
 package uk.ac.ucl.protecs.behaviours;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Test;
 
 import uk.ac.ucl.protecs.objects.Person;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.helperFunctions.*;
+import uk.ac.ucl.protecs.helperFunctions.helperFunctions.NodeOption;
+
 
 public class MobilityTesting {
-
+	// ==================================== Testing ======================================================================
+	// === These tests are designed to ensure that the transition between different locations are working as intended. ===
+	// ===================================================================================================================
+		
+	// TESTS FOR PERFECT MIXING
+	@Test
+	public void PeopleInTheCommunityAlwaysGoHomeAfterwards() {
+		// TODO
+		Assert.assertTrue(true);
+	}
+	
 	@Test
 	public void OfficeWorkerBehaviours() {
 		//Arrange
@@ -23,6 +39,38 @@ public class MobilityTesting {
 		
 		//Assert
 		Assert.assertFalse(sut.atWorkNow()); // it is morning - they should not be at work
+	}
+	
+	
+	@Test
+	public void MakeSureThatPeopleGoToOnlyTheCommunityAndHomeLocationsWithPerfectMixing() {
+		//Arrange
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/params.txt", false);
+		sim.start();
+		// ensure that perfect mixing is turned on
+		sim.params.setting_perfectMixing = true;
+		int numDays = 100; 
+		// Run the simulation and record the infectious behaviour nodes reached in this simulation
+		HashSet<String> uniqueNodesInRun = helperFunctions.getUniqueNodesOverCourseofSim(sim, numDays, NodeOption.MovementBehaviour, 0.0);
+		// we would expect only the home and community node to appear in the simulation
+		List<String> expectedNodes = Arrays.asList("Home", "In community");
+		// Make sure than no other movement behaviour nodes are reaching in the simulation
+		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun) && uniqueNodesInRun.containsAll(expectedNodes));
+	}
+	
+	@Test
+	public void LockdownReducesTheNumberOfVisitsToTheCommunity() {
+		// TODO
+		Assert.assertTrue(true);
+	}
+	
+	// TESTS FOR IMPERFECT MIXING
+	
+	// TODO: Develop mobility tests for going to work when that is in the model
+	@Test
+	public void PeopleAtWorkGoToTheCommunityOrHomeAfterwards() {
+		// TODO
+		Assert.assertTrue(true);
 	}
 	
 }

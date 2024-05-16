@@ -547,6 +547,7 @@ public class Person extends MobileAgent {
 	public double getSusceptibility(){ return myWorld.params.getSuspectabilityByAge(age); } // TODO make more nuanced
 	
 	public void setActivityNode(BehaviourNode bn){ currentActivityNode = bn; }
+	public BehaviourNode getActivityNode(){ return currentActivityNode; }
 	
 	public int getAge(){ return age;}
 	public int getBirthday() {return birthday; }
