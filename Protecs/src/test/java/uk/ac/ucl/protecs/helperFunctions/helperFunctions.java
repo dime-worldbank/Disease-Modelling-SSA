@@ -1,8 +1,10 @@
 package uk.ac.ucl.protecs.helperFunctions;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import uk.ac.ucl.protecs.objects.Person;
@@ -37,7 +39,7 @@ public class helperFunctions {
 			list_index ++;
 		}
 	}
-	public static HashSet<String> getUniqueNodesOverCourseofSim(WorldBankCovid19Sim world, int numDaysToRun, NodeOption option, double sample_regularity){
+	public static HashSet<String> getUniqueNodesOverCourseofSim(WorldBankCovid19Sim world, double numDaysToRun, NodeOption option, double sample_regularity){
 		
 		
 		// Create a list to store the unique node stages that occur in each step
@@ -47,11 +49,11 @@ public class helperFunctions {
 		switch (option) {
 		case CoronavirusInfectiousBehaviour:{
 		// Simulate over the time period and get the disease stages present in the simulation
-		while(world.schedule.getTime() < Params.ticks_per_day * numDaysToRun && !world.schedule.scheduleComplete()){
+		while(world.schedule.getTime() < (double) Params.ticks_per_day * numDaysToRun && !world.schedule.scheduleComplete()){
 			// create a list to store the disease nodes that occur in the simulation
 
 			world.schedule.step(world);
-			if (world.schedule.getTime() % Params.ticks_per_day == sample_regularity) {
+			if (world.schedule.getTime() % (int) Params.ticks_per_day == sample_regularity) {
 			for (Infection i: world.infections) {
 				behaviourNodeBin.add(i.getBehaviourName());
 				}
@@ -62,7 +64,7 @@ public class helperFunctions {
 		}
 		case MovementBehaviour:{
 		// Simulate over the time period and get the movement behaviours present in the simulation
-		while(world.schedule.getTime() < Params.ticks_per_day * numDaysToRun && !world.schedule.scheduleComplete()){
+		while(world.schedule.getTime() < (double) Params.ticks_per_day * numDaysToRun && !world.schedule.scheduleComplete()){
 			// create a list to store the mobility nodes that occur in the simulation
 			world.schedule.step(world);
 			for (Person p: world.agents) {
@@ -114,7 +116,7 @@ public class helperFunctions {
 	}
 	}
 	
-	public static List<String> getFinalBehaviourNodesInSim(WorldBankCovid19Sim world, int numDaysToRun, NodeOption option){
+	public static List<String> getFinalBehaviourNodesInSim(WorldBankCovid19Sim world, double numDaysToRun, NodeOption option){
 		// This function runs the simulation for a predetermined number of days.
 		// At the end of the simulation, the function returns a list of the behaviour nodes being 'performed' by the object.
 		// Create a list to store the unique node stages that occur in each step
@@ -125,7 +127,7 @@ public class helperFunctions {
 		case CoronavirusInfectiousBehaviour:{
 		
 		// Simulate over the time period and get the disease stages present in the simulation
-		while(world.schedule.getTime() < Params.ticks_per_day * numDaysToRun && !world.schedule.scheduleComplete()){
+		while(world.schedule.getTime() < (double) Params.ticks_per_day * numDaysToRun && !world.schedule.scheduleComplete()){
 			// create a list to store the disease nodes that occur in the simulation
 			world.schedule.step(world);
 		}
@@ -155,4 +157,14 @@ public class helperFunctions {
 		}
 		
 	}
+	
+	public static void makePeopleAlwaysLeaveHome(WorldBankCovid19Sim world) {				
+		for (Map.Entry<String, Double> entry : world.params.economic_status_weekday_movement_prob.entrySet()) {
+			entry.setValue(1.0);
+		}
+		for (Map.Entry<String, Double> entry : world.params.economic_status_otherday_movement_prob.entrySet()) {
+			entry.setValue(1.0);
+		}
+	}
+
 }

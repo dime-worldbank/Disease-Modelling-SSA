@@ -16,46 +16,91 @@ import uk.ac.ucl.protecs.helperFunctions.helperFunctions.NodeOption;
 
 
 public class MobilityTesting {
-	// ==================================== Testing ======================================================================
-	// === These tests are designed to ensure that the transition between different locations are working as intended. ===
-	// ===================================================================================================================
+	// ==================================== Testing ==========================================================================
+	// === These tests are designed to ensure that the transition between different locations are working as intended. =======
+	// === These tests will be split into perfect and imperfect mixing parts, as each form of the model will have different ==
+	// === expected behaviours. The perfect mixing tests show that people exhibit the correct movement behaviour and end up ==
+	// === at the correct locations, specifically, people go from the community behaviour node to the home behaviour node at =
+	// === the end of the day. People go from the community location to the home location at the end of the day. =============
+	// === People go switch from the home behaviour node to the community behaviour node at the start of the day. ============
+	// === People go from the home location to their community location at the start of the day. =============================
+	// === We also test that triggering lockdowns reduces the number of outbound trips that take place in the simulatio. =====
+	// =======================================================================================================================
 		
 	// TESTS FOR PERFECT MIXING
 	@Test
-	public void PeopleWithTheCommunityNodeGoBackToHomeNodeAfterwards() {
+	public void PeopleDoingTheCommunityNodeBehaviourSwitchToTheHomeNodeBehviourAtTheEndOfDay() {
 		// set up the simulation
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/params.txt", false);
 		sim.start();
 		// make everyone go to the community
 		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.movementFramework.setMobilityNodeForTesting(mobilityNodeTitle.COMMUNITY), 
 				NodeOption.MovementBehaviour);
-		// run the simulation for a day and get the final node in the simulation
-		List<String> uniqueNodesInRun = helperFunctions.getFinalBehaviourNodesInSim(sim, 1, NodeOption.MovementBehaviour);
+		// people will go home once the day has ended, therefore we need to run this until the end of the time they will be out in the community.
+		// There are 4 hours per tick, meaning 6 ticks per day. We check they are home after the 5th tick of the simulation.
+		List<String> uniqueNodesInRun = helperFunctions.getFinalBehaviourNodesInSim(sim, 5.01 / sim.params.ticks_per_day, NodeOption.MovementBehaviour);
 		// only expect people to be at home
 		List<String> expectedNodes = Arrays.asList(mobilityNodeTitle.HOME.key);
 
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun) && uniqueNodesInRun.containsAll(expectedNodes));
 	}
-	
 	@Test
-	public void OfficeWorkerBehaviours() {
-		//Arrange
+	public void PeopleWithinTheCommunityLocationGoBackToHomeLocationAtTheEndOfDay() {
+		// set up the simulation
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/params.txt", false);
 		sim.start();
-		sim.schedule.step(sim);
+		// make everyone go to the community
+		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.movementFramework.setMobilityNodeForTesting(mobilityNodeTitle.COMMUNITY), 
+				NodeOption.MovementBehaviour);
+		// forcibly transfer people to the community location
+		for (Person p: sim.agents) {
+			p.transferTo(p.getCommunityLocation());
+		}
+		// people will go home once the day has ended, therefore we need to run this until the end of the time they will be out in the community.
+		// There are 4 hours per tick, meaning 6 ticks per day. We check they are home after the 5th tick of the simulation.
+		List<String> _unused = helperFunctions.getFinalBehaviourNodesInSim(sim, 5.01 / sim.params.ticks_per_day, NodeOption.MovementBehaviour);
+		// Create a hashset to store the whether everyone is at their home location
 		
-		Person sut = sim.agents.get(0);
+		HashSet<Boolean> allAtHome =  new HashSet<Boolean>();
+		for (Person p: sim.agents) {
+			allAtHome.add(p.getHousehold().getPeople().contains(p));
+		}
+		// if everyone is at home, then allAtHome should not have false in it
+		Assert.assertFalse(allAtHome.contains(false));
+	}
+	@Test
+	public void PeopleDoingTheHomeNodeSwitchToCommunityNodeBehaviourAtTheStartOfDay() {
+		// set up the simulation
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/params.txt", false);
+		sim.start();
+		helperFunctions.makePeopleAlwaysLeaveHome(sim);
+		// people start at home and then go to the community afterwards
+		List<String> uniqueNodesInRun = helperFunctions.getFinalBehaviourNodesInSim(sim, 2.01 / sim.params.ticks_per_day, NodeOption.MovementBehaviour);
+		// only expect people to be at home
+		List<String> expectedNodes = Arrays.asList(mobilityNodeTitle.COMMUNITY.key);
+
+		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun) && uniqueNodesInRun.containsAll(expectedNodes));
+	}
+	@Test
+	public void PeopleWithinTheHomeLocationGoToTheCommunityLocationAtTheStartOfDay() {
+		// set up the simulation
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/params_no_district_movement.txt", false);
+		sim.start();
+		// people start at home and then go to the community afterwards
+		helperFunctions.makePeopleAlwaysLeaveHome(sim);
+		List<String> _unused = helperFunctions.getFinalBehaviourNodesInSim(sim, 2.01 / sim.params.ticks_per_day, NodeOption.MovementBehaviour);
+		// Create a hashset to store the whether everyone is at their community location
 		
-		//Act
-		sut.step(sim);
-		
-		//Assert
-		Assert.assertFalse(sut.atWorkNow()); // it is morning - they should not be at work
+		HashSet<Boolean> allAtCommunity =  new HashSet<Boolean>();
+		for (Person p: sim.agents) {
+			allAtCommunity.add(p.getCommunityLocation().getPeople().contains(p));
+		}
+		// if everyone is at the community, then allAtHome should not have false in it
+		Assert.assertFalse(allAtCommunity.contains(false));
 	}
 	
-	
 	@Test
-	public void MakeSureThatPeopleGoToOnlyTheCommunityAndHomeLocationsWithPerfectMixing() {
+	public void MakeSureThatPeopleOnlyDoTheCommunityAndHomeNodeBehavioursWithPerfectMixing() {
 		//Arrange
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/params.txt", false);
 		sim.start();
@@ -99,6 +144,22 @@ public class MobilityTesting {
 //		// TODO
 //		Assert.assertTrue(true);
 //	}
+//	// TODO: People do not currently go to work. Redo this when workplaces are in the model
+//		@Test
+//		public void OfficeWorkerBehaviours() {
+//			//Arrange
+//			WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/params.txt", false);
+//			sim.start();
+//			sim.schedule.step(sim);
+//			
+//			Person sut = sim.agents.get(0);
+//			
+//			//Act
+//			sut.step(sim);
+//			
+//			//Assert
+//			Assert.assertFalse(sut.atWorkNow()); // it is morning - they should not be at work
+//		}
 	
 	public int outboundTripCountInSim(WorldBankCovid19Sim world, int numDaysToRun) {
 		// Simulate over the time period and get the disease stages present in the simulation
