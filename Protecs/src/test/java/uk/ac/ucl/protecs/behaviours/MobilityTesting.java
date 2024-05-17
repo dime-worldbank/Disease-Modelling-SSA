@@ -13,6 +13,7 @@ import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.behaviours.MovementBehaviourFramework.mobilityNodeTitle;
 import uk.ac.ucl.protecs.helperFunctions.*;
 import uk.ac.ucl.protecs.helperFunctions.helperFunctions.NodeOption;
+import uk.ac.ucl.protecs.objects.Location.LocationCategory;
 
 
 public class MobilityTesting {
@@ -113,6 +114,22 @@ public class MobilityTesting {
 		List<String> expectedNodes = Arrays.asList(mobilityNodeTitle.HOME.key, mobilityNodeTitle.COMMUNITY.key);
 		// Make sure than no other movement behaviour nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun) && uniqueNodesInRun.containsAll(expectedNodes));
+	}
+	
+	@Test
+	public void MakeSureThatPeopleOnlyGoToTheCommunityAndHomeLocationsWithPerfectMixing() {
+		//Arrange
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/params.txt", false);
+		sim.start();
+		// ensure that perfect mixing is turned on
+		sim.params.setting_perfectMixing = true;
+		int numDays = 100; 
+		// Run the simulation and record the infectious behaviour nodes reached in this simulation
+		HashSet<String> uniqueLocationTypesInRun = helperFunctions.getUniqueLocationsOverCourseOfSimulation(sim, numDays);
+		// we would expect only the home and community node to appear in the simulation
+		List<String> expectedLocationTypes = Arrays.asList(LocationCategory.HOME.key, LocationCategory.COMMUNITY.key);
+		// Make sure than no other movement behaviour nodes are reaching in the simulation
+		Assert.assertTrue(expectedLocationTypes.containsAll(uniqueLocationTypesInRun) && uniqueLocationTypesInRun.containsAll(expectedLocationTypes));
 	}
 	
 //	@Test

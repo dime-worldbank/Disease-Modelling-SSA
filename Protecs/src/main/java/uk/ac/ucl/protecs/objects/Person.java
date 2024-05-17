@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 
 
 import uk.ac.ucl.protecs.behaviours.MovementBehaviourFramework;
+import uk.ac.ucl.protecs.objects.Location.LocationCategory;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.objects.diseases.Infection;
 
@@ -138,6 +139,7 @@ public class Person extends MobileAgent {
 		// agents are initialised uninfected
 		
 		communityLocation = myHousehold.getRootSuperLocation();
+		communityLocation.setLocationType(LocationCategory.COMMUNITY);
 		workBubble = new HashSet <Person> ();
 		communityBubble = new HashSet <Person> ();
 		

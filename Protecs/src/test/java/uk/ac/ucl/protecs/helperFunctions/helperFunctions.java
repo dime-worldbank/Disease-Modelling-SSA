@@ -166,5 +166,17 @@ public class helperFunctions {
 			entry.setValue(1.0);
 		}
 	}
-
+	
+	public static HashSet<String> getUniqueLocationsOverCourseOfSimulation(WorldBankCovid19Sim world, double numDaysToRun){
+		HashSet <String> locationBin = new HashSet<String>();
+		while(world.schedule.getTime() < (double) Params.ticks_per_day * numDaysToRun && !world.schedule.scheduleComplete()){
+			// create a list to store the disease nodes that occur in the simulation
+			world.schedule.step(world);
+		
+		for (Person p: world.agents) {
+			locationBin.add(p.getLocation().getLocationType().key);
+		}
+		}
+		return locationBin;
+	}
 }
