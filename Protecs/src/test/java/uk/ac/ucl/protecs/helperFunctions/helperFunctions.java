@@ -174,7 +174,7 @@ public class helperFunctions {
 			world.schedule.step(world);
 		
 		for (Person p: world.agents) {
-			locationBin.add(p.getLocation().getLocationType().key);
+			if (p.isAlive()) locationBin.add(p.getLocation().getLocationType().key);
 		}
 		}
 		return locationBin;

@@ -16,7 +16,7 @@ public class SingleRun {
 		LocalDateTime timestamp = LocalDateTime.now();  
 		// Get location of parameter file
 
-		String paramFilename = "src/main/resources/params_ward_run.txt";
+		String paramFilename = "src/main/resources/params_ward_dummy.txt";
 		// Create a name for the output file
 		String outputFilename = "single_run_" + timestamp.toString() + ".txt";
 		// create a name for the infections output file

@@ -30,7 +30,6 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 
 			@Override
 			public boolean isEndpoint() {
-				// TODO Auto-generated method stub
 				return false;
 			}
 			
@@ -129,7 +128,6 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 
 			@Override
 			public boolean isEndpoint() {
-				// TODO Auto-generated method stub
 				return false;
 			}
 			
@@ -172,7 +170,6 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 
 			@Override
 			public boolean isEndpoint() {
-				// TODO Auto-generated method stub
 				return false;
 			}
 			
@@ -217,7 +214,6 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 
 			@Override
 			public boolean isEndpoint() {
-				// TODO Auto-generated method stub
 				return false;
 			}
 			
@@ -301,7 +297,6 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 
 			@Override
 			public boolean isEndpoint() {
-				// TODO Auto-generated method stub
 				return false;
 			}
 			
@@ -377,7 +372,6 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 
 			@Override
 			public boolean isEndpoint() {
-				// TODO Auto-generated method stub
 				return false;
 			}
 			
@@ -462,7 +456,6 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 
 			@Override
 			public boolean isEndpoint() {
-				// TODO Auto-generated method stub
 				return false;
 			}
 			
@@ -501,7 +494,6 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 
 			@Override
 			public boolean isEndpoint() {
-				// TODO Auto-generated method stub
 				return false;
 			}
 			
@@ -525,7 +517,6 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 
 			@Override
 			public boolean isEndpoint() {
-				// TODO Auto-generated method stub
 				return true;
 			}
 			

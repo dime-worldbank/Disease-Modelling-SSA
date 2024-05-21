@@ -15,7 +15,11 @@ import uk.ac.ucl.protecs.helperFunctions.*;
 import uk.ac.ucl.protecs.helperFunctions.helperFunctions.NodeOption;
 import uk.ac.ucl.protecs.objects.Location.LocationCategory;
 
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+
+@RunWith(Parameterized.class)
 public class MobilityTesting {
 	// ==================================== Testing ==========================================================================
 	// === These tests are designed to ensure that the transition between different locations are working as intended. =======
@@ -28,15 +32,24 @@ public class MobilityTesting {
 	// === We also test that triggering lockdowns reduces the number of outbound trips that take place in the simulatio. =====
 	// =======================================================================================================================
 		
+
 	// TESTS FOR PERFECT MIXING
+	
+	private final String params;
+	
+	public MobilityTesting(String fileName) {
+		this.params = fileName;
+	}
+
 	@Test
 	public void PeopleDoingTheCommunityNodeBehaviourSwitchToTheHomeNodeBehviourAtTheEndOfDay() {
 		// set up the simulation
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/params.txt", false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(params + ".txt", false);
 		sim.start();
 		// make everyone go to the community
 		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.movementFramework.setMobilityNodeForTesting(mobilityNodeTitle.COMMUNITY), 
 				NodeOption.MovementBehaviour);
+		
 		// people will go home once the day has ended, therefore we need to run this until the end of the time they will be out in the community.
 		// There are 4 hours per tick, meaning 6 ticks per day. We check they are home after the 5th tick of the simulation.
 		List<String> uniqueNodesInRun = helperFunctions.getFinalBehaviourNodesInSim(sim, 5.01 / sim.params.ticks_per_day, NodeOption.MovementBehaviour);
@@ -45,10 +58,11 @@ public class MobilityTesting {
 
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun) && uniqueNodesInRun.containsAll(expectedNodes));
 	}
+	
 	@Test
 	public void PeopleWithinTheCommunityLocationGoBackToHomeLocationAtTheEndOfDay() {
 		// set up the simulation
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/params.txt", false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(params + ".txt", false);
 		sim.start();
 		// make everyone go to the community
 		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.movementFramework.setMobilityNodeForTesting(mobilityNodeTitle.COMMUNITY), 
@@ -72,7 +86,7 @@ public class MobilityTesting {
 	@Test
 	public void PeopleDoingTheHomeNodeSwitchToCommunityNodeBehaviourAtTheStartOfDay() {
 		// set up the simulation
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/params.txt", false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(params + ".txt", false);
 		sim.start();
 		helperFunctions.makePeopleAlwaysLeaveHome(sim);
 		// people start at home and then go to the community afterwards
@@ -103,7 +117,7 @@ public class MobilityTesting {
 	@Test
 	public void MakeSureThatPeopleOnlyDoTheCommunityAndHomeNodeBehavioursWithPerfectMixing() {
 		//Arrange
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/params.txt", false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(params + ".txt", false);
 		sim.start();
 		// ensure that perfect mixing is turned on
 		sim.params.setting_perfectMixing = true;
@@ -119,7 +133,7 @@ public class MobilityTesting {
 	@Test
 	public void MakeSureThatPeopleOnlyGoToTheCommunityAndHomeLocationsWithPerfectMixing() {
 		//Arrange
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/params.txt", false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(params + ".txt", false);
 		sim.start();
 		// ensure that perfect mixing is turned on
 		sim.params.setting_perfectMixing = true;
@@ -141,12 +155,12 @@ public class MobilityTesting {
 //	
 	@Test
 	public void LockdownReducesTheNumberOfVisitsToOtherAdminZones() {
-		WorldBankCovid19Sim sim_no_lockdown = helperFunctions.CreateDummySim("src/main/resources/params.txt", false);
+		WorldBankCovid19Sim sim_no_lockdown = helperFunctions.CreateDummySim(params + ".txt", false);
 		sim_no_lockdown.start();
 		
 		int noLockdownOutboundTripCounts = outboundTripCountInSim(sim_no_lockdown, 100);
 		
-		WorldBankCovid19Sim sim_with_lockdown = helperFunctions.CreateDummySim("src/main/resources/params_with_lockdown.txt", false);
+		WorldBankCovid19Sim sim_with_lockdown = helperFunctions.CreateDummySim(params + "_with_lockdown.txt", false);
 		sim_with_lockdown.start();
 
 		int lockdownOutboundTripCounts = outboundTripCountInSim(sim_with_lockdown, 100);
@@ -177,6 +191,15 @@ public class MobilityTesting {
 //			//Assert
 //			Assert.assertFalse(sut.atWorkNow()); // it is morning - they should not be at work
 //		}
+	
+	
+	@Parameterized.Parameters
+	public static List<String> params() {
+	    return Arrays.asList(
+	            new String[]{"src/main/resources/params", "src/main/resources/params_ward_dummy"}
+	    
+	    );
+	}
 	
 	public int outboundTripCountInSim(WorldBankCovid19Sim world, int numDaysToRun) {
 		// Simulate over the time period and get the disease stages present in the simulation
