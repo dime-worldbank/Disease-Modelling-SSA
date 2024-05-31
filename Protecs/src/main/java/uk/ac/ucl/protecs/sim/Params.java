@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import uk.ac.ucl.protecs.objects.*;
+import uk.ac.ucl.protecs.objects.Location.LocationCategory;
 
 public class Params {
 	
@@ -45,8 +46,6 @@ public class Params {
 	ArrayList <String> adminZoneNames;
 	ArrayList <Map<String, List<Double>>> dailyTransitionPrelockdownProbs;
 	ArrayList <Map<String, List<Double>>> dailyTransitionLockdownProbs;
-
-	HashMap <Location, Double> adminZoneLeavingProb;
 	
 	// holders for economic-related data
 	
@@ -147,7 +146,6 @@ public class Params {
 		
 		dailyTransitionLockdownProbs = load_admin_zone_data(dataDir + admin_zone_transition_LOCKDOWN_filename);
 		dailyTransitionPrelockdownProbs = load_admin_zone_data(dataDir + admin_zone_transition_PRELOCKDOWN_filename);
-		load_admin_zone_leaving_data(dataDir + admin_zone_leaving_filename); // TODO get rid of this OR ELSE formalise variant for use
 		
 		economic_status_weekday_movement_prob = readInEconomicData(dataDir + economic_status_weekday_movement_prob_filename, "economic_status", "movement_probability");
 		economic_status_otherday_movement_prob = readInEconomicData(dataDir + economic_status_otherday_movement_prob_filename, "economic_status", "movement_probability");
@@ -757,64 +755,6 @@ public class Params {
 		return null;
 	}
 
-	public void load_admin_zone_leaving_data(String adminZoneFilename){
-		
-		// set up structure to hold transition probability
-		adminZoneLeavingProb = new HashMap <Location, Double> ();
-		
-		try {
-			
-			if(verbose)
-				System.out.println("Reading in admin zone transfer information from " + adminZoneFilename);
-			
-			// Open the tracts file
-			FileInputStream fstream = new FileInputStream(adminZoneFilename);
-
-			// Convert our input stream to a BufferedReader
-			BufferedReader adminZoneData = new BufferedReader(new InputStreamReader(fstream));
-			String s;
-
-			// extract the header
-			s = adminZoneData.readLine();
-			
-			// map the header into column names relative to location
-			String [] header = splitRawCSVString(s);
-			HashMap <String, Integer> rawColumnNames = new HashMap <String, Integer> ();
-			for(int i = 0; i < header.length; i++){
-				rawColumnNames.put(header[i], new Integer(i));
-			}
-			int locationIndex = rawColumnNames.get("admin_zone_id");
-			int probIndex = rawColumnNames.get("pctdif_distance");
-			
-
-			if(verbose)
-				System.out.println("BEGIN READING IN LEAVING PROBABILITIES");
-			
-			// read in the raw data
-			while ((s = adminZoneData.readLine()) != null) {
-				String [] bits = splitRawCSVString(s);
-				
-				// extract the day of the week and the admin zone name
-				String lId = bits[locationIndex];
-				Double prob = Double.parseDouble(bits[probIndex]);
-				
-				// extract the associated Location and check for problems
-				Location myLocation = adminZones.get(lId);
-				if(myLocation == null){
-					System.out.println("WARNING: no admin zone named " + lId + " as requested in admin zone leaving file. Skipping!");
-					continue;
-				}
-				
-				adminZoneLeavingProb.put(myLocation, prob);
-			}
-			assert (adminZoneLeavingProb.size() > 0): "admin zone leaving probability not loaded";
-			// clean up after ourselves
-			adminZoneData.close();
-		} catch (Exception e) {
-			System.err.println("File input error: " + adminZoneFilename);
-		}
-	}
-
 	// file import helper utilities
 	
 	/**
@@ -891,17 +831,20 @@ public class Params {
 	
 	public Location getTargetMoveAdminZone(Person p, int day, double rand, boolean lockedDown){
 		// extract current admin zone from the location
+		
 		Location l = p.getLocation();
-		Location dummy = l;
-		while(adminZoneLeavingProb.get(dummy) == null && dummy.getSuper() != null)
-			dummy = dummy.getSuper();
+		// If the person is at home or at work then we cannot use their current location to predict movement between admin zones. 
+		// If this happens, use the admin zone they are currently in to do so instead
+		if (l.getLocationType() != LocationCategory.COMMUNITY) {
+			l = l.getSuper();
+		}
 
 		// get the transition probability for the given admin zone on the given day
 		ArrayList <Double> myTransitionProbs;
 		if(lockedDown)
-			myTransitionProbs = (ArrayList <Double>) dailyTransitionLockdownProbs.get(day).get(dummy.getId());
+			myTransitionProbs = (ArrayList <Double>) dailyTransitionLockdownProbs.get(day).get(l.getId());
 		else
-			myTransitionProbs = (ArrayList <Double>) dailyTransitionPrelockdownProbs.get(day).get(dummy.getId());
+			myTransitionProbs = (ArrayList <Double>) dailyTransitionPrelockdownProbs.get(day).get(l.getId());
 		// now compare the random roll to the probability distribution.
 		for(int i = 0; i < myTransitionProbs.size(); i++){
 			if(rand <= myTransitionProbs.get(i)) {// hooray! We've found the right bucket!

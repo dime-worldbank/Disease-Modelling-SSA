@@ -4,7 +4,6 @@ population_filename: dummy_ward_census.csv
 
 admin_zone_transition_LOCKDOWN_filename: reduced_dummy_ward_OD.csv
 admin_zone_transition_PRELOCKDOWN_filename: dummy_ward_OD.csv
-admin_zone_leaving_filename: dummy_ward_leaving_file.csv
 
 economic_status_weekday_movement_prob_filename: econStatusMovementProb_otherday.txt
 economic_status_otherday_movement_prob_filename: econStatusMovementProb_weekday.txt

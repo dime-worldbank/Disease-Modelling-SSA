@@ -120,3 +120,7 @@ passwords/
 
 .DS_Store
 Protecs/src/main/java/uk/ac/ucl/protecs/sim/wardLevelRuns.java
+Protecs/src/main/resources/census_5perc_multiStatMultiDist.csv
+Protecs/src/main/resources/decreasedTransitionMobilityRates_multiDist.csv
+Protecs/src/main/resources/dailyDistrictTransitionProb_preLockdown_multiDist.csv
+Protecs/src/main/resources/new_census_5perc_multiStatMultiDist.csv
