@@ -124,3 +124,8 @@ Protecs/src/main/resources/census_5perc_multiStatMultiDist.csv
 Protecs/src/main/resources/decreasedTransitionMobilityRates_multiDist.csv
 Protecs/src/main/resources/dailyDistrictTransitionProb_preLockdown_multiDist.csv
 Protecs/src/main/resources/new_census_5perc_multiStatMultiDist.csv
+Protecs/src/main/resources/dailyDistrictTransitionsProb_1Dist.csv
+Protecs/src/main/resources/abm_092320_5_perc_080222_ver1.csv
+Protecs/src/main/resources/params_national_run.txt
+Protecs/src/main/resources/params_district_run.txt
+Protecs/src/main/resources/params_district_run.txt
