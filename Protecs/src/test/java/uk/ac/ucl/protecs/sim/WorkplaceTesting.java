@@ -73,10 +73,7 @@ public class WorkplaceTesting{
 	public void checkPeopleGoToTheirWorkplace() {
 		// check the movement of the population to their workplaces
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/workplace_bubbles_params.txt", false, false);
-		// make sure that everyone leaves the house that day
-		for (String key : sim.params.economic_status_weekday_movement_prob.keySet()) {
-			sim.params.economic_status_weekday_movement_prob.put(key, (double) 1);         
-			}
+		makePeopleLeaveTheHouseEachDay(sim);
 		// make everyone decide to go to their workplace
 		sim.params.prob_go_to_work = 1d;
 		sim.start();
@@ -138,6 +135,35 @@ public class WorkplaceTesting{
 		Assert.assertTrue(thoseImmobilisedStayAtHome & hasimmobilisedProperty);
 		
 	}
-
+	@Test
+	public void testThoseConstrainedToTheCommunityAreNotAtWork() {
+		// check the parameters associated with workplace constraints
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/workplace_bubbles_with_constraints.txt", false, false);
+		// make sure that everyone leaves the house that day
+		makePeopleLeaveTheHouseEachDay(sim);
+		sim.start();
+		// run for three ticks (people leave the house at tick 2 and leave work at tick 4)
+		int numTicks = 3;
+		helperFunctions.runSimulationForTicks(sim, numTicks);
+		// create some boolean variables to catch errors if the come up
+		boolean thoseConstrainedAreInCommunity = true;
+		// iterate over the simulation population and check that those who are constrained to the community are at their community spaces
+		for (Person p: sim.agents) {
+			if (sim.params.OccupationConstraintList.containsKey(p.getEconStatus())) {
+				if (sim.params.OccupationConstraintList.get(p.getEconStatus()).equals("Community")) {
+					if ((p.getLocation() instanceof Household) || (p.getLocation() instanceof Workplace)) {
+						thoseConstrainedAreInCommunity = false;
+					}
+				}
+			}
+		}
+		Assert.assertTrue(thoseConstrainedAreInCommunity);
+		
+	}
+	private void makePeopleLeaveTheHouseEachDay(WorldBankCovid19Sim sim) {
+		for (String key : sim.params.economic_status_weekday_movement_prob.keySet()) {
+			sim.params.economic_status_weekday_movement_prob.put(key, (double) 1);         
+		}
+	}
 	
 }

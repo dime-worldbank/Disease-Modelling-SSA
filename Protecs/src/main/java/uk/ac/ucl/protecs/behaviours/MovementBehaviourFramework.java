@@ -66,13 +66,11 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 				// define workday
 				
 				// if unemployed or homemaker don't go to work, else 80% change go to work
-				boolean goToWork = false;
-				if (myWorld.random.nextDouble() < myWorld.params.prob_go_to_work) {
-					goToWork = true;
-					target = p.getWorkLocation();
-
-				}
-
+				boolean goToWork = myWorld.random.nextDouble() < myWorld.params.prob_go_to_work;
+				// first check if there is any constraints to this occupations movements. Note that if the model is using this code block then 
+				// this person has not been immobilised and if their movement is constrained it will mean that they only go to the community and not to work
+				boolean movementConstrained = myWorld.params.OccupationConstraintList.containsKey(p.getEconStatus());
+				if (goToWork & !movementConstrained) target = p.getWorkLocation();
 
 				if(myWorld.params.setting_perfectMixing) // in perfect mixing, just go to the community!
 					goToWork = false;
