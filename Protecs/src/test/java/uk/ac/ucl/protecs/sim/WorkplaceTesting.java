@@ -101,6 +101,16 @@ public class WorkplaceTesting{
 		Assert.assertTrue(contactCountDataLoaded & contactProbabilityDataLoaded & contactOccupationDataLoaded);
 		
 	}
+	@Test
+	public void testWorkplaceConstraintsAreBeingLoaded() {
+		// check the parameters associated with workplace constraints
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/workplace_bubbles_with_constraints.txt", false, false);
+		sim.start();
+		boolean occupationsNamed = sim.params.OccupationConstraintList.keySet().size() > 0;
+		boolean constraintsLoaded = sim.params.OccupationConstraintList.values().size() > 0;
+		Assert.assertTrue(occupationsNamed & constraintsLoaded);
+		
+	}
 
 	
 }

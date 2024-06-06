@@ -1,0 +1,3 @@
+Occupation,Constraint
+manu_mining_trades,Home
+service_retail,Community

@@ -26,3 +26,4 @@ testDataFilename: dummy_n_tests.txt
 testLocationFilename: most_travelled_from_testing.txt
 
 workplaceContactsFilename: contact_counts_1.csv
+workplaceConstraintsFilename: workplace_constraints_empty.txt

@@ -71,6 +71,9 @@ public class Params {
 	public ArrayList <Integer> number_of_tests_per_day;
 	public ArrayList <String> districts_to_test_in;
 	
+	// holders for workplace bubble constraints
+	public HashMap <String, String> OccupationConstraintList;
+	
 	// parameters drawn from Kerr et al 2020 - https://www.medrxiv.org/content/10.1101/2020.05.10.20097469v3.full.pdf
 	public ArrayList <Integer> infection_age_params;
 	public ArrayList <Double> infection_r_sus_by_age;
@@ -130,7 +133,8 @@ public class Params {
 	public String testDataFilename = "";
 	public String testLocationFilename = "";
 	
-	public String workplaceContactsFilename;
+	public String workplaceContactsFilename = "";
+	public String workplaceConstraintsFilename= "";
 		
 	
 	// time
@@ -180,9 +184,10 @@ public class Params {
 		
 		// load the workplace contacts data
 		load_workplace_contacts(dataDir + workplaceContactsFilename);
+		// load in the file to determine which occupations will have reduced mobility
+		load_occupational_constraints(dataDir + workplaceConstraintsFilename);
 		
 	}
-	
 	//
 	// DATA IMPORT UTILITIES
 	//
@@ -460,6 +465,59 @@ public class Params {
 		}
 		
 	}
+	
+	private void load_occupational_constraints(String workplaceConstraints) {
+
+		// set up structure to hold transition probability
+		OccupationConstraintList = new HashMap<String, String>();
+		
+		try {
+			
+			if(verbose)
+				System.out.println("Reading in workplace constraints from " + workplaceConstraints);
+			
+			// Open the tracts file
+			FileInputStream fstream = new FileInputStream(workplaceConstraints);
+
+			// Convert our input stream to a BufferedReader
+			BufferedReader workplaceData = new BufferedReader(new InputStreamReader(fstream));
+			
+			String s;
+
+			// extract the header
+			s = workplaceData.readLine();
+			
+			// map the header into column names
+			String [] header = splitRawCSVString(s);
+			HashMap <String, Integer> rawColumnNames = new HashMap <String, Integer> ();
+			for(int i = 0; i < header.length; i++){
+				rawColumnNames.put(header[i], new Integer(i));
+			}
+			int occupationIndex = rawColumnNames.get("Occupation");			
+			int constraintIndex = rawColumnNames.get("Constraint");			
+			if(verbose)
+				System.out.println("BEGIN READING IN OCCUPATION CONSTRAINTS");
+			
+			
+			// read in the raw data
+			while ((s = workplaceData.readLine()) != null) {
+				String [] bits = splitRawCSVString(s);
+				
+				// extract the occupation
+				String occupationName = bits[occupationIndex];
+				String constraint = bits[constraintIndex];
+
+				// save the transitions
+				OccupationConstraintList.put(occupationName, constraint);
+			}
+			// clean up after ourselves
+			workplaceData.close();
+		} catch (Exception e) {
+			System.err.println("File input error: " + workplaceConstraints);
+		}
+		
+	}
+
 	
 	public void load_infection_params(String filename){
 		try {
