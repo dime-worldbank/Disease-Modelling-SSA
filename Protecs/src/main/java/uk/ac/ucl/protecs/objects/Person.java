@@ -390,7 +390,7 @@ public class Person extends MobileAgent {
 	
 	private void structuredMixingInteractions() {
 		if(currentLocation instanceof Household){
-			assert (this.atWork == false): "at work but having interactions at home";
+			assert (!this.atWork): "at work but having interactions at home";
 			interactWithin(currentLocation.personsHere, null, currentLocation.personsHere.size());
 			
 		}
@@ -551,6 +551,7 @@ public class Person extends MobileAgent {
 	public void sendHome() {
 		this.transferTo(myHousehold);
 		this.setActivityNode(myWorld.movementFramework.getHomeNode());
+		this.setAtWork(false);
 	}
 	
 	// BUBBLE MANAGEMENT

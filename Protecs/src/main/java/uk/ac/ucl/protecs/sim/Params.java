@@ -504,7 +504,7 @@ public class Params {
 				String [] bits = splitRawCSVString(s);
 				
 				// extract the occupation
-				String occupationName = bits[occupationIndex];
+				String occupationName = bits[occupationIndex].toLowerCase();
 				String constraint = bits[constraintIndex];
 
 				// save the transitions

@@ -108,6 +108,16 @@ public class LoadPopulation{
 				// schedule the agent to run at the beginning of the simulation
 				sim.schedule.scheduleOnce(0, sim.param_schedule_movement, p);
 				//this.schedule.scheduleRepeating(p);
+				
+				// Some occupational constraints will cause people to stay at home, we can initialise this by checking who has the appropriate occupation for this constraint
+				// and then immobilising them, causing them to remain at home throughout the simulation
+				if (sim.params.OccupationConstraintList.containsKey(bits[7].toLowerCase())) {
+					// todo: match this to an enum when everything is merged together
+					if (sim.params.OccupationConstraintList.get(bits[7].toLowerCase()).equals("Home")) {
+						p.setMobility(false);
+					}
+						
+				}
 			}
 			
 			// clean up after ourselves!

@@ -64,7 +64,6 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 				target = myWorld.params.getTargetMoveDistrict(p, day, myWorld.random.nextDouble(), myWorld.lockedDown);
 				assert target.getId().startsWith("d_"): "target is a null location";
 				// define workday
-				// talk to Sophie about this, need to work out who is going to work and when etc... For now we will assume everyone goes to their workplace 50% of the time
 				
 				// if unemployed or homemaker don't go to work, else 80% change go to work
 				boolean goToWork = false;

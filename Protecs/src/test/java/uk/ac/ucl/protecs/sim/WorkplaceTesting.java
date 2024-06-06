@@ -1,6 +1,7 @@
 package uk.ac.ucl.protecs.sim;
 
 import uk.ac.ucl.protecs.helperFunctions.*;
+import uk.ac.ucl.protecs.objects.Household;
 import uk.ac.ucl.protecs.objects.Person;
 import uk.ac.ucl.protecs.objects.Workplace;
 
@@ -109,6 +110,32 @@ public class WorkplaceTesting{
 		boolean occupationsNamed = sim.params.OccupationConstraintList.keySet().size() > 0;
 		boolean constraintsLoaded = sim.params.OccupationConstraintList.values().size() > 0;
 		Assert.assertTrue(occupationsNamed & constraintsLoaded);
+		
+	}
+	
+	@Test
+	public void testThoseConstrainedToHomeAreImmobilised() {
+		// check the parameters associated with workplace constraints
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/workplace_bubbles_with_constraints.txt", false, false);
+		sim.start();
+		// run for three ticks (people leave the house at tick 2 and leave work at tick 4)
+		int numTicks = 3;
+		helperFunctions.runSimulationForTicks(sim, numTicks);
+		// create some boolean variables to catch errors if the come up
+		boolean thoseImmobilisedStayAtHome = true;
+		boolean hasimmobilisedProperty = true;
+		// iterate over the simulation population and check that those who are constrained to home are in fact at home and have had the immobilised property set
+		for (Person p: sim.agents) {
+			if (sim.params.OccupationConstraintList.containsKey(p.getEconStatus())) {
+				if (sim.params.OccupationConstraintList.get(p.getEconStatus()).equals("Home")) {
+					hasimmobilisedProperty = (p.isImmobilised() == true);
+					if (!(p.getLocation() instanceof Household)) {
+						thoseImmobilisedStayAtHome = false;
+					}
+				}
+			}
+		}
+		Assert.assertTrue(thoseImmobilisedStayAtHome & hasimmobilisedProperty);
 		
 	}
 
