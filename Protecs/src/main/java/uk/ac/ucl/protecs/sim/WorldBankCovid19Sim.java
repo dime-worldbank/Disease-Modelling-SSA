@@ -337,10 +337,8 @@ public class WorldBankCovid19Sim extends SimState {
 		double myBeta = .3;
 		long seed = 12345;
 		String outputFilename = "dailyReport_" + myBeta + "_" + numDays + "_" + seed + ".txt";
-		String infectionsOutputFilename = "infections_" + myBeta + "_" + numDays + "_" + seed + ".txt"; 
 		String paramsFilename = "src/main/resources/params.txt";
-		boolean demography = false;
-		boolean covidTesting = true;
+
 		// read in any extra settings from the command line
 		if(args.length < 0){
 			System.out.println("usage error");
@@ -358,20 +356,12 @@ public class WorldBankCovid19Sim extends SimState {
 				outputFilename = args[4];
 			if(args.length > 5)
 				paramsFilename = args[5];
-			if(args.length > 6)
-				infectionsOutputFilename = args[6];
 		}
 		
 		long startTime = System.currentTimeMillis(); // wallclock measurement of time - embarrassing.
-				
-		/*
-				String paramFilename = filenameBase + s + filenameSuffix;
-				String outputFilename = s + outputPrefix + i + outputSuffix;
-				
-		 */
 
 		// set up the simulation
-		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim( seed, new Params(paramsFilename, true), outputFilename, demography, covidTesting);
+		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim( seed, new Params(paramsFilename, true), outputFilename, false, false);
 
 
 		System.out.println("Loading...");
@@ -381,9 +371,7 @@ public class WorldBankCovid19Sim extends SimState {
 		mySim.targetDuration = numDays;
 		mySim.params.rate_of_spurious_symptoms = 1;
 		mySim.start(); // start the simulation
-		
-		mySim.infections_export_filename = infectionsOutputFilename; // overwrite the export filename
-		
+				
 		System.out.println("How many agents? " + mySim.agents.size());
 		System.out.println("Running...");
 
@@ -392,9 +380,7 @@ public class WorldBankCovid19Sim extends SimState {
 			mySim.schedule.step(mySim);
 			double myTime = mySim.schedule.getTime();
 		}
-		
-		ImportExport.exportInfections(infectionsOutputFilename, mySim.infections);
-		
+				
 		// end of wallclock determination of time
 		long endTime = System.currentTimeMillis();
 		mySim.timer = endTime - startTime;
