@@ -345,8 +345,6 @@ public class Person extends MobileAgent {
 		int numPeople = peopleHere.length;
 		
 		double someInteractions = myWorld.params.community_num_interaction_perTick;
-		if(this.atWork)
-			someInteractions = myWorld.params.economic_num_interactions_weekday_perTick.get(this.economic_status);
 		
 		double myNumInteractions = Math.min(numPeople - 1, someInteractions);
 		

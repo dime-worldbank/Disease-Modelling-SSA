@@ -8,7 +8,6 @@ district_leaving_filename: intra_district_decreased_mobility_rates.csv
 
 economic_status_weekday_movement_prob_filename: econStatusMovementProb_otherday.txt
 economic_status_otherday_movement_prob_filename: econStatusMovementProb_weekday.txt
-economic_status_num_daily_interacts_filename: numWeeklyInteractionsByStatus.txt
 econ_interaction_distrib_filename: interactionMatrixByStatus.txt
 
 setting_perfectMixing: false

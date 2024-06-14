@@ -29,7 +29,6 @@ public class Params {
 	public HashMap <String, Double> economic_status_weekday_movement_prob;
 	public HashMap <String, Double> economic_status_otherday_movement_prob;
 	
-	public HashMap <String, Double> economic_num_interactions_weekday_perTick;
 	public HashMap <String, List<Double>> workplaceContactProbability;
 	public ArrayList <String> occupationNames;
 	public ArrayList <Integer> workplaceContactCounts;
@@ -164,9 +163,7 @@ public class Params {
 		
 		economic_status_weekday_movement_prob = readInEconomicData(dataDir + economic_status_weekday_movement_prob_filename, "economic_status", "movement_probability");
 		economic_status_otherday_movement_prob = readInEconomicData(dataDir + economic_status_otherday_movement_prob_filename, "economic_status", "movement_probability");
-		
-		economic_num_interactions_weekday_perTick = readInEconomicData(dataDir  + economic_status_num_daily_interacts_filename, "economic_status", "interactions");
-		//HashMap <String, Double> econBubbleHolder =
+				//HashMap <String, Double> econBubbleHolder =
 		// TODO: not reading in bubbles in any meaningful way. Must read.
 		
 		load_econStatus_distrib(dataDir  + econ_interaction_distrib_filename);
