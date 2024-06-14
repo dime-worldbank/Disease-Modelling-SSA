@@ -11,7 +11,6 @@ economic_status_otherday_movement_prob_filename: econStatusMovementProb_weekday.
 economic_status_num_daily_interacts_filename: numWeeklyInteractionsByStatus.txt
 econ_interaction_distrib_filename: interactionMatrixByStatus.txt
 
-community_num_interaction_perTick: 5
 setting_perfectMixing: true
 
 line_list_filename: line_list_empty.txt

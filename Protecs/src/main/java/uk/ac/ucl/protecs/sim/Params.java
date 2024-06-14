@@ -33,7 +33,7 @@ public class Params {
 	public HashMap <String, List<Double>> workplaceContactProbability;
 	public ArrayList <String> occupationNames;
 	public ArrayList <Integer> workplaceContactCounts;
-	public static int community_num_interaction_perTick = 3;
+	public static int community_num_interaction_perTick = 5;
 
 	public static int community_bubble_size = 30;
 	
