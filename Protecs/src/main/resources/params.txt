@@ -11,8 +11,6 @@ economic_status_otherday_movement_prob_filename: econStatusMovementProb_weekday.
 economic_status_num_daily_interacts_filename: numWeeklyInteractionsByStatus.txt
 econ_interaction_distrib_filename: interactionMatrixByStatus.txt
 
-setting_perfectMixing: true
-
 line_list_filename: line_list_dummy.txt
 infection_transition_params_filename: covasim_infect_transitions.txt
 lockdown_changeList_filename: lockdownChangelist.txt

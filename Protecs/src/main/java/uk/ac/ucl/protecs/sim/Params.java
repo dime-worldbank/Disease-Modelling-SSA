@@ -20,7 +20,7 @@ public class Params {
 	public double rate_of_spurious_symptoms = 0.1;
 	public int lineListWeightingFactor = 1; // the line list contains only detected instances, which can be biased 
 											// - weight this if we suspect it's undercounting
-	public boolean setting_perfectMixing = false; // if TRUE: there are no work or social bubbles; individuals have
+	public boolean setting_perfectMixing = true; // if TRUE: there are no work or social bubbles; individuals have
 	// equal chance of interacting with anyone else in the simulation
 	public double prob_go_to_work = 0.8;
 
