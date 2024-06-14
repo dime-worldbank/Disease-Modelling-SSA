@@ -163,11 +163,7 @@ public class Params {
 		
 		economic_status_weekday_movement_prob = readInEconomicData(dataDir + economic_status_weekday_movement_prob_filename, "economic_status", "movement_probability");
 		economic_status_otherday_movement_prob = readInEconomicData(dataDir + economic_status_otherday_movement_prob_filename, "economic_status", "movement_probability");
-				//HashMap <String, Double> econBubbleHolder =
-		// TODO: not reading in bubbles in any meaningful way. Must read.
-		
-		load_econStatus_distrib(dataDir  + econ_interaction_distrib_filename);
-		
+				
 		load_line_list(dataDir  + line_list_filename);
 		load_lockdown_changelist(dataDir +  lockdown_changeList_filename);
 		load_infection_params(dataDir  + infection_transition_params_filename);
@@ -690,71 +686,71 @@ public class Params {
 	}
 
 	// Economic
-	
-	public void load_econStatus_distrib(String filename){
-		economicInteractionDistrib = new HashMap <String, Map<String, Double>> ();
-		economicInteractionCumulativeDistrib = new HashMap <String, List<Double>> ();
-		econBubbleSize = new HashMap <String, Integer> ();
-		orderedEconStatuses = new ArrayList <String> ();
-		
-		try {
-			
-			if(verbose)
-				System.out.println("Reading in econ interaction data from " + filename);
-			
-			// Open the tracts file
-			FileInputStream fstream = new FileInputStream(filename);
-
-			// Convert our input stream to a BufferedReader
-			BufferedReader econDistribData = new BufferedReader(new InputStreamReader(fstream));
-			String s;
-
-			// extract the header
-			s = econDistribData.readLine();
-			
-			// map the header into column names relative to location
-			String [] header = splitRawCSVString(s);
-			HashMap <String, Integer> rawColumnNames = new HashMap <String, Integer> ();
-			for(int i = 0; i < header.length; i++){
-				rawColumnNames.put(header[i], new Integer(i));
-			}
-			//int bubbleIndex = rawColumnNames.get("Bubble");
-			
-			while ((s = econDistribData.readLine()) != null) {
-				String [] bits = splitRawCSVString(s);
-				String myTitle = bits[0].toLowerCase();
-				if(verbose)
-					System.out.println(bits);
-				
-				// save bubble info
-				//econBubbleSize.put(myTitle, Integer.parseInt(bits[bubbleIndex]));
-				
-				// save interaction info
-				HashMap <String, Double> interacts = new HashMap <String, Double> ();
-				ArrayList <Double> interactsCum = new ArrayList <Double> ();
-				double cumTotal = 0;
-				for(int i = 1;//bubbleIndex + 1; 
-						i < bits.length; i++){
-					Double val = Double.parseDouble(bits[i]);
-					interacts.put(header[i], val);
-					
-					cumTotal += val;
-					interactsCum.add(cumTotal);
-				}
-				economicInteractionDistrib.put(myTitle, interacts);
-				economicInteractionCumulativeDistrib.put(myTitle, interactsCum);
-				
-				// save ordering info
-				orderedEconStatuses.add(bits[0].toLowerCase());
-			}
-			assert (economicInteractionDistrib.size() > 0): "economicInteractionDistrib not loaded";
-			assert (economicInteractionCumulativeDistrib.size() > 0): "economicInteractionCumulativeDistrib not loaded";
-			assert (orderedEconStatuses.size() > 0): "orderedEconStatuses not loaded";			
-			econDistribData.close();
-		} catch (Exception e) {
-			System.err.println("File input error: " + econ_interaction_distrib_filename);
-		}
-	}
+	// ------------------- This form of including workplace bubbles in the model has been replaced ------------------------------
+//	public void load_econStatus_distrib(String filename){
+//		economicInteractionDistrib = new HashMap <String, Map<String, Double>> ();
+//		economicInteractionCumulativeDistrib = new HashMap <String, List<Double>> ();
+//		econBubbleSize = new HashMap <String, Integer> ();
+//		orderedEconStatuses = new ArrayList <String> ();
+//		
+//		try {
+//			
+//			if(verbose)
+//				System.out.println("Reading in econ interaction data from " + filename);
+//			
+//			// Open the tracts file
+//			FileInputStream fstream = new FileInputStream(filename);
+//
+//			// Convert our input stream to a BufferedReader
+//			BufferedReader econDistribData = new BufferedReader(new InputStreamReader(fstream));
+//			String s;
+//
+//			// extract the header
+//			s = econDistribData.readLine();
+//			
+//			// map the header into column names relative to location
+//			String [] header = splitRawCSVString(s);
+//			HashMap <String, Integer> rawColumnNames = new HashMap <String, Integer> ();
+//			for(int i = 0; i < header.length; i++){
+//				rawColumnNames.put(header[i], new Integer(i));
+//			}
+//			//int bubbleIndex = rawColumnNames.get("Bubble");
+//			
+//			while ((s = econDistribData.readLine()) != null) {
+//				String [] bits = splitRawCSVString(s);
+//				String myTitle = bits[0].toLowerCase();
+//				if(verbose)
+//					System.out.println(bits);
+//				
+//				// save bubble info
+//				//econBubbleSize.put(myTitle, Integer.parseInt(bits[bubbleIndex]));
+//				
+//				// save interaction info
+//				HashMap <String, Double> interacts = new HashMap <String, Double> ();
+//				ArrayList <Double> interactsCum = new ArrayList <Double> ();
+//				double cumTotal = 0;
+//				for(int i = 1;//bubbleIndex + 1; 
+//						i < bits.length; i++){
+//					Double val = Double.parseDouble(bits[i]);
+//					interacts.put(header[i], val);
+//					
+//					cumTotal += val;
+//					interactsCum.add(cumTotal);
+//				}
+//				economicInteractionDistrib.put(myTitle, interacts);
+//				economicInteractionCumulativeDistrib.put(myTitle, interactsCum);
+//				
+//				// save ordering info
+//				orderedEconStatuses.add(bits[0].toLowerCase());
+//			}
+//			assert (economicInteractionDistrib.size() > 0): "economicInteractionDistrib not loaded";
+//			assert (economicInteractionCumulativeDistrib.size() > 0): "economicInteractionCumulativeDistrib not loaded";
+//			assert (orderedEconStatuses.size() > 0): "orderedEconStatuses not loaded";			
+//			econDistribData.close();
+//		} catch (Exception e) {
+//			System.err.println("File input error: " + econ_interaction_distrib_filename);
+//		}
+//	}
 	
 	public ArrayList <Map<String, List<Double>>> load_district_data(String districtFilename){
 		
