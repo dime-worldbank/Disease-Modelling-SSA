@@ -130,9 +130,6 @@ public class LoadPopulation{
 					}
 						
 				}
-				if (bits[economicStatusIndex].toLowerCase().equals("inactive") | bits[economicStatusIndex].toLowerCase().equals("unemployed_not_ag")) {
-					p.setMobility(false);
-				}
 			}
 			
 			// clean up after ourselves!

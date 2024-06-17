@@ -1,1 +1,3 @@
 Occupation,Constraint
+inactive,Community
+unemployed_not_ag,Community
