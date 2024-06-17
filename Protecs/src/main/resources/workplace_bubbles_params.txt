@@ -1,9 +1,9 @@
 dataDir: src/main/resources/
 
-population_filename: new_large_census.csv
+population_filename: small_ipums_5p_wp_bubbles.csv
 
-district_transition_LOCKDOWN_filename: dailyDistrictTransitionProb_preLockdown.csv
-district_transition_PRELOCKDOWN_filename: dailyDistrictTransitionProb_preLockdown.csv
+district_transition_LOCKDOWN_filename: dailyDistrictTransitionProb_preLockdown_multiDist.csv
+district_transition_PRELOCKDOWN_filename: dailyDistrictTransitionProb_preLockdown_multiDist.csv
 district_leaving_filename: intra_district_decreased_mobility_rates.csv
 
 economic_status_weekday_movement_prob_filename: econStatusMovementProb_otherday.txt
@@ -22,5 +22,5 @@ birth_rate_filename: test_birth_rates.txt
 testDataFilename: dummy_n_tests.txt
 testLocationFilename: most_travelled_from_testing.txt
 
-workplaceContactsFilename: contact_counts_1.csv
+workplaceContactsFilename: contact_counts_final.csv
 workplaceConstraintsFilename: workplace_constraints_empty.txt

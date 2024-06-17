@@ -41,7 +41,19 @@ public class LoadPopulation{
 
 			// get rid of the header
 			s = agentData.readLine();
-			//Params.parseHeader(s.split(',')); TODO fix meeee
+			// map the header into column names relative to location
+			String [] header = Params.splitRawCSVString(s);
+			HashMap <String, Integer> columnNames = Params.parseHeader(header);
+			int personIDIndex = columnNames.get("person_id");
+			int ageIndex = columnNames.get("age");
+			int sexIndex = columnNames.get("sex");
+			int householdIDIndex = columnNames.get("household_id");
+			int workplaceIDIndex = columnNames.get("workplace_id");
+			int districtIDIndex = columnNames.get("district_id");
+			int economicStatusIndex = columnNames.get("economic_status");
+			int schoolGoerIndex = columnNames.get("school_goers");
+
+						
 			
 			System.out.print("BEGIN READING IN PEOPLE...");
 			
@@ -56,16 +68,16 @@ public class LoadPopulation{
 				// make sure the larger units are set up before we create the individual
 
 				// set up the Household for the Person
-				String hhName = bits[4];
+				String hhName = bits[householdIDIndex];
 				Household h = rawHouseholds.get(hhName);
-				String wpName = bits[5];
+				String wpName = bits[workplaceIDIndex];
 				Workplace w = rawWorkplaces.get(wpName);
 
 				// target district
-				String myDistrictName = "d_" + bits[6]; // TODO AN ABOMINATION, STANDARDISE IT
+				String myDistrictName = "d_" + bits[districtIDIndex]; 
 				Location myDistrict = sim.params.districts.get(myDistrictName);
 
-				boolean schoolGoer = bits[8].equals("1");
+				boolean schoolGoer = bits[schoolGoerIndex].equals("1");
 				
 				// if the Household doesn't already exist, create it and save it
 				if(h == null){
@@ -88,11 +100,11 @@ public class LoadPopulation{
 				int birthday = sim.random.nextInt(365);
 
 				// create and save the Person agent
-				Person p = new Person(Integer.parseInt(bits[1]), // ID 
-						Integer.parseInt(bits[2]), // age
+				Person p = new Person(Integer.parseInt(bits[personIDIndex]), // ID 
+						Integer.parseInt(bits[ageIndex]), // age
 						birthday, // birthday to update population
-						bits[3], // sex
-						bits[7].toLowerCase(), // lower case all of the job titles
+						bits[sexIndex].toLowerCase(), // sex
+						bits[economicStatusIndex].toLowerCase(), // lower case all of the job titles
 						schoolGoer,
 						h,
 						w,
@@ -100,7 +112,7 @@ public class LoadPopulation{
 						);
 				h.addPerson(p);
 				w.addPerson(p);
-				//p.setLocation(myDistrict);
+//				p.setLocation(myDistrict);
 				p.setActivityNode(sim.movementFramework.getHomeNode());
 				sim.agents.add(p);
 				sim.personsToDistrict.get(myDistrict).add(p);
@@ -112,11 +124,14 @@ public class LoadPopulation{
 				// Some occupational constraints will cause people to stay at home, we can initialise this by checking who has the appropriate occupation for this constraint
 				// and then immobilising them, causing them to remain at home throughout the simulation
 				if (sim.params.OccupationConstraintList.containsKey(bits[7].toLowerCase())) {
-					// todo: match this to an enum when everything is merged together
+					// TODO: match this to an enum when everything is merged together
 					if (sim.params.OccupationConstraintList.get(bits[7].toLowerCase()).equals("Home")) {
 						p.setMobility(false);
 					}
 						
+				}
+				if (bits[economicStatusIndex].toLowerCase().equals("inactive") | bits[economicStatusIndex].toLowerCase().equals("unemployed_not_ag")) {
+					p.setMobility(false);
 				}
 			}
 			

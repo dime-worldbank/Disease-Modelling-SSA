@@ -12,3 +12,5 @@ other,0.8
 transport_sector,1.0
 office_worker,1.0
 religious,1.0
+student,1.0
+inactive,1.0
