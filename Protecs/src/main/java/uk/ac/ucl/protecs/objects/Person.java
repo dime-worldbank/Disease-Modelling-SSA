@@ -52,6 +52,7 @@ public class Person extends MobileAgent {
 	boolean immobilised = false;
 	boolean visiting = false;
 	boolean atWork = false;
+	boolean isUnemployed = false;
 	
 	// copy of world
 	WorldBankCovid19Sim myWorld;
@@ -633,7 +634,8 @@ public class Person extends MobileAgent {
 		}
 
 	public String getCurrentDistrict() {return this.getHousehold().getRootSuperLocation().myId;}
-
+	public void setUnemployed() {this.isUnemployed = true;}
+	public boolean isUnemployed() {return this.isUnemployed;}
 	// UTILS
 	
 	public String toString(){ return "P_" + this.myId;}

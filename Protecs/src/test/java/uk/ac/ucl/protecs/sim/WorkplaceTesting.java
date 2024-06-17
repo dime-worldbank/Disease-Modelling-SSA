@@ -83,7 +83,7 @@ public class WorkplaceTesting{
 		// determine if everyone has travelled to their workplace
 		boolean allAtWork = true;
 		for (Person p: sim.agents) {
-			if (!(p.getLocation() instanceof Workplace) && !p.isImmobilised()) {allAtWork = false;}
+			if (!(p.getLocation() instanceof Workplace) && !p.isUnemployed()) {allAtWork = false;}
 		}
 		Assert.assertTrue(allAtWork);
 		

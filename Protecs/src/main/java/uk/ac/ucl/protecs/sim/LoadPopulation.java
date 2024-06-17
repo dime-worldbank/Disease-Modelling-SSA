@@ -123,13 +123,14 @@ public class LoadPopulation{
 				
 				// Some occupational constraints will cause people to stay at home, we can initialise this by checking who has the appropriate occupation for this constraint
 				// and then immobilising them, causing them to remain at home throughout the simulation
-				if (sim.params.OccupationConstraintList.containsKey(bits[7].toLowerCase())) {
+				if (sim.params.OccupationConstraintList.containsKey(bits[economicStatusIndex].toLowerCase())) {
 					// TODO: match this to an enum when everything is merged together
-					if (sim.params.OccupationConstraintList.get(bits[7].toLowerCase()).equals("Home")) {
+					if (sim.params.OccupationConstraintList.get(bits[economicStatusIndex].toLowerCase()).equals("Home")) {
 						p.setMobility(false);
 					}
 						
 				}
+				if (bits[economicStatusIndex].equals("inactive") | bits[economicStatusIndex].equals("unemployed_not_ag")) p.setUnemployed();
 			}
 			
 			// clean up after ourselves!
