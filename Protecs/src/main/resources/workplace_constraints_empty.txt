@@ -1,3 +1,1 @@
 Occupation,Constraint
-inactive,Home
-unemployed_not_ag,Home

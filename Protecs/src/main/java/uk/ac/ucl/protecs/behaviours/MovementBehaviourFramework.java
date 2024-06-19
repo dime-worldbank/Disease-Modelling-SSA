@@ -67,10 +67,16 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 				
 				// if unemployed or homemaker don't go to work, else 80% change go to work
 				boolean goToWork = myWorld.random.nextDouble() < myWorld.params.prob_go_to_work;
+				if (p.isUnemployed()) {
+					goToWork = false;
+				}
 				// first check if there is any constraints to this occupations movements. Note that if the model is using this code block then 
 				// this person has not been immobilised and if their movement is constrained it will mean that they only go to the community and not to work
 				boolean movementConstrained = myWorld.params.OccupationConstraintList.containsKey(p.getEconStatus());
-				if (goToWork & !movementConstrained) target = p.getWorkLocation();
+				// then check if they are supposed to leave the admin zone they are currently in. If so, then they cannot go to work.
+				boolean stayingInHomeDistrict = target.getId().equals(p.getHousehold().getRootSuperLocation().getId());
+			
+				if (goToWork & stayingInHomeDistrict & !movementConstrained) target = p.getWorkLocation();
 
 				if(myWorld.params.setting_perfectMixing) // in perfect mixing, just go to the community!
 					goToWork = false;

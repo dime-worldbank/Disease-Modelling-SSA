@@ -400,7 +400,9 @@ public class Person extends MobileAgent {
 			// interact
 			interactWithin(workBubble, currentLocation.personsHere, myNumInteractions);
 		}
-
+		else {
+			perfectMixingInteractions();
+		}
 	
 	}
 
