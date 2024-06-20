@@ -73,7 +73,8 @@ public class WorldBankCovid19Sim extends SimState {
 	// record-keeping
 	
 	ArrayList <HashMap <String, Double>> dailyRecord = new ArrayList <HashMap <String, Double>> ();
-
+	
+	HashSet<String> occupations_in_sim = new HashSet<String>();
 	// meta
 	public long timer = -1;
 	

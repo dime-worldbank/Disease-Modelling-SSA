@@ -832,9 +832,7 @@ public class Logging {
 				}
 				covid_number_and_deaths += "\n";
 				ImportExport.exportMe(world.covidCountsOutputFilename, covid_number_and_deaths, world.timer);
-				List <String> economic_status = Arrays.asList("not working, inactive, not in universe", 
-						"current students", "homemakers/housework", "office workers", "teachers", "service workers", 
-						"agriculture workers", "industry workers", "in the army", "disabled and not working");
+
 				ArrayList <Integer> status_counts = new ArrayList<Integer>();
 				ArrayList <Integer> status_covid_counts = new ArrayList<Integer>();
 				ArrayList <Integer> status_covid_death_counts = new ArrayList<Integer>();
@@ -881,7 +879,7 @@ public class Logging {
 								)
 						)
 						);
-				for (String status: economic_status) {
+				for (String status: world.occupations_in_sim) {
 					try {
 					status_covid_counts.add(economic_alive_has_covid.get(status).get(true).get(true).get(false).intValue());
 					}
@@ -904,10 +902,10 @@ public class Logging {
 						status_counts.add(0);
 					}
 				}
-				String econ_status_categories = "Not working, inactive, not in universe" + t + "Current Students" + t + 
-						"Homemakers/Housework" + t + "Office workers" + t + "Teachers" + t + "Service Workers" + t + 
-						"Agriculture Workers" + t + "Industry Workers" + t + "In the army" + 
-						t + "Disabled and not working" + "\n";
+				String econ_status_categories = "";
+				for (String occ: world.occupations_in_sim) econ_status_categories += occ + t;
+				econ_status_categories += "\n";
+				
 				String econ_status_output = "";
 				if (time == 0) {
 					econ_status_output += "day" + t + "metric" + t + econ_status_categories + String.valueOf(time);

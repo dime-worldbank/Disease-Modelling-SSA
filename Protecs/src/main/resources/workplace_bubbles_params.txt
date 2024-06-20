@@ -1,6 +1,6 @@
 dataDir: src/main/resources/
 
-population_filename: ipums_5p_wp_bubbles.csv
+population_filename: small_ipums_5p_wp_bubbles.csv
 
 district_transition_LOCKDOWN_filename: dailyDistrictTransitionProb_preLockdown_multiDist.csv
 district_transition_PRELOCKDOWN_filename: dailyDistrictTransitionProb_preLockdown_multiDist.csv
