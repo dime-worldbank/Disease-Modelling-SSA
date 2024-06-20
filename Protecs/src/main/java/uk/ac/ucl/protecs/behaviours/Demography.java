@@ -6,9 +6,9 @@ import java.util.List;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 import uk.ac.ucl.protecs.objects.Household;
+import uk.ac.ucl.protecs.objects.Workplace;
 import uk.ac.ucl.protecs.objects.Location;
 import uk.ac.ucl.protecs.objects.Person;
-import uk.ac.ucl.protecs.sim.Params;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 
 public class Demography {
@@ -26,7 +26,7 @@ public class Demography {
 	public class Aging implements Steppable {
 
 		Person target;
-		int ticksUntilNextBirthday = 365;
+		int ticksUntilNextBirthday;
 		
 		public Aging(Person p, int ticksPerDay) {
 			this.target = p;
@@ -206,6 +206,7 @@ public class Demography {
 			String sexAssigned = sexList.get(world.random.nextInt(sexList.size()));
 			String babiesJob = "Not working, inactive, not in universe".toLowerCase();
 			Household babyHousehold = target.getHouseholdAsType();
+			Workplace babyWorkplace = null;
 			Location babyDistrict = target.getLocation();
 			boolean babySchooling = false;
 			int birthday = time;
@@ -216,6 +217,7 @@ public class Demography {
 					babiesJob, // lower case all of the job titles
 					babySchooling,
 					babyHousehold, // household
+					babyWorkplace,
 					world
 					);				
 			// update the household and location to include the baby

@@ -1,8 +1,5 @@
 package uk.ac.ucl.protecs.sim;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-
 public class BulkRun {
 	
 	public static void main(String [] args) {
@@ -35,7 +32,7 @@ public class BulkRun {
 						infectionsFilename += "_" + b.toString();
 					}
 
-					WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(i, new Params(paramFilename, true), outputFilename, b);
+					WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(i, new Params(paramFilename, true), outputFilename, b, false);
 					
 					System.out.println("Loading...");
 

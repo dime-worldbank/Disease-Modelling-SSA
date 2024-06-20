@@ -2,7 +2,6 @@ package uk.ac.ucl.protecs.objects.diseases;
 
 
 
-import uk.ac.ucl.protecs.behaviours.*;
 import uk.ac.ucl.protecs.objects.*;
 import uk.ac.ucl.protecs.sim.*;
 import sim.engine.Steppable;
@@ -241,12 +240,13 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 					return Double.MAX_VALUE;
 				}
 				i.getHost().infectNeighbours();
+
 				if (i.getHost().hasPresymptCovid()) {
 					i.getHost().removePresympt();
 					}
 				if (!i.getHost().hasMild()) {
 					i.getHost().setMild();
-					i.getHost().elligableForTesting();
+					i.getHost().isEligibleForCovidTesting();
 				}
 
 
@@ -325,6 +325,7 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 					return Double.MAX_VALUE;
 				}
 				i.getHost().infectNeighbours();
+
 				if (i.getHost().hasMild()) {
 					i.getHost().removeMild();
 					}
@@ -401,6 +402,7 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 					return Double.MAX_VALUE;
 				}
 				i.getHost().infectNeighbours();
+
 
 				if (i.getHost().hasSevere()) {
 					i.getHost().removeSevere();
@@ -491,11 +493,22 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 				i.getHost().getLocation().getRootSuperLocation().metric_new_recovered++;
 				i.getHost().setRecovered();
 				i.getHost().removeCovid();
-				i.getHost().notElligableForTesting();
+				i.getHost().removeEligibilityForCovidTesting();
 				// the Person may have stopped moving when ill - reactivate!
 				if(i.getHost().isImmobilised()){
-					i.getHost().setMobility(true);
-					myWorld.schedule.scheduleOnce(i.getHost());	// schedule the agent to begin moving again!				
+					// remobilise this person if they aren't being held at home by occupational constraint
+					// first check if there is any constraint to this persons movement by checking their econ status
+					if (!myWorld.params.OccupationConstraintList.containsKey(i.getHost().getEconStatus())){
+						i.getHost().setMobility(true);
+						myWorld.schedule.scheduleOnce(i.getHost()); // schedule the agent to begin moving again!	
+					}
+					else {
+						// their occupation has some constraint, if it is that they stay at home, keep them at home
+						if (!myWorld.params.OccupationConstraintList.get(i.getHost().getEconStatus()).equals("Home")) {
+							i.getHost().setMobility(true);
+							myWorld.schedule.scheduleOnce(i.getHost()); // schedule the agent to begin moving again!	
+						}
+					}
 				}
 				
 				// no need to update again!
