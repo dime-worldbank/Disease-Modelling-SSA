@@ -97,7 +97,7 @@ public class WorldBankCovid19Sim extends SimState {
 		this.newLoggingFilename = outputFilename + "_Cases_Per_District.txt"; 
 		this.infections_export_filename = outputFilename + "_Infections.txt";
 		this.distCovidPrevalenceOutputFilename = outputFilename + "_Percent_In_District_With_Covid.txt";
-		this.distPopBreakdownOutputFilename = outputFilename + "_Overall_Demographics.txt";
+		this.distPopBreakdownOutputFilename = outputFilename + "_Admin_Zone_Demographics.txt";
 		this.sim_info_filename = outputFilename + "_Sim_Information.txt";
 		this.covidCountsOutputFilename = outputFilename + "_Age_Gender_Demographics_Covid.txt";
 		this.covidByEconOutputFilename = outputFilename + "_Economic_Status_Covid.txt";
