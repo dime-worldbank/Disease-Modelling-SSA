@@ -1,14 +1,10 @@
 package uk.ac.ucl.protecs.sim;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Random;
 
-import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
-import uk.ac.ucl.protecs.sim.Params;
 
 public class RunMostTravellingDistricts {
 	

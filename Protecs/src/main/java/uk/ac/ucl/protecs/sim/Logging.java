@@ -146,15 +146,9 @@ public class Logging {
 			public void step(SimState arg0) {
 				WorldBankCovid19Sim myWorld = (WorldBankCovid19Sim) arg0;
 				
-				//	create a list of district names to iterate over for our logging
-				List <String> districtList = myWorld.params.districtNames;
+				//	create a list of admin zones names to iterate over for our logging
+				List <String> adminZoneList = myWorld.params.adminZoneNames;
 						
-/*						Arrays.asList(
-						"d_1", "d_2", "d_3", "d_4", "d_5", "d_6", "d_7", "d_8", "d_9", "d_10", "d_11", "d_12", "d_13", "d_14", "d_15", 
-						"d_16", "d_17", "d_18", "d_19", "d_20", "d_21", "d_22", "d_23", "d_24", "d_25", "d_26", "d_27", "d_28", "d_29", 
-						"d_30", "d_31", "d_32", "d_33", "d_34", "d_35", "d_36", "d_37", "d_38", "d_39", "d_40", "d_41", "d_42", "d_43", 
-						"d_44", "d_45", "d_46", "d_47", "d_48", "d_49", "d_50", "d_51", "d_52", "d_53", "d_54", "d_55", "d_56", "d_57", 
-						"d_58", "d_59", "d_60"); */
 				// create list to store the counts of each category of interest. The number of cases, the cumulative number of cases, 
 				// the number of cases by type, the number of recoveries, the number of deaths etc... 
 				ArrayList <Integer> covidCountArray = new ArrayList<Integer>();
@@ -170,7 +164,7 @@ public class Logging {
 				// create a function to group the population by location, whether they are alive and if they have covid and if this is a new case
 				Map<String, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>> location_alive_hasCovid_map = world.agents.stream().collect(
 						Collectors.groupingBy(
-								Person::getCurrentDistrict, 
+								Person::getCurrentAdminZone, 
 									Collectors.groupingBy(
 												Person::isAlive,
 												Collectors.groupingBy(
@@ -183,10 +177,10 @@ public class Logging {
 						)
 						)
 						);
-				// create a map to count the number of people who have recovered from covid in that district
+				// create a map to count the number of people who have recovered from covid in that admin zone
 				Map<String, Map<Boolean, Long>> location_alive_recovered_map = world.agents.stream().collect(
 						Collectors.groupingBy(
-								Person::getCurrentDistrict, 
+								Person::getCurrentAdminZone, 
 											Collectors.groupingBy(
 													Person::hasRecovered,
 										Collectors.counting()
@@ -196,7 +190,7 @@ public class Logging {
 				// create a function to group the population by location, whether they are alive and which type of covid infection they have
 				Map<String, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>> location_covid_map = world.agents.stream().collect(
 						Collectors.groupingBy(
-								Person::getCurrentDistrict, 
+								Person::getCurrentAdminZone, 
 									Collectors.groupingBy(
 												Person::isAlive,
 												Collectors.groupingBy(
@@ -211,7 +205,7 @@ public class Logging {
 						);
 				Map<String, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>>> location_asympt_covid_map = world.agents.stream().collect(
 						Collectors.groupingBy(
-								Person::getCurrentDistrict, 
+								Person::getCurrentAdminZone, 
 									Collectors.groupingBy(
 												Person::isAlive,
 												Collectors.groupingBy(
@@ -229,7 +223,7 @@ public class Logging {
 						);
 				Map<String, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>>> location_mild_covid_map = world.agents.stream().collect(
 						Collectors.groupingBy(
-								Person::getCurrentDistrict, 
+								Person::getCurrentAdminZone, 
 									Collectors.groupingBy(
 												Person::isAlive,
 												Collectors.groupingBy(
@@ -247,7 +241,7 @@ public class Logging {
 						);
 				Map<String, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>>> location_severe_covid_map = world.agents.stream().collect(
 						Collectors.groupingBy(
-								Person::getCurrentDistrict, 
+								Person::getCurrentAdminZone, 
 									Collectors.groupingBy(
 												Person::isAlive,
 												Collectors.groupingBy(
@@ -265,7 +259,7 @@ public class Logging {
 						);
 				Map<String, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>>> location_critical_covid_map = world.agents.stream().collect(
 						Collectors.groupingBy(
-								Person::getCurrentDistrict, 
+								Person::getCurrentAdminZone, 
 									Collectors.groupingBy(
 												Person::isAlive,
 												Collectors.groupingBy(
@@ -284,7 +278,7 @@ public class Logging {
 				// create a function to group the population by location and count cumulative deaths
 				Map<String, Map<Boolean, Long>> location_cumulative_died_map = world.agents.stream().collect(
 						Collectors.groupingBy(
-								Person::getCurrentDistrict, 
+								Person::getCurrentAdminZone, 
 											Collectors.groupingBy(
 													Person::isDeadFromCovid,
 										Collectors.counting()
@@ -294,7 +288,7 @@ public class Logging {
 				// create a function to group the population by location and count cumulative cases
 				Map<String, Map<Boolean, Long>> location_cumulative_covid_map = world.agents.stream().collect(
 						Collectors.groupingBy(
-								Person::getCurrentDistrict, 
+								Person::getCurrentAdminZone, 
 											Collectors.groupingBy(
 													Person::hadCovid,
 										Collectors.counting()
@@ -304,7 +298,7 @@ public class Logging {
 				// create a function to group the population by location and count new deaths
 				Map<String, Map<Boolean, Map<Boolean, Long>>> location_new_deaths_map = world.agents.stream().collect(
 						Collectors.groupingBy(
-								Person::getCurrentDistrict, 
+								Person::getCurrentAdminZone, 
 											Collectors.groupingBy(
 													Person::isDeadFromCovid,
 													Collectors.groupingBy(
@@ -314,67 +308,67 @@ public class Logging {
 									)
 								)
 						);
-				//	We now iterate over the districts, to find the current state of the epidemic
-				for (String district: districtList) {
-					// get the current number of cases in each district
+				//	We now iterate over the admin zones, to find the current state of the epidemic
+				for (String zone: adminZoneList) {
+					// get the current number of cases in each admin zone
 					try {
-					covidCountArray.add(location_alive_hasCovid_map.get(district).get(true).get(true).get(false).intValue());
+					covidCountArray.add(location_alive_hasCovid_map.get(zone).get(true).get(true).get(false).intValue());
 					} catch (Exception e) {
 						// No one in population met criteria
 						covidCountArray.add(0);
 					}
-					// get the cumulative number of covid cases in the district
+					// get the cumulative number of covid cases in the admin zone
 					try {
-						cumCovidCountArray.add(location_cumulative_covid_map.get(district).get(true).intValue());
+						cumCovidCountArray.add(location_cumulative_covid_map.get(zone).get(true).intValue());
 						} catch (Exception e) {
 							// No one in population met criteria
 							cumCovidCountArray.add(0);
 						}
-					// get the number of asymptomatic covid cases in the district
+					// get the number of asymptomatic covid cases in the admin zone
 					try {
-						asymptCovidCountArray.add(location_asympt_covid_map.get(district).get(true).get(true).get(true).get(false).intValue());
+						asymptCovidCountArray.add(location_asympt_covid_map.get(zone).get(true).get(true).get(true).get(false).intValue());
 						} catch (Exception e) {
 							// No one in population met criteria
 							asymptCovidCountArray.add(0);
 						}
-					// get the number of mild covid cases in the district
+					// get the number of mild covid cases in the admin zone
 					try {
-						mildCovidCountArray.add(location_mild_covid_map.get(district).get(true).get(true).get(true).get(false).intValue());
+						mildCovidCountArray.add(location_mild_covid_map.get(zone).get(true).get(true).get(true).get(false).intValue());
 						} catch (Exception e) {
 							// No one in population met criteria
 							mildCovidCountArray.add(0);
 						}
-					// get the number of severe covid cases in the district
+					// get the number of severe covid cases in the admin zone
 					try {
-						severeCovidCountArray.add(location_severe_covid_map.get(district).get(true).get(true).get(true).get(false).intValue());
+						severeCovidCountArray.add(location_severe_covid_map.get(zone).get(true).get(true).get(true).get(false).intValue());
 						} catch (Exception e) {
 							// No one in population met criteria
 							severeCovidCountArray.add(0);
 						}
-					// get the number of critical covid cases in the district
+					// get the number of critical covid cases in the admin zone
 					try {
-						criticalCovidCountArray.add(location_critical_covid_map.get(district).get(true).get(true).get(true).get(false).intValue());
+						criticalCovidCountArray.add(location_critical_covid_map.get(zone).get(true).get(true).get(true).get(false).intValue());
 						} catch (Exception e) {
 							// No one in population met criteria
 							criticalCovidCountArray.add(0);
 						}
-					// get the number of recoveries  in the district
+					// get the number of recoveries  in the admin zone
 					try {
-						recoveredCountArray.add(location_alive_recovered_map.get(district).get(true).intValue());
+						recoveredCountArray.add(location_alive_recovered_map.get(zone).get(true).intValue());
 						} catch (Exception e) {
 							// No one in population met criteria
 							recoveredCountArray.add(0);
 						}
-					// get the cumultative number of covid deaths in the district
+					// get the cumultative number of covid deaths in the admin zone
 					try {
-						covidCumulativeDeathCount.add(location_cumulative_died_map.get(district).get(true).intValue());
+						covidCumulativeDeathCount.add(location_cumulative_died_map.get(zone).get(true).intValue());
 						} catch (Exception e) {
 							// No one in population met criteria
 							covidCumulativeDeathCount.add(0);
 						}
-					// get the number of new covid deaths in the district
+					// get the number of new covid deaths in the admin zone
 					try {
-						covidNewDeathCount.add(location_new_deaths_map.get(district).get(true).get(false).intValue());
+						covidNewDeathCount.add(location_new_deaths_map.get(zone).get(true).get(false).intValue());
 						} catch (Exception e) {
 							// No one in population met criteria
 							covidNewDeathCount.add(0);
@@ -386,63 +380,63 @@ public class Logging {
 				String covidNumberOutput = "";
 				// format the file
 				String t = "\t";
-				String tabbedDistrictNames = "";
-				for (String district: districtList) {tabbedDistrictNames += t + district;}
+				String adminZoneNames = "";
+				for (String zone: adminZoneList) {adminZoneNames += t + zone;}
 				if (time == 0) {
-					covidNumberOutput += "day" + t + "metric" + tabbedDistrictNames + "\n" + String.valueOf(time);
+					covidNumberOutput += "day" + t + "metric" + adminZoneNames + "\n" + String.valueOf(time);
 				}
 				else {
 					covidNumberOutput += String.valueOf(time);
 				}
-				// store total number of cases in district
+				// store total number of cases in admin zone
 				covidNumberOutput += t + "total_cases";
 				for (int val: covidCountArray){
 					covidNumberOutput += t + String.valueOf(val);
 				}
 				covidNumberOutput += "\n";
-				// store total number of asymptomatic cases in district
+				// store total number of asymptomatic cases in admin zone
 				covidNumberOutput += time + t + "total_asympt_cases";
 				for (int val: asymptCovidCountArray){
 					covidNumberOutput += t + String.valueOf(val);
 				}
 				covidNumberOutput += "\n";
-				// store total number of mild cases in district
+				// store total number of mild cases in admin zone
 				covidNumberOutput += time + t + "total_mild_cases";
 				for (int val: mildCovidCountArray){
 					covidNumberOutput += t + String.valueOf(val);
 				}
 				covidNumberOutput += "\n";
-				// store total number of severe cases in district
+				// store total number of severe cases in admin zone
 				covidNumberOutput += time + t + "total_severe_cases";
 				for (int val: severeCovidCountArray){
 					covidNumberOutput += t + String.valueOf(val);
 				}
 				covidNumberOutput += "\n";
-				// store total number of critical cases in district
+				// store total number of critical cases in admin zone
 				covidNumberOutput += time + t + "total_critical_cases";
 				for (int val: criticalCovidCountArray){
 					covidNumberOutput += t + String.valueOf(val);
 				}
 				covidNumberOutput += "\n";
-				// store total number of recoveries in district
+				// store total number of recoveries in admin zone
 				covidNumberOutput += time + t + "total_recovered";
 				for (int val: recoveredCountArray){
 					covidNumberOutput += t + String.valueOf(val);
 				}
 				covidNumberOutput += "\n";
-				// store cumulative number of cases in district
+				// store cumulative number of cases in admin zone
 				covidNumberOutput += time + t + "cumulative_cases";
 				for (int val: cumCovidCountArray){
 					covidNumberOutput += t + String.valueOf(val);
 				}
 				covidNumberOutput += "\n";
-				// store cumulative number of deaths in district
+				// store cumulative number of deaths in admin zone
 				covidNumberOutput += time + t + "cumulative_deaths"; 
 				for (int val: covidCumulativeDeathCount){
 					covidNumberOutput += t + String.valueOf(val);
 				}
 				covidNumberOutput += "\n";
-				// store total number of new deaths in district
+				// store total number of new deaths in admin zone
 				covidNumberOutput += time + t + "new_deaths";
 				for (int val: covidNewDeathCount){
 					covidNumberOutput += t + String.valueOf(val);
@@ -904,27 +898,27 @@ public class Logging {
 	}
 
 	
-	public static Steppable UpdateDistrictLevelInfo(WorldBankCovid19Sim world) {
+	public static Steppable UpdateAdminZoneLevelInfo(WorldBankCovid19Sim world) {
 		return new Steppable() {
 			
 			@Override
 			public void step(SimState arg0) {
 
-				// create a function to group the population by who is alive at this district
+				// create a function to group the population by who is alive at this admin zone
 				Map<Boolean, Map<String, List<Person>>> aliveAtLocation = world.agents.stream().collect(
 						Collectors.groupingBy(
 								Person::isAlive,
 								Collectors.groupingBy(
-										Person::getCurrentDistrict
+										Person::getCurrentAdminZone
 										)
 						)
 						);
-				// create a function to group the population by who is alive in each district and has covid
+				// create a function to group the population by who is alive in each admin zone and has covid
 				Map<Boolean, Map<String, Map<Boolean, List<Person>>>> covidAtLocation = world.agents.stream().collect(
 						Collectors.groupingBy(
 								Person::isAlive,
 								Collectors.groupingBy(
-										Person::getCurrentDistrict,
+										Person::getCurrentAdminZone,
 										Collectors.groupingBy(
 												Person::hasCovid
 										)
@@ -935,7 +929,7 @@ public class Logging {
 						Collectors.groupingBy(
 								Person::isAlive,
 								Collectors.groupingBy(
-										Person::getCurrentDistrict,
+										Person::getCurrentAdminZone,
 										Collectors.groupingBy(
 												Person::getAge,
 												Collectors.groupingBy(
@@ -948,65 +942,59 @@ public class Logging {
 				// get list of ages to iterate over
 				List <Integer> upper_age_range = Arrays.asList(1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 120);
 				List <Integer> lower_age_range = Arrays.asList(0, 1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95);
-				// get a list of districts to iterate over
-				List <String> districts = ((WorldBankCovid19Sim)arg0).params.districtNames;
-						
-						/*Arrays.asList(
-						"d_1", "d_2", "d_3", "d_4", "d_5", "d_6", "d_7", "d_8", "d_9", "d_10", "d_11", "d_12", "d_13", "d_14", "d_15", 
-						"d_16", "d_17", "d_18", "d_19", "d_20", "d_21", "d_22", "d_23", "d_24", "d_25", "d_26", "d_27", "d_28", "d_29", 
-						"d_30", "d_31", "d_32", "d_33", "d_34", "d_35", "d_36", "d_37", "d_38", "d_39", "d_40", "d_41", "d_42", "d_43", 
-						"d_44", "d_45", "d_46", "d_47", "d_48", "d_49", "d_50", "d_51", "d_52", "d_53", "d_54", "d_55", "d_56", "d_57", 
-						"d_58", "d_59", "d_60");*/
-				// create a list to store the number of people and who has covid in each district
-				ArrayList <Integer> districtPopCounts = new ArrayList<Integer>();
-				ArrayList <Integer> districtCovidCounts = new ArrayList<Integer>();
-				// iterate over each district
-				for (String place: districts) {
-					// get population counts in each district
+				// get a list of admin zone to iterate over
+				List <String> adminZones = ((WorldBankCovid19Sim)arg0).params.adminZoneNames;
+	
+				// create a list to store the number of people and who has covid in each admin zone
+				ArrayList <Integer> adminZonePopCounts = new ArrayList<Integer>();
+				ArrayList <Integer> adminZoneCovidCounts = new ArrayList<Integer>();
+				// iterate over each admin zone
+				for (String place: adminZones) {
+					// get population counts in each admin zone
 					try {
-						districtPopCounts.add(aliveAtLocation.get(true).get(place).size());
+						adminZonePopCounts.add(aliveAtLocation.get(true).get(place).size());
 					}
 					catch (Exception e) {
 						// age wasn't present in the population, skip
-						districtPopCounts.add(0);
+						adminZonePopCounts.add(0);
 						}
-					// get covid counts in each district
+					// get covid counts in each admin zone
 					try {
-					districtCovidCounts.add(covidAtLocation.get(true).get(place).get(true).size());
+					adminZoneCovidCounts.add(covidAtLocation.get(true).get(place).get(true).size());
 					}
 					catch (Exception e) {
 					// age wasn't present in the population, skip
-					districtCovidCounts.add(0);
+					adminZoneCovidCounts.add(0);
 					}
 					
 				}
 				// format the output file for population counts
 				int time = (int) (arg0.schedule.getTime() / world.params.ticks_per_day);
 
-				String pop_size_in_district = "";
+				String pop_size_in_admin_zone = "";
 				
 				String t = "\t";
 				if (time == 0) {
-					pop_size_in_district += "day" + t;
-					for (String place: districts) {
-						pop_size_in_district += place + t;
+					pop_size_in_admin_zone += "day" + t;
+					for (String place: adminZones) {
+						pop_size_in_admin_zone += place + t;
 					}
-					pop_size_in_district += "\n" + String.valueOf(time);
+					pop_size_in_admin_zone += "\n" + String.valueOf(time);
 				}
 				else {
-					pop_size_in_district += "\n" + String.valueOf(time);
+					pop_size_in_admin_zone += "\n" + String.valueOf(time);
 				}
-				// store the population counts per district
-				for (int count: districtPopCounts) {
-					pop_size_in_district += t + count;
+				// store the population counts per admin zone
+				for (int count: adminZonePopCounts) {
+					pop_size_in_admin_zone += t + count;
 				}
 				// export the file
-				ImportExport.exportMe(world.distPopSizeOutputFilename, pop_size_in_district, world.timer);
-				// format the output for the percent of the district with covid
+				ImportExport.exportMe(world.adminZonePopSizeOutputFilename, pop_size_in_admin_zone, world.timer);
+				// format the output for the percent of the admin zone with covid
 				String percent_with_covid = "";
 				if (time == 0) {
 					percent_with_covid += "day" + t;
-					for (String place: districts) {
+					for (String place: adminZones) {
 						percent_with_covid += place + t;
 					}
 					percent_with_covid += "\n" + String.valueOf(time);
@@ -1015,25 +1003,25 @@ public class Logging {
 					percent_with_covid += "\n" + String.valueOf(time);
 				}
 				int idx = 0;
-				// calculate the percentage in the district with covid
-				for (float count: districtCovidCounts) {
-					float perc_with_covid = count / districtPopCounts.get(idx);
+				// calculate the percentage in the admin zone with covid
+				for (float count: adminZoneCovidCounts) {
+					float perc_with_covid = count / adminZonePopCounts.get(idx);
 					percent_with_covid += t + perc_with_covid;
 					idx++;
 				}
 				// export the file
-				ImportExport.exportMe(world.distCovidPrevalenceOutputFilename, percent_with_covid, world.timer);
-				String districtLevelPopBreakdown = "";
+				ImportExport.exportMe(world.adminZoneCovidPrevalenceOutputFilename, percent_with_covid, world.timer);
+				String adminZoneLevelPopBreakdown = "";
 				
-				String district_age_sex_categories = t + "district" + t + "sex" + t + "<1" + t + "1_4" + t + "5_9" + t + "10_14" + t + "15_19" + t + "20_24" + 
+				String admin_zone_age_sex_categories = t + "admin_zone" + t + "sex" + t + "<1" + t + "1_4" + t + "5_9" + t + "10_14" + t + "15_19" + t + "20_24" + 
 						t + "25_29" + t + "30_34" + t + "35_39" + t + "40_44" + t + "45_49" + t + "50_54" + t + "55_59" + t + 
 						"60_64" + t + "65_69" + t + "70_74" + t + "75_79" + t + "80_84" + t + "85_89" + t + "90_94" + t + "95<" + "\n";
 				if (time == 0) {
-					districtLevelPopBreakdown += "day" + district_age_sex_categories;
+					adminZoneLevelPopBreakdown += "day" + admin_zone_age_sex_categories;
 				}
-				for (String place: districts) {
-					districtLevelPopBreakdown += time + t + place;
-					// create lists to store the age gender breakdown of people in this district
+				for (String place: adminZones) {
+					adminZoneLevelPopBreakdown += time + t + place;
+					// create lists to store the age gender breakdown of people in this admin zone
 					ArrayList <Integer> male_alive_ages = new ArrayList<Integer>();
 					ArrayList <Integer> female_alive_ages = new ArrayList<Integer>();
 					idx = 0;
@@ -1067,19 +1055,19 @@ public class Logging {
 					male_alive_ages.add(male_count);
 					female_alive_ages.add(female_count);
 				}
-				districtLevelPopBreakdown += t + "m";
+				adminZoneLevelPopBreakdown += t + "m";
 				for (int count: male_alive_ages){
-		            districtLevelPopBreakdown += t + String.valueOf(count);
+		            adminZoneLevelPopBreakdown += t + String.valueOf(count);
 				}
-				districtLevelPopBreakdown += "\n";
-				districtLevelPopBreakdown += time + t + place;				
-				districtLevelPopBreakdown += t + "f";
+				adminZoneLevelPopBreakdown += "\n";
+				adminZoneLevelPopBreakdown += time + t + place;				
+				adminZoneLevelPopBreakdown += t + "f";
 				for (int count: female_alive_ages){
-		            districtLevelPopBreakdown += t + String.valueOf(count);
+		            adminZoneLevelPopBreakdown += t + String.valueOf(count);
 				}
-				districtLevelPopBreakdown += "\n";
+				adminZoneLevelPopBreakdown += "\n";
 				}
-				ImportExport.exportMe(world.distPopBreakdownOutputFilename, districtLevelPopBreakdown, world.timer);
+				ImportExport.exportMe(world.adminZonePopBreakdownOutputFilename, adminZoneLevelPopBreakdown, world.timer);
 
 			}
 		};
@@ -1096,7 +1084,7 @@ public class Logging {
 						//	create a list to define our age group search ranges
 						List <Integer> upper_age_range = Arrays.asList(1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 120);
 						List <Integer> lower_age_range = Arrays.asList(0, 1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95);
-						// create list to store the counts of the number of males and females alive in each age range in each district
+						// create list to store the counts of the number of males and females alive in each age range in each admin zone
 						ArrayList <Integer> male_alive_ages = new ArrayList<Integer>();
 						ArrayList <Integer> female_alive_ages = new ArrayList<Integer>();
 						// create a function to group the population by sex, age and whether they are alive

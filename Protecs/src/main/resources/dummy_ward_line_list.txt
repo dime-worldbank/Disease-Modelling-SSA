@@ -1,0 +1,4 @@
+admin_zone, count
+w_1, 5
+w_2, 5
+w_3, 5

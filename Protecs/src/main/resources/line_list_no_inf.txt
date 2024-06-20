@@ -1,2 +1,2 @@
-district, count
+admin_zone, count
 d_1, 0
