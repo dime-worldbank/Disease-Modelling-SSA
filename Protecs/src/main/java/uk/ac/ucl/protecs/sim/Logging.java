@@ -1006,12 +1006,6 @@ public class Logging {
 				// get a list of districts to iterate over
 				List <String> districts = ((WorldBankCovid19Sim)arg0).params.districtNames;
 						
-						/*Arrays.asList(
-						"d_1", "d_2", "d_3", "d_4", "d_5", "d_6", "d_7", "d_8", "d_9", "d_10", "d_11", "d_12", "d_13", "d_14", "d_15", 
-						"d_16", "d_17", "d_18", "d_19", "d_20", "d_21", "d_22", "d_23", "d_24", "d_25", "d_26", "d_27", "d_28", "d_29", 
-						"d_30", "d_31", "d_32", "d_33", "d_34", "d_35", "d_36", "d_37", "d_38", "d_39", "d_40", "d_41", "d_42", "d_43", 
-						"d_44", "d_45", "d_46", "d_47", "d_48", "d_49", "d_50", "d_51", "d_52", "d_53", "d_54", "d_55", "d_56", "d_57", 
-						"d_58", "d_59", "d_60");*/
 				// create a list to store the number of people and who has covid in each district
 				ArrayList <Integer> districtPopCounts = new ArrayList<Integer>();
 				ArrayList <Integer> districtCovidCounts = new ArrayList<Integer>();
@@ -1141,103 +1135,6 @@ public class Logging {
 		
 	}
 	
-	public static Steppable ReportPopStructure (WorldBankCovid19Sim world) {
-		// create a function to report the overall population structure
-				return new Steppable(){
-					
-					@Override
-					public void step(SimState arg0) {
-						//	calculate the number of people in each age group 0-1, 1-4, 5-9, 10-14, ..., 95+
-						//	create a list to define our age group search ranges
-						List <Integer> upper_age_range = Arrays.asList(1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 120);
-						List <Integer> lower_age_range = Arrays.asList(0, 1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95);
-						// create list to store the counts of the number of males and females alive in each age range in each district
-						ArrayList <Integer> male_alive_ages = new ArrayList<Integer>();
-						ArrayList <Integer> female_alive_ages = new ArrayList<Integer>();
-						// create a function to group the population by sex, age and whether they are alive
-						Map<String, Map<Integer, Map<Boolean, Long>>> age_sex_alive_map = world.agents.stream().collect(
-								Collectors.groupingBy(
-										Person::getSex, 
-										Collectors.groupingBy(
-												Person::getAge, 
-												Collectors.groupingBy(
-														Person::isAlive,
-												Collectors.counting()
-												)
-										)
-								)
-								);
-								
-						//	We now iterate over the age ranges, create a variable to keep track of the iterations
-						Integer idx = 0;
-						for (Integer val: upper_age_range) {
-							// for each age group we begin to count the number of people who fall into each category, create variables
-							// to store this information in
-							Integer male_count = 0;
-							Integer female_count = 0;
-							// iterate over the ages set in the age ranges (lower value from lower_age_range, upper from upper_age_range)
-							for (int age = lower_age_range.get(idx); age < val; age++) {
-								try {
-									// try function necessary as some ages won't be present in the population
-									// use the functions created earlier to calculate the number of people of each age group
-									male_count += age_sex_alive_map.get("male").get(age).get(true).intValue();
-								}
-									catch (Exception e) {
-										// age wasn't present in the population, skip
-									}
-								try {
-									// try function necessary as some ages won't be present in the population
-									// use the functions created earlier to calculate the number of people of each age group
-									female_count += age_sex_alive_map.get("female").get(age).get(true).intValue();
-								}
-									catch (Exception e) {
-										// age wasn't present in the population, skip
-									}
-							}
-								
-							// store what we have found in the lists we created
-							male_alive_ages.add(male_count);
-							female_alive_ages.add(female_count);
-							// update the idx variable for the next iteration
-							idx++;
-							
-						}
-						// format the output file
-						int time = (int) (arg0.schedule.getTime() / world.params.ticks_per_day);
-						String population = "";
-
-						String t = "\t";
-						String age_sex_categories = t + "sex" + t + "<1" + t + "1_4" + t + "5_9" + t + "10_14" + t + "15_19" + t + "20_24" + 
-								t + "25_29" + t + "30_34" + t + "35_39" + t + "40_44" + t + "45_49" + t + "50_54" + t + "55_59" + t + 
-								"60_64" + t + "65_69" + t + "70_74" + t + "75_79" + t + "80_84" + t + "85_89" + t + "90_94" + t + "95<" + "\n";
-						if (time == 0) {
-							population += "day" + age_sex_categories + String.valueOf(time);
-						}
-						else {
-							population += String.valueOf(time);
-						}
-						// get the number of males in each age group
-						population += t + "m";
-
-						for (int x = 0; x <male_alive_ages.size(); x++){
-							int male_alive_in_age = male_alive_ages.get(x);
-							population += t + String.valueOf(male_alive_in_age);
-						}
-						population += "\n";
-						// get the number of females in each age group
-						population += String.valueOf(time) + t + "f";
-						for (int x = 0; x <female_alive_ages.size(); x++){
-							int female_alive_in_age = female_alive_ages.get(x);
-							population += t + String.valueOf(female_alive_in_age);
-						}
-						population += "\n";
-
-						// export the file
-						ImportExport.exportMe(world.populationOutputFilename, population, world.timer);
-						
-					}
-				};		
-	}
 	
 	public static Steppable ReportBirthRatesOLD(WorldBankCovid19Sim world) {
 		// create a function to report on birth rates

@@ -90,7 +90,6 @@ public class WorldBankCovid19Sim extends SimState {
 		this.covidTesting = covidTesting;
 		this.random = new Random(this.seed());
 		this.covidIncOutputFilename = outputFilename + "_Incidence_Of_Covid.txt"; 
-		this.populationOutputFilename = outputFilename + "_Overall_Demographics.txt";
 		this.covidIncDeathOutputFilename = outputFilename + "_Incidence_Of_Covid_Death.txt";
 		this.otherIncDeathOutputFilename = outputFilename + "_Incidence_Of_Other_Death.txt";
 		this.birthRateOutputFilename = outputFilename + "_Birth_Rate.txt";
@@ -247,8 +246,6 @@ public class WorldBankCovid19Sim extends SimState {
 		
 		// Create a function to keep track of the population and epidemic at the scale of district level
 		schedule.scheduleRepeating(Logging.UpdateDistrictLevelInfo(this), this.param_schedule_reporting, params.ticks_per_day);
-
-		schedule.scheduleRepeating(Logging.ReportPopStructure(this), this.param_schedule_reporting, params.ticks_per_day);
 		
 		
 		// SCHEDULE LOCKDOWNS
