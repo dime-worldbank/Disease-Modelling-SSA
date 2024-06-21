@@ -10,7 +10,7 @@ try:
     folder_path = sys.argv[1]
     output_save_path = sys.argv[2]
 except IndexError:
-    folder_path = "/Users/robbiework/Desktop/bubble_run/"
+    folder_path = "/Users/robbiework/Desktop/perfectBubbleArmy/"
     output_save_path = "/Users/robbiework/PycharmProjects/spacialEpidemiologyAnalysis/bubble_analysis/outputs/"
 
 
@@ -47,7 +47,12 @@ def main():
                     output_df = pd.concat([output_df, data])
 
             # process them into a format we can use for easily creating plots
-            if output_filename == 'Age_Gender_Demographics_Covid':
+            if output_filename == 'Admin_Zone_Demographics':
+                output_df_mean = output_df.groupby(['day', 'district', 'sex']).mean().reset_index()
+                output_df_std = output_df.groupby(['day', 'district', 'sex']).std().reset_index()
+                averaged_output[scenario + "_" + output_filename + "_mean"] = output_df_mean
+                averaged_output[scenario + "_" + output_filename + "_std"] = output_df_std
+            elif output_filename == 'Age_Gender_Demographics_Covid':
                 output_df_mean = output_df.groupby(['day', 'metric', 'sex']).mean()
                 output_df_std = output_df.groupby(['day', 'metric', 'sex']).std()
                 for metric in output_df.metric.unique():
@@ -101,8 +106,6 @@ def main():
                         output_df_mean.xs(sex, level='sex')
                     averaged_output[scenario + '_' + output_filename + "_" + sex + "_std"] = \
                         output_df_std.xs(sex, level='sex')
-            elif output_filename == 'Overall_Demographics':
-                print("need to fix overall demographics")
             elif output_filename == 'Percent_In_District_With_Covid':
                 output_df_mean = output_df.groupby('day').mean()
                 output_df_std = output_df.groupby('day').std()
