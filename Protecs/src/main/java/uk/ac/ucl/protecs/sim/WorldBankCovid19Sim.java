@@ -1,24 +1,19 @@
 package uk.ac.ucl.protecs.sim;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.FileInputStream;
-import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
+import java.util.Random;
 import uk.ac.ucl.protecs.behaviours.*;
 import uk.ac.ucl.protecs.objects.*;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
+import uk.ac.ucl.protecs.objects.diseases.CoronavirusSpuriousSymptom;
 import uk.ac.ucl.protecs.objects.diseases.Infection;
+import uk.ac.ucl.protecs.objects.diseases.SpuriousSymptomBehaviourFramework;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusBehaviourFramework;
-import ec.util.MersenneTwisterFast;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 
@@ -28,6 +23,8 @@ public class WorldBankCovid19Sim extends SimState {
 	public ArrayList <Person> agents;
 	public ArrayList <Household> households;
 	public ArrayList <Infection> infections;
+	public ArrayList <CoronavirusSpuriousSymptom> CovidSpuriousSymptomsList;
+	public Random random;
 	
 	ArrayList <Location> districts;
 	
@@ -35,10 +32,13 @@ public class WorldBankCovid19Sim extends SimState {
 	
 	public MovementBehaviourFramework movementFramework;
 	public CoronavirusBehaviourFramework infectiousFramework;
+	public SpuriousSymptomBehaviourFramework spuriousFramework;
 	public Params params;
 	public boolean lockedDown = false;
 	// create a variable to determine whether the model will cause additional births and deaths	
 	public boolean demography = false;
+	// create a variable to determine if COVID testing will take place
+	public boolean covidTesting = false;
 	
 	// the names of file names of each output filename		
 	public String outputFilename;
@@ -55,6 +55,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public String sim_info_filename;
 	public String covidCountsOutputFilename;
 	public String covidByEconOutputFilename;
+	public String covidTestingOutputFilename;
 	int targetDuration = 0;
 	
 	// ordering information
@@ -63,9 +64,10 @@ public class WorldBankCovid19Sim extends SimState {
 	public static int param_schedule_updating_locations = 5;
 	public static int param_schedule_infecting = 10;
 	public static int param_schedule_reporting = 100;
+	public static int param_schedule_COVID_SpuriousSymptoms = 98;
+	public static int param_schedule_COVID_Testing = 99;
 	
-	public ArrayList <Integer> testingAgeDist = new ArrayList <Integer> ();
-	
+	public ArrayList <Integer> testingAgeDist = new ArrayList <Integer> ();	
 	// record-keeping
 	
 	ArrayList <HashMap <String, Double>> dailyRecord = new ArrayList <HashMap <String, Double>> ();
@@ -77,24 +79,27 @@ public class WorldBankCovid19Sim extends SimState {
 	 * Constructor function
 	 * @param seed
 	 */
-	public WorldBankCovid19Sim(long seed, Params params, String outputFilename, boolean demography) {
+	public WorldBankCovid19Sim(long seed, Params params, String outputFilename, boolean demography, boolean covidTesting) {
 		super(seed);
 		this.params = params;
 		this.outputFilename = outputFilename + ".txt";
 		this.demography = demography;
-		this.covidIncOutputFilename = outputFilename + "_Incidence_Of_Covid_" + ".txt"; 
-		this.populationOutputFilename = outputFilename + "_Overall_Demographics_" + ".txt";
-		this.covidIncDeathOutputFilename = outputFilename + "_Incidence_Of_Covid_Death_" + ".txt";
-		this.otherIncDeathOutputFilename = outputFilename + "_Incidence_Of_Other_Death_" + ".txt";
-		this.birthRateOutputFilename = outputFilename + "_Birth_Rate_" + ".txt";
-		this.distPopSizeOutputFilename = outputFilename + "_District_Level_Population_Size_" + ".txt";
-		this.newLoggingFilename = outputFilename + "_Cases_Per_District_" + ".txt"; 
-		this.infections_export_filename = outputFilename + "_Infections_" + ".txt";
-		this.distCovidPrevalenceOutputFilename = outputFilename + "_Percent_In_District_With_Covid_" + ".txt";
-		this.distPopBreakdownOutputFilename = outputFilename + "_Overall_Demographics_" + ".txt";
-		this.sim_info_filename = outputFilename + "_Sim_Information_" + ".txt";
-		this.covidCountsOutputFilename = outputFilename + "_Age_Gender_Demographics_Covid_" + ".txt";
-		this.covidByEconOutputFilename = outputFilename + "_Economic_Status_Covid_.txt";
+		this.covidTesting = covidTesting;
+		this.random = new Random(this.seed());
+		this.covidIncOutputFilename = outputFilename + "_Incidence_Of_Covid.txt"; 
+		this.populationOutputFilename = outputFilename + "_Overall_Demographics.txt";
+		this.covidIncDeathOutputFilename = outputFilename + "_Incidence_Of_Covid_Death.txt";
+		this.otherIncDeathOutputFilename = outputFilename + "_Incidence_Of_Other_Death.txt";
+		this.birthRateOutputFilename = outputFilename + "_Birth_Rate.txt";
+		this.distPopSizeOutputFilename = outputFilename + "_District_Level_Population_Size.txt";
+		this.newLoggingFilename = outputFilename + "_Cases_Per_District.txt"; 
+		this.infections_export_filename = outputFilename + "_Infections.txt";
+		this.distCovidPrevalenceOutputFilename = outputFilename + "_Percent_In_District_With_Covid.txt";
+		this.distPopBreakdownOutputFilename = outputFilename + "_Overall_Demographics.txt";
+		this.sim_info_filename = outputFilename + "_Sim_Information.txt";
+		this.covidCountsOutputFilename = outputFilename + "_Age_Gender_Demographics_Covid.txt";
+		this.covidByEconOutputFilename = outputFilename + "_Economic_Status_Covid.txt";
+		this.covidTestingOutputFilename = outputFilename + "_Covid_Testing.txt";
 	}
 	
 	public void start(){
@@ -105,6 +110,7 @@ public class WorldBankCovid19Sim extends SimState {
 		// set up the behavioural framework
 		movementFramework = new MovementBehaviourFramework(this);
 		infectiousFramework = new CoronavirusBehaviourFramework(this);
+		spuriousFramework = new SpuriousSymptomBehaviourFramework(this);
 		
 		// load the population
 		load_population(params.dataDir + params.population_filename);
@@ -120,7 +126,8 @@ public class WorldBankCovid19Sim extends SimState {
 		//InteractionUtilities.create_community_bubbles(this);
 
 		// RESET SEED
-		random = new MersenneTwisterFast(this.seed());
+//		random = new MersenneTwisterFast(this.seed());
+		random = new Random();
 
 		// set up the infections
 		infections = new ArrayList <Infection> ();
@@ -191,7 +198,15 @@ public class WorldBankCovid19Sim extends SimState {
 		};
 		schedule.scheduleRepeating(0, this.param_schedule_updating_locations, updateLocationLists);
 		
-
+		if (this.covidTesting) {
+			CovidSpuriousSymptomsList = new ArrayList <CoronavirusSpuriousSymptom> ();
+			schedule.scheduleRepeating(CovidSpuriousSymptoms.createSymptomObject(this));
+			schedule.scheduleRepeating(CovidTesting.Testing(this), this.param_schedule_COVID_Testing, params.ticks_per_day);
+			
+			Logging CovidTestLogger = new Logging();
+			Logging.CovidTestReporter CovidTestReporter = CovidTestLogger.new CovidTestReporter(this);
+			schedule.scheduleRepeating(CovidTestReporter, this.param_schedule_reporting, params.ticks_per_day);
+			}
 		if (this.demography) {
 			Demography myDemography = new Demography();
 			for(Person a: agents) {
@@ -221,7 +236,6 @@ public class WorldBankCovid19Sim extends SimState {
 		schedule.scheduleRepeating(Logging.UpdateDistrictLevelInfo(this), this.param_schedule_reporting, params.ticks_per_day);
 
 		schedule.scheduleRepeating(Logging.ReportPopStructure(this), this.param_schedule_reporting, params.ticks_per_day);
-		
 		
 		
 		// SCHEDULE LOCKDOWNS
@@ -271,7 +285,9 @@ public class WorldBankCovid19Sim extends SimState {
 			}
 		};
 		schedule.scheduleRepeating(reporter, this.param_schedule_reporting, params.ticks_per_day);
-		random = new MersenneTwisterFast(this.seed());
+//		random = new MersenneTwisterFast(this.seed());
+		random = new Random(this.seed());
+
 	}
 	
 	public void load_population(String agentsFilename){
@@ -408,13 +424,14 @@ public class WorldBankCovid19Sim extends SimState {
 	public static void main(String [] args){
 		
 		// default settings in the absence of commands!
-		int numDays = 400; // by default, one week
-		double myBeta = .016;
+		int numDays = 70; // by default, one week
+		double myBeta = .3;
 		long seed = 12345;
 		String outputFilename = "dailyReport_" + myBeta + "_" + numDays + "_" + seed + ".txt";
 		String infectionsOutputFilename = "infections_" + myBeta + "_" + numDays + "_" + seed + ".txt"; 
 		String paramsFilename = "src/main/resources/params.txt";
-		boolean demography = true;
+		boolean demography = false;
+		boolean covidTesting = true;
 		// read in any extra settings from the command line
 		if(args.length < 0){
 			System.out.println("usage error");
@@ -445,7 +462,7 @@ public class WorldBankCovid19Sim extends SimState {
 		 */
 
 		// set up the simulation
-		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim( seed, new Params(paramsFilename, true), outputFilename, demography);
+		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim( seed, new Params(paramsFilename, true), outputFilename, demography, covidTesting);
 
 
 		System.out.println("Loading...");
@@ -453,7 +470,7 @@ public class WorldBankCovid19Sim extends SimState {
 		// ensure that all parameters are set
 		mySim.params.infection_beta = myBeta / mySim.params.ticks_per_day; // normalised to be per tick
 		mySim.targetDuration = numDays;
-		
+		mySim.params.rate_of_spurious_symptoms = 1;
 		mySim.start(); // start the simulation
 		
 		mySim.infections_export_filename = infectionsOutputFilename; // overwrite the export filename

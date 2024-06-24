@@ -1,6 +1,5 @@
 package uk.ac.ucl.protecs.objects;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 
 /**
