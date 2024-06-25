@@ -98,6 +98,8 @@ public class Person extends MobileAgent {
 
 	Integer timeToRemoveCovidSpuriousSymptoms = Integer.MAX_VALUE;
 
+	// bubble interaction counters
+	int number_of_interactions_at_work = Integer.MIN_VALUE;
 	
 	
 	/**
@@ -390,12 +392,16 @@ public class Person extends MobileAgent {
 	private void structuredMixingInteractions() {
 		if(currentLocation instanceof Household){
 			assert (!this.atWork): "at work but having interactions at home";
-			interactWithin(currentLocation.personsHere, null, currentLocation.personsHere.size());
-			
+			interactWithin(currentLocation.personsHere, null, currentLocation.personsHere.size());			
 		}
 		// they may be at their economic activity site!
 		else if(currentLocation instanceof Workplace){
-			int myNumInteractions = myWorld.params.getWorkplaceContactCount(this.getEconStatus(), this.myWorld.random.nextDouble());
+			int myNumInteractions;
+			if (this.number_of_interactions_at_work < 0) 
+				this.number_of_interactions_at_work = myWorld.params.getWorkplaceContactCount(this.getEconStatus(), this.myWorld.random.nextDouble());
+			
+			myNumInteractions = (int) this.number_of_interactions_at_work / 2;
+
 			if (myNumInteractions > currentLocation.personsHere.size()) myNumInteractions = currentLocation.personsHere.size();
 			// interact
 			interactWithin(workBubble, currentLocation.personsHere, myNumInteractions);
@@ -638,6 +644,7 @@ public class Person extends MobileAgent {
 	public String getCurrentDistrict() {return this.getHousehold().getRootSuperLocation().myId;}
 	public void setUnemployed() {this.isUnemployed = true;}
 	public boolean isUnemployed() {return this.isUnemployed;}
+	public void resetWorkplaceContacts() { this.number_of_interactions_at_work = Integer.MIN_VALUE;}
 	// UTILS
 	
 	public String toString(){ return "P_" + this.myId;}

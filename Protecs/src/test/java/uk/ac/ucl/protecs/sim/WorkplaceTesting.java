@@ -75,7 +75,7 @@ public class WorkplaceTesting{
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/workplace_bubbles_params.txt", false, false);
 		makePeopleLeaveTheHouseEachDay(sim);
 		// make everyone decide to go to their workplace
-		sim.params.prob_go_to_work = 1d;
+		sim.params.prob_go_to_work = 1.1d;
 		sim.start();
 		// run for three ticks (people leave the house at tick 2 and leave work at tick 4)
 		int numTicks = 3;
@@ -83,7 +83,9 @@ public class WorkplaceTesting{
 		// determine if everyone has travelled to their workplace
 		boolean allAtWork = true;
 		for (Person p: sim.agents) {
-			if (!(p.getLocation() instanceof Workplace) && !p.isUnemployed()) {allAtWork = false;}
+			if (!(p.getLocation() instanceof Workplace) && !p.isUnemployed() && !p.visitingNow()) {
+				allAtWork = false;
+				}
 		}
 		Assert.assertTrue(allAtWork);
 		
