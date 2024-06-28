@@ -6,8 +6,8 @@ import uk.ac.ucl.protecs.behaviours.*;
 import uk.ac.ucl.protecs.objects.*;
 import uk.ac.ucl.protecs.sim.*;
 import sim.engine.Steppable;
-import uk.ac.ucl.swise.behaviours.BehaviourFramework;
-import uk.ac.ucl.swise.behaviours.BehaviourNode;
+import swise.behaviours.BehaviourFramework;
+import swise.behaviours.BehaviourNode;
 
 public class CoronavirusBehaviourFramework extends BehaviourFramework {
 	
