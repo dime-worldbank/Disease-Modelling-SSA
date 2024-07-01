@@ -11,119 +11,131 @@
 
 
   <properties>
-<!--    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <java.version>22</java.version>
-    <maven.compiler.source>${java.version}</maven.compiler.source>
-    <maven.compiler.target>${java.version}</maven.compiler.target>
-    -->
-    	<maven.compiler.source>1.8</maven.compiler.source>
-    	<maven.compiler.target>1.8</maven.compiler.target>
+    <!--    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>22</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+        -->
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
 
   </properties>
-  
-<!--  <repositories> -->
-<!--        <repository>
-          <id>pentaho-public</id>
-          <name>Pentaho Public</name>
-          <url>https://repo.orl.eng.hitachivantara.com/artifactory/pnt-mvn/</url>
-        </repository>
 
--->
-<!-- 	  <repository>
-	        <id>jitpack.io</id>
-	        <url>https://jitpack.io</url>
-	  </repository>  
- -->        
-<!--  </repositories> -->
-  
+  <repositories>
+    <!--        <repository>
+              <id>pentaho-public</id>
+              <name>Pentaho Public</name>
+              <url>https://repo.orl.eng.hitachivantara.com/artifactory/pnt-mvn/</url>
+            </repository>
+
+    -->
+    <repository>
+      <id>terrestris</id>
+      <url>https://nexus.terrestris.de/repository/public/</url>
+    </repository>
+    <repository>
+      <id>central</id>
+      <url>https://repo1.maven.org/maven2</url>
+    </repository>
+    <repository>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
+    </repository>
+
+
+  </repositories>
+
 
   <dependencies>
-	
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.11</version>
       <scope>test</scope>
     </dependency>
-    
+
     <dependency>
-	    <groupId>com.vividsolutions</groupId>
-	    <artifactId>jts</artifactId>
-	    <version>1.13</version>
-	</dependency>
-	
-<!--	<dependency>
-		<groupId>gnujaxp</groupId>
-		<artifactId>gnujaxp</artifactId>
-		<version>1.0.0</version>
-	</dependency>
-	-->	
-	
+      <groupId>com.vividsolutions</groupId>
+      <artifactId>jts</artifactId>
+      <version>1.13</version>
+    </dependency>
+
+    <!--	<dependency>
+        <groupId>gnujaxp</groupId>
+        <artifactId>gnujaxp</artifactId>
+        <version>1.0.0</version>
+      </dependency>
+      -->
 
 
-	<dependency>
-		<groupId>eclab</groupId>
-		<artifactId>mason</artifactId>
-		<version>22</version>
-	</dependency>
-	<dependency>
-		<groupId>ucl.ac.uk</groupId>
-		<artifactId>swiselib</artifactId>
-		<version>2023</version>
-	</dependency>
-	<dependency>
-		<groupId>edu.gmu.cs</groupId>
-		<artifactId>geomason</artifactId>
-		<version>1.5</version>
-	</dependency>
+    <!-- https://mvnrepository.com/artifact/fr.irit.smac.thirdparty.edu.gmu.cs/mason -->
+    <dependency>
+      <groupId>fr.irit.smac.thirdparty.edu.gmu.cs</groupId>
+      <artifactId>mason</artifactId>
+      <version>18</version>
+    </dependency>
+    <!-- jitpack -->
+    <dependency>
+      <groupId>uk.ac.ucl</groupId>
+      <artifactId>swise</artifactId>
+      <version>0.1-SNAPSHOT</version>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/edu.gmu.cs/mason-geomason, uses terrestris -->
+    <dependency>
+      <groupId>edu.gmu.cs</groupId>
+      <artifactId>mason-geomason</artifactId>
+      <version>1.6.1</version>
+    </dependency>
+
   </dependencies>
 
   <build>
     <plugins>
-	    <plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-	        <artifactId>maven-shade-plugin</artifactId>
-	        <version>3.5.3</version>
-	        <executions>
-				<execution>
-					<phase>package</phase>
-					<goals>
-						<goal>shade</goal>
-					</goals>
-					<configuration>
-						<transformers>
-							<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-								<mainClass> uk.ac.ucl.protecs.sim.WorldBankCovid19Sim</mainClass>
-							</transformer>
-						</transformers>
-					</configuration>
-					</execution>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.5.3</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <mainClass>uk.ac.ucl.protecs.sim.WorldBankCovid19Sim</mainClass>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
 
-	        </executions>
-	      </plugin>
+        </executions>
+      </plugin>
     </plugins>
 
   </build>
-  
-<!--  <dependencyManagement>
-  	<dependencies>
-  		<dependency>
-  			<groupId>eclab</groupId>
-  			<artifactId>mason</artifactId>
-  			<version>22</version>
-  		</dependency>
-  		<dependency>
-  			<groupId>ucl.ac.uk</groupId>
-  			<artifactId>swiselib</artifactId>
-  			<version>2023</version>
-  		</dependency>
-  		<dependency>
-  			<groupId>edu.gmu.cs</groupId>
-  			<artifactId>geomason</artifactId>
-  			<version>1.5</version>
-  		</dependency>
-  		
-  	</dependencies>
-  </dependencyManagement>
--->
+
+  <!--  <dependencyManagement>
+      <dependencies>
+        <dependency>
+          <groupId>eclab</groupId>
+          <artifactId>mason</artifactId>
+          <version>22</version>
+        </dependency>
+        <dependency>
+          <groupId>ucl.ac.uk</groupId>
+          <artifactId>swiselib</artifactId>
+          <version>2023</version>
+        </dependency>
+        <dependency>
+          <groupId>edu.gmu.cs</groupId>
+          <artifactId>geomason</artifactId>
+          <version>1.5</version>
+        </dependency>
+
+      </dependencies>
+    </dependencyManagement>
+  -->
 </project>
