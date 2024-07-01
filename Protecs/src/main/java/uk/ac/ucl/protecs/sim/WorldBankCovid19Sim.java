@@ -407,7 +407,6 @@ public class WorldBankCovid19Sim extends SimState {
 			System.exit(0);
 		}
 		else if(args.length > 0){
-			
 			numDays = Integer.parseInt(args[0]);
 			myBeta = Double.parseDouble(args[2]);
 			if(args.length > 3) {
@@ -417,10 +416,9 @@ public class WorldBankCovid19Sim extends SimState {
 			if(args.length > 4)
 				outputFilename = args[4];
 			if(args.length > 5)
-				paramsFilename = args[5];
-			if(args.length > 6)
-				infectionsOutputFilename = args[6];
+			paramsFilename = args[5];
 		}
+				
 		
 		long startTime = System.currentTimeMillis(); // wallclock measurement of time - embarrassing.
 				
