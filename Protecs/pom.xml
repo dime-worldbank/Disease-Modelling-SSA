@@ -30,16 +30,12 @@
 
     -->
     <repository>
-      <id>terrestris</id>
-      <url>https://nexus.terrestris.de/repository/public/</url>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
     </repository>
     <repository>
       <id>central</id>
       <url>https://repo1.maven.org/maven2</url>
-    </repository>
-    <repository>
-      <id>jitpack.io</id>
-      <url>https://jitpack.io</url>
     </repository>
 
 
@@ -80,12 +76,6 @@
       <groupId>uk.ac.ucl</groupId>
       <artifactId>swise</artifactId>
       <version>0.1-SNAPSHOT</version>
-    </dependency>
-    <!-- https://mvnrepository.com/artifact/edu.gmu.cs/mason-geomason, uses terrestris -->
-    <dependency>
-      <groupId>edu.gmu.cs</groupId>
-      <artifactId>mason-geomason</artifactId>
-      <version>1.6.1</version>
     </dependency>
 
   </dependencies>
