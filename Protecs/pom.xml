@@ -77,6 +77,12 @@
       <artifactId>swise</artifactId>
       <version>0.1-SNAPSHOT</version>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/uk.ac.liv.gdsl/GeoMason-light -->
+    <dependency>
+      <groupId>uk.ac.liv.gdsl</groupId>
+      <artifactId>GeoMason-light</artifactId>
+      <version>1.14</version>
+    </dependency>
 
   </dependencies>
 
