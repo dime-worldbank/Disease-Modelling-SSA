@@ -4,8 +4,8 @@ import uk.ac.ucl.protecs.sim.Params;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import sim.engine.SimState;
 import sim.engine.Steppable;
-import swise.agents.MobileAgent;
-import swise.behaviours.BehaviourNode;
+import uk.ac.ucl.swise.agents.MobileAgent;
+import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
 import java.util.ArrayList;
 import java.util.Collection;
