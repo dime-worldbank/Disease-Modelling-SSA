@@ -10,7 +10,6 @@ import uk.ac.ucl.protecs.objects.Location;
 import uk.ac.ucl.protecs.objects.Person;
 import uk.ac.ucl.protecs.objects.Person.OCCUPATION;
 import uk.ac.ucl.protecs.objects.Person.SEX;
-import uk.ac.ucl.protecs.sim.Params;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 
 public class Demography {
