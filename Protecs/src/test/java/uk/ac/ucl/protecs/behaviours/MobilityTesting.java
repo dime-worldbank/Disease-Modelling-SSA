@@ -44,7 +44,7 @@ public class MobilityTesting {
 	@Test
 	public void PeopleDoingTheCommunityNodeBehaviourSwitchToTheHomeNodeBehviourAtTheEndOfDay() {
 		// set up the simulation
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(params + ".txt", false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(params + ".txt");
 		sim.start();
 		// make everyone go to the community
 		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.movementFramework.setMobilityNodeForTesting(mobilityNodeTitle.COMMUNITY), 
@@ -62,7 +62,7 @@ public class MobilityTesting {
 	@Test
 	public void PeopleWithinTheCommunityLocationGoBackToHomeLocationAtTheEndOfDay() {
 		// set up the simulation
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(params + ".txt", false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(params + ".txt");
 		sim.start();
 		// make everyone go to the community
 		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.movementFramework.setMobilityNodeForTesting(mobilityNodeTitle.COMMUNITY), 
@@ -86,7 +86,7 @@ public class MobilityTesting {
 	@Test
 	public void PeopleDoingTheHomeNodeSwitchToCommunityNodeBehaviourAtTheStartOfDay() {
 		// set up the simulation
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(params + ".txt", false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(params + ".txt");
 		sim.start();
 		helperFunctions.makePeopleAlwaysLeaveHome(sim);
 		// people start at home and then go to the community afterwards
@@ -99,7 +99,7 @@ public class MobilityTesting {
 	@Test
 	public void PeopleWithinTheHomeLocationGoToTheCommunityLocationAtTheStartOfDay() {
 		// set up the simulation
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/params_no_district_movement.txt", false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/params_no_district_movement.txt");
 		sim.start();
 		// people start at home and then go to the community afterwards
 		helperFunctions.makePeopleAlwaysLeaveHome(sim);
@@ -133,7 +133,7 @@ public class MobilityTesting {
 	@Test
 	public void MakeSureThatPeopleOnlyGoToTheCommunityAndHomeLocationsWithPerfectMixing() {
 		//Arrange
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(params + ".txt", false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(params + ".txt");
 		sim.start();
 		// ensure that perfect mixing is turned on
 		sim.params.setting_perfectMixing = true;
@@ -155,12 +155,12 @@ public class MobilityTesting {
 //	
 	@Test
 	public void LockdownReducesTheNumberOfVisitsToOtherAdminZones() {
-		WorldBankCovid19Sim sim_no_lockdown = helperFunctions.CreateDummySim(params + ".txt", false);
+		WorldBankCovid19Sim sim_no_lockdown = helperFunctions.CreateDummySim(params + ".txt");
 		sim_no_lockdown.start();
 		
 		int noLockdownOutboundTripCounts = outboundTripCountInSim(sim_no_lockdown, 100);
 		
-		WorldBankCovid19Sim sim_with_lockdown = helperFunctions.CreateDummySim(params + "_with_lockdown.txt", false);
+		WorldBankCovid19Sim sim_with_lockdown = helperFunctions.CreateDummySim(params + "_with_lockdown.txt");
 		sim_with_lockdown.start();
 
 		int lockdownOutboundTripCounts = outboundTripCountInSim(sim_with_lockdown, 100);

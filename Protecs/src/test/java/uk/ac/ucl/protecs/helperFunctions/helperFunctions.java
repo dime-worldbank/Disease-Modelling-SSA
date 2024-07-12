@@ -21,16 +21,18 @@ public class helperFunctions {
 		MovementBehaviour
 	}
 	
-	public static WorldBankCovid19Sim CreateDummySim(String paramsFilename, boolean demography) {
+
+	public static WorldBankCovid19Sim CreateDummySim(String paramsFilename) {
 		Random rand = new Random();
 		int seed = rand.nextInt(100000000);
-		return CreateDummySimWithSeed(seed, paramsFilename, demography);
+		return CreateDummySimWithSeed(seed, paramsFilename);
 	}
-	public static WorldBankCovid19Sim CreateDummySimWithSeed(int seed, String paramsFilename, boolean demography) {
+	public static WorldBankCovid19Sim CreateDummySimWithSeed(int seed, String paramsFilename) {
 		System.out.println("Running with seed = " + String.valueOf(seed));
 		Params p = new Params(paramsFilename, true);
-		return new WorldBankCovid19Sim(seed, p, "", demography);
-	}
+		return new WorldBankCovid19Sim(seed, p, "");
+		}
+
 	
 	public static void setParameterListsToValue(WorldBankCovid19Sim world, ArrayList <Double> list_to_change, double value_to_set) {
 		int list_index = 0;

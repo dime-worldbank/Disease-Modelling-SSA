@@ -1,12 +1,11 @@
 package uk.ac.ucl.protecs.behaviours;
 
-import uk.ac.ucl.protecs.behaviours.*;
 import uk.ac.ucl.protecs.objects.Location;
 import uk.ac.ucl.protecs.objects.Person;
 import uk.ac.ucl.protecs.sim.*;
 import sim.engine.Steppable;
-import uk.ac.ucl.swise.behaviours.BehaviourFramework;
-import uk.ac.ucl.swise.behaviours.BehaviourNode;
+import swise.behaviours.BehaviourFramework;
+import swise.behaviours.BehaviourNode;
 
 /**
  * The MovementBehaviourFramework is an extension on the basis of the BehaviourFramework which
@@ -22,13 +21,13 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 	
 	public enum mobilityNodeTitle{
         HOME("home"), WORK("work"), COMMUNITY("community");
-
+         
         String key;
-
+     
         mobilityNodeTitle(String key) { this.key = key; }
-
+    
         static mobilityNodeTitle getValue(String x) {
-
+        	
         	switch (x) {
         	case "home":
         		return HOME;
@@ -41,12 +40,11 @@ public class MovementBehaviourFramework extends BehaviourFramework {
         	}
         }
    }
-
 	public MovementBehaviourFramework(WorldBankCovid19Sim model){
 		myWorld = model;
 		
 		homeNode = new BehaviourNode(){
-
+			
 			@Override
 			public String getTitle() {return mobilityNodeTitle.HOME.key;}
 
@@ -125,7 +123,7 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 		};
 		
 		workNode = new BehaviourNode(){
-
+			
 			@Override
 			public String getTitle() { return mobilityNodeTitle.WORK.key; }
 
@@ -165,7 +163,7 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 		};
 		
 		communityNode = new BehaviourNode(){
-
+						
 			@Override
 			public String getTitle() { return mobilityNodeTitle.COMMUNITY.key; }
 

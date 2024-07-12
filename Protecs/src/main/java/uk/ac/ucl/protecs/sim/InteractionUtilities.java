@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import uk.ac.ucl.protecs.objects.*;
+import uk.ac.ucl.protecs.objects.Person.OCCUPATION;
 
 public class InteractionUtilities {
 	
@@ -29,8 +30,8 @@ public class InteractionUtilities {
 		
 		// OTHERWISE, set this up based on actual subsets
 		
-		HashMap <Location, Map<String, List<Person>>> peoplePerAdminZonePerJob = 
-				new HashMap <Location, Map<String, List<Person>>> (); 
+		HashMap <Location, Map<OCCUPATION, List<Person>>> peoplePerAdminZonePerJob = 
+				new HashMap <Location, Map<OCCUPATION, List<Person>>> (); 
 		
 		// some Persons may not have an economic location - so hold them for easy keeping
 		HashMap <Person, Location> holderForEconLocations = new HashMap <Person, Location> ();
@@ -46,14 +47,14 @@ public class InteractionUtilities {
 			holderForEconLocations.put(p, mySuper);
 			
 			// get econ status
-			String myJob = p.getEconStatus();
+			OCCUPATION myJob = p.getEconStatus();
 			
 			// add any necessary structures to support storing this info
-			HashMap <String, List<Person>> binsOfWorkers;
+			HashMap<OCCUPATION, List<Person>> binsOfWorkers;
 			if(peoplePerAdminZonePerJob.containsKey(mySuper))
-				binsOfWorkers = (HashMap <String, List<Person>>) peoplePerAdminZonePerJob.get(mySuper);
+				binsOfWorkers = (HashMap <OCCUPATION, List<Person>>) peoplePerAdminZonePerJob.get(mySuper);
 			else {
-				binsOfWorkers = new HashMap <String, List<Person>> ();
+				binsOfWorkers = new HashMap <OCCUPATION, List<Person>> ();
 				peoplePerAdminZonePerJob.put(mySuper, binsOfWorkers);
 			}
 			assert (peoplePerAdminZonePerJob.size() > 0): "No lists of jobs have been created but should have been";
@@ -73,7 +74,7 @@ public class InteractionUtilities {
 		// for each person, draw their interaction probabilities from the distribution
 		for(Person p: world.agents){
 			
-			String myStatus = p.getEconStatus();
+			OCCUPATION myStatus = p.getEconStatus();
 			
 			// Person has been moved either to workplace or to household (if no job etc.)
 			Location myWorkLocation = holderForEconLocations.get(p);//p.getLocation().getRootSuperLocation();
@@ -84,8 +85,8 @@ public class InteractionUtilities {
 			int bubbleSize = world.params.econBubbleSize.get(myStatus);
 			assert (bubbleSize > 0): "This person's bubble size is zero";
 			// pull out the relevant list of potential friends in my admin zone
-			HashMap <String, List<Person>> binsOfWorkers = 
-					(HashMap <String, List<Person>>) peoplePerAdminZonePerJob.get(myWorkLocation);
+			HashMap <OCCUPATION, List<Person>> binsOfWorkers = 
+					(HashMap <OCCUPATION, List<Person>>) peoplePerAdminZonePerJob.get(myWorkLocation);
 			
 			// combine these into bubble member candidates and add them to the list of friends
 			HashSet <Person> candidateBubble = new HashSet <Person> (p.getWorkBubble());

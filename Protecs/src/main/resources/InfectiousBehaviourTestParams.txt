@@ -12,6 +12,7 @@ econ_interaction_distrib_filename: interactionMatrixByStatus.txt
 
 community_num_interaction_perTick: 5
 setting_perfectMixing: true
+demography:false
 
 line_list_filename: line_list_no_inf.txt
 infection_transition_params_filename: covasim_infect_transitions.txt
