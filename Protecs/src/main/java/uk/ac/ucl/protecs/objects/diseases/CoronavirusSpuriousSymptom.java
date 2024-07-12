@@ -4,7 +4,7 @@ import sim.engine.SimState;
 import uk.ac.ucl.protecs.objects.Location;
 import uk.ac.ucl.protecs.objects.Person;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
-import uk.ac.ucl.swise.behaviours.BehaviourNode;
+import swise.behaviours.BehaviourNode;
 
 public class CoronavirusSpuriousSymptom implements Infection{
 	// record keeping
@@ -85,5 +85,5 @@ public class CoronavirusSpuriousSymptom implements Infection{
 	public String writeOut() {
 		return "P_" + String.valueOf(this.host.getID()) + " Inf at: " + String.valueOf(this.infectedAtLocation) + " created at: " + String.valueOf(this.timeCreated) + " Doing: " + String.valueOf(this.currentBehaviourNode.getTitle());
 	}
-	
+
 }

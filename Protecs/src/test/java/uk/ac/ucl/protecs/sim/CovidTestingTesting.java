@@ -5,6 +5,7 @@ import uk.ac.ucl.protecs.helperFunctions.*;
 import org.junit.Test;
 
 import uk.ac.ucl.protecs.objects.Person;
+import uk.ac.ucl.protecs.objects.diseases.CoronavirusBehaviourFramework.CoronavirusBehaviourNodeTitle;
 
 import java.util.List;
 import java.util.Map;
@@ -14,10 +15,10 @@ public class CovidTestingTesting {
 	
 	@Test
 	public void CheckTestsOnlyHappenForThoseWithSymptomsOfCovid() {
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/covid_testing_params.txt", false, true);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/covid_testing_params.txt");
 		sim.start();
 		int numDays = 1;
-		helperFunctions.SetFractionInfectionsWithCertainNode(0.5, sim, sim.infectiousFramework.setNodeForTesting("mild"));
+		helperFunctions.SetFractionInfectionsWithCertainNode(0.5, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD));
 		helperFunctions.StopRecoveryHappening(sim);
 		helperFunctions.runSimulation(sim, numDays);
 		List<Person> hasBeenTested = peopleWhoHaveBeenTested(sim);

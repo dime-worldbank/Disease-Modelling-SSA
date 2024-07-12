@@ -5,6 +5,7 @@ import uk.ac.ucl.protecs.helperFunctions.*;
 import org.junit.Test;
 
 import uk.ac.ucl.protecs.objects.Person;
+import uk.ac.ucl.protecs.objects.diseases.CoronavirusBehaviourFramework.CoronavirusBehaviourNodeTitle;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusSpuriousSymptom;
 
 import java.util.List;
@@ -15,11 +16,11 @@ public class CovidSpuriousSymptomTesting{
 	
 	@Test
 	public void CheckPeopleWithSymptomaticCovidDoNotGetSpuriousSymptoms() {
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/covid_testing_params.txt", false, true);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/covid_testing_params.txt");
 		sim.start();
 		int numDays = 8;
 		// Give the population mild Covid and spurious symptoms to see if those with mild covid have their spurious symptoms resolved 
-		helperFunctions.SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting("mild"));
+		helperFunctions.SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD));
 		// make sure no one recovers or progresses from their mild covid
 		helperFunctions.StopRecoveryHappening(sim);
 		helperFunctions.HaltDiseaseProgressionAtStage(sim, "Mild");
@@ -44,12 +45,12 @@ public class CovidSpuriousSymptomTesting{
 	
 	@Test
 	public void CheckPeopleCanHaveAsymptomaticCovidAndSpuriousSymptoms() {
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/covid_testing_params.txt", false, true);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/covid_testing_params.txt");
 		sim.start();
 		int numDays = 1;
 		giveAFractionASpuriousSymptom(1, sim);
 		// Give everyone asymptomatic Covid
-		helperFunctions.SetFractionInfectionsWithCertainNode(1, sim, sim.infectiousFramework.setNodeForTesting("asymptomatic"));
+		helperFunctions.SetFractionInfectionsWithCertainNode(1, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD));
 		// run the simulation
 		helperFunctions.runSimulation(sim, numDays);
 		// we need people with symptoms to be alive and not have any Covid infections of any severity. Use streams to search over the population to 
@@ -60,7 +61,7 @@ public class CovidSpuriousSymptomTesting{
 	
 	@Test
 	public void CheckSettingCovidSpuriousSymptomAndTestingEligibilityPropertiesAreBeingRemovedAfterAWeek() {
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/covid_testing_params.txt", false, true);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/covid_testing_params.txt");
 		sim.start();
 		int numDays = 8;
 		// Change the rate of setting Covid spurious symptoms so we have control the number of people who get given symptoms
@@ -84,7 +85,7 @@ public class CovidSpuriousSymptomTesting{
 	
 	@Test
 	public void CheckCovidSpuriousSymptomAndTestingEligibilityPropertiesAreBeingSetWhenCreated() {
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/covid_testing_params.txt", false, true);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/covid_testing_params.txt");
 		sim.start();
 		int numDays = 7;	
 		// Remove the development of new symptoms
@@ -103,7 +104,7 @@ public class CovidSpuriousSymptomTesting{
 
 	@Test
 	public void CheckSpuriousObjectsAreCreated() {
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/covid_testing_params.txt", false, true);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/covid_testing_params.txt");
 		sim.start();
 		int numDays = 8;
 		// Change the rate of setting Covid spurious symptoms so we have control the number of people who get given symptoms

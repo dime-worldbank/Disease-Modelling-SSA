@@ -23,6 +23,7 @@ public class Params {
 	public boolean setting_perfectMixing = false; // if TRUE: there are no work or social bubbles; individuals have
 	// equal chance of interacting with anyone else in the simulation
 	public boolean demography = false;
+	public boolean covidTesting = false;
 
 	
 	public HashMap <String, Double> economic_status_weekday_movement_prob;
