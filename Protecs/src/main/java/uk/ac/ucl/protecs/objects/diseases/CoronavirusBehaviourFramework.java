@@ -1,6 +1,7 @@
 package uk.ac.ucl.protecs.objects.diseases;
 
 
+
 import uk.ac.ucl.protecs.objects.*;
 import uk.ac.ucl.protecs.sim.*;
 import sim.engine.Steppable;
@@ -280,7 +281,7 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 					}
 				if (!i.getHost().hasMild()) {
 					i.getHost().setMild();
-					i.getHost().elligableForTesting();
+					i.getHost().isEligibleForCovidTesting();
 				}
 
 
@@ -525,7 +526,7 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 				i.getHost().getLocation().getRootSuperLocation().metric_new_recovered++;
 				i.getHost().setRecovered();
 				i.getHost().removeCovid();
-				i.getHost().notElligableForTesting();
+				i.getHost().removeEligibilityForCovidTesting();
 				// the Person may have stopped moving when ill - reactivate!
 				if(i.getHost().isImmobilised()){
 					i.getHost().setMobility(true);

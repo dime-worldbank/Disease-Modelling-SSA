@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import uk.ac.ucl.protecs.objects.Person;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusBehaviourFramework.CoronavirusBehaviourNodeTitle;
@@ -45,12 +44,13 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void exposedBehaviourNodesLeadToSusceptiblePresymptomaticAndAsymptomaticOnly() {
 		// create a simulation and start
+
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt");
 		sim.start();
 		// Ensure that no one disease progression occurs beyond the exposed stage
 		HaltDiseaseProgressionAtStage(sim, CoronavirusBehaviourNodeTitle.PRESYMPTOMATIC);
 		// make sure no one recovers from their infection
-		StopRecoveryHappening(sim);
+		helperFunctions.StopRecoveryHappening(sim);
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
 		// seed a number of the specific node to the run
@@ -69,6 +69,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void presymptomaticBehaviourNodesLeadToMildCasesOnly() {
 		// create a simulation and start
+
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt");
 		sim.start();
 		// Make sure there are no new infections
@@ -80,7 +81,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Set up a duration to run the simulation
 		int numDays = 100; 
 		// Make sure no one recovers from COVID
-		StopRecoveryHappening(sim);
+		helperFunctions.StopRecoveryHappening(sim);
 		// Run the simulation and record the infectious behaviour nodes activated in this simulation
 		HashSet<String> uniqueNodesInRun = getUniqueNodesInSim(sim, numDays);
 		// we would expect only the presymptomatic and mild node to show up in this run
@@ -178,6 +179,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void confirmSevereInfectionsResolveToRecoveredWhenTheyDoNotProgress() {
 		// create a simulation and start
+
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt");
 		sim.start();
 		// Ensure that no one disease progression occurs beyond the exposed stage
@@ -199,6 +201,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void criticaBehaviourlNodesLeadToDeadOrRecoveredOnly() {
 		// create a simulation and start
+
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt");
 		sim.start();
 		
@@ -363,18 +366,6 @@ public class CoronavirusInfectiousBehaviourTesting {
 		}
 	}
 	
-	private void StopRecoveryHappening(WorldBankCovid19Sim world) {
-		// This function sets the recovery time of COVID at various stages of the disease to an very high integer beyond the range
-		// of the simulation, thereby stopping recovery from COVID happening
-		world.params.asymptomaticToRecovery_mean = Integer.MAX_VALUE;
-		world.params.asymptomaticToRecovery_std = 0;
-		world.params.symptomaticToRecovery_mean = Integer.MAX_VALUE;
-		world.params.symptomaticToRecovery_std = 0;
-		world.params.severeToRecovery_mean = Integer.MAX_VALUE;
-		world.params.severeToRecovery_std = 0;
-		world.params.criticalToRecovery_mean = Integer.MAX_VALUE;
-		world.params.criticalToRecovery_std = 0;
-	}
 	
 	private HashSet<String> getUniqueNodesInSim(WorldBankCovid19Sim world, int numDaysToRun){
 		// This function runs the simulation for a predetermined number of days. Every simulation day, this function will store the 
@@ -408,11 +399,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		HashSet <String> behaviourNodeBin = new HashSet<String>();
 		
 		// Simulate over the time period and get the disease stages present in the simulation
-		while(world.schedule.getTime() < Params.ticks_per_day * numDaysToRun && !world.schedule.scheduleComplete()){
-			// create a list to store the disease nodes that occur in the simulation
-			ArrayList <String> nodesBin = new ArrayList<String>();
-			world.schedule.step(world);
-		}
+		helperFunctions.runSimulation(world, numDaysToRun);
+		
 		for (Infection i: world.infections) {
 			behaviourNodeBin.add(i.getBehaviourName());
 		}

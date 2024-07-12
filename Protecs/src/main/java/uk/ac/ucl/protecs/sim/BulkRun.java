@@ -22,6 +22,7 @@ public class BulkRun {
 				String outputFilename = outputFilepath + "third_DEM" + outputPrefix + i;
 				String infectionsFilename = outputFilepath + "infections_" + s + outputPrefix + i; 
 
+
 				WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(i, new Params(paramFilename, true), outputFilename);
 				
 				System.out.println("Loading...");
