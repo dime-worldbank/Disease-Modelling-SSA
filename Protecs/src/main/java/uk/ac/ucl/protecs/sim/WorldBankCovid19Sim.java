@@ -10,9 +10,7 @@ import java.util.Random;
 import uk.ac.ucl.protecs.behaviours.*;
 import uk.ac.ucl.protecs.objects.*;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
-import uk.ac.ucl.protecs.objects.diseases.CoronavirusSpuriousSymptom;
 import uk.ac.ucl.protecs.objects.diseases.Infection;
-import uk.ac.ucl.protecs.objects.diseases.SpuriousSymptomBehaviourFramework;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusBehaviourFramework;
 import sim.engine.SimState;
 import sim.engine.Steppable;
@@ -25,7 +23,6 @@ public class WorldBankCovid19Sim extends SimState {
 	public ArrayList <Workplace> workplaces;
 
 	public ArrayList <Infection> infections;
-	public ArrayList <CoronavirusSpuriousSymptom> CovidSpuriousSymptomsList;
 	public Random random;
 	
 	ArrayList <Location> districts;
@@ -34,7 +31,6 @@ public class WorldBankCovid19Sim extends SimState {
 	
 	public MovementBehaviourFramework movementFramework;
 	public CoronavirusBehaviourFramework infectiousFramework;
-	public SpuriousSymptomBehaviourFramework spuriousFramework;
 	public Params params;
 	public boolean lockedDown = false;
 	// create a variable to determine whether the model will cause additional births and deaths	
@@ -112,7 +108,6 @@ public class WorldBankCovid19Sim extends SimState {
 		// set up the behavioural framework
 		movementFramework = new MovementBehaviourFramework(this);
 		infectiousFramework = new CoronavirusBehaviourFramework(this);
-		spuriousFramework = new SpuriousSymptomBehaviourFramework(this);
 		
 		// initialise the agent storage
 		// holders for construction
@@ -210,15 +205,6 @@ public class WorldBankCovid19Sim extends SimState {
 		};
 		schedule.scheduleRepeating(0, this.param_schedule_updating_locations, updateLocationLists);
 		
-		if (this.covidTesting) {
-			CovidSpuriousSymptomsList = new ArrayList <CoronavirusSpuriousSymptom> ();
-			schedule.scheduleRepeating(CovidSpuriousSymptoms.createSymptomObject(this));
-			schedule.scheduleRepeating(CovidTesting.Testing(this), this.param_schedule_COVID_Testing, params.ticks_per_day);
-			
-			Logging CovidTestLogger = new Logging();
-			Logging.CovidTestReporter CovidTestReporter = CovidTestLogger.new CovidTestReporter(this);
-			schedule.scheduleRepeating(CovidTestReporter, this.param_schedule_reporting, params.ticks_per_day);
-			}
 		if (this.demography) {
 			Demography myDemography = new Demography();
 			for(Person a: agents) {
