@@ -1,7 +1,6 @@
 package uk.ac.ucl.protecs.helperFunctions;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +11,8 @@ import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.objects.diseases.Infection;
 import uk.ac.ucl.protecs.sim.Params;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
-import uk.ac.ucl.swise.behaviours.BehaviourNode;
+import swise.behaviours.BehaviourNode;
+
 
 public class helperFunctions {
 	

@@ -117,7 +117,7 @@ public class MobilityTesting {
 	@Test
 	public void MakeSureThatPeopleOnlyDoTheCommunityAndHomeNodeBehavioursWithPerfectMixing() {
 		//Arrange
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(params + ".txt", false);
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(params + ".txt");
 		sim.start();
 		// ensure that perfect mixing is turned on
 		sim.params.setting_perfectMixing = true;
