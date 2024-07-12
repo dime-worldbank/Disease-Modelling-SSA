@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 import uk.ac.ucl.protecs.objects.Person;
+import uk.ac.ucl.protecs.objects.Person.OCCUPATION;
+import uk.ac.ucl.protecs.objects.Person.SEX;
 
 public class Logging {
 	
@@ -25,7 +27,6 @@ public class Logging {
 		@Override
 		public void step(SimState arg0) {
 			Params params = world.params;
-
 			//	calculate the birth rate in age groups 15-19, 10-14, ..., 45-49
 			//	create a list to define our age group search ranges
 			List <Integer> upper_age_range = Arrays.asList(20, 25, 30, 35, 40, 45, 50);
@@ -35,7 +36,7 @@ public class Logging {
 			ArrayList <Integer> female_alive_ages = new ArrayList<Integer>();
 			ArrayList <Integer> female_pregnancy_ages = new ArrayList<Integer>();
 			// create a function to group the population by sex, age and whether they are alive
-			Map<String, Map<Integer, Map<Boolean, Long>>> age_sex_alive_map = world.agents.stream().collect(
+			Map<SEX, Map<Integer, Map<Boolean, Long>>> age_sex_alive_map = world.agents.stream().collect(
 					Collectors.groupingBy(
 							Person::getSex, 
 							Collectors.groupingBy(
@@ -47,8 +48,9 @@ public class Logging {
 							)
 					)
 					);
+
 			// create a function to group the population by sex, age and whether they gave birth
-			Map<String, Map<Integer, Map<Boolean, Map<Boolean, Long>>>> age_sex_map_gave_birth = world.agents.stream().collect(
+			Map<SEX, Map<Integer, Map<Boolean, Map<Boolean, Long>>>> age_sex_map_gave_birth = world.agents.stream().collect(
 					Collectors.groupingBy(
 							Person::getSex, 
 							Collectors.groupingBy(
@@ -69,6 +71,7 @@ public class Logging {
 				// for each age group we begin to count the number of people who fall into each category, create variables
 				// to store this information in
 				Integer female_count = 0;
+				Integer dev_female_count = 0;
 				Integer female_gave_birth_count = 0;
 				// iterate over the ages set in the age ranges (lower value from lower_age_range, upper from upper_age_range)
 				for (int age = lower_age_range.get(idx); age < val; age++) {
@@ -76,7 +79,7 @@ public class Logging {
 						// try function necessary as some ages won't be present in the population
 						// use the functions created earlier to calculate the number of people of each age group who fall
 						// into the categories we are interested in (female, alive)
-						female_count += age_sex_alive_map.get("female").get(age).get(true).intValue();
+						female_count += age_sex_alive_map.get(SEX.FEMALE).get(age).get(true).intValue();
 					}
 						catch (Exception e) {
 							// age wasn't present in the population, skip
@@ -85,7 +88,7 @@ public class Logging {
 						// try function necessary as some ages won't be present in the population
 						// use the functions created earlier to calculate the number of people of each age group who fall
 						// into the categories we are interested in (female, alive and gave birth)
-						female_gave_birth_count += age_sex_map_gave_birth.get("female").get(age).get(true).get(false).intValue();
+						female_gave_birth_count += age_sex_map_gave_birth.get(SEX.FEMALE).get(age).get(true).get(false).intValue();
 					}
 						catch (Exception e) {
 							// age wasn't present in the population, skip
@@ -466,7 +469,7 @@ public class Logging {
 				ArrayList <Integer> female_covid_deaths_by_ages = new ArrayList<Integer>();
 				ArrayList <Integer> female_other_deaths_by_ages = new ArrayList<Integer>();
 				// create a function to group the population by sex, age and whether they are alive
-				Map<String, Map<Integer, Map<Boolean, Long>>> age_sex_alive_map = world.agents.stream().collect(
+				Map<SEX, Map<Integer, Map<Boolean, Long>>> age_sex_alive_map = world.agents.stream().collect(
 						Collectors.groupingBy(
 								Person::getSex, 
 								Collectors.groupingBy(
@@ -479,7 +482,7 @@ public class Logging {
 						)
 						);
 				// create a function to group the population by sex, age and whether they died from covid
-				Map<String, Map<Integer, Map<Boolean, Map<Boolean, Long>>>> age_sex_map_died_from_covid = world.agents.stream().collect(
+				Map<SEX, Map<Integer, Map<Boolean, Map<Boolean, Long>>>> age_sex_map_died_from_covid = world.agents.stream().collect(
 						Collectors.groupingBy(
 								Person::getSex, 
 								Collectors.groupingBy(
@@ -495,7 +498,7 @@ public class Logging {
 						)
 						);
 				// create a function to group the population by sex, age and whether they died from something other than covid
-				Map<String, Map<Integer, Map <Boolean, Map<Boolean, Long>>>> age_sex_map_died_from_other = world.agents.stream().collect(
+				Map<SEX, Map<Integer, Map<Boolean, Map<Boolean, Long>>>> age_sex_map_died_from_other = world.agents.stream().collect(
 						Collectors.groupingBy(
 								Person::getSex, 
 								Collectors.groupingBy(
@@ -527,7 +530,7 @@ public class Logging {
 							// try function necessary as some ages won't be present in the population
 							// use the functions created earlier to calculate the number of people of each age group who fall
 							// into the categories we are interested in (alive, died from covid, died from other)
-							male_count += age_sex_alive_map.get("male").get(age).get(true).intValue();
+							male_count += age_sex_alive_map.get(SEX.MALE).get(age).get(true).intValue();
 						}
 							catch (Exception e) {
 								// age wasn't present in the population, skip
@@ -536,7 +539,7 @@ public class Logging {
 							// try function necessary as some ages won't be present in the population
 							// use the functions created earlier to calculate the number of people of each age group who fall
 							// into the categories we are interested in (alive, died from covid, died from other)
-							female_count += age_sex_alive_map.get("female").get(age).get(true).intValue();
+							female_count += age_sex_alive_map.get(SEX.FEMALE).get(age).get(true).intValue();
 						}
 							catch (Exception e) {
 								// age wasn't present in the population, skip
@@ -546,7 +549,7 @@ public class Logging {
 							// try function necessary as some ages won't be present in the population
 							// use the functions created earlier to calculate the number of people of each age group who fall
 							// into the categories we are interested in (alive, died from covid, died from other)
-							male_covid_death_count += age_sex_map_died_from_covid.get("male").get(age).get(true).get(false).intValue();
+							male_covid_death_count += age_sex_map_died_from_covid.get(SEX.MALE).get(age).get(true).get(false).intValue();
 						}
 							catch (Exception e) {
 							// age wasn't present in the population, skip
@@ -555,7 +558,7 @@ public class Logging {
 							// try function necessary as some ages won't be present in the population
 							// use the functions created earlier to calculate the number of people of each age group who fall
 							// into the categories we are interested in (alive, died from covid, died from other)
-							female_covid_death_count += age_sex_map_died_from_covid.get("female").get(age).get(true).get(false).intValue();
+							female_covid_death_count += age_sex_map_died_from_covid.get(SEX.FEMALE).get(age).get(true).get(false).intValue();
 						}
 							catch (Exception e) {
 							// age wasn't present in the population, skip
@@ -564,7 +567,7 @@ public class Logging {
 							// try function necessary as some ages won't be present in the population
 							// use the functions created earlier to calculate the number of people of each age group who fall
 							// into the categories we are interested in (alive, died from covid, died from other)
-							male_other_death_count += age_sex_map_died_from_other.get("male").get(age).get(true).get(false).intValue();
+							male_other_death_count += age_sex_map_died_from_other.get(SEX.MALE).get(age).get(true).get(false).intValue();
 						}
 							catch (Exception e) {
 							// age wasn't present in the population, skip
@@ -573,7 +576,7 @@ public class Logging {
 							// try function necessary as some ages won't be present in the population
 							// use the functions created earlier to calculate the number of people of each age group who fall
 							// into the categories we are interested in (alive, died from covid, died from other)
-							female_other_death_count += age_sex_map_died_from_other.get("female").get(age).get(true).get(false).intValue();
+							female_other_death_count += age_sex_map_died_from_other.get(SEX.FEMALE).get(age).get(true).get(false).intValue();
 						}
 							catch (Exception e) {
 							// age wasn't present in the population, skip
@@ -660,7 +663,7 @@ public class Logging {
 				// create a function to group the population by sex, age and whether they are alive
 				
 				// create a function to group the population by sex, age and whether they have covid
-				Map<String, Map<Integer, Map<Boolean, Map<Boolean, Long>>>> age_sex_map_has_covid = world.agents.stream().collect(
+				Map<SEX, Map<Integer, Map<Boolean, Map<Boolean, Long>>>> age_sex_map_has_covid = world.agents.stream().collect(
 						Collectors.groupingBy(
 								Person::getSex, 
 								Collectors.groupingBy(
@@ -691,7 +694,7 @@ public class Logging {
 							// try function necessary as some ages won't be present in the population
 							// use the functions created earlier to calculate the number of people of each age group who fall
 							// into the categories we are interested in (alive, died from covid, died from other)
-							male_covid_count += age_sex_map_has_covid.get("male").get(age).get(true).get(false).intValue();
+							male_covid_count += age_sex_map_has_covid.get(SEX.MALE).get(age).get(true).get(false).intValue();
 						}
 							catch (Exception e) {
 							// age wasn't present in the population, skip
@@ -700,7 +703,7 @@ public class Logging {
 							// try function necessary as some ages won't be present in the population
 							// use the functions created earlier to calculate the number of people of each age group who fall
 							// into the categories we are interested in (alive, died from covid, died from other)
-							female_covid_count += age_sex_map_has_covid.get("female").get(age).get(true).get(false).intValue();
+							female_covid_count += age_sex_map_has_covid.get(SEX.FEMALE).get(age).get(true).get(false).intValue();
 						}
 							catch (Exception e) {
 							// age wasn't present in the population, skip
@@ -775,16 +778,14 @@ public class Logging {
 				}
 				covid_number_and_deaths += "\n";
 				ImportExport.exportMe(world.covidCountsOutputFilename, covid_number_and_deaths, world.timer);
-				List <String> economic_status = Arrays.asList("not working, inactive, not in universe", 
-						"current students", "homemakers/housework", "office workers", "teachers", "service workers", 
-						"agriculture workers", "industry workers", "in the army", "disabled and not working");
+				OCCUPATION[] economic_status = OCCUPATION.values();
 				ArrayList <Integer> status_counts = new ArrayList<Integer>();
 				ArrayList <Integer> status_covid_counts = new ArrayList<Integer>();
 				ArrayList <Integer> status_covid_death_counts = new ArrayList<Integer>();
 				// create a function to group the population by sex, age and whether they are alive
 				
 				// create a function to group the population by occupation, age and whether they have covid
-				Map<String, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>> economic_alive_has_covid = 
+				Map<OCCUPATION, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>> economic_alive_has_covid = 
 						world.agents.stream().collect(
 						Collectors.groupingBy(
 								Person::getEconStatus, 
@@ -800,7 +801,7 @@ public class Logging {
 						)
 						)
 						);
-				Map<String, Map<Boolean, Long>> economic_alive = world.agents.stream().collect(
+				Map<OCCUPATION, Map<Boolean, Long>> economic_alive = world.agents.stream().collect(
 						Collectors.groupingBy(
 								Person::getEconStatus, 
 								Collectors.groupingBy(
@@ -812,7 +813,7 @@ public class Logging {
 						)
 						);
 				// create a function to group the population by sex, age and whether they died from covid
-				Map<String, Map<Boolean, Map<Boolean, Long>>> econ_died_from_covid = world.agents.stream().collect(
+				Map<OCCUPATION, Map<Boolean, Map<Boolean, Long>>> econ_died_from_covid = world.agents.stream().collect(
 						Collectors.groupingBy(
 								Person::getEconStatus, 
 									Collectors.groupingBy(
@@ -824,7 +825,7 @@ public class Logging {
 								)
 						)
 						);
-				for (String status: economic_status) {
+				for (OCCUPATION status: economic_status) {
 					try {
 					status_covid_counts.add(economic_alive_has_covid.get(status).get(true).get(true).get(false).intValue());
 					}
@@ -847,10 +848,11 @@ public class Logging {
 						status_counts.add(0);
 					}
 				}
-				String econ_status_categories = "Not working, inactive, not in universe" + t + "Current Students" + t + 
-						"Homemakers/Housework" + t + "Office workers" + t + "Teachers" + t + "Service Workers" + t + 
-						"Agriculture Workers" + t + "Industry Workers" + t + "In the army" + 
-						t + "Disabled and not working" + "\n";
+				String econ_status_categories = "";
+				for (OCCUPATION job: economic_status) {
+					econ_status_categories += job.name() + t;
+				}
+				econ_status_categories += "\n";
 				String econ_status_output = "";
 				if (time == 0) {
 					econ_status_output += "day" + t + "metric" + t + econ_status_categories + String.valueOf(time);
@@ -931,7 +933,7 @@ public class Logging {
 						)
 						)
 						);
-				Map<Boolean, Map<String, Map<Integer, Map<String, List<Person>>>>> aliveAtLocationAgeSex = world.agents.stream().collect(
+				Map<Boolean, Map<String, Map<Integer, Map<SEX, List<Person>>>>> aliveAtLocationAgeSex = world.agents.stream().collect(
 						Collectors.groupingBy(
 								Person::isAlive,
 								Collectors.groupingBy(
@@ -1048,7 +1050,7 @@ public class Logging {
 								// try function necessary as some ages won't be present in the population
 								// use the functions created earlier to calculate the number of people of each age group who fall
 								// into the categories we are interested in (alive, died from covid, died from other)
-							male_count += aliveAtLocationAgeSex.get(true).get(place).get(age).get("male").size();
+							male_count += aliveAtLocationAgeSex.get(true).get(place).get(age).get(SEX.MALE).size();
 							}
 							catch (Exception e) {
 								// age wasn't present in the population, skip
@@ -1057,7 +1059,7 @@ public class Logging {
 								// try function necessary as some ages won't be present in the population
 								// use the functions created earlier to calculate the number of people of each age group who fall
 								// into the categories we are interested in (alive, died from covid, died from other)
-								female_count += aliveAtLocationAgeSex.get(true).get(place).get(age).get("female").size();
+								female_count += aliveAtLocationAgeSex.get(true).get(place).get(age).get(SEX.FEMALE).size();
 							}
 							catch (Exception e) {
 								// age wasn't present in the population, skip
@@ -1100,7 +1102,7 @@ public class Logging {
 						ArrayList <Integer> male_alive_ages = new ArrayList<Integer>();
 						ArrayList <Integer> female_alive_ages = new ArrayList<Integer>();
 						// create a function to group the population by sex, age and whether they are alive
-						Map<String, Map<Integer, Map<Boolean, Long>>> age_sex_alive_map = world.agents.stream().collect(
+						Map<SEX, Map<Integer, Map<Boolean, Long>>> age_sex_alive_map = world.agents.stream().collect(
 								Collectors.groupingBy(
 										Person::getSex, 
 										Collectors.groupingBy(
@@ -1125,7 +1127,7 @@ public class Logging {
 								try {
 									// try function necessary as some ages won't be present in the population
 									// use the functions created earlier to calculate the number of people of each age group
-									male_count += age_sex_alive_map.get("male").get(age).get(true).intValue();
+									male_count += age_sex_alive_map.get(SEX.MALE).get(age).get(true).intValue();
 								}
 									catch (Exception e) {
 										// age wasn't present in the population, skip
@@ -1133,7 +1135,7 @@ public class Logging {
 								try {
 									// try function necessary as some ages won't be present in the population
 									// use the functions created earlier to calculate the number of people of each age group
-									female_count += age_sex_alive_map.get("female").get(age).get(true).intValue();
+									female_count += age_sex_alive_map.get(SEX.FEMALE).get(age).get(true).intValue();
 								}
 									catch (Exception e) {
 										// age wasn't present in the population, skip
@@ -1201,7 +1203,7 @@ public class Logging {
 				ArrayList <Integer> female_alive_ages = new ArrayList<Integer>();
 				ArrayList <Integer> female_pregnancy_ages = new ArrayList<Integer>();
 				// create a function to group the population by sex, age and whether they are alive
-				Map<String, Map<Integer, Map<Boolean, Long>>> age_sex_alive_map = world.agents.stream().collect(
+				Map<SEX, Map<Integer, Map<Boolean, Long>>> age_sex_alive_map = world.agents.stream().collect(
 						Collectors.groupingBy(
 								Person::getSex, 
 								Collectors.groupingBy(
@@ -1214,7 +1216,7 @@ public class Logging {
 						)
 						);
 				// create a function to group the population by sex, age and whether they gave birth
-				Map<String, Map<Integer, Map<Boolean, Map<Boolean, Long>>>> age_sex_map_gave_birth = world.agents.stream().collect(
+				Map<SEX, Map<Integer, Map<Boolean, Map<Boolean, Long>>>> age_sex_map_gave_birth = world.agents.stream().collect(
 						Collectors.groupingBy(
 								Person::getSex, 
 								Collectors.groupingBy(
@@ -1243,7 +1245,7 @@ public class Logging {
 							// try function necessary as some ages won't be present in the population
 							// use the functions created earlier to calculate the number of people of each age group who fall
 							// into the categories we are interested in (female, alive)
-							female_count += age_sex_alive_map.get("female").get(age).get(true).intValue();
+							female_count += age_sex_alive_map.get(SEX.FEMALE).get(age).get(true).intValue();
 						}
 							catch (Exception e) {
 								// age wasn't present in the population, skip
@@ -1252,7 +1254,7 @@ public class Logging {
 							// try function necessary as some ages won't be present in the population
 							// use the functions created earlier to calculate the number of people of each age group who fall
 							// into the categories we are interested in (female, alive and gave birth)
-							female_gave_birth_count += age_sex_map_gave_birth.get("female").get(age).get(true).get(false).intValue();
+							female_gave_birth_count += age_sex_map_gave_birth.get(SEX.FEMALE).get(age).get(true).get(false).intValue();
 						}
 							catch (Exception e) {
 								// age wasn't present in the population, skip

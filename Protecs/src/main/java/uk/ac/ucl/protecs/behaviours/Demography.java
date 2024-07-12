@@ -8,7 +8,8 @@ import sim.engine.Steppable;
 import uk.ac.ucl.protecs.objects.Household;
 import uk.ac.ucl.protecs.objects.Location;
 import uk.ac.ucl.protecs.objects.Person;
-import uk.ac.ucl.protecs.sim.Params;
+import uk.ac.ucl.protecs.objects.Person.OCCUPATION;
+import uk.ac.ucl.protecs.objects.Person.SEX;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 
 public class Demography {
@@ -81,14 +82,14 @@ public class Demography {
 			switch (target.getSex()) {
 			// ------------------------------------------------------------------------------------------------------------
 			// get probability of dying this year if male
-			case "male": {
+			case MALE: {
 				myMortalityLikelihood = world.params.getLikelihoodByAge(
 					world.params.prob_death_by_age_male, world.params.all_cause_death_age_params, target.getAge());
 				break;
 			}
 			// ------------------------------------------------------------------------------------------------------------
 			// get probability of dying this year if female
-			case "female": {
+			case FEMALE: {
 				myMortalityLikelihood = world.params.getLikelihoodByAge(
 						world.params.prob_death_by_age_female, world.params.all_cause_death_age_params, target.getAge());	
 				break;
@@ -202,9 +203,10 @@ public class Demography {
 			// and a copy of the simulation, then create the person
 			int new_id = world.agents.size() + 1;
 			int baby_age = 0;
-			List<String> sexList = Arrays.asList("male", "female");
-			String sexAssigned = sexList.get(world.random.nextInt(sexList.size()));
-			String babiesJob = "Not working, inactive, not in universe".toLowerCase();
+			// although we use an enum for biological sex, upon creation of a person a string is passed to choose sex. This is because
+			List<SEX> sexList = Arrays.asList(SEX.MALE, SEX.FEMALE);
+			SEX sexAssigned = sexList.get(world.random.nextInt(sexList.size()));
+			OCCUPATION babiesJob = OCCUPATION.UNEMPLOYED;
 			Household babyHousehold = target.getHouseholdAsType();
 			Location babyDistrict = target.getLocation();
 			boolean babySchooling = false;
