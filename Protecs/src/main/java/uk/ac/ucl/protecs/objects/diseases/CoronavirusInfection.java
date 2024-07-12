@@ -4,7 +4,7 @@ import uk.ac.ucl.protecs.objects.Location;
 import uk.ac.ucl.protecs.objects.Person;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import sim.engine.SimState;
-import uk.ac.ucl.swise.behaviours.BehaviourNode;
+import swise.behaviours.BehaviourNode;
 
 /**
  * The object holds records of individual instances of disease. It works together with the
@@ -89,6 +89,7 @@ public class CoronavirusInfection implements Infection {
 		if(this.currentBehaviourNode == null) return "";
 		return this.currentBehaviourNode.getTitle();
 	}
+	
 	
 	public Person getHost() { return host; }
 	public Person getSource() { return source; }

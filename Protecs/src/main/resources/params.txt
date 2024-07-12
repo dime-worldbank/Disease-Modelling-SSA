@@ -13,6 +13,7 @@ econ_interaction_distrib_filename: interactionMatrixByStatus.txt
 
 community_num_interaction_perTick: 5
 setting_perfectMixing: true
+demography: true
 
 line_list_filename: line_list_dummy.txt
 infection_transition_params_filename: covasim_infect_transitions.txt
@@ -24,3 +25,4 @@ birth_rate_filename: test_birth_rates.txt
 
 testDataFilename: num_tests_by_date.txt
 testLocationFilename: most_travelled_from_testing.txt
+

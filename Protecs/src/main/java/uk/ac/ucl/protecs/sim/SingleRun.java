@@ -7,7 +7,6 @@ import java.util.Random;
 public class SingleRun {
 	
 	public static void main(String [] args) {
-		double beta = 0.016;
 		// set the number of days the simulation will run
 		int numDays = 100;
 		// get current time, use to time stamp the results file, first format date time
@@ -29,7 +28,8 @@ public class SingleRun {
         // generate random seed from 0 to 1,000,000
         int seed = random.nextInt(1000000);
         // create the simulation object
-		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(seed, new Params(paramFilename, false), outputFilename, false, false);
+
+		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(seed, new Params(paramFilename, false), outputFilename);
 
 		// Set how long the simulation should run for
 		mySim.targetDuration = numDays;

@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import uk.ac.ucl.protecs.objects.*;
+import uk.ac.ucl.protecs.objects.Person.OCCUPATION;
 
 public class Params {
 	
@@ -21,6 +22,7 @@ public class Params {
 											// - weight this if we suspect it's undercounting
 	public boolean setting_perfectMixing = false; // if TRUE: there are no work or social bubbles; individuals have
 	// equal chance of interacting with anyone else in the simulation
+	public boolean demography = false;
 
 	
 	public HashMap <String, Double> economic_status_weekday_movement_prob;
@@ -123,7 +125,7 @@ public class Params {
 	
 	public String testDataFilename = "";
 	public String testLocationFilename = "";
-		
+			
 	
 	// time
 	public static int hours_per_tick = 4; // the number of hours each tick represents
@@ -874,16 +876,17 @@ public class Params {
 	 * @param econ_status Name of economic_status
 	 * @return
 	 */
-	public double getEconProbByDay(int day, String econ_status){
+	public double getEconProbByDay(int day, OCCUPATION econ_status){
+		String occ_as_string = econ_status.key;
 		if(day < 5){
-			if(!economic_status_weekday_movement_prob.containsKey(econ_status))
+			if(!economic_status_weekday_movement_prob.containsKey(occ_as_string))
 				return -1;
-			else return economic_status_weekday_movement_prob.get(econ_status);
+			else return economic_status_weekday_movement_prob.get(occ_as_string);
 		}
 		else {
-			if(!economic_status_otherday_movement_prob.containsKey(econ_status))
+			if(!economic_status_otherday_movement_prob.containsKey(occ_as_string))
 				return -1;
-			else return economic_status_otherday_movement_prob.get(econ_status);
+			else return economic_status_otherday_movement_prob.get(occ_as_string);
 		}
 	}
 

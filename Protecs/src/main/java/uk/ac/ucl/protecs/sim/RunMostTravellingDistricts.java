@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Random;
 
+
 public class RunMostTravellingDistricts {
 	
 	public static void main(String [] args) {
@@ -33,7 +34,8 @@ public class RunMostTravellingDistricts {
 			    // generate random seed from 0 to 1,000,000
 			    int seed = random.nextInt(1000000);
 			        
-			    WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(seed, new Params(paramFilename, false), outputFilename, false, false);
+
+			    WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(seed, new Params(paramFilename, false), outputFilename);
 	
 				System.out.println("Loading...");
 	
