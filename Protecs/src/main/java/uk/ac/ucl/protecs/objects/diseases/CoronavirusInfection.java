@@ -6,7 +6,7 @@ import uk.ac.ucl.protecs.objects.diseases.CoronavirusBehaviourFramework.Coronavi
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import sim.engine.SimState;
 import sim.engine.Steppable;
-import uk.ac.ucl.swise.behaviours.BehaviourNode;
+import swise.behaviours.BehaviourNode;
 
 /**
  * The object holds records of individual instances of disease. It works together with the
