@@ -14,6 +14,8 @@ import uk.ac.ucl.protecs.objects.Household;
 import uk.ac.ucl.protecs.objects.Workplace;
 import uk.ac.ucl.protecs.objects.Location;
 import uk.ac.ucl.protecs.objects.Person;
+import uk.ac.ucl.protecs.objects.Person.OCCUPATION;
+import uk.ac.ucl.protecs.objects.Person.SEX;
 
 public class LoadPopulation{
 	
@@ -103,8 +105,8 @@ public class LoadPopulation{
 				Person p = new Person(Integer.parseInt(bits[personIDIndex]), // ID 
 						Integer.parseInt(bits[ageIndex]), // age
 						birthday, // birthday to update population
-						bits[sexIndex].toLowerCase(), // sex
-						bits[economicStatusIndex].toLowerCase(), // lower case all of the job titles
+						SEX.getValue(bits[3].toLowerCase()), // sex
+						OCCUPATION.getValue(bits[6].toLowerCase()), // lower case all of the job titles
 						schoolGoer,
 						h,
 						w,
