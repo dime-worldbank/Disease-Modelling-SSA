@@ -112,7 +112,9 @@ public class WorldBankCovid19Sim extends SimState {
 		movementFramework = new MovementBehaviourFramework(this);
 		infectiousFramework = new CoronavirusBehaviourFramework(this);
 		spuriousFramework = new SpuriousSymptomBehaviourFramework(this);
-		
+		// RESET SEED
+		random = new Random(this.seed());
+
 		// load the population
 		load_population(params.dataDir + params.population_filename);
 		
@@ -125,10 +127,6 @@ public class WorldBankCovid19Sim extends SimState {
 		// set up the social networks
 		//InteractionUtilities.create_work_bubbles(this);
 		//InteractionUtilities.create_community_bubbles(this);
-
-		// RESET SEED
-//		random = new MersenneTwisterFast(this.seed());
-		random = new Random();
 
 		// set up the infections
 		infections = new ArrayList <Infection> ();
@@ -288,8 +286,6 @@ public class WorldBankCovid19Sim extends SimState {
 			}
 		};
 		schedule.scheduleRepeating(reporter, this.param_schedule_reporting, params.ticks_per_day);
-//		random = new MersenneTwisterFast(this.seed());
-		random = new Random(this.seed());
 
 	}
 	
