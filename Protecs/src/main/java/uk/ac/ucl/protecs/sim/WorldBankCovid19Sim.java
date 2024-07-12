@@ -7,8 +7,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
+
 import uk.ac.ucl.protecs.behaviours.*;
 import uk.ac.ucl.protecs.objects.*;
+import uk.ac.ucl.protecs.objects.Person.OCCUPATION;
+import uk.ac.ucl.protecs.objects.Person.SEX;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.objects.diseases.Infection;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusBehaviourFramework;
@@ -33,10 +36,6 @@ public class WorldBankCovid19Sim extends SimState {
 	public CoronavirusBehaviourFramework infectiousFramework;
 	public Params params;
 	public boolean lockedDown = false;
-	// create a variable to determine whether the model will cause additional births and deaths	
-	public boolean demography = false;
-	// create a variable to determine if COVID testing will take place
-	public boolean covidTesting = false;
 	
 	// the names of file names of each output filename		
 	public String outputFilename;
@@ -53,7 +52,6 @@ public class WorldBankCovid19Sim extends SimState {
 	public String sim_info_filename;
 	public String covidCountsOutputFilename;
 	public String covidByEconOutputFilename;
-	public String covidTestingOutputFilename;
 	int targetDuration = 0;
 	
 	// ordering information
@@ -62,10 +60,9 @@ public class WorldBankCovid19Sim extends SimState {
 	public static int param_schedule_updating_locations = 5;
 	public static int param_schedule_infecting = 10;
 	public static int param_schedule_reporting = 100;
-	public static int param_schedule_COVID_SpuriousSymptoms = 98;
-	public static int param_schedule_COVID_Testing = 99;
 	
-	public ArrayList <Integer> testingAgeDist = new ArrayList <Integer> ();	
+	public ArrayList <Integer> testingAgeDist = new ArrayList <Integer> ();
+	
 	// record-keeping
 	
 	ArrayList <HashMap <String, Double>> dailyRecord = new ArrayList <HashMap <String, Double>> ();
@@ -78,12 +75,10 @@ public class WorldBankCovid19Sim extends SimState {
 	 * Constructor function
 	 * @param seed
 	 */
-	public WorldBankCovid19Sim(long seed, Params params, String outputFilename, boolean demography, boolean covidTesting) {
+	public WorldBankCovid19Sim(long seed, Params params, String outputFilename) {
 		super(seed);
 		this.params = params;
 		this.outputFilename = outputFilename + ".txt";
-		this.demography = demography;
-		this.covidTesting = covidTesting;
 		this.random = new Random(this.seed());
 		this.covidIncOutputFilename = outputFilename + "_Incidence_Of_Covid.txt"; 
 		this.covidIncDeathOutputFilename = outputFilename + "_Incidence_Of_Covid_Death.txt";
@@ -97,7 +92,6 @@ public class WorldBankCovid19Sim extends SimState {
 		this.sim_info_filename = outputFilename + "_Sim_Information.txt";
 		this.covidCountsOutputFilename = outputFilename + "_Age_Gender_Demographics_Covid.txt";
 		this.covidByEconOutputFilename = outputFilename + "_Economic_Status_Covid.txt";
-		this.covidTestingOutputFilename = outputFilename + "_Covid_Testing.txt";
 	}
 	
 	public void start(){
@@ -133,8 +127,7 @@ public class WorldBankCovid19Sim extends SimState {
 		//InteractionUtilities.create_community_bubbles(this);
 
 		// RESET SEED
-//		random = new MersenneTwisterFast(this.seed());
-		random = new Random();
+
 
 		// set up the infections
 		infections = new ArrayList <Infection> ();
@@ -205,7 +198,7 @@ public class WorldBankCovid19Sim extends SimState {
 		};
 		schedule.scheduleRepeating(0, this.param_schedule_updating_locations, updateLocationLists);
 		
-		if (this.demography) {
+		if (this.params.demography) {
 			Demography myDemography = new Demography();
 			for(Person a: agents) {
 				// Trigger the aging process for this person
@@ -215,7 +208,7 @@ public class WorldBankCovid19Sim extends SimState {
 				Demography.Mortality agentMortality = myDemography.new Mortality(a, params.ticks_per_day, this);
 				schedule.scheduleOnce(0, this.param_schedule_reporting, agentMortality);
 				// if biologically female, trigger checks for giving birth each year
-				if (a.getSex().equals("female")) {
+				if (a.getSex().equals(SEX.FEMALE)) {
 					Demography.Births agentBirths = myDemography.new Births(a, params.ticks_per_day, this);
 					schedule.scheduleOnce(0, this.param_schedule_reporting, agentBirths);
 				}
@@ -281,9 +274,6 @@ public class WorldBankCovid19Sim extends SimState {
 			}
 		};
 		schedule.scheduleRepeating(reporter, this.param_schedule_reporting, params.ticks_per_day);
-//		random = new MersenneTwisterFast(this.seed());
-		random = new Random(this.seed());
-
 	}
 	
 	
@@ -345,13 +335,14 @@ public class WorldBankCovid19Sim extends SimState {
 		long startTime = System.currentTimeMillis(); // wallclock measurement of time - embarrassing.
 
 		// set up the simulation
-		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim( seed, new Params(paramsFilename, true), outputFilename, false, false);
+		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim( seed, new Params(paramsFilename, true), outputFilename);
 
 
 		System.out.println("Loading...");
 
 		// ensure that all parameters are set
 		mySim.params.infection_beta = myBeta / mySim.params.ticks_per_day; // normalised to be per tick
+		mySim.params.demography = true;
 		mySim.targetDuration = numDays;
 		mySim.params.rate_of_spurious_symptoms = 1;
 		mySim.start(); // start the simulation
@@ -370,6 +361,8 @@ public class WorldBankCovid19Sim extends SimState {
 		mySim.timer = endTime - startTime;
 		
 		System.out.println("...run finished after " + mySim.timer + " ms");
+		
+
 	}
 
 

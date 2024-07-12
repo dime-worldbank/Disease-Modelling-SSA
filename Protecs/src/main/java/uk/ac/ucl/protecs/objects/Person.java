@@ -1,10 +1,9 @@
 package uk.ac.ucl.protecs.objects;
 
-import uk.ac.ucl.protecs.sim.Params;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import sim.engine.SimState;
-import uk.ac.ucl.swise.agents.MobileAgent;
-import uk.ac.ucl.swise.behaviours.BehaviourNode;
+import swise.agents.MobileAgent;
+import swise.behaviours.BehaviourNode;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -21,22 +20,78 @@ public class Person extends MobileAgent {
 	//
 	
 	// personal ID to distinguish from other agents
-	int myId;
+	private final int myId;
 
 	// larger group membership
 	Household myHousehold;
 	Workplace myWorkplace;
 	// personal/demographic attributes
 	int age;
-	int birthday;
-	String sex;
+	private final int birthday;
+	// only two options considered for biological sex, therefore use enum
+	public enum SEX {
+		MALE("male"), FEMALE("female");
+		String key;
+	     
+		SEX(String key) { this.key = key; }
+    
+        public static SEX getValue(String x) {
+        	switch (x) {
+        	case "male":
+        		return MALE;
+        	case "female":
+        		return FEMALE;
+        	default:
+        		throw new IllegalArgumentException();
+        	}
+        }
+	}
+	
+	private final SEX sex;
 
-	// economic attributes
-	String economic_status;
+	// economic attributes. Economic status is read in from census file and can be accessed, but not changed
+	public enum OCCUPATION{
+		OFFICE_WORKER("office workers"), UNEMPLOYED("not working, inactive, not in universe"), TEACHER("teachers"),
+		HOMEMAKER("homemakers/housework"), STUDENT("current students"), SERVICE_WORKERS("service workers"), AGRICULTURE("agriculture workers"),
+		INDUSTRY("industry workers"), ARMY("in the army"), DISABLED_NOT_WORKING("disabled and not working");
+		public String key;
+	     
+		OCCUPATION(String key) { this.key = key; }
+		
+		public static OCCUPATION getValue(String x) {
+        	switch (x) {
+        	case "office workers":
+        		return OFFICE_WORKER;
+        	case "not working, inactive, not in universe":
+        		return UNEMPLOYED;
+        	case "teachers":
+        		return TEACHER;
+        	case "homemakers/housework":
+        		return HOMEMAKER;
+        	case "service workers":
+        		return SERVICE_WORKERS;
+        	case "current students":
+        		return STUDENT;
+        	case "agriculture workers":
+        		return AGRICULTURE;
+        	case "industry workers":
+        		return INDUSTRY;
+        	case "in the army":
+        		return ARMY;
+        	case "disabled and not working":
+        		return DISABLED_NOT_WORKING;
+        	default:
+        		throw new IllegalArgumentException();
+        	}
+		
+		}
+	}
+	private final OCCUPATION economic_status;
 	
 	// locational attributes
 	Location currentLocation;
-	boolean schoolGoer = false; // allowed to move between districts?
+	// schoolGoer is read in and never changed, ensure this is private
+	private final boolean schoolGoer; // allowed to move between districts?
 	
 	// social attributes
 	Location communityLocation;
@@ -86,17 +141,11 @@ public class Person extends MobileAgent {
 	boolean recovered = false;
 	boolean hasCovid = false;
 	boolean hadCovid = false;
-	
-	// Covid testing properties
-	boolean EligibleForCovidTesting = false;
-	boolean hasBeenTestedForCovid = false;
-	boolean testedPositiveForCovid = false;
-	boolean covidTestLogged = false;
-
-	boolean hasSpuriousSymptomsForCovid = false;
-	boolean hasSpuriousObject = false;
-
-	Integer timeToRemoveCovidSpuriousSymptoms = Integer.MAX_VALUE;
+	public boolean elligableForTesting = false;
+	boolean hasBeenTested = false;
+	boolean hasTestedPositive = false;
+	boolean hasSpuriousSymptoms = false;
+	public int timeToRemoveSymptoms = 100000000;
 
 	// bubble interaction counters
 	int number_of_interactions_at_work = Integer.MIN_VALUE;
@@ -114,7 +163,7 @@ public class Person extends MobileAgent {
 	 * @param economic_activity_location Location for weekday economic activity (workplace, school, etc.)
 	 * @param world Copy of the simulation
 	 */
-	public Person(int id, int age, int birthday, String sex, String economic_status, boolean schoolGoer, Household hh, Workplace w, WorldBankCovid19Sim world){
+	public Person(int id, int age, int birthday, SEX sex, OCCUPATION economic_status, boolean schoolGoer, Household hh, Workplace w, WorldBankCovid19Sim world){
 		super();
 
 		// demographic characteristics
@@ -580,8 +629,8 @@ public class Person extends MobileAgent {
 	
 	public int getAge(){ return age;}
 	public int getBirthday() {return birthday; }
-	public String getSex() { return sex; }
-	public String getEconStatus(){ return economic_status;}
+	public SEX getSex() {return this.sex;};
+	public OCCUPATION getEconStatus(){ return economic_status;}
 	public Location getHousehold(){ return myHousehold; }
 
 	public boolean hasPresymptCovid() { return this.presymptomatic; }
@@ -632,7 +681,12 @@ public class Person extends MobileAgent {
 	public void removeSevere() { this.severe = false; }
 	public void setCritical() { this.critical = true; }
 	public void setRecovered() { this.recovered = true; }
-
+	public void elligableForTesting() {this.elligableForTesting = true; } 
+	public void notElligableForTesting() {this.elligableForTesting = false; } 
+	public void setTested() { this.hasBeenTested = true; }
+	public void setTestedPositive() { this.hasTestedPositive = true; }
+	public void setSymptomRemovalDate(int time) { this.timeToRemoveSymptoms = time; }
+	public void removeTestedPositive() { this.hasTestedPositive = false; }
 	public void removeCovid() { 
 		this.asymptomatic = false;
 		this.mild = false;
@@ -680,62 +734,10 @@ public class Person extends MobileAgent {
 	
 	public void resetCovidLog() { this.covidLogged = false; this.asymptomaticLogged = false; this.mildLogged = false; this.severeLogged = false; this.criticalLogged = false;}
 
-	// COVID TESTING FUNCTIONS
-	// filtering and setting who should be tested
-	public boolean isEligibleForCovidTesting() {return this.EligibleForCovidTesting; }
-	public void setEligibleForCovidTesting() {this.EligibleForCovidTesting = true; }
-	public void removeEligibilityForCovidTesting() {this.EligibleForCovidTesting = false; }
-	// filtering and setting who has been tested
-	public void setHasBeenTestedForCovid() {this.hasBeenTestedForCovid = true; }
-	public boolean hasBeenTestedForCovid() {return this.hasBeenTestedForCovid; }
-	public void setTestedPositiveForCovid() {this.testedPositiveForCovid = true; }
-	public boolean hasTestedPositiveForCovid() {return this.testedPositiveForCovid; }
-	public boolean getCovidTestLogged() {return this.covidTestLogged;}
-	public void confirmCovidTestingLogged() {this.covidTestLogged = true; }
-	public boolean inADistrictTesting() {
-	    boolean answer = this.myWorld.params.districts_to_test_in.stream().anyMatch(x -> x.equals((this.myHousehold.getRootSuperLocation()).myId));
-	    return answer;
-	  }
-	
+
 	public Household getHouseholdAsType() {
 		
 		return this.myHousehold;
 	}
-
-	public void setCovidSpuriousSymptoms() {
-		this.hasSpuriousSymptomsForCovid = true;		
-	}
-
-	public void removeCovidSpuriousSymptoms() {
-		this.hasSpuriousSymptomsForCovid = false;
-	}
-	public boolean hasCovidSpuriousSymptoms() {
-		return this.hasSpuriousSymptomsForCovid;
-	}
-	public boolean hasSpuriousObject() {
-		return this.hasSpuriousObject;
-	}
-	public void setHasSpuriousObject() {
-		this.hasSpuriousObject = true;
-	}
-	
-	public void setCovidSpuriousSymptomRemovalDate(int time) {
-		this.timeToRemoveCovidSpuriousSymptoms = time;
-	}
-	public int getCovidSpuriousSymptomRemovalDate() {
-		return this.timeToRemoveCovidSpuriousSymptoms;
-	}
-	public boolean removeCovidSpuriousSymptomsToday() {
-		int time = (int)(myWorld.schedule.getTime() / Params.ticks_per_day);
-		return (this.timeToRemoveCovidSpuriousSymptoms > time);
-	}
-
-	public boolean hasSymptomaticCovid() {
-		if (this.hasCovid() & !this.hasAsymptCovid()) {
-			return true;
-		}
-		return false;
-	}
-
 	
 }

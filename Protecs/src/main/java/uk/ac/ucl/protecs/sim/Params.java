@@ -2,14 +2,17 @@ package uk.ac.ucl.protecs.sim;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
 import uk.ac.ucl.protecs.objects.*;
+import uk.ac.ucl.protecs.objects.Person.OCCUPATION;
 
 public class Params {
 	
@@ -17,13 +20,14 @@ public class Params {
 	public boolean verbose = true;
 	
 	public double infection_beta = 0.016;
-	public double rate_of_spurious_symptoms = 0.1;
+	public double rate_of_spurious_symptoms = 0.004;
 	public int lineListWeightingFactor = 1; // the line list contains only detected instances, which can be biased 
 											// - weight this if we suspect it's undercounting
-	public boolean setting_perfectMixing = true; // if TRUE: there are no work or social bubbles; individuals have
+	public boolean setting_perfectMixing = false; // if TRUE: there are no work or social bubbles; individuals have
 	// equal chance of interacting with anyone else in the simulation
 	public double prob_go_to_work = 0.8;
 
+	public boolean demography = false;
 
 	
 	public HashMap <String, Double> economic_status_weekday_movement_prob;
@@ -170,10 +174,6 @@ public class Params {
 
 		load_all_cause_mortality_params(dataDir + all_cause_mortality_filename);
 		load_all_birthrate_params(dataDir + birth_rate_filename);
-
-		// load the testing data
-		load_testing(dataDir + testDataFilename);
-		load_testing_locations(dataDir + testLocationFilename);
 		
 		// load the workplace contacts data
 		load_workplace_contacts(dataDir + workplaceContactsFilename);
@@ -313,81 +313,6 @@ public class Params {
 		}
 	}
 	
-	public void load_testing(String testDataFilename) {
-		try {
-			
-			if(verbose)System.out.println("Reading in testing data from " + testDataFilename);
-			
-			// Open the tracts file
-			FileInputStream fstream = new FileInputStream(testDataFilename);
-
-			// Convert our input stream to a BufferedReader
-			BufferedReader testingDataFile = new BufferedReader(new InputStreamReader(fstream));
-			String s;
-
-			// extract the header
-			s = testingDataFile.readLine();
-
-			// map the header into column names relative to location
-			String [] header = splitRawCSVString(s);
-			HashMap <String, Integer> columnNames = parseHeader(header);
-			int dayIndex = columnNames.get("date");
-			int number_of_tests = columnNames.get("number_of_tests");
-			
-			// set up data containers
-			test_dates = new ArrayList <Integer> ();
-			number_of_tests_per_day = new ArrayList <Integer> ();
-			
-			// read in the raw data
-			while ((s = testingDataFile.readLine()) != null) {
-				String [] bits = splitRawCSVString(s);
-				int dayVal = Integer.parseInt(bits[dayIndex]);
-				Integer tests_on_day = Integer.parseInt(bits[number_of_tests]);
-				test_dates.add((Integer)dayVal);
-				number_of_tests_per_day.add((Integer)tests_on_day);
-			}
-			assert (number_of_tests_per_day.size() > 0): "Number of tests per day not loaded";
-
-		} catch (Exception e) {
-			System.err.println("File input error: " + testDataFilename);
-		}
-	}
-	
-	public void load_testing_locations(String testLocationsFilename) {
-		try {
-			
-			if (verbose) System.out.println("Reading in testing locations from " + testLocationsFilename);
-			
-			// Open the tracts file
-			FileInputStream fstream = new FileInputStream(testLocationsFilename);
-
-			// Convert our input stream to a BufferedReader
-			BufferedReader testingDataFile = new BufferedReader(new InputStreamReader(fstream));
-			String s;
-
-			// extract the header
-			s = testingDataFile.readLine();
-
-			// map the header into column names relative to location
-			String [] header = splitRawCSVString(s);
-			HashMap <String, Integer> columnNames = parseHeader(header);
-			int district_numbers = columnNames.get("number");
-			
-			// set up data containers
-			districts_to_test_in = new ArrayList <String> ();
-			
-			// read in the raw data
-			while ((s = testingDataFile.readLine()) != null) {
-				String [] bits = splitRawCSVString(s);
-				String district_to_test_in = "d_" + bits[district_numbers];
-				districts_to_test_in.add(district_to_test_in);
-			}
-			assert (districts_to_test_in.size() > 0): "Number of districts to test in not loaded";
-
-		} catch (Exception e) {
-			System.err.println("File input error: " + testLocationsFilename);
-		}
-	}
 	
 	public void load_workplace_contacts(String workplaceFilename){
 
@@ -1006,21 +931,22 @@ public class Params {
 	 * @param econ_status Name of economic_status
 	 * @return
 	 */
-	public double getEconProbByDay(int day, String econ_status){
+	public double getEconProbByDay(int day, OCCUPATION econ_status){
+		String occ_as_string = econ_status.key;
 		if(day < 5){
-			if(!economic_status_weekday_movement_prob.containsKey(econ_status))
+			if(!economic_status_weekday_movement_prob.containsKey(occ_as_string))
 				return -1;
-			else return economic_status_weekday_movement_prob.get(econ_status);
+			else return economic_status_weekday_movement_prob.get(occ_as_string);
 		}
 		else {
-			if(!economic_status_otherday_movement_prob.containsKey(econ_status))
+			if(!economic_status_otherday_movement_prob.containsKey(occ_as_string))
 				return -1;
-			else return economic_status_otherday_movement_prob.get(econ_status);
+			else return economic_status_otherday_movement_prob.get(occ_as_string);
 		}
 	}
 	
-	public int getWorkplaceContactCount(String occupation, double random) {
-		List <Double> probabilityOfCount = workplaceContactProbability.get(occupation);
+	public int getWorkplaceContactCount(OCCUPATION occupation, double random) {
+		List <Double> probabilityOfCount = workplaceContactProbability.get(occupation.key);
 		int indexOfCount = 0;
 		for (double probability: probabilityOfCount) {
 			if (random < probability) break;

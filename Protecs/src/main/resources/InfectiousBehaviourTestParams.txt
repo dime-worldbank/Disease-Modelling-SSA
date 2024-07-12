@@ -10,6 +10,9 @@ economic_status_weekday_movement_prob_filename: econStatusMovementProb_otherday.
 economic_status_otherday_movement_prob_filename: econStatusMovementProb_weekday.txt
 econ_interaction_distrib_filename: interactionMatrixByStatus.txt
 
+community_num_interaction_perTick: 5
+setting_perfectMixing: true
+demography:false
 
 line_list_filename: line_list_no_inf.txt
 infection_transition_params_filename: covasim_infect_transitions.txt
@@ -17,9 +20,6 @@ lockdown_changeList_filename: lockdownChangelist.txt
 
 all_cause_mortality_filename: test_mortality_rates.txt
 birth_rate_filename: test_birth_rates.txt
-
-testDataFilename: dummy_n_tests.txt
-testLocationFilename: most_travelled_from_testing.txt
 
 workplaceContactsFilename: contact_counts_final.csv
 workplaceConstraintsFilename: workplace_constraints_empty.txt

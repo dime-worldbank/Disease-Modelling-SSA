@@ -7,19 +7,20 @@ import uk.ac.ucl.protecs.objects.Person;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.sim.Params;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
-import uk.ac.ucl.swise.behaviours.BehaviourNode;
+import swise.behaviours.BehaviourNode;
 
 public class helperFunctions {
 	
-	public static WorldBankCovid19Sim CreateDummySim(String paramsFilename, boolean demography, boolean testing) {
+
+	public static WorldBankCovid19Sim CreateDummySim(String paramsFilename) {
 		Random rand = new Random();
 		int seed = rand.nextInt(100000000);
-		return CreateDummySimWithSeed(seed, paramsFilename, demography, testing);
+		return CreateDummySimWithSeed(seed, paramsFilename);
 	}
-	public static WorldBankCovid19Sim CreateDummySimWithSeed(int seed, String paramsFilename, boolean demography, boolean testing) {
+	public static WorldBankCovid19Sim CreateDummySimWithSeed(int seed, String paramsFilename) {
 		System.out.println("Running with seed = " + String.valueOf(seed));
 		Params p = new Params(paramsFilename, false);
-		return new WorldBankCovid19Sim(seed, p, "", demography, testing);
+		return new WorldBankCovid19Sim(seed, p, "");
 	}
 	
 	public static void setParameterListsToValue(WorldBankCovid19Sim world, ArrayList <Double> list_to_change, double value_to_set) {

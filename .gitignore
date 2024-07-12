@@ -119,6 +119,8 @@ password/
 passwords/
 
 .DS_Store
+Protecs/src/main/resources/province_OD.csv
+Protecs/src/main/resources/province_line_list.txt
 Protecs/src/main/java/uk/ac/ucl/protecs/sim/wardLevelRuns.java
 Protecs/src/main/resources/abm_092320_5_perc_080222_ver1.csv
 Protecs/src/main/resources/dailyDistrictTransitionProb_preLockdown_multiDist.csv
@@ -127,5 +129,3 @@ Protecs/src/main/resources/new_census_5perc_multiStatMultiDist.csv
 Protecs/src/main/resources/params_national_run.txt
 Protecs/src/main/resources/params_province_run.txt
 Protecs/src/main/resources/province_census.csv
-Protecs/src/main/resources/province_line_list.txt
-Protecs/src/main/resources/province_OD.csv
