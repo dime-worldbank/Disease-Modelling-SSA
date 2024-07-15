@@ -52,10 +52,15 @@ public class Person extends MobileAgent {
 	// economic attributes. Economic status is read in from census file and can be accessed, but not changed
 	public enum OCCUPATION{
 		OFFICE_WORKER("office workers"), UNEMPLOYED("not working, inactive, not in universe"), TEACHER("teachers"),
-		HOMEMAKER("homemakers/housework"), STUDENT("current students"), SERVICE_WORKERS("service workers"), AGRICULTURE("agriculture workers"),
-		INDUSTRY("industry workers"), ARMY("in the army"), DISABLED_NOT_WORKING("disabled and not working");
+		HOMEMAKER("homemakers/housework"), CURRENT_STUDENTS("current students"), SERVICE_WORKERS("service workers"), AGRICULTURE("agriculture workers"),
+		INDUSTRY("industry workers"), ARMY("in the army"), DISABLED_NOT_WORKING("disabled and not working"), SERVICE_RETAIL("service_retail"),
+		UNEMPLOYED_NOT_AG("unemployed_not_ag"), OFFICE_WORKERS("office_worker"), INACTIVE("inactive"), STUDENT("student"), 
+		INFORMAL_PETTY_TRADE("informal_petty_trade"), OTHER("other"), MANU_MINING_TRADES("manu_mining_trades"), POLICE_ARMY("police_army"),
+		HEALTHCARE_SOCIAL_WORK("healthcare_social_work"), EDUCATION("education"), RELIGIOUS("religious"), TRANSPORT_SECTOR("transport_sector"),
+		SUBSISTENCE_AG("subsistence_ag"), AG_ESTATES("ag_estates");
 		public String key;
-	     
+	    
+		
 		OCCUPATION(String key) { this.key = key; }
 		
 		public static OCCUPATION getValue(String x) {
@@ -70,8 +75,10 @@ public class Person extends MobileAgent {
         		return HOMEMAKER;
         	case "service workers":
         		return SERVICE_WORKERS;
-        	case "current students":
+        	case "student":
         		return STUDENT;
+        	case "current students":
+        		return CURRENT_STUDENTS;
         	case "agriculture workers":
         		return AGRICULTURE;
         	case "industry workers":
@@ -80,6 +87,34 @@ public class Person extends MobileAgent {
         		return ARMY;
         	case "disabled and not working":
         		return DISABLED_NOT_WORKING;
+        	case "service_retail":
+        		return SERVICE_RETAIL;
+        	case "unemployed_not_ag":
+        		return UNEMPLOYED_NOT_AG;
+        	case "office_worker":
+        		return OFFICE_WORKERS;
+        	case "inactive":
+        		return INACTIVE;
+        	case "informal_petty_trade":
+        		return INFORMAL_PETTY_TRADE;
+        	case "other":
+        		return OTHER;
+        	case "manu_mining_trades": 
+        		return MANU_MINING_TRADES;
+        	case "police_army":
+        		return POLICE_ARMY;
+        	case "healthcare_social_work":
+        		return HEALTHCARE_SOCIAL_WORK;
+        	case "education":
+        		return EDUCATION;
+        	case "religious":
+        		return RELIGIOUS;
+        	case "transport_sector":
+        		return TRANSPORT_SECTOR;
+        	case "subsistence_ag":
+        		return SUBSISTENCE_AG;
+        	case "ag_estates":
+        		return AG_ESTATES;
         	default:
         		throw new IllegalArgumentException();
         	}

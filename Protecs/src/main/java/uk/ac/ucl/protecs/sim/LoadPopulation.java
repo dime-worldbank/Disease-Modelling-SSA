@@ -105,8 +105,8 @@ public class LoadPopulation{
 				Person p = new Person(Integer.parseInt(bits[personIDIndex]), // ID 
 						Integer.parseInt(bits[ageIndex]), // age
 						birthday, // birthday to update population
-						SEX.getValue(bits[3].toLowerCase()), // sex
-						OCCUPATION.getValue(bits[6].toLowerCase()), // lower case all of the job titles
+						SEX.getValue(bits[sexIndex].toLowerCase()), // sex
+						OCCUPATION.getValue(bits[economicStatusIndex].toLowerCase()), // lower case all of the job titles
 						schoolGoer,
 						h,
 						w,
