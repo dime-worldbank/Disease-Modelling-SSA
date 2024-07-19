@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import uk.ac.ucl.protecs.objects.Location.LocationCategory;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.objects.diseases.Infection;
 
@@ -183,6 +184,7 @@ public class Person extends MobileAgent {
 		// agents are initialised uninfected
 		
 		communityLocation = myHousehold.getRootSuperLocation();
+		communityLocation.setLocationType(LocationCategory.COMMUNITY);
 		workBubble = new HashSet <Person> ();
 		communityBubble = new HashSet <Person> ();
 		
@@ -208,8 +210,8 @@ public class Person extends MobileAgent {
 		else
 			myWorld.schedule.scheduleOnce(this, myWorld.param_schedule_movement);
 			
-		// HACK TO ENSURE INTERACTION AWAY FROM HOME DISTRICT
-		// check if out of home district
+		// HACK TO ENSURE INTERACTION AWAY FROM HOME ADMIN ZONE
+		// check if out of home admin zone
 /*		if(visiting) {
 			
 			// if this Person is not infected, check if they catch anything from their neighbours!
@@ -592,6 +594,7 @@ public class Person extends MobileAgent {
 	public double getSusceptibility(){ return myWorld.params.getSuspectabilityByAge(age); } // TODO make more nuanced
 	
 	public void setActivityNode(BehaviourNode bn){ currentActivityNode = bn; }
+	public BehaviourNode getActivityNode(){ return currentActivityNode; }
 	
 	public int getAge(){ return age;}
 	public int getBirthday() {return birthday; }
@@ -608,8 +611,8 @@ public class Person extends MobileAgent {
 	public boolean isElligableForTesting() {return this.elligableForTesting; }
 	public boolean hasSpuriousSymptoms() {return this.hasSpuriousSymptoms; }
 
-	public boolean inADistrictTesting() {
-		boolean answer = this.myWorld.params.districts_to_test_in.stream().anyMatch(x -> x.equals(this.myHousehold.getRootSuperLocation().myId));
+	public boolean inAnAdminZoneTesting() {
+		boolean answer = this.myWorld.params.admin_zones_to_test_in.stream().anyMatch(x -> x.equals(this.myHousehold.getRootSuperLocation().myId));
 		return answer;
 	}
 		
@@ -677,7 +680,7 @@ public class Person extends MobileAgent {
 	public void setSpuriousSymptoms() {
 		this.hasSpuriousSymptoms = true;
 	}
-	public String getCurrentDistrict() {return this.getHousehold().getRootSuperLocation().myId;}
+	public String getCurrentAdminZone() {return this.getHousehold().getRootSuperLocation().myId;}
 
 	// UTILS
 	

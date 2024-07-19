@@ -208,7 +208,7 @@ public class Demography {
 			SEX sexAssigned = sexList.get(world.random.nextInt(sexList.size()));
 			OCCUPATION babiesJob = OCCUPATION.UNEMPLOYED;
 			Household babyHousehold = target.getHouseholdAsType();
-			Location babyDistrict = target.getLocation();
+			Location babyAdminZone = target.getLocation();
 			boolean babySchooling = false;
 			int birthday = time;
 			Person baby = new Person(new_id, // ID 
@@ -222,12 +222,12 @@ public class Demography {
 					);				
 			// update the household and location to include the baby
 			babyHousehold.addPerson(baby);
-			baby.setLocation(babyDistrict);
+			baby.setLocation(babyAdminZone);
 			// the baby has decided to go home
 			baby.setActivityNode(world.movementFramework.getHomeNode());
 			// store the baby in the newBirths array
 			world.agents.add(baby);
-			// Add the person to the district
+			// Add the person to the admin zone
 			baby.transferTo(babyHousehold);
 			// This is a new birth that hasn't been recorded
 			target.removeBirthLogged();

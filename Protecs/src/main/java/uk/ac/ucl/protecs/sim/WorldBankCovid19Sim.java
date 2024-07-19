@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
-
 import uk.ac.ucl.protecs.behaviours.*;
 import uk.ac.ucl.protecs.objects.*;
 import uk.ac.ucl.protecs.objects.Person.OCCUPATION;
@@ -26,9 +25,9 @@ public class WorldBankCovid19Sim extends SimState {
 	public ArrayList <Household> households;
 	public ArrayList <Infection> infections;
 	
-	ArrayList <Location> districts;
+	ArrayList <Location> adminBoundaries;
 	
-	HashMap <Location, ArrayList<Person>> personsToDistrict; 
+	HashMap <Location, ArrayList<Person>> personsToAdminBoundary; 
 	
 	public MovementBehaviourFramework movementFramework;
 	public CoronavirusBehaviourFramework infectiousFramework;
@@ -42,11 +41,11 @@ public class WorldBankCovid19Sim extends SimState {
 	public String covidIncDeathOutputFilename;
 	public String otherIncDeathOutputFilename;
 	public String birthRateOutputFilename;
-	public String distPopSizeOutputFilename;
+	public String adminZonePopSizeOutputFilename;
 	public String newLoggingFilename; 
 	public String infections_export_filename;
-	public String distCovidPrevalenceOutputFilename;
-	public String distPopBreakdownOutputFilename;
+	public String adminZoneCovidPrevalenceOutputFilename;
+	public String adminZonePopBreakdownOutputFilename;
 	public String sim_info_filename;
 	public String covidCountsOutputFilename;
 	public String covidByEconOutputFilename;
@@ -81,11 +80,11 @@ public class WorldBankCovid19Sim extends SimState {
 		this.covidIncDeathOutputFilename = outputFilename + "_Incidence_Of_Covid_Death_" + ".txt";
 		this.otherIncDeathOutputFilename = outputFilename + "_Incidence_Of_Other_Death_" + ".txt";
 		this.birthRateOutputFilename = outputFilename + "_Birth_Rate_" + ".txt";
-		this.distPopSizeOutputFilename = outputFilename + "_District_Level_Population_Size_" + ".txt";
-		this.newLoggingFilename = outputFilename + "_Cases_Per_District_" + ".txt"; 
+		this.adminZonePopSizeOutputFilename = outputFilename + "_Admin_Zone_Level_Population_Size_" + ".txt";
+		this.newLoggingFilename = outputFilename + "_Cases_Per_Admin_Zone_" + ".txt"; 
 		this.infections_export_filename = outputFilename + "_Infections_" + ".txt";
-		this.distCovidPrevalenceOutputFilename = outputFilename + "_Percent_In_District_With_Covid_" + ".txt";
-		this.distPopBreakdownOutputFilename = outputFilename + "_Overall_Demographics_" + ".txt";
+		this.adminZoneCovidPrevalenceOutputFilename = outputFilename + "_Percent_In_Admin_Zone_With_Covid_" + ".txt";
+		this.adminZonePopBreakdownOutputFilename = outputFilename + "_Overall_Demographics_" + ".txt";
 		this.sim_info_filename = outputFilename + "_Sim_Information_" + ".txt";
 		this.covidCountsOutputFilename = outputFilename + "_Age_Gender_Demographics_Covid_" + ".txt";
 		this.covidByEconOutputFilename = outputFilename + "_Economic_Status_Covid_.txt";
@@ -94,7 +93,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public void start(){
 		
 		// copy over the relevant information
-		districts = new ArrayList <Location> (params.districts.values());
+		adminBoundaries = new ArrayList <Location> (params.adminZones.values());
 		
 		// set up the behavioural framework
 		movementFramework = new MovementBehaviourFramework(this);
@@ -130,7 +129,7 @@ public class WorldBankCovid19Sim extends SimState {
 			HashSet <Person> newlyInfected = new HashSet <Person> ();
 			
 			// number of people present
-			ArrayList <Person> peopleHere = this.personsToDistrict.get(l);
+			ArrayList <Person> peopleHere = this.personsToAdminBoundary.get(l);
 			int numPeopleHere = peopleHere.size();//l.getPeople().size();
 			if(numPeopleHere == 0){ // if there is no one there, don't continue
 				System.out.println("WARNING: attempting to initialise infection in Location " + l.getId() + " but there are no People present. Continuing without successful infection...");
@@ -177,7 +176,7 @@ public class WorldBankCovid19Sim extends SimState {
 			
 			@Override
 			public void step(SimState arg0) {
-				for(Location l: districts) {
+				for(Location l: adminBoundaries) {
 					l.updatePersonsHere();
 					}
 			}
@@ -211,8 +210,8 @@ public class WorldBankCovid19Sim extends SimState {
 		// This function tracks the epidemic over time 
 		schedule.scheduleRepeating(Logging.TestLoggingCase(this), this.param_schedule_reporting, params.ticks_per_day);
 		
-		// Create a function to keep track of the population and epidemic at the scale of district level
-		schedule.scheduleRepeating(Logging.UpdateDistrictLevelInfo(this), this.param_schedule_reporting, params.ticks_per_day);
+		// Create a function to keep track of the population and epidemic at the scale of admin zone level
+		schedule.scheduleRepeating(Logging.UpdateAdminZoneLevelInfo(this), this.param_schedule_reporting, params.ticks_per_day);
 
 		schedule.scheduleRepeating(Logging.ReportPopStructure(this), this.param_schedule_reporting, params.ticks_per_day);
 		
@@ -254,7 +253,7 @@ public class WorldBankCovid19Sim extends SimState {
 				
 				int time = (int) (arg0.schedule.getTime() / params.ticks_per_day);
 				
-				for(Location l: districts){
+				for(Location l: adminBoundaries){
 					s += time + "\t" + l.metricsToString() + "\n";
 					l.refreshMetrics();
 				}
@@ -276,9 +275,9 @@ public class WorldBankCovid19Sim extends SimState {
 			households = new ArrayList <Household> ();
 			
 			// initialise the holder
-			personsToDistrict = new HashMap <Location, ArrayList<Person>>();
-			for(Location l: districts){
-				personsToDistrict.put(l, new ArrayList <Person> ());
+			personsToAdminBoundary = new HashMap <Location, ArrayList<Person>>();
+			for(Location l: adminBoundaries){
+				personsToAdminBoundary.put(l, new ArrayList <Person> ());
 			}
 
 			
@@ -314,9 +313,9 @@ public class WorldBankCovid19Sim extends SimState {
 				String hhName = bits[4];
 				Household h = rawHouseholds.get(hhName);
 
-				// target district
-				String myDistrictName = "d_" + bits[5]; // TODO AN ABOMINATION, STANDARDISE IT
-				Location myDistrict = params.districts.get(myDistrictName);
+				// target admin zone
+				String myAdminZoneName = bits[5]; // TODO AN ABOMINATION, STANDARDISE IT
+				Location myAdminZone = params.adminZones.get(myAdminZoneName);
 
 				boolean schoolGoer = bits[8].equals("1");
 				
@@ -324,19 +323,12 @@ public class WorldBankCovid19Sim extends SimState {
 				if(h == null){
 					
 					// set up the Household
-					h = new Household(hhName, myDistrict);
+					h = new Household(hhName, myAdminZone);
 					rawHouseholds.put(hhName, h);
 					households.add(h);
 				}
 				
 				// identify the location in which the person, possibly, works
-				
-				/*String econLocBase = bits[7];
-				int econLocBaseBits = (int) Double.parseDouble(econLocBase);
-				String economicActivityLocationName = "d_" + econLocBaseBits;
-				Location econLocation = params.districts.get(economicActivityLocationName);
-				// TODO: they might not work anywhere! Further, they might work in a particular subset of the location! Specify here further!
-				*/
 				
 				// set up the person
 				// create a random birthday
@@ -353,10 +345,9 @@ public class WorldBankCovid19Sim extends SimState {
 						this
 						);
 				h.addPerson(p);
-				//p.setLocation(myDistrict);
 				p.setActivityNode(movementFramework.getHomeNode());
 				agents.add(p);
-				personsToDistrict.get(myDistrict).add(p);
+				personsToAdminBoundary.get(myAdminZone).add(p);
 				
 				// schedule the agent to run at the beginning of the simulation
 				this.schedule.scheduleOnce(0, this.param_schedule_movement, p);
@@ -414,7 +405,6 @@ public class WorldBankCovid19Sim extends SimState {
 			System.exit(0);
 		}
 		else if(args.length > 0){
-			
 			numDays = Integer.parseInt(args[0]);
 			myBeta = Double.parseDouble(args[2]);
 			if(args.length > 3) {
@@ -424,10 +414,9 @@ public class WorldBankCovid19Sim extends SimState {
 			if(args.length > 4)
 				outputFilename = args[4];
 			if(args.length > 5)
-				paramsFilename = args[5];
-			if(args.length > 6)
-				infectionsOutputFilename = args[6];
+			paramsFilename = args[5];
 		}
+				
 		
 		long startTime = System.currentTimeMillis(); // wallclock measurement of time - embarrassing.
 				
