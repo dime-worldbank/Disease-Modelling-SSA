@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import uk.ac.ucl.protecs.objects.Household;
 import uk.ac.ucl.protecs.objects.Workplace;
+import uk.ac.ucl.protecs.objects.Location.LOCATIONTYPE;
 import uk.ac.ucl.protecs.objects.Location;
 import uk.ac.ucl.protecs.objects.Person;
 import uk.ac.ucl.protecs.objects.Person.OCCUPATION;
@@ -125,9 +126,9 @@ public class LoadPopulation{
 				
 				// Some occupational constraints will cause people to stay at home, we can initialise this by checking who has the appropriate occupation for this constraint
 				// and then immobilising them, causing them to remain at home throughout the simulation
-				if (sim.params.OccupationConstraintList.containsKey(bits[economicStatusIndex].toLowerCase())) {
+				if (sim.params.OccupationConstraintList.containsKey(OCCUPATION.getValue(bits[economicStatusIndex].toLowerCase()))) {
 					// TODO: match this to an enum when everything is merged together
-					if (sim.params.OccupationConstraintList.get(bits[economicStatusIndex].toLowerCase()).equals("Home")) {
+					if (sim.params.OccupationConstraintList.get(OCCUPATION.getValue(bits[economicStatusIndex].toLowerCase())).equals(LOCATIONTYPE.HOME)) {
 						p.setMobility(false);
 					}
 						

@@ -6,6 +6,7 @@ public class Household extends Location {
 		super();
 		myId = "HH_" + id;
 		mySuperLocation = l;
+		setType(LOCATIONTYPE.HOME);
 	}
 	
 	/**

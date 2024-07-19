@@ -2,6 +2,7 @@ package uk.ac.ucl.protecs.objects;
 
 import java.util.HashSet;
 
+
 /**
  * A generic holder for spatial data. Locations keep track of the spatial location within which they exist.
  * TODO add relationships between/among locations.
@@ -14,6 +15,7 @@ public class Location {
 	Location mySuperLocation; // the Location within which this Location exists
 	HashSet <Person> personsHere;
 	Object [] personsHere_list;
+	LOCATIONTYPE myType;
 	boolean active = false;
 	
 	public int metric_died_count;
@@ -24,7 +26,29 @@ public class Location {
 	public int metric_new_deaths;
 	public int metric_new_recovered;
 	public int metric_currently_infected;
-
+	
+	public enum LOCATIONTYPE{
+		HOME("Home"), COMMUNITY("Community"), WORKPLACE("Workplace"), UNDEFINED("Undefined");
+         
+        String key;
+     
+        LOCATIONTYPE(String key) { this.key = key; }
+    
+        public static LOCATIONTYPE getValue(String x) {
+        	switch (x) {
+        	case "Home":
+        		return HOME;
+        	case "Community":
+        		return COMMUNITY;
+        	case "Workplace":
+        		return WORKPLACE;
+        	case "Undefined":
+        		return UNDEFINED;
+        	default:
+        		throw new IllegalArgumentException();
+        	}
+        }
+	}
 	
 	// CONSTRUCTORS
 	
@@ -55,7 +79,6 @@ public class Location {
 	public Location(){
 		this("", null);
 	}
-	
 
 	/**
 	 * Add a person to the Location. Returns false if the Person is already there.
@@ -136,4 +159,8 @@ public class Location {
 		active = b;
 	}
 	public boolean getActive() { return active; }
+
+	public void setType(LOCATIONTYPE type) {
+		myType = type;		
+	}
 }

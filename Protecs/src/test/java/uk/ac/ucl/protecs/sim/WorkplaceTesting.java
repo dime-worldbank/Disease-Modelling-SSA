@@ -4,6 +4,7 @@ import uk.ac.ucl.protecs.helperFunctions.*;
 import uk.ac.ucl.protecs.objects.Household;
 import uk.ac.ucl.protecs.objects.Person;
 import uk.ac.ucl.protecs.objects.Workplace;
+import uk.ac.ucl.protecs.objects.Location.LOCATIONTYPE;
 
 import java.util.HashSet;
 import java.util.List;
@@ -126,7 +127,7 @@ public class WorkplaceTesting{
 		// iterate over the simulation population and check that those who are constrained to home are in fact at home and have had the immobilised property set
 		for (Person p: sim.agents) {
 			if (sim.params.OccupationConstraintList.containsKey(p.getEconStatus())) {
-				if (sim.params.OccupationConstraintList.get(p.getEconStatus()).equals("Home")) {
+				if (sim.params.OccupationConstraintList.get(p.getEconStatus()).equals(LOCATIONTYPE.HOME)) {
 					hasimmobilisedProperty = (p.isImmobilised() == true);
 					if (!(p.getLocation() instanceof Household)) {
 						thoseImmobilisedStayAtHome = false;
@@ -152,7 +153,7 @@ public class WorkplaceTesting{
 		// iterate over the simulation population and check that those who are constrained to the community are at their community spaces
 		for (Person p: sim.agents) {
 			if (sim.params.OccupationConstraintList.containsKey(p.getEconStatus())) {
-				if (sim.params.OccupationConstraintList.get(p.getEconStatus()).equals("Community")) {
+				if (sim.params.OccupationConstraintList.get(p.getEconStatus()).equals(LOCATIONTYPE.COMMUNITY)) {
 					if ((p.getLocation() instanceof Household) || (p.getLocation() instanceof Workplace)) {
 						thoseConstrainedAreInCommunity = false;
 					}
@@ -160,6 +161,26 @@ public class WorkplaceTesting{
 			}
 		}
 		Assert.assertTrue(thoseConstrainedAreInCommunity);
+		
+	}
+	@Test
+	public void runToDev() {
+		// check the parameters associated with workplace constraints
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/workplace_bubbles_with_constraints.txt");
+		sim.params.infection_beta = 0.3;
+		// make sure that everyone leaves the house that day
+		sim.start();
+		// run for three ticks (people leave the house at tick 2 and leave work at tick 4)
+		int numTicks = 90;
+		helperFunctions.runSimulation(sim, numTicks);
+		System.out.println("Number of called interactions at home: " + sim.home_interaction_counter);
+		System.out.println("Number of called interactions at community: " + sim.community_interaction_counter);
+		System.out.println("Number of called interactions at work: " + sim.work_interaction_counter);
+		System.out.println("Number of outbound trips: " + sim.outbound_trip_counter);
+		System.out.println("Number of stayed home: " + sim.stay_home_counter);
+
+
+
 		
 	}
 	private void makePeopleLeaveTheHouseEachDay(WorldBankCovid19Sim sim) {

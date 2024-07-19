@@ -51,9 +51,8 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 
 			@Override
 			public double next(Steppable s, double time) {
-				
 				Person p = (Person) s;
-				
+
 				// the Person may have been sent home immobilised: update everything and don't schedule
 				// to run again until it has been un-immobilised!
 				if(p.isImmobilised()) {
@@ -75,6 +74,7 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 
 				// if it's morning, go out for the day, reset the number of contacts they will have
 				if(hour >= myWorld.params.hour_start_day_weekday){ 
+					// reset occurs at hour 2
 					p.resetWorkplaceContacts();
 
 					return determineDailyRoutine(p, hour, day);
@@ -91,7 +91,8 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 				boolean stayingInHomeDistrict = target.getId().equals(p.getHousehold().getRootSuperLocation().getId());
 				// First check if they are visiting another district
 				if (!stayingInHomeDistrict) p.setVisiting(true);
-				if (p.visitingNow()) {
+				if (p.visitingNow() & !stayingInHomeDistrict) {
+					myWorld.outbound_trip_counter ++;
 					// travelling to another district!
 					p.transferTo(target);
 					p.setActivityNode(communityNode);
@@ -104,7 +105,7 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 				// if they aren't visiting, are they at work or the community?
 				else {
 					// Check they are going to work
-					
+					myWorld.stay_home_counter ++;
 					boolean goToWork = myWorld.random.nextDouble() < myWorld.params.prob_go_to_work;
 
 					// if unemployed or homemaker don't go to work
@@ -195,7 +196,7 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 			public double next(Steppable s, double time) {
 
 				Person p = (Person) s;
-				
+
 				// extract time info
 				int hour = ((int)time) % Params.ticks_per_day;
 				
@@ -234,7 +235,7 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 			public double next(Steppable s, double time) {
 				
 				Person p = (Person) s;
-				
+
 				// extract time info
 				int hour = ((int)time) % Params.ticks_per_day;
 

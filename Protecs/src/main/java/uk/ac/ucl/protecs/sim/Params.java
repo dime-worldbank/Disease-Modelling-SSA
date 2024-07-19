@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import uk.ac.ucl.protecs.objects.*;
+import uk.ac.ucl.protecs.objects.Location.LOCATIONTYPE;
 import uk.ac.ucl.protecs.objects.Person.OCCUPATION;
 
 public class Params {
@@ -75,7 +76,7 @@ public class Params {
 	public ArrayList <String> districts_to_test_in;
 	
 	// holders for workplace bubble constraints
-	public HashMap <String, String> OccupationConstraintList;
+	public HashMap <OCCUPATION, LOCATIONTYPE> OccupationConstraintList;
 	
 	// parameters drawn from Kerr et al 2020 - https://www.medrxiv.org/content/10.1101/2020.05.10.20097469v3.full.pdf
 	public ArrayList <Integer> infection_age_params;
@@ -387,7 +388,7 @@ public class Params {
 	private void load_occupational_constraints(String workplaceConstraints) {
 
 		// set up structure to hold transition probability
-		OccupationConstraintList = new HashMap<String, String>();
+		OccupationConstraintList = new HashMap<OCCUPATION, LOCATIONTYPE>();
 		
 		try {
 			
@@ -422,11 +423,11 @@ public class Params {
 				String [] bits = splitRawCSVString(s);
 				
 				// extract the occupation
-				String occupationName = bits[occupationIndex].toLowerCase();
-				String constraint = bits[constraintIndex];
+				OCCUPATION occupationName = OCCUPATION.getValue(bits[occupationIndex].toLowerCase());
+				LOCATIONTYPE locationName = LOCATIONTYPE.getValue(bits[constraintIndex]);
 
 				// save the transitions
-				OccupationConstraintList.put(occupationName, constraint);
+				OccupationConstraintList.put(occupationName, locationName);
 			}
 			// clean up after ourselves
 			workplaceData.close();
@@ -754,6 +755,7 @@ public class Params {
 			// create Locations for each district
 			for(String d: districtNames){
 				Location l = new Location(d);
+				l.setType(LOCATIONTYPE.COMMUNITY);
 				districts.put(d, l);
 			}
 			
