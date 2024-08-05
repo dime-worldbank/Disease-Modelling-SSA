@@ -173,13 +173,6 @@ public class WorkplaceTesting{
 		// run for three ticks (people leave the house at tick 2 and leave work at tick 4)
 		int numTicks = 90;
 		helperFunctions.runSimulation(sim, numTicks);
-		System.out.println("Number of called interactions at home: " + sim.home_interaction_counter);
-		System.out.println("Number of called interactions at community: " + sim.community_interaction_counter);
-		System.out.println("Number of called interactions at work: " + sim.work_interaction_counter);
-		System.out.println("Number of outbound trips: " + sim.outbound_trip_counter);
-		System.out.println("Number of stayed home: " + sim.stay_home_counter);
-
-
 
 		
 	}

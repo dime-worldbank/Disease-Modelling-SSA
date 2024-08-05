@@ -61,12 +61,6 @@ public class WorldBankCovid19Sim extends SimState {
 	public static int param_schedule_updating_locations = 5;
 	public static int param_schedule_infecting = 10;
 	public static int param_schedule_reporting = 100;
-	
-	public int home_interaction_counter = 0;
-	public int community_interaction_counter = 0;
-	public int work_interaction_counter = 0;
-	public int outbound_trip_counter = 0;
-	public int stay_home_counter = 0;
 
 	
 	public ArrayList <Integer> testingAgeDist = new ArrayList <Integer> ();
