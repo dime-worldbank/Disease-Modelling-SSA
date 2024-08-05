@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import uk.ac.ucl.protecs.objects.Location.LocationCategory;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.objects.diseases.Infection;
 
@@ -223,8 +224,9 @@ public class Person extends MobileAgent {
 		// agents are initialised uninfected
 		
 		communityLocation = myHousehold.getRootSuperLocation();
-		workLocation = myWorkplace;
+		communityLocation.setLocationType(LocationCategory.COMMUNITY);
 
+		workLocation = myWorkplace;
 		workBubble = new HashSet <Person> ();
 		communityBubble = new HashSet <Person> ();
 		
@@ -250,8 +252,8 @@ public class Person extends MobileAgent {
 		else
 			myWorld.schedule.scheduleOnce(this, myWorld.param_schedule_movement);
 			
-		// HACK TO ENSURE INTERACTION AWAY FROM HOME DISTRICT
-		// check if out of home district
+		// HACK TO ENSURE INTERACTION AWAY FROM HOME ADMIN ZONE
+		// check if out of home admin zone
 /*		if(visiting) {
 			
 			// if this Person is not infected, check if they catch anything from their neighbours!
@@ -667,6 +669,7 @@ public class Person extends MobileAgent {
 	public double getSusceptibility(){ return myWorld.params.getSuspectabilityByAge(age); } // TODO make more nuanced
 	
 	public void setActivityNode(BehaviourNode bn){ currentActivityNode = bn; }
+	public BehaviourNode getActivityNode(){ return currentActivityNode; }
 	
 	public int getAge(){ return age;}
 	public int getBirthday() {return birthday; }

@@ -85,8 +85,7 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 			
 			private double determineDailyRoutine(Person p, int hour, int day) {
 				Location target;
-				target = myWorld.params.getTargetMoveDistrict(p, day, myWorld.random.nextDouble(), myWorld.lockedDown);
-				assert target.getId().startsWith("d_"): "target is a null location";
+				target = myWorld.params.getTargetMoveAdminZone(p, day, myWorld.random.nextDouble(), myWorld.lockedDown);
 				// then check if they are supposed to leave the admin zone they are currently in. If so, then they cannot go to work.
 				boolean stayingInHomeDistrict = target.getId().equals(p.getHousehold().getRootSuperLocation().getId());
 				// First check if they are visiting another district
@@ -135,7 +134,7 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 						p.setAtWork(false);	
 						p.setVisiting(false);
 						assert p.getHousehold().getSuper().getId().equals(target.getId()) : 
-							"set to travel to a within district but didn't, home/target " + p.getHousehold().getSuper().getId() + " " + target.getId();
+							"set to travel to a within admin zone but didn't, home/target " + p.getHousehold().getSuper().getId() + " " + target.getId();
 						return myWorld.params.hour_end_day_otherday - hour; // stay out until time to go home!
 					}
 			}
@@ -261,5 +260,29 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 	
 	public BehaviourNode getHomeNode(){
 		return entryPoint;
+	}
+	
+	public BehaviourNode setMobilityNodeForTesting(mobilityNodeTitle behaviour) {
+		BehaviourNode toreturn;
+
+		switch (behaviour) {
+		case HOME:{
+			toreturn = homeNode;
+			break;
+		}
+		case WORK:{
+			toreturn = workNode;
+			break;
+		}
+		case COMMUNITY:{
+			toreturn = communityNode;
+			break;
+		}
+		default:
+			toreturn = homeNode;
+			break;
+		}
+			
+		return toreturn;
 	}
 }

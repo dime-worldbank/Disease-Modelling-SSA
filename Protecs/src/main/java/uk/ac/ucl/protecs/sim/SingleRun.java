@@ -10,7 +10,7 @@ public class SingleRun {
 		double beta = 0.3;
 
 		// set the number of days the simulation will run
-		int numDays = 100;
+		int numDays = 300;
 		// get current time, use to time stamp the results file, first format date time
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");  
 		// name current time 'timestamp'

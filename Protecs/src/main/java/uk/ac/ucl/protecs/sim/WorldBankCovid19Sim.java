@@ -29,9 +29,9 @@ public class WorldBankCovid19Sim extends SimState {
 	public HashSet <OCCUPATION> occupationsInSim;
 	public Random random;
 	
-	ArrayList <Location> districts;
+	ArrayList <Location> adminBoundaries;
 	
-	HashMap <Location, ArrayList<Person>> personsToDistrict; 
+	HashMap <Location, ArrayList<Person>> personsToAdminBoundary; 
 	
 	public MovementBehaviourFramework movementFramework;
 	public CoronavirusBehaviourFramework infectiousFramework;
@@ -45,11 +45,11 @@ public class WorldBankCovid19Sim extends SimState {
 	public String covidIncDeathOutputFilename;
 	public String otherIncDeathOutputFilename;
 	public String birthRateOutputFilename;
-	public String distPopSizeOutputFilename;
+	public String adminZonePopSizeOutputFilename;
 	public String newLoggingFilename; 
 	public String infections_export_filename;
-	public String distCovidPrevalenceOutputFilename;
-	public String distPopBreakdownOutputFilename;
+	public String adminZoneCovidPrevalenceOutputFilename;
+	public String adminZonePopBreakdownOutputFilename;
 	public String sim_info_filename;
 	public String covidCountsOutputFilename;
 	public String covidByEconOutputFilename;
@@ -91,11 +91,11 @@ public class WorldBankCovid19Sim extends SimState {
 		this.covidIncDeathOutputFilename = outputFilename + "_Incidence_Of_Covid_Death.txt";
 		this.otherIncDeathOutputFilename = outputFilename + "_Incidence_Of_Other_Death.txt";
 		this.birthRateOutputFilename = outputFilename + "_Birth_Rate.txt";
-		this.distPopSizeOutputFilename = outputFilename + "_District_Level_Population_Size.txt";
+		this.adminZonePopSizeOutputFilename = outputFilename + "_District_Level_Population_Size.txt";
 		this.newLoggingFilename = outputFilename + "_Cases_Per_District.txt"; 
 		this.infections_export_filename = outputFilename + "_Infections.txt";
-		this.distCovidPrevalenceOutputFilename = outputFilename + "_Percent_In_District_With_Covid.txt";
-		this.distPopBreakdownOutputFilename = outputFilename + "_Admin_Zone_Demographics.txt";
+		this.adminZoneCovidPrevalenceOutputFilename = outputFilename + "_Percent_In_District_With_Covid.txt";
+		this.adminZonePopBreakdownOutputFilename = outputFilename + "_Admin_Zone_Demographics.txt";
 		this.sim_info_filename = outputFilename + "_Sim_Information.txt";
 		this.covidCountsOutputFilename = outputFilename + "_Age_Gender_Demographics_Covid.txt";
 		this.covidByEconOutputFilename = outputFilename + "_Economic_Status_Covid.txt";
@@ -104,7 +104,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public void start(){
 		
 		// copy over the relevant information
-		districts = new ArrayList <Location> (params.districts.values());
+		adminBoundaries = new ArrayList <Location> (params.adminZones.values());
 		
 		// set up the behavioural framework
 		movementFramework = new MovementBehaviourFramework(this);
@@ -150,7 +150,7 @@ public class WorldBankCovid19Sim extends SimState {
 			HashSet <Person> newlyInfected = new HashSet <Person> ();
 			
 			// number of people present
-			ArrayList <Person> peopleHere = this.personsToDistrict.get(l);
+			ArrayList <Person> peopleHere = this.personsToAdminBoundary.get(l);
 			int numPeopleHere = peopleHere.size();//l.getPeople().size();
 			if(numPeopleHere == 0){ // if there is no one there, don't continue
 				System.out.println("WARNING: attempting to initialise infection in Location " + l.getId() + " but there are no People present. Continuing without successful infection...");
@@ -197,7 +197,7 @@ public class WorldBankCovid19Sim extends SimState {
 			
 			@Override
 			public void step(SimState arg0) {
-				for(Location l: districts) {
+				for(Location l: adminBoundaries) {
 					l.updatePersonsHere();
 					}
 			}
@@ -270,7 +270,7 @@ public class WorldBankCovid19Sim extends SimState {
 				
 				int time = (int) (arg0.schedule.getTime() / params.ticks_per_day);
 				
-				for(Location l: districts){
+				for(Location l: adminBoundaries){
 					s += time + "\t" + l.metricsToString() + "\n";
 					l.refreshMetrics();
 				}
@@ -326,7 +326,6 @@ public class WorldBankCovid19Sim extends SimState {
 			System.exit(0);
 		}
 		else if(args.length > 0){
-			
 			numDays = Integer.parseInt(args[0]);
 			myBeta = Double.parseDouble(args[2]);
 			if(args.length > 3) {
@@ -338,6 +337,7 @@ public class WorldBankCovid19Sim extends SimState {
 			if(args.length > 5)
 				paramsFilename = args[5];
 		}
+				
 		
 		long startTime = System.currentTimeMillis(); // wallclock measurement of time - embarrassing.
 

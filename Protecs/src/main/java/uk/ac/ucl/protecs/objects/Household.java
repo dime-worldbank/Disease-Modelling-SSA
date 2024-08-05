@@ -1,12 +1,14 @@
 package uk.ac.ucl.protecs.objects;
 
 public class Household extends Location {
-		
+	
+	String myId;
+	
 	public Household(String id, Location l){
 		super();
 		myId = "HH_" + id;
 		mySuperLocation = l;
-		setType(LOCATIONTYPE.HOME);
+		setType(LocationCategory.HOME);
 	}
 	
 	/**

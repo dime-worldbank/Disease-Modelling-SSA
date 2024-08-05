@@ -66,7 +66,6 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 
 			@Override
 			public boolean isEndpoint() {
-				// TODO Auto-generated method stub
 				return false;
 			}
 			
@@ -104,7 +103,8 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 					double mySymptLikelihood = myWorld.params.getLikelihoodByAge(
 							myWorld.params.infection_p_sym_by_age, myWorld.params.infection_age_params, i.getHost().getAge());
 					assert (mySymptLikelihood >= 0.0) & (mySymptLikelihood <= 1.0) : "probability out of bounds";
-					assert (i.getHost() != null && i.getHost().getLocation() != null) : "PROBLEM WITH INFECTION HOST OR LOCATION";
+					assert i.getHost() != null : "PROBLEM WITH INFECTION";
+					assert i.getHost().getLocation() != null : "PROBLEM WITH LOCATION";
 
 					// activate the next step probabilistically
 					if(myWorld.random.nextDouble() < mySymptLikelihood){
@@ -165,7 +165,6 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 
 			@Override
 			public boolean isEndpoint() {
-				// TODO Auto-generated method stub
 				return false;
 			}
 			
@@ -209,7 +208,6 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 
 			@Override
 			public boolean isEndpoint() {
-				// TODO Auto-generated method stub
 				return false;
 			}
 			
@@ -255,7 +253,6 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 
 			@Override
 			public boolean isEndpoint() {
-				// TODO Auto-generated method stub
 				return false;
 			}
 			
@@ -340,7 +337,6 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 
 			@Override
 			public boolean isEndpoint() {
-				// TODO Auto-generated method stub
 				return false;
 			}
 			
@@ -417,7 +413,6 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 
 			@Override
 			public boolean isEndpoint() {
-				// TODO Auto-generated method stub
 				return false;
 			}
 			
@@ -458,9 +453,9 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 					i.setBehaviourNode(deadNode);
 					
 					if(!i.getHost().isDeadFromCovid()) {
-						Location myDistrict = i.getHost().getLocation().getRootSuperLocation();
-						myDistrict.metric_died_count++;
-						myDistrict.metric_new_deaths++;
+						Location myAdminZone = i.getHost().getLocation().getRootSuperLocation();
+						myAdminZone.metric_died_count++;
+						myAdminZone.metric_new_deaths++;
 					}
 					else
 						System.out.println("hmm how did you get here?");
@@ -503,7 +498,6 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 
 			@Override
 			public boolean isEndpoint() {
-				// TODO Auto-generated method stub
 				return false;
 			}
 			
@@ -553,7 +547,6 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 
 			@Override
 			public boolean isEndpoint() {
-				// TODO Auto-generated method stub
 				return false;
 			}
 			
@@ -577,7 +570,6 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 
 			@Override
 			public boolean isEndpoint() {
-				// TODO Auto-generated method stub
 				return true;
 			}
 			

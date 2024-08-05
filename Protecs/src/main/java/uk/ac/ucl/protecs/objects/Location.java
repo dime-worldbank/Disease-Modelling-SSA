@@ -15,7 +15,7 @@ public class Location {
 	Location mySuperLocation; // the Location within which this Location exists
 	HashSet <Person> personsHere;
 	Object [] personsHere_list;
-	LOCATIONTYPE myType;
+	LocationCategory myType;
 	boolean active = false;
 	
 	public int metric_died_count;
@@ -26,29 +26,29 @@ public class Location {
 	public int metric_new_deaths;
 	public int metric_new_recovered;
 	public int metric_currently_infected;
-	
-	public enum LOCATIONTYPE{
-		HOME("Home"), COMMUNITY("Community"), WORKPLACE("Workplace"), UNDEFINED("Undefined");
-         
-        String key;
-     
-        LOCATIONTYPE(String key) { this.key = key; }
-    
-        public static LOCATIONTYPE getValue(String x) {
+	public enum LocationCategory{
+		HOME("home"), WORKPLACE("workplace"), COMMUNITY("community");
+		
+		public String key;
+
+		LocationCategory(String key) { this.key = key; }
+
+        static LocationCategory getValue(String x) {
+
         	switch (x) {
-        	case "Home":
+        	case "home":
         		return HOME;
-        	case "Community":
-        		return COMMUNITY;
-        	case "Workplace":
+        	case "work":
         		return WORKPLACE;
-        	case "Undefined":
-        		return UNDEFINED;
+        	case "community":
+        		return COMMUNITY;
         	default:
         		throw new IllegalArgumentException();
         	}
         }
 	}
+	LocationCategory category;
+
 	
 	// CONSTRUCTORS
 	
@@ -160,7 +160,9 @@ public class Location {
 	}
 	public boolean getActive() { return active; }
 
-	public void setType(LOCATIONTYPE type) {
+	public void setType(LocationCategory type) {
 		myType = type;		
 	}
+	public LocationCategory getLocationType() {return this.category;}
+
 }

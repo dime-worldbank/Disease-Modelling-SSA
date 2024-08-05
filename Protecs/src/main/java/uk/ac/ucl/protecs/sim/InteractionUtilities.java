@@ -172,7 +172,7 @@ public class InteractionUtilities {
 		
 		// OTHERWISE, set this up based on actual subsets
 		
-		HashMap <Location, Map<OCCUPATION, List<Person>>> peoplePerDistrictPerJob = 
+		HashMap <Location, Map<OCCUPATION, List<Person>>> peoplePerAdminZonePerJob = 
 				new HashMap <Location, Map<OCCUPATION, List<Person>>> (); 
 		
 		// some Persons may not have an economic location - so hold them for easy keeping
@@ -183,7 +183,7 @@ public class InteractionUtilities {
 		for(Person p: world.agents){
 			
 			// extract workplace location
-			Location mySuper = p.getHousehold().getRootSuperLocation(); // TODO WE ASSUME THEY WORK IN THEIR OWN DISTRICT - correct???
+			Location mySuper = p.getHousehold().getRootSuperLocation(); // TODO WE ASSUME THEY WORK IN THEIR OWN ADMIN ZONE - correct???
 			
 			// store this for later use
 			holderForEconLocations.put(p, mySuper);
@@ -192,14 +192,14 @@ public class InteractionUtilities {
 			OCCUPATION myJob = p.getEconStatus();
 			
 			// add any necessary structures to support storing this info
-			HashMap <OCCUPATION, List<Person>> binsOfWorkers;
-			if(peoplePerDistrictPerJob.containsKey(mySuper))
-				binsOfWorkers = (HashMap <OCCUPATION, List<Person>>) peoplePerDistrictPerJob.get(mySuper);
+			HashMap<OCCUPATION, List<Person>> binsOfWorkers;
+			if(peoplePerAdminZonePerJob.containsKey(mySuper))
+				binsOfWorkers = (HashMap <OCCUPATION, List<Person>>) peoplePerAdminZonePerJob.get(mySuper);
 			else {
 				binsOfWorkers = new HashMap <OCCUPATION, List<Person>> ();
-				peoplePerDistrictPerJob.put(mySuper, binsOfWorkers);
+				peoplePerAdminZonePerJob.put(mySuper, binsOfWorkers);
 			}
-			assert (peoplePerDistrictPerJob.size() > 0): "No lists of jobs have been created but should have been";
+			assert (peoplePerAdminZonePerJob.size() > 0): "No lists of jobs have been created but should have been";
 			// store this record
 			if(binsOfWorkers.containsKey(myJob))
 				binsOfWorkers.get(myJob).add(p);
@@ -226,9 +226,9 @@ public class InteractionUtilities {
 					world.params.economicInteractionCumulativeDistrib.get(myStatus);
 			int bubbleSize = world.params.econBubbleSize.get(myStatus);
 			assert (bubbleSize > 0): "This person's bubble size is zero";
-			// pull out the relevant list of potential friends in my district
+			// pull out the relevant list of potential friends in my admin zone
 			HashMap <OCCUPATION, List<Person>> binsOfWorkers = 
-					(HashMap <OCCUPATION, List<Person>>) peoplePerDistrictPerJob.get(myWorkLocation);
+					(HashMap <OCCUPATION, List<Person>>) peoplePerAdminZonePerJob.get(myWorkLocation);
 			
 			// combine these into bubble member candidates and add them to the list of friends
 			HashSet <Person> candidateBubble = new HashSet <Person> (p.getWorkBubble());
@@ -278,7 +278,7 @@ public class InteractionUtilities {
 /*		String makeTerribleGraphFilename = "/Users/swise/Downloads/rawWorkGraph_latest.csv";
 		try {
 			
-			System.out.println("Reading in district transfer information from " + makeTerribleGraphFilename);
+			System.out.println("Reading in admin zone transfer information from " + makeTerribleGraphFilename);
 			
 			// shove it out
 			BufferedWriter badGraph = new BufferedWriter(new FileWriter(makeTerribleGraphFilename));
@@ -316,7 +316,7 @@ public class InteractionUtilities {
 		
 		// OTHERWISE, set this up based on actual subsets
 		
-		HashMap <String, List<Person>> peoplePerDistrict = 
+		HashMap <String, List<Person>> peoplePerAdminZone = 
 				new HashMap <String, List<Person>> (); 
 		
 		// position everyone so they can assemble their group of peers
@@ -325,13 +325,13 @@ public class InteractionUtilities {
 			// extract this Person's location
 			String agentLocation = p.getHousehold().getRootSuperLocation().getId();
 			
-			// assemble an arraylist of Persons assocaited with each district 
-			if(peoplePerDistrict.containsKey(agentLocation))
-				peoplePerDistrict.get(agentLocation).add(p);
+			// assemble an arraylist of Persons assocaited with each admin zone 
+			if(peoplePerAdminZone.containsKey(agentLocation))
+				peoplePerAdminZone.get(agentLocation).add(p);
 			else {
-				ArrayList <Person> peopleInDistrict = new ArrayList <Person> ();
-				peopleInDistrict.add(p);
-				peoplePerDistrict.put(agentLocation, peopleInDistrict);
+				ArrayList <Person> peopleInAdminZone = new ArrayList <Person> ();
+				peopleInAdminZone.add(p);
+				peoplePerAdminZone.put(agentLocation, peopleInAdminZone);
 			}
 		}
 		
@@ -346,7 +346,7 @@ public class InteractionUtilities {
 			int bubbleSize = world.params.community_bubble_size;
 			
 			// combine these into bubble member candidates and add them to the list of friends
-			ArrayList <Person> candidateBubble = (ArrayList <Person>) peoplePerDistrict.get(p.getHousehold().getRootSuperLocation().getId());
+			ArrayList <Person> candidateBubble = (ArrayList <Person>) peoplePerAdminZone.get(p.getHousehold().getRootSuperLocation().getId());
 			HashSet <Person> myBubble = new HashSet <Person> ();
 			
 			int emergencyBrake = 100; // it's dangerous to screw with for loops - take this!
@@ -384,7 +384,7 @@ public class InteractionUtilities {
 /*		String makeTerribleGraphFilename = "/Users/swise/Downloads/rawSocialGraph_latest.csv";
 		try {
 			
-			System.out.println("Reading in district transfer information from " + makeTerribleGraphFilename);
+			System.out.println("Reading in admin zone transfer information from " + makeTerribleGraphFilename);
 			
 			// shove it out
 			BufferedWriter badGraph = new BufferedWriter(new FileWriter(makeTerribleGraphFilename));
