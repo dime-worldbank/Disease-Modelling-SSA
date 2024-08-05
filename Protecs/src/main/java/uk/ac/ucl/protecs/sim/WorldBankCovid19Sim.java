@@ -26,6 +26,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public ArrayList <Workplace> workplaces;
 
 	public ArrayList <Infection> infections;
+	public HashSet <OCCUPATION> occupationsInSim;
 	public Random random;
 	
 	ArrayList <Location> districts;
@@ -74,7 +75,6 @@ public class WorldBankCovid19Sim extends SimState {
 	
 	ArrayList <HashMap <String, Double>> dailyRecord = new ArrayList <HashMap <String, Double>> ();
 	
-	HashSet<String> occupations_in_sim = new HashSet<String>();
 	// meta
 	public long timer = -1;
 	

@@ -576,18 +576,19 @@ public class Person extends MobileAgent {
 		boolean largerCommunityContext = largerCommunity != null;
 
 		// set up the probabilities
-		double d = group.size();
-		double n = interactNumber;
-		double cutOff = n / d;
+		double groupSize = group.size();
+		double numberOfInteractions = interactNumber;
+		double probabilityOfInteractingWithAnyGivenGroupMember = numberOfInteractions / groupSize;
 
 		// create the iterator and iterate over the set elements
+		// TODO: look at selection without replacement
 		Iterator myIt = group.iterator();
-		while(myIt.hasNext() && n > 0) {
+		while(myIt.hasNext() && numberOfInteractions > 0) {
 			
 			// generate the likelihood of selecting this particular element
 			double prob = myWorld.random.nextDouble();
 			
-			if(prob <= cutOff) { // INTERACT WITH THE PERSON
+			if(prob <= probabilityOfInteractingWithAnyGivenGroupMember) { // INTERACT WITH THE PERSON
 				
 				// pull them out!
 				Person p = (Person) myIt.next();
@@ -600,7 +601,7 @@ public class Person extends MobileAgent {
 					continue;
 				
 				// if neither of the above are true, the interaction can take place!
-				n -= 1;
+				numberOfInteractions -= 1;
 				
 				// check if they are already infected; if they are not, infect with with probability BETA
 				if(p.myInfection == null 
@@ -612,8 +613,8 @@ public class Person extends MobileAgent {
 			}
 			else // just pass over it
 				myIt.next();
-			d -= 1;
-			cutOff = n / d;
+			groupSize -= 1;
+			probabilityOfInteractingWithAnyGivenGroupMember = numberOfInteractions / groupSize;
 		}
 	}
 	

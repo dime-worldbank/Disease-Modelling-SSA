@@ -119,7 +119,8 @@ public class LoadPopulation{
 				p.setActivityNode(sim.movementFramework.getHomeNode());
 				sim.agents.add(p);
 				sim.personsToDistrict.get(myDistrict).add(p);
-				
+				//	Store the occupations that appear in this census
+				sim.occupationsInSim.add(OCCUPATION.getValue(bits[economicStatusIndex].toLowerCase()));
 				// schedule the agent to run at the beginning of the simulation
 				sim.schedule.scheduleOnce(0, sim.param_schedule_movement, p);
 				//this.schedule.scheduleRepeating(p);
@@ -135,7 +136,6 @@ public class LoadPopulation{
 				}
 				if (bits[economicStatusIndex].equals("inactive") | bits[economicStatusIndex].equals("unemployed_not_ag")) p.setUnemployed();
 				
-				sim.occupations_in_sim.add(bits[economicStatusIndex]);
 			}
 			
 			// clean up after ourselves!
