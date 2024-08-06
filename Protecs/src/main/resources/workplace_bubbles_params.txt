@@ -2,12 +2,12 @@ dataDir: src/main/resources/
 
 population_filename: small_ipums_5p_wp_bubbles.csv
 
-district_transition_LOCKDOWN_filename: dailyDistrictTransitionProb_preLockdown_multiDist.csv
-district_transition_PRELOCKDOWN_filename: dailyDistrictTransitionProb_preLockdown_multiDist.csv
-district_leaving_filename: intra_district_decreased_mobility_rates.csv
+admin_zone_transition_LOCKDOWN_filename: dailyDistrictTransitionProb_preLockdown_multiDist.csv
+admin_zone_transition_PRELOCKDOWN_filename: dailyDistrictTransitionProb_preLockdown_multiDist.csv
 
 economic_status_weekday_movement_prob_filename: econStatusMovementProb_otherday.txt
 economic_status_otherday_movement_prob_filename: econStatusMovementProb_weekday.txt
+economic_status_num_daily_interacts_filename: numWeeklyInteractionsByStatus.txt
 econ_interaction_distrib_filename: interactionMatrixByStatus.txt
 
 setting_perfectMixing: false
@@ -18,9 +18,6 @@ lockdown_changeList_filename: lockdownChangelistEmpty.txt
 
 all_cause_mortality_filename: test_mortality_rates.txt
 birth_rate_filename: test_birth_rates.txt
-
-testDataFilename: dummy_n_tests.txt
-testLocationFilename: most_travelled_from_testing.txt
 
 workplaceContactsFilename: contact_counts_final.csv
 workplaceConstraintsFilename: workplace_constraints_empty.txt

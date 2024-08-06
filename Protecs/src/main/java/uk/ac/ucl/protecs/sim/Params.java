@@ -418,7 +418,7 @@ public class Params {
 				
 				// extract the occupation
 				OCCUPATION occupationName = OCCUPATION.getValue(bits[occupationIndex].toLowerCase());
-				LocationCategory locationName = LocationCategory.getValue(bits[constraintIndex]);
+				LocationCategory locationName = LocationCategory.getValue(bits[constraintIndex].toLowerCase());
 
 				// save the transitions
 				OccupationConstraintList.put(occupationName, locationName);
