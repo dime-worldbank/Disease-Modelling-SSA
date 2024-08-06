@@ -14,3 +14,13 @@ office_worker,1.0
 religious,1.0
 student,1.0
 inactive,1.0
+office workers,1
+"not working, inactive, not in universe",1
+teachers,1
+homemakers/housework,1
+current students,1
+service workers,1
+industry workers,1
+disabled and not working,1
+in the army,1
+agriculture workers,1

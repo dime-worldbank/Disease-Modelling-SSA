@@ -120,7 +120,6 @@ public class LoadPopulation{
 				sim.agents.add(p);
 				sim.personsToAdminBoundary.get(myAdminZone).add(p);
 				//	Store the occupations that appear in this census
-				sim.occupationsInSim.add(p.getEconStatus());
 				sim.occupationsInSim.add(OCCUPATION.getValue(bits[economicStatusIndex].toLowerCase()));
 				// schedule the agent to run at the beginning of the simulation
 				sim.schedule.scheduleOnce(0, sim.param_schedule_movement, p);

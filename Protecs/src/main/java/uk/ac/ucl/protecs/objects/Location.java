@@ -47,8 +47,6 @@ public class Location {
         	}
         }
 	}
-	LocationCategory category;
-
 	
 	// CONSTRUCTORS
 	
@@ -163,6 +161,6 @@ public class Location {
 	public void setLocationType(LocationCategory type) {
 		myType = type;		
 	}
-	public LocationCategory getLocationType() {return this.category;}
+	public LocationCategory getLocationType() {return this.myType;}
 
 }

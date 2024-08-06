@@ -114,11 +114,12 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 					// first check if there is any constraints to this occupations movements. Note that if the model is using this code block then 
 					// this person has not been immobilised and if their movement is constrained it will mean that they only go to the community and not to work
 					boolean movementConstrained = myWorld.params.OccupationConstraintList.containsKey(p.getEconStatus());
-					
-					if (goToWork & !movementConstrained) target = p.getWorkLocation();
-	
+						
 					if(myWorld.params.setting_perfectMixing) // in perfect mixing, just go to the community!
 						goToWork = false;
+					
+					if (goToWork & !movementConstrained) target = p.getWorkLocation();
+
 					
 					p.transferTo(target);
 					assert (p.getLocation().equals(target)) : "Transfer to target didn't work";
