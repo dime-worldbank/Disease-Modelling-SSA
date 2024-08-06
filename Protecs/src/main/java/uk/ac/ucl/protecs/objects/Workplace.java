@@ -7,7 +7,7 @@ public class Workplace extends Location {
 		super();
 		myId = "wp" + id;
 		mySuperLocation = l;
-		setType(LocationCategory.WORKPLACE);
+		setLocationType(LocationCategory.WORKPLACE);
 
 	}
 	

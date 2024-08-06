@@ -4,7 +4,7 @@ import uk.ac.ucl.protecs.helperFunctions.*;
 import uk.ac.ucl.protecs.objects.Household;
 import uk.ac.ucl.protecs.objects.Person;
 import uk.ac.ucl.protecs.objects.Workplace;
-import uk.ac.ucl.protecs.objects.Location.LOCATIONTYPE;
+import uk.ac.ucl.protecs.objects.Location.LocationCategory;
 
 import java.util.HashSet;
 import java.util.List;
@@ -127,7 +127,7 @@ public class WorkplaceTesting{
 		// iterate over the simulation population and check that those who are constrained to home are in fact at home and have had the immobilised property set
 		for (Person p: sim.agents) {
 			if (sim.params.OccupationConstraintList.containsKey(p.getEconStatus())) {
-				if (sim.params.OccupationConstraintList.get(p.getEconStatus()).equals(LOCATIONTYPE.HOME)) {
+				if (sim.params.OccupationConstraintList.get(p.getEconStatus()).equals(LocationCategory.HOME)) {
 					hasimmobilisedProperty = (p.isImmobilised() == true);
 					if (!(p.getLocation() instanceof Household)) {
 						thoseImmobilisedStayAtHome = false;
@@ -153,7 +153,7 @@ public class WorkplaceTesting{
 		// iterate over the simulation population and check that those who are constrained to the community are at their community spaces
 		for (Person p: sim.agents) {
 			if (sim.params.OccupationConstraintList.containsKey(p.getEconStatus())) {
-				if (sim.params.OccupationConstraintList.get(p.getEconStatus()).equals(LOCATIONTYPE.COMMUNITY)) {
+				if (sim.params.OccupationConstraintList.get(p.getEconStatus()).equals(LocationCategory.COMMUNITY)) {
 					if ((p.getLocation() instanceof Household) || (p.getLocation() instanceof Workplace)) {
 						thoseConstrainedAreInCommunity = false;
 					}

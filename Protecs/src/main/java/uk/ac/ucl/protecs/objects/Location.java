@@ -33,7 +33,7 @@ public class Location {
 
 		LocationCategory(String key) { this.key = key; }
 
-        static LocationCategory getValue(String x) {
+        public static LocationCategory getValue(String x) {
 
         	switch (x) {
         	case "home":
@@ -160,7 +160,7 @@ public class Location {
 	}
 	public boolean getActive() { return active; }
 
-	public void setType(LocationCategory type) {
+	public void setLocationType(LocationCategory type) {
 		myType = type;		
 	}
 	public LocationCategory getLocationType() {return this.category;}

@@ -739,7 +739,7 @@ public class Person extends MobileAgent {
 		this.hasCovid = false; 
 		}
 
-	public String getCurrentDistrict() {return this.getHousehold().getRootSuperLocation().myId;}
+	public String getCurrentAdminZone() {return this.getHousehold().getRootSuperLocation().myId;}
 	public void setUnemployed() {this.isUnemployed = true;}
 	public boolean isUnemployed() {return this.isUnemployed;}
 	public void resetWorkplaceContacts() { this.number_of_interactions_at_work = Integer.MIN_VALUE;}

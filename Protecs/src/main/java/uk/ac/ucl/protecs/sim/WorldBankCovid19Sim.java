@@ -117,7 +117,7 @@ public class WorldBankCovid19Sim extends SimState {
 		workplaces = new ArrayList <Workplace> ();
 
 		// initialise the holder
-		personsToDistrict = new HashMap <Location, ArrayList<Person>>();
+		personsToAdminBoundary = new HashMap <Location, ArrayList<Person>>();
 
 		
 		// load the population
@@ -231,7 +231,7 @@ public class WorldBankCovid19Sim extends SimState {
 		schedule.scheduleRepeating(Logging.TestLoggingCase(this), this.param_schedule_reporting, params.ticks_per_day);
 		
 		// Create a function to keep track of the population and epidemic at the scale of district level
-		schedule.scheduleRepeating(Logging.UpdateDistrictLevelInfo(this), this.param_schedule_reporting, params.ticks_per_day);
+		schedule.scheduleRepeating(Logging.UpdateAdminZoneLevelInfo(this), this.param_schedule_reporting, params.ticks_per_day);
 		
 		
 		// SCHEDULE LOCKDOWNS

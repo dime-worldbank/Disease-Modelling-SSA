@@ -74,7 +74,7 @@ public class Params {
 	public ArrayList <String> admin_zones_to_test_in;
 	
 	// holders for workplace bubble constraints
-	public HashMap <OCCUPATION, LOCATIONTYPE> OccupationConstraintList;
+	public HashMap <OCCUPATION, LocationCategory> OccupationConstraintList;
 	
 	// parameters drawn from Kerr et al 2020 - https://www.medrxiv.org/content/10.1101/2020.05.10.20097469v3.full.pdf
 	public ArrayList <Integer> infection_age_params;
@@ -385,7 +385,7 @@ public class Params {
 	private void load_occupational_constraints(String workplaceConstraints) {
 
 		// set up structure to hold transition probability
-		OccupationConstraintList = new HashMap<OCCUPATION, LOCATIONTYPE>();
+		OccupationConstraintList = new HashMap<OCCUPATION, LocationCategory>();
 		
 		try {
 			
@@ -421,7 +421,7 @@ public class Params {
 				
 				// extract the occupation
 				OCCUPATION occupationName = OCCUPATION.getValue(bits[occupationIndex].toLowerCase());
-				LOCATIONTYPE locationName = LOCATIONTYPE.getValue(bits[constraintIndex]);
+				LocationCategory locationName = LocationCategory.getValue(bits[constraintIndex]);
 
 				// save the transitions
 				OccupationConstraintList.put(occupationName, locationName);
@@ -747,8 +747,8 @@ public class Params {
 			// create Locations for each admin zone
 			for(String d: adminZoneNames){
 				Location l = new Location(d);
-				l.setType(LOCATIONCATEGORY.COMMUNITY);
-				districts.put(d, l);
+				l.setLocationType(LocationCategory.COMMUNITY);
+				adminZones.put(d, l);
 			}
 			
 			// clean up after ourselves

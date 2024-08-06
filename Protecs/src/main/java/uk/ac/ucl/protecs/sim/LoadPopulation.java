@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 import uk.ac.ucl.protecs.objects.Household;
 import uk.ac.ucl.protecs.objects.Workplace;
-import uk.ac.ucl.protecs.objects.Location.LOCATIONTYPE;
+import uk.ac.ucl.protecs.objects.Location.LocationCategory;
 import uk.ac.ucl.protecs.objects.Location;
 import uk.ac.ucl.protecs.objects.Person;
 import uk.ac.ucl.protecs.objects.Person.OCCUPATION;
@@ -24,8 +24,8 @@ public class LoadPopulation{
 	public static void load_population(String agentsFilename, WorldBankCovid19Sim sim){
 		try {			
 			// initialise the holder
-			for(Location l: sim.districts){
-				sim.personsToDistrict.put(l, new ArrayList <Person> ());
+			for(Location l: sim.adminBoundaries){
+				sim.personsToAdminBoundary.put(l, new ArrayList <Person> ());
 			}
 
 			
@@ -78,7 +78,7 @@ public class LoadPopulation{
 
 				// target district
 				String myDistrictName = "d_" + bits[districtIDIndex]; 
-				Location myDistrict = sim.params.districts.get(myDistrictName);
+				Location myDistrict = sim.params.adminZones.get(myDistrictName);
 
 				boolean schoolGoer = bits[schoolGoerIndex].equals("1");
 				
@@ -118,7 +118,7 @@ public class LoadPopulation{
 //				p.setLocation(myDistrict);
 				p.setActivityNode(sim.movementFramework.getHomeNode());
 				sim.agents.add(p);
-				sim.personsToDistrict.get(myDistrict).add(p);
+				sim.personsToAdminBoundary.get(myDistrict).add(p);
 				//	Store the occupations that appear in this census
 				sim.occupationsInSim.add(OCCUPATION.getValue(bits[economicStatusIndex].toLowerCase()));
 				// schedule the agent to run at the beginning of the simulation
@@ -129,7 +129,7 @@ public class LoadPopulation{
 				// and then immobilising them, causing them to remain at home throughout the simulation
 				if (sim.params.OccupationConstraintList.containsKey(OCCUPATION.getValue(bits[economicStatusIndex].toLowerCase()))) {
 					// TODO: match this to an enum when everything is merged together
-					if (sim.params.OccupationConstraintList.get(OCCUPATION.getValue(bits[economicStatusIndex].toLowerCase())).equals(LOCATIONTYPE.HOME)) {
+					if (sim.params.OccupationConstraintList.get(OCCUPATION.getValue(bits[economicStatusIndex].toLowerCase())).equals(LocationCategory.HOME)) {
 						p.setMobility(false);
 					}
 						

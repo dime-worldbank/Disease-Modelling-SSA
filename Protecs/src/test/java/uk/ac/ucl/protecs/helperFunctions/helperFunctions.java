@@ -8,6 +8,7 @@ import java.util.Random;
 
 import uk.ac.ucl.protecs.objects.Person;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
+import uk.ac.ucl.protecs.objects.diseases.Infection;
 import uk.ac.ucl.protecs.sim.Params;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import swise.behaviours.BehaviourNode;
@@ -107,82 +108,7 @@ public class helperFunctions {
 		}
 		
 	}
-	public static void SetFractionObjectsWithCertainBehaviourNode(double fraction, WorldBankCovid19Sim world, BehaviourNode Node, NodeOption option) {
-		
-		switch (option) {
-		case CoronavirusInfectiousBehaviour:{
-		// Make this function assigns an infectious behaviour node of your choice to a certain percentage of the population
-		for (Person p: world.agents) {
-			double rand = world.random.nextDouble();
-			if (!p.hasCovid() && rand <= fraction) {
-				CoronavirusInfection inf = new CoronavirusInfection(p, null, world.infectiousFramework.getHomeNode(), world);
-				inf.setBehaviourNode(Node);
-				// kick off the infectious behaviour framework
-				inf.step(world);
-			}
-		}
-		break;
-		}
-		case MovementBehaviour:{
-		// Make this function assigns an infectious behaviour node of your choice to a certain percentage of the population
-		for (Person p: world.agents) {
-			double rand = world.random.nextDouble();
-			if (rand <= fraction) {
-				p.setActivityNode(Node);
-				// kick off the infectious behaviour framework
-				p.step(world);
-			}
-		}
-		break;
-		}
-		default:{
-			System.out.println("No option recognised");
-		}
-	}
-	}
-	public static HashSet<String> getUniqueNodesOverCourseofSim(WorldBankCovid19Sim world, double numDaysToRun, NodeOption option, double sample_regularity){
-		
-		
-		// Create a list to store the unique node stages that occur in each step
-		HashSet <String> behaviourNodeBin = new HashSet<String>();
-		
-		
-		switch (option) {
-		case CoronavirusInfectiousBehaviour:{
-		// Simulate over the time period and get the disease stages present in the simulation
-		while(world.schedule.getTime() < (double) Params.ticks_per_day * numDaysToRun && !world.schedule.scheduleComplete()){
-			// create a list to store the disease nodes that occur in the simulation
 
-			world.schedule.step(world);
-			if (world.schedule.getTime() % (int) Params.ticks_per_day == sample_regularity) {
-			for (Infection i: world.infections) {
-				behaviourNodeBin.add(i.getBehaviourName());
-				}
-			}
-		}
-		return behaviourNodeBin;
-		
-		}
-		case MovementBehaviour:{
-		// Simulate over the time period and get the movement behaviours present in the simulation
-		while(world.schedule.getTime() < (double) Params.ticks_per_day * numDaysToRun && !world.schedule.scheduleComplete()){
-			// create a list to store the mobility nodes that occur in the simulation
-			world.schedule.step(world);
-			for (Person p: world.agents) {
-				behaviourNodeBin.add(p.getActivityNode().getTitle());
-			}
-			
-		}
-			return behaviourNodeBin;
-		}
-		
-		default:{
-			System.out.println("No option recognised");
-			return null;
-		}
-		}
-		
-	}
 	public static void SetFractionObjectsWithCertainBehaviourNode(double fraction, WorldBankCovid19Sim world, BehaviourNode Node, NodeOption option) {
 		
 		switch (option) {
