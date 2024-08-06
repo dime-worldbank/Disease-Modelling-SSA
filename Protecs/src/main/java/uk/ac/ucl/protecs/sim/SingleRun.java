@@ -29,7 +29,7 @@ public class SingleRun {
         int seed = random.nextInt(1000000);
         // create the simulation object
 
-		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(seed, new Params(paramFilename, false), outputFilename);
+		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(seed, new Params(paramFilename, true), outputFilename);
 
 		// Set how long the simulation should run for
 		mySim.targetDuration = numDays;

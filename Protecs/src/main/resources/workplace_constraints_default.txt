@@ -1,0 +1,6 @@
+Occupation,Constraint
+inactive,Community
+religious,Community
+unemployed_not_ag,Community
+transport_sector,Community
+informal_petty_trade,Community

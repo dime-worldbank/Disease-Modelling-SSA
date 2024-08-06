@@ -11,6 +11,7 @@ unemployed_not_ag,0.8
 other,0.8
 transport_sector,1.0
 office_worker,1.0
+students_teachers,1.0
 religious,1.0
 student,1.0
 inactive,1.0
