@@ -118,7 +118,8 @@ public class WorldBankCovid19Sim extends SimState {
 
 		// initialise the holder
 		personsToAdminBoundary = new HashMap <Location, ArrayList<Person>>();
-
+		// initialise occupations in sim
+		occupationsInSim = new HashSet <OCCUPATION>();
 		
 		// load the population
 		LoadPopulation.load_population(params.dataDir + params.population_filename, this);

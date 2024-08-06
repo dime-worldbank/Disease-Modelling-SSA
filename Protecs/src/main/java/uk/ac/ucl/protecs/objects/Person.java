@@ -58,7 +58,7 @@ public class Person extends MobileAgent {
 		UNEMPLOYED_NOT_AG("unemployed_not_ag"), OFFICE_WORKERS("office_worker"), INACTIVE("inactive"), STUDENT("student"), 
 		INFORMAL_PETTY_TRADE("informal_petty_trade"), OTHER("other"), MANU_MINING_TRADES("manu_mining_trades"), POLICE_ARMY("police_army"),
 		HEALTHCARE_SOCIAL_WORK("healthcare_social_work"), EDUCATION("education"), RELIGIOUS("religious"), TRANSPORT_SECTOR("transport_sector"),
-		SUBSISTENCE_AG("subsistence_ag"), AG_ESTATES("ag_estates");
+		SUBSISTENCE_AG("subsistence_ag"), AG_ESTATES("ag_estates"), STUDENTS_TEACHERS("students_teachers");
 		public String key;
 	    
 		
@@ -116,6 +116,8 @@ public class Person extends MobileAgent {
         		return SUBSISTENCE_AG;
         	case "ag_estates":
         		return AG_ESTATES;
+        	case "students_teachers":
+        		return STUDENTS_TEACHERS;
         	default:
         		throw new IllegalArgumentException();
         	}

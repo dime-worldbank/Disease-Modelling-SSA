@@ -77,15 +77,15 @@ public class LoadPopulation{
 				Workplace w = rawWorkplaces.get(wpName);
 
 				// target district
-				String myDistrictName = "d_" + bits[districtIDIndex]; 
-				Location myDistrict = sim.params.adminZones.get(myDistrictName);
+				String myAdminZoneName = bits[districtIDIndex]; 
+				Location myAdminZone = sim.params.adminZones.get(myAdminZoneName);
 
 				boolean schoolGoer = bits[schoolGoerIndex].equals("1");
 				
 				// if the Household doesn't already exist, create it and save it
 				if(h == null){
 					// set up the Household
-					h = new Household(hhName, myDistrict);
+					h = new Household(hhName, myAdminZone);
 					rawHouseholds.put(hhName, h);
 					sim.households.add(h);
 				}
@@ -93,7 +93,7 @@ public class LoadPopulation{
 				if(w == null){
 					
 					// set up the Household
-					w = new Workplace(wpName, myDistrict);
+					w = new Workplace(wpName, myAdminZone);
 					rawWorkplaces.put(wpName, w);
 					sim.workplaces.add(w);
 				}
@@ -118,8 +118,9 @@ public class LoadPopulation{
 //				p.setLocation(myDistrict);
 				p.setActivityNode(sim.movementFramework.getHomeNode());
 				sim.agents.add(p);
-				sim.personsToAdminBoundary.get(myDistrict).add(p);
+				sim.personsToAdminBoundary.get(myAdminZone).add(p);
 				//	Store the occupations that appear in this census
+				sim.occupationsInSim.add(p.getEconStatus());
 				sim.occupationsInSim.add(OCCUPATION.getValue(bits[economicStatusIndex].toLowerCase()));
 				// schedule the agent to run at the beginning of the simulation
 				sim.schedule.scheduleOnce(0, sim.param_schedule_movement, p);

@@ -132,9 +132,6 @@ public class Params {
 	public String all_cause_mortality_filename = "";
 	public String birth_rate_filename = "";
 	
-	public String testDataFilename = "";
-	public String testLocationFilename = "";
-	
 	public String workplaceContactsFilename = "";
 	public String workplaceConstraintsFilename= "";
 		
