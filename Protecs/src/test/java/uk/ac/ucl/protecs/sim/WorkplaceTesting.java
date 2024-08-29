@@ -6,6 +6,7 @@ import uk.ac.ucl.protecs.objects.Person;
 import uk.ac.ucl.protecs.objects.Workplace;
 import uk.ac.ucl.protecs.objects.Location.LocationCategory;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +14,10 @@ import java.util.stream.Collectors;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+@RunWith(Parameterized.class)
 public class WorkplaceTesting{
 	// ================================================ Testing =======================================================================
 	// ===== Here we test that the model is reading in workplaces from the census csv file and are being stored as workplace objects. =
@@ -23,7 +27,12 @@ public class WorkplaceTesting{
 	// ===== We check that people travel to their workplace location in the model.                                              =======
 	// ===== We check that the parameters being used to predict workplace contacts are being loaded                             =======
 	// ================================================================================================================================
+	private final String params;
 	
+	public WorkplaceTesting(String fileName) {
+		this.params = fileName;
+	}
+
 	@Test
 	public void checkPopulationWorkplacesAreBeingLoaded() {
 		// workplaces are read in from the csv file now, initialise the simulation
@@ -82,10 +91,12 @@ public class WorkplaceTesting{
 		int numTicks = 3;
 		helperFunctions.runSimulationForTicks(sim, numTicks);
 		// determine if everyone has travelled to their workplace
+		// some jobs are based in the community, change to match
 		boolean allAtWork = true;
 		for (Person p: sim.agents) {
 			if (!(p.getLocation() instanceof Workplace) && !p.isUnemployed() && !p.visitingNow()) {
-				allAtWork = false;
+				if (!sim.params.OccupationConstraintList.containsKey(p.getEconStatus()))
+					allAtWork = false;
 				}
 		}
 		Assert.assertTrue(allAtWork);
@@ -164,6 +175,16 @@ public class WorkplaceTesting{
 		
 	}
 	@Test
+	public void workplaceConstraintsDoNotBreakCode() {
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(params + ".txt");
+		sim.start();
+		int numTicks = 90;
+		helperFunctions.runSimulation(sim, numTicks);
+		
+	}
+	
+	
+	@Test
 	public void runToDev() {
 		// check the parameters associated with workplace constraints
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/workplace_bubbles_with_constraints.txt");
@@ -180,8 +201,15 @@ public class WorkplaceTesting{
 		System.out.println("Number of stayed home: " + sim.stay_home_counter);
 
 
-
+	
 		
+	}
+	@Parameterized.Parameters
+	public static List<String> params() {
+	    return Arrays.asList(
+	            new String[]{"src/main/resources/wp_all_community", "src/main/resources/wp_all_home"}
+	    
+	    );
 	}
 	private void makePeopleLeaveTheHouseEachDay(WorldBankCovid19Sim sim) {
 		for (String key : sim.params.economic_status_weekday_movement_prob.keySet()) {

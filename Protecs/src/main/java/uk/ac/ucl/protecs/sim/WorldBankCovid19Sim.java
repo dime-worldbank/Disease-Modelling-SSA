@@ -240,7 +240,7 @@ public class WorldBankCovid19Sim extends SimState {
 
 			@Override
 			public void step(SimState arg0) {
-				double currentTime = arg0.schedule.getTime();
+				int currentTime = (int) (arg0.schedule.getTime() / params.ticks_per_day);
 				if(params.lockdownChangeList.size() == 0)
 					return;
 				double nextChange = params.lockdownChangeList.get(0);

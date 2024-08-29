@@ -1,0 +1,14 @@
+Occupation,Constraint
+ag_estates,Community
+healthcare_social_work,Community
+informal_petty_trade,Community
+manu_mining_trades,Community
+office_worker,Community
+other,Community
+police_army,Community
+religious,Community
+service_retail,Community
+students_teachers,Community
+subsistence_ag,Community
+transport_sector,Community
+unemployed_not_ag,Community

@@ -1,0 +1,14 @@
+Occupation,Constraint
+ag_estates,Home
+healthcare_social_work,Home
+informal_petty_trade,Home
+manu_mining_trades,Home
+office_worker,Home
+other,Home
+police_army,Home
+religious,Home
+service_retail,Home
+students_teachers,Home
+subsistence_ag,Home
+transport_sector,Home
+unemployed_not_ag,Home
