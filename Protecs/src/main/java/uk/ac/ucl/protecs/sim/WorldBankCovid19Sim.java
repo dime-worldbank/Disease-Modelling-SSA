@@ -247,6 +247,9 @@ public class WorldBankCovid19Sim extends SimState {
 				if(currentTime >= nextChange) {
 					params.lockdownChangeList.remove(0);
 					lockedDown = !lockedDown;
+					if (lockedDown) System.out.println("Going into lockdown at day " + currentTime);
+					else System.out.println("Exiting lockdown at day " + currentTime);
+//					return;
 				}
 				
 			}
