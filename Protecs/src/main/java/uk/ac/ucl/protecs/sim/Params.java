@@ -150,6 +150,7 @@ public class Params {
 		
 		dailyTransitionLockdownProbs = load_admin_zone_data(dataDir + admin_zone_transition_LOCKDOWN_filename);
 		dailyTransitionPrelockdownProbs = load_admin_zone_data(dataDir + admin_zone_transition_PRELOCKDOWN_filename);
+		assert (dailyTransitionLockdownProbs.get(0).size() == dailyTransitionPrelockdownProbs.get(0).size()): "Movement data for pre and post lockdown inconsistent, look into ODMs";
 		
 		economic_status_weekday_movement_prob = readInEconomicData(dataDir + economic_status_weekday_movement_prob_filename, "economic_status", "movement_probability");
 		economic_status_otherday_movement_prob = readInEconomicData(dataDir + economic_status_otherday_movement_prob_filename, "economic_status", "movement_probability");
@@ -660,7 +661,7 @@ public class Params {
 			int homeregionIndex = rawColumnNames.get("home_region");
 			
 			// assemble use of admin zone names for other purposes
-			for(int i = homeregionIndex + 1; i < header.length; i++){
+			for(int i = Math.max(weekdayIndex, homeregionIndex) + 1; i < header.length; i++){
 				adminZoneNames.add(header[i]);
 			}
 			// set up holders for the information
@@ -681,7 +682,7 @@ public class Params {
 				// the key here is the name of the admin zone, and the value is transition probability
 				HashMap <String, Double> transferFromAdminZone = new HashMap <String, Double> ();
 				ArrayList <Double> cumulativeProbTransfer = new ArrayList <Double> ();
-				for(int i = homeregionIndex + 1; i < bits.length; i++){
+				for(int i = Math.max(weekdayIndex, homeregionIndex) + 1; i < bits.length; i++){
 					transferFromAdminZone.put(header[i], Double.parseDouble(bits[i]));
 					cumulativeProbTransfer.add(Double.parseDouble(bits[i])/100.);
 				}
