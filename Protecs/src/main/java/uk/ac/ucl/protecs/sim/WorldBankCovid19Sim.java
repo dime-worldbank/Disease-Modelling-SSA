@@ -45,6 +45,8 @@ public class WorldBankCovid19Sim extends SimState {
 	public String casesPerAdminZoneFilename; 
 	public String infections_export_filename;
 	public String adminZoneCovidPrevalenceOutputFilename;
+	public String adminZonePercentDiedFromCovidOutputFilename;
+	public String adminZonePercenCovidCasesFatalOutputFilename;
 	public String adminZonePopBreakdownOutputFilename;
 	public String sim_info_filename;
 	public String covidCountsOutputFilename;
@@ -89,6 +91,8 @@ public class WorldBankCovid19Sim extends SimState {
 		this.sim_info_filename = outputFilename + "_Sim_Information.txt";
 		this.covidCountsOutputFilename = outputFilename + "_Age_Gender_Demographics_Covid.txt";
 		this.covidByEconOutputFilename = outputFilename + "_Economic_Status_Covid.txt";
+		this.adminZonePercentDiedFromCovidOutputFilename = outputFilename + "_Percent_In_Admin_Zone_Died_From_Covid.txt";
+		this.adminZonePercenCovidCasesFatalOutputFilename = outputFilename + "_Percent_Covid_Cases_Fatal_In_Admin_Zone.txt";
 	}
 	
 	public void start(){
@@ -419,7 +423,7 @@ public class WorldBankCovid19Sim extends SimState {
 		double myBeta = .016;
 		long seed = 12345;
 		String outputFilename = "dailyReport_" + myBeta + "_" + numDays + "_" + seed;
-		String infectionsOutputFilename = "infections_" + myBeta + "_" + numDays + "_" + seed; 
+		String infectionsOutputFilename = "infections_" + myBeta + "_" + numDays + "_" + seed + ".txt"; 
 		String paramsFilename = "src/main/resources/params.txt";
 		// read in any extra settings from the command line
 		if(args.length < 0){
