@@ -14,6 +14,7 @@ import uk.ac.ucl.protecs.objects.Person.SEX;
 
 public class Logging {
 	// set up commonly used variables to avoid repetition
+	// age boundaries to format log files
 	private final static List <Integer> upper_age_range = Arrays.asList(1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 120);
 	private final static List <Integer> lower_age_range = Arrays.asList(0, 1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95);
 	private final static List <Integer> birthrate_upper_age_range = Arrays.asList(20, 25, 30, 35, 40, 45, 50);
@@ -21,10 +22,13 @@ public class Logging {
 	private final static String age_categories = "<1" + "\t" + "1_4" + "\t" + "5_9" + "\t" + "10_14" + "\t" + "15_19" + "\t" + "20_24" + "\t" + "25_29" + 
 			"\t" + "30_34" + "\t" + "35_39" + "\t" + "40_44" + "\t" + "45_49" + "\t" + "50_54" + "\t" + "55_59" + "\t" + "60_64" + "\t" + "65_69" + "\t" + 
 			"70_74" + "\t" + "75_79" + "\t" + "80_84" + "\t" + "85_89" + "\t" + "90_94" + "\t" + "95<";
+	// tab shortcut
 	private final static String t = "\t";
+	// age sex breakdown header
 	private final static String age_sex_categories = t + "sex" + age_categories + "\n";
 
 	// set up commonly used functions to avoid repetition
+	// get those alive of given age and sex
 	private static Map<SEX, Map<Integer, Map<Boolean, Long>>> age_sex_alive_map(WorldBankCovid19Sim world) {
 		Map<SEX, Map<Integer, Map<Boolean, Long>>> age_sex_alive_map = world.agents.stream().collect(
 				Collectors.groupingBy(
@@ -41,7 +45,7 @@ public class Logging {
 		return age_sex_alive_map;
 	}
 	
-
+	// get those who alive with COVID of given age and sex
 	private static Map<SEX, Map<Integer, Map<Boolean, Map<Boolean, Long>>>> age_sex_has_covid_map(
 			WorldBankCovid19Sim world) {
 		Map<SEX, Map<Integer, Map<Boolean, Map<Boolean, Long>>>> age_sex_map_has_covid = world.agents.stream().collect(
@@ -62,10 +66,11 @@ public class Logging {
 		return age_sex_map_has_covid;
 	}
 	
+	// get number of those alive of age and sex
 	private static ArrayList <Integer> get_number_of_alive(WorldBankCovid19Sim world, SEX sex) {
 		ArrayList <Integer> alive_ages = new ArrayList<Integer>();
 		Map<SEX, Map<Integer, Map<Boolean, Long>>> age_sex_alive_map_copy = age_sex_alive_map(world);
-//		We now iterate over the age ranges, create a variable to keep track of the iterations
+		// We now iterate over the age ranges, create a variable to keep track of the iterations
 		Integer idx = 0;
 		for (Integer val: upper_age_range) {
 			// for each age group we begin to count the number of people who fall into each category, create variables
@@ -89,6 +94,8 @@ public class Logging {
 		}
 		return alive_ages;
 	}
+	
+	// get those alive with COVID of age
 	private static ArrayList <Integer> get_covid_counts_by_age(WorldBankCovid19Sim world, SEX sex) {
 		Integer idx = 0;
 		ArrayList <Integer> covid_by_ages = new ArrayList<Integer>();
@@ -120,6 +127,8 @@ public class Logging {
 		}
 		return covid_by_ages;
 	}
+	
+	// get those who died of COVID of age
 	private static ArrayList <Integer> get_covid_death_counts_by_age(WorldBankCovid19Sim world, SEX sex) {
 		Integer idx = 0;
 		ArrayList <Integer> covid_death_by_ages = new ArrayList<Integer>();
@@ -165,6 +174,8 @@ public class Logging {
 		}
 		return covid_death_by_ages;
 	}
+	
+	// get those alive at location
 	private static Map<Boolean, Map<String, List<Person>>> get_alive_at_location(WorldBankCovid19Sim world) {
 		// create a function to group the population by who is alive at this admin zone
 		Map<Boolean, Map<String, List<Person>>> aliveAtLocation = world.agents.stream().collect(
@@ -178,6 +189,39 @@ public class Logging {
 		return aliveAtLocation;
 	}
 	
+	// get those alive with COVID at location
+	private static Map<Boolean, Map<String, Map<Boolean, List<Person>>>> get_covid_at_location(
+			WorldBankCovid19Sim world) {
+		Map<Boolean, Map<String, Map<Boolean, List<Person>>>> covidAtLocation = world.agents.stream().collect(
+				Collectors.groupingBy(
+						Person::isAlive,
+						Collectors.groupingBy(
+								Person::getCurrentAdminZone,
+								Collectors.groupingBy(
+										Person::hasCovid
+								)
+				)
+			)
+		);
+		return covidAtLocation;
+	}
+	
+	// get those who died of COVID at location
+	private static Map<String, Map<Boolean, Map<Boolean, List<Person>>>> get_dead_from_covid_at_location(
+			WorldBankCovid19Sim world) {
+		Map<String, Map<Boolean, Map<Boolean, List<Person>>>> covidDeathsAtLocation = world.agents.stream().collect(
+				Collectors.groupingBy(
+						Person::getCurrentAdminZone,
+						Collectors.groupingBy(
+								Person::isDeadFromCovid,
+								Collectors.groupingBy(
+										Person::getDeathLogged
+								)
+				)
+			)
+		);
+		return covidDeathsAtLocation;
+	}
 	// =============================== Demographic information logging =============================================================================
 	// output for birthRateOutputFilename
 	public class BirthRateReporter implements Steppable{
@@ -828,17 +872,7 @@ public class Logging {
 
 				Map<Boolean, Map<String, List<Person>>> aliveAtLocation = get_alive_at_location(world);
 				// create a function to group the population by who is alive in each admin zone and has covid
-				Map<Boolean, Map<String, Map<Boolean, List<Person>>>> covidAtLocation = world.agents.stream().collect(
-						Collectors.groupingBy(
-								Person::isAlive,
-								Collectors.groupingBy(
-										Person::getCurrentAdminZone,
-										Collectors.groupingBy(
-												Person::hasCovid
-										)
-						)
-					)
-				);
+				Map<Boolean, Map<String, Map<Boolean, List<Person>>>> covidAtLocation = get_covid_at_location(world);
 
 				// get a list of admin zone to iterate over
 				List <String> adminZones = ((WorldBankCovid19Sim)arg0).params.adminZoneNames;
@@ -981,6 +1015,114 @@ public class Logging {
 		};
 	}
 	
+	// output for adminZonePercentCovidCasesFatalOutputFilename
+	public static Steppable ReportPercentOfCovidCasesThatAreFatalPerAdminZone(WorldBankCovid19Sim world) {
+		return new Steppable() {
+			
+			@Override
+			public void step(SimState arg0) {
+				// create a function to group the population by who is alive in each admin zone and has covid
+				Map<Boolean, Map<String, Map<Boolean, List<Person>>>> covidAtLocation = get_covid_at_location(world);
+				Map<String, Map<Boolean, Map<Boolean, List<Person>>>> covidDeathsAtLocation = get_dead_from_covid_at_location(
+						world);
+				// get a list of admin zone to iterate over
+				List <String> adminZones = ((WorldBankCovid19Sim)arg0).params.adminZoneNames;
+				// format the output file for population counts
+				int time = (int) (arg0.schedule.getTime() / world.params.ticks_per_day);
+				// create a list to store the number of people and who has covid in each admin zone
+				ArrayList <Float> adminZonePercentCovidCasesFatal = new ArrayList<Float>();
+				// iterate over each admin zone
+				for (String place: adminZones) {
+					// get population counts in each admin zone
+					try {
+						// numerator = number of people at location who have died from covid, but have not had their deaths recorded
+						int numerator = covidDeathsAtLocation.get(place).get(true).get(false).size();
+						// denominator = number of people at location who currently are alive with covid plus those at location who have died from covid but not had their deaths recorded
+						int denominator = covidAtLocation.get(true).get(place).get(true).size() + numerator;
+						adminZonePercentCovidCasesFatal.add((float) numerator / denominator);
+					}
+					catch (Exception e) {
+						// age wasn't present in the population, skip
+						adminZonePercentCovidCasesFatal.add(0f);
+					}
+				}
+				// format log file
+				String percent_covid_death_per_admin = "";
+
+				if (time == 0) {
+					percent_covid_death_per_admin += "day" + t;
+					for (String place: adminZones) {
+						percent_covid_death_per_admin += place + t;
+					}
+					percent_covid_death_per_admin += "\n" + String.valueOf(time);
+				}
+				else {
+					percent_covid_death_per_admin += "\n" + String.valueOf(time);
+				}
+				// calculate the percentage in the admin zone with covid
+				for (float percent: adminZonePercentCovidCasesFatal) {;
+				percent_covid_death_per_admin += t + percent;
+				}
+				// export the file
+				ImportExport.exportMe(world.adminZonePercentCovidCasesFatalOutputFilename, percent_covid_death_per_admin, world.timer);
+				}
+			};
+	}
+	
+	// output for adminZonePercentCovidCasesFatalOutputFilename
+	public static Steppable adminZonePercentDiedFromCovidOutputFilename(WorldBankCovid19Sim world) {
+		return new Steppable() {
+			
+			@Override
+			public void step(SimState arg0) {
+				// create a function to group the population by who is alive in each admin zone and has covid
+				Map<Boolean, Map<String, List<Person>>> aliveAtLocation = get_alive_at_location(world);
+				// create a function to group the population by who died from covid at each admin zone
+				Map<String, Map<Boolean, Map<Boolean, List<Person>>>> covidDeathsAtLocation = get_dead_from_covid_at_location(
+						world);
+				// get a list of admin zone to iterate over
+				List <String> adminZones = ((WorldBankCovid19Sim)arg0).params.adminZoneNames;
+				// format the output file for population counts
+				int time = (int) (arg0.schedule.getTime() / world.params.ticks_per_day);
+				// create a list to store the number of people and who has covid in each admin zone
+				ArrayList <Float> adminZonePercentCovidFatal = new ArrayList<Float>();
+				// iterate over each admin zone
+				for (String place: adminZones) {
+					// get population counts in each admin zone
+					try {
+						// numerator = number of people at location who have died from covid, but have not had their deaths recorded
+						int numerator = covidDeathsAtLocation.get(place).get(true).get(false).size();
+						// denominator = number of people at location who currently are alive with covid plus those at location who have died from covid but not had their deaths recorded
+						int denominator = aliveAtLocation.get(true).get(place).size() + numerator;
+						adminZonePercentCovidFatal.add((float) numerator / denominator);
+					}
+					catch (Exception e) {
+						// age wasn't present in the population, skip
+						adminZonePercentCovidFatal.add(0f);
+					}
+				}
+				// format log file
+				String percent_covid_death_per_admin = "";
+
+				if (time == 0) {
+					percent_covid_death_per_admin += "day" + t;
+					for (String place: adminZones) {
+						percent_covid_death_per_admin += place + t;
+					}
+					percent_covid_death_per_admin += "\n" + String.valueOf(time);
+				}
+				else {
+					percent_covid_death_per_admin += "\n" + String.valueOf(time);
+				}
+				// calculate the percentage in the admin zone with covid
+				for (float percent: adminZonePercentCovidFatal) {;
+				percent_covid_death_per_admin += t + percent;
+				}
+				// export the file
+				ImportExport.exportMe(world.adminZonePercentDiedFromCovidOutputFilename, percent_covid_death_per_admin, world.timer);
+				}
+			};
+	}
 	// =============================== Non-spatial disease logging  ================================================================================
 
 	// output for covidIncDeathOutputFilename
@@ -992,7 +1134,7 @@ public class Logging {
 			public void step(SimState arg0) {
 				int time = (int) (arg0.schedule.getTime() / world.params.ticks_per_day);
 
-//				calculate incidence of death in each age group by cause
+				// calculate incidence of death in each age group by cause
 				//	covid deaths, incidence in age groups 0-1, 1-4, 5-9, 10-14, ..., 95+
 				//	create a list to define our age group search ranges
 
@@ -1269,7 +1411,7 @@ public class Logging {
 	
 	// =============================== Reset the properties to avoid counting the same thing multiple times  ====================================
 
-	public static Steppable ResetLogedProperties(WorldBankCovid19Sim world) {
+	public static Steppable ResetLoggedProperties(WorldBankCovid19Sim world) {
 		return new Steppable() {			
 			@Override
 			public void step(SimState arg0) {
@@ -1300,5 +1442,6 @@ public class Logging {
 				}
 			};
 		}
+
 
 }

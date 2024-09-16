@@ -46,7 +46,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public String infections_export_filename;
 	public String adminZoneCovidPrevalenceOutputFilename;
 	public String adminZonePercentDiedFromCovidOutputFilename;
-	public String adminZonePercenCovidCasesFatalOutputFilename;
+	public String adminZonePercentCovidCasesFatalOutputFilename;
 	public String adminZonePopBreakdownOutputFilename;
 	public String sim_info_filename;
 	public String covidCountsOutputFilename;
@@ -92,7 +92,7 @@ public class WorldBankCovid19Sim extends SimState {
 		this.covidCountsOutputFilename = outputFilename + "_Age_Gender_Demographics_Covid.txt";
 		this.covidByEconOutputFilename = outputFilename + "_Economic_Status_Covid.txt";
 		this.adminZonePercentDiedFromCovidOutputFilename = outputFilename + "_Percent_In_Admin_Zone_Died_From_Covid.txt";
-		this.adminZonePercenCovidCasesFatalOutputFilename = outputFilename + "_Percent_Covid_Cases_Fatal_In_Admin_Zone.txt";
+		this.adminZonePercentCovidCasesFatalOutputFilename = outputFilename + "_Percent_Covid_Cases_Fatal_In_Admin_Zone.txt";
 	}
 	
 	public void start(){
@@ -240,8 +240,14 @@ public class WorldBankCovid19Sim extends SimState {
 		// Report on the number of COVID counts in each occupation (covidByEconOutputFilename)
 		schedule.scheduleRepeating(Logging.ReportCovidCountsByOccupation(this), this.param_schedule_reporting, params.ticks_per_day);
 		
-		// Schedule the resetting of COVID reporting properties in the agents
-		schedule.scheduleRepeating(Logging.ResetLogedProperties(this), this.param_schedule_reporting_reset, params.ticks_per_day);
+		// Report on the percent of COVID cases that are fatal per admin zone (adminZonePercentCovidCasesFatalOutputFilename)
+		schedule.scheduleRepeating(Logging.ReportPercentOfCovidCasesThatAreFatalPerAdminZone(this), this.param_schedule_reporting, params.ticks_per_day);
+		
+		// Report on the prevalence of COVID death per admin zone (adminZonePercentDiedFromCovidOutputFilename)
+		schedule.scheduleRepeating(Logging.adminZonePercentDiedFromCovidOutputFilename(this), this.param_schedule_reporting, params.ticks_per_day);
+		
+		// Schedule the resetting of COVID reporting properties in the agents 
+		schedule.scheduleRepeating(Logging.ResetLoggedProperties(this), this.param_schedule_reporting_reset, params.ticks_per_day);
 
 		// SCHEDULE LOCKDOWNS
 		Steppable lockdownTrigger = new Steppable() {
