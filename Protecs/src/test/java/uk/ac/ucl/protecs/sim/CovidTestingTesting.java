@@ -2,6 +2,8 @@ package uk.ac.ucl.protecs.sim;
 
 import org.junit.Assert;
 import uk.ac.ucl.protecs.helperFunctions.*;
+import uk.ac.ucl.protecs.helperFunctions.helperFunctions.NodeOption;
+
 import org.junit.Test;
 
 import uk.ac.ucl.protecs.objects.Person;
@@ -18,7 +20,8 @@ public class CovidTestingTesting {
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/covid_testing_params.txt");
 		sim.start();
 		int numDays = 1;
-		helperFunctions.SetFractionInfectionsWithCertainNode(0.5, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD));
+		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(0.5, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD),
+				NodeOption.CoronavirusInfectiousBehaviour);
 		helperFunctions.StopRecoveryHappening(sim);
 		helperFunctions.runSimulation(sim, numDays);
 		List<Person> hasBeenTested = peopleWhoHaveBeenTested(sim);

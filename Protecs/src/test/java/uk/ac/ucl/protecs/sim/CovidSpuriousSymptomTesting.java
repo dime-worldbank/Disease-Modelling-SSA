@@ -2,6 +2,8 @@ package uk.ac.ucl.protecs.sim;
 
 import org.junit.Assert;
 import uk.ac.ucl.protecs.helperFunctions.*;
+import uk.ac.ucl.protecs.helperFunctions.helperFunctions.NodeOption;
+
 import org.junit.Test;
 
 import uk.ac.ucl.protecs.objects.Person;
@@ -20,10 +22,12 @@ public class CovidSpuriousSymptomTesting{
 		sim.start();
 		int numDays = 8;
 		// Give the population mild Covid and spurious symptoms to see if those with mild covid have their spurious symptoms resolved 
-		helperFunctions.SetFractionInfectionsWithCertainNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD));
+		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD),
+				NodeOption.CoronavirusInfectiousBehaviour);
 		// make sure no one recovers or progresses from their mild covid
 		helperFunctions.StopRecoveryHappening(sim);
-		helperFunctions.HaltDiseaseProgressionAtStage(sim, "Mild");
+		helperFunctions.HaltDiseaseProgressionAtStage(sim, CoronavirusBehaviourNodeTitle.MILD);
+
 		// make sure there are no new Covid infections
 		sim.params.infection_beta = 0.0;
 		// make sure that after the initial bout of symptoms, no one develops new spurious symptoms
@@ -50,7 +54,8 @@ public class CovidSpuriousSymptomTesting{
 		int numDays = 1;
 		giveAFractionASpuriousSymptom(1, sim);
 		// Give everyone asymptomatic Covid
-		helperFunctions.SetFractionInfectionsWithCertainNode(1, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD));
+		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD),
+				NodeOption.CoronavirusInfectiousBehaviour);
 		// run the simulation
 		helperFunctions.runSimulation(sim, numDays);
 		// we need people with symptoms to be alive and not have any Covid infections of any severity. Use streams to search over the population to 

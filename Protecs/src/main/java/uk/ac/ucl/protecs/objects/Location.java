@@ -25,7 +25,28 @@ public class Location {
 	public int metric_new_recovered;
 	public int metric_currently_infected;
 
-	
+	public enum LocationCategory{
+		HOME("home"), WORK("work"), COMMUNITY("community");
+		
+		public String key;
+
+		LocationCategory(String key) { this.key = key; }
+
+        static LocationCategory getValue(String x) {
+
+        	switch (x) {
+        	case "home":
+        		return HOME;
+        	case "work":
+        		return WORK;
+        	case "community":
+        		return COMMUNITY;
+        	default:
+        		throw new IllegalArgumentException();
+        	}
+        }
+	}
+	LocationCategory category;
 	// CONSTRUCTORS
 	
 	public Location(String id, Location mySuper){
@@ -136,4 +157,7 @@ public class Location {
 		active = b;
 	}
 	public boolean getActive() { return active; }
+	
+	public void setLocationType(LocationCategory locationCategory) {this.category = locationCategory;}
+	public LocationCategory getLocationType() {return this.category;}
 }

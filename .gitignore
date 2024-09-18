@@ -119,15 +119,20 @@ password/
 passwords/
 
 .DS_Store
-Protecs/src/main/resources/province_OD.csv
-Protecs/src/main/resources/province_line_list.txt
 Protecs/src/main/java/uk/ac/ucl/protecs/sim/wardLevelRuns.java
-Protecs/src/main/resources/abm_092320_5_perc_080222_ver1.csv
+Protecs/src/main/resources/census_5perc_multiStatMultiDist.csv
+Protecs/src/main/resources/decreasedTransitionMobilityRates_multiDist.csv
 Protecs/src/main/resources/dailyDistrictTransitionProb_preLockdown_multiDist.csv
-Protecs/src/main/resources/dailyDistrictTransitionsProb_1Dist.csv
 Protecs/src/main/resources/new_census_5perc_multiStatMultiDist.csv
+Protecs/src/main/resources/dailyDistrictTransitionsProb_1Dist.csv
+Protecs/src/main/resources/abm_092320_5_perc_080222_ver1.csv
 Protecs/src/main/resources/params_national_run.txt
+Protecs/src/main/resources/params_district_run.txt
+Protecs/src/main/resources/province_OD.csv
 Protecs/src/main/resources/params_province_run.txt
 Protecs/src/main/resources/province_census.csv
 Protecs/src/main/resources/ipums_5p_wp_bubbles_comb_teacher_students.csv
 Protecs/src/main/resources/census_ipums.csv
+Protecs/src/main/resources/province_line_list.txt
+Protecs/src/main/resources/census_ipums_5perc.csv
+Protecs/src/main/resources/ipums_radiation_formatted.csv

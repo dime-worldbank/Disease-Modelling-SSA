@@ -8,14 +8,14 @@ public class SingleRun {
 	
 	public static void main(String [] args) {
 		// set the number of days the simulation will run
-		int numDays = 100;
+		int numDays = 300;
 		// get current time, use to time stamp the results file, first format date time
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");  
 		// name current time 'timestamp'
 		LocalDateTime timestamp = LocalDateTime.now();  
 		// Get location of parameter file
 
-		String paramFilename = "/Users/robbiework/eclipse-workspace/Disease-Modelling-SSA/data/verification/params_robbie_test.txt";
+		String paramFilename = "src/main/resources/params_ward_dummy.txt";
 		// Create a name for the output file
 		String outputFilename = "single_run_" + timestamp.toString() + ".txt";
 		// create a name for the infections output file
@@ -33,6 +33,7 @@ public class SingleRun {
 
 		// Set how long the simulation should run for
 		mySim.targetDuration = numDays;
+		mySim.params.infection_beta = 0.3;
 		// Begin the simulation
 		mySim.start();
 		// Update the file names of where we will import the infecitons output and the general simulation information output
