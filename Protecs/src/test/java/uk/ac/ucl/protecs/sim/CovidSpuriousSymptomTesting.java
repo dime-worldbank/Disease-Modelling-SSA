@@ -54,7 +54,7 @@ public class CovidSpuriousSymptomTesting{
 		int numDays = 1;
 		giveAFractionASpuriousSymptom(1, sim);
 		// Give everyone asymptomatic Covid
-		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD),
+		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.ASYMPTOMATIC),
 				NodeOption.CoronavirusInfectiousBehaviour);
 		// run the simulation
 		helperFunctions.runSimulation(sim, numDays);
