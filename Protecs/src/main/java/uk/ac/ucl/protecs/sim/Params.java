@@ -1,5 +1,7 @@
 package uk.ac.ucl.protecs.sim;
 
+import static org.junit.Assert.fail;
+
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
@@ -168,9 +170,10 @@ public class Params {
 		load_all_birthrate_params(dataDir + birth_rate_filename);
 
 		// load the testing data
-		load_testing(dataDir + testDataFilename);
-		load_testing_locations(dataDir + testLocationFilename);
-		
+		if (this.covidTesting | (!(testDataFilename == null) & !(testLocationFilename == null))) {
+			load_testing(dataDir + testDataFilename);
+			load_testing_locations(dataDir + testLocationFilename);
+		}
 	}
 	
 	//
@@ -210,7 +213,7 @@ public class Params {
 						f.set(this, myVal);	
 				}
 			}			
-
+		paramFile.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -253,7 +256,7 @@ public class Params {
 				lineList.put(myAdminZone, myCount);
 			}
 			assert (lineList.size() > 0): "lineList not loaded";
-
+			lineListDataFile.close();
 		} catch (Exception e) {
 			System.err.println("File input error: " + lineListFilename);
 		}
@@ -269,11 +272,11 @@ public class Params {
 			FileInputStream fstream = new FileInputStream(lockdownChangelistFilename);
 
 			// Convert our input stream to a BufferedReader
-			BufferedReader lineListDataFile = new BufferedReader(new InputStreamReader(fstream));
+			BufferedReader lockdownListDataFile = new BufferedReader(new InputStreamReader(fstream));
 			String s;
 
 			// extract the header
-			s = lineListDataFile.readLine();
+			s = lockdownListDataFile.readLine();
 
 			// map the header into column names relative to location
 			String [] header = splitRawCSVString(s);
@@ -286,7 +289,7 @@ public class Params {
 			
 			// read in the raw data
 			boolean started = false;
-			while ((s = lineListDataFile.readLine()) != null) {
+			while ((s = lockdownListDataFile.readLine()) != null) {
 				String [] bits = splitRawCSVString(s);
 				int dayVal = Integer.parseInt(bits[dayIndex]);
 				Integer myLevel = Integer.parseInt(bits[levelIndex]);
@@ -299,7 +302,7 @@ public class Params {
 					started = false;
 				}
 			}
-
+			lockdownListDataFile.close();
 		} catch (Exception e) {
 			System.err.println("File input error: " + lockdownChangelistFilename);
 		}
@@ -339,8 +342,9 @@ public class Params {
 				number_of_tests_per_day.add((Integer)tests_on_day);
 			}
 			assert (number_of_tests_per_day.size() > 0): "Number of tests per day not loaded";
-
+			testingDataFile.close();
 		} catch (Exception e) {
+			fail();
 			System.err.println("File input error: " + testDataFilename);
 		}
 	}
@@ -375,8 +379,9 @@ public class Params {
 				admin_zones_to_test_in.add(zone_to_test_in);
 			}
 			assert (admin_zones_to_test_in.size() > 0): "Number of admin zone to test in not loaded";
-
+			testingDataFile.close();
 		} catch (Exception e) {
+			fail();
 			System.err.println("File input error: " + testLocationsFilename);
 		}
 	}
@@ -447,7 +452,7 @@ public class Params {
 			assert (infection_p_cri_by_age.size() > 0): "infection_p_cri_by_age not loaded";
 			assert (infection_p_dea_by_age.size() > 0): "infection_p_dea_by_age not loaded";
 
-
+			lineListDataFile.close();
 			} catch (Exception e) {
 				System.err.println("File input error: " + filename);
 			}
@@ -500,6 +505,7 @@ public class Params {
 				prob_death_by_age_female.add(female_prob_death);
 
 			}
+			lineListDataFile.close();
 			} catch (Exception e) {
 				System.err.println("File input error: " + filename);
 			}
@@ -549,6 +555,7 @@ public class Params {
 				prob_birth_by_age.add(female_prob_birth);
 
 			}
+			lineListDataFile.close();
 			} catch (Exception e) {
 				System.err.println("File input error: " + filename);
 			}
