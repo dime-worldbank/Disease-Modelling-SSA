@@ -205,11 +205,6 @@ public class helperFunctions {
 		world.params.criticalToRecovery_std = 0;
 	}
 	
-	public static void runSimulation(WorldBankCovid19Sim sim, int numDays) {
-		while(sim.schedule.getTime() < Params.ticks_per_day * numDays && !sim.schedule.scheduleComplete()){
-			sim.schedule.step(sim);
-		}
-	}
 	public static void HaltDiseaseProgressionAtStage(WorldBankCovid19Sim world, CoronavirusBehaviourNodeTitle stage) {
 		// You present this function with a stage in the disease which you want to halt the infection, then this
 		// function changes the parameters which allows the disease to progress further
