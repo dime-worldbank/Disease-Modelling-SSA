@@ -387,7 +387,7 @@ public class Params {
 			// map the header into column names relative to location
 			String [] header = splitRawCSVString(s);
 			HashMap <String, Integer> columnNames = parseHeader(header);
-			int admin_zone_numbers = columnNames.get("number");
+			int admin_zone_name = columnNames.get("name");
 			
 			// set up data containers
 			admin_zones_to_test_in = new ArrayList <String> ();
@@ -395,7 +395,7 @@ public class Params {
 			// read in the raw data
 			while ((s = testingDataFile.readLine()) != null) {
 				String [] bits = splitRawCSVString(s);
-				String zone_to_test_in = "d_" + bits[admin_zone_numbers];
+				String zone_to_test_in = bits[admin_zone_name];
 				admin_zones_to_test_in.add(zone_to_test_in);
 			}
 			assert (admin_zones_to_test_in.size() > 0): "Number of admin zone to test in not loaded";

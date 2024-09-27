@@ -255,4 +255,8 @@ public class helperFunctions {
 		for (Person p: world.agents) {if (p.isAlive()) {counter++;}}
 		return counter;
 	}
+	
+	public static void StopCovidFromSpreading(WorldBankCovid19Sim world) {
+		world.params.infection_beta = 0.0;
+	}
 }

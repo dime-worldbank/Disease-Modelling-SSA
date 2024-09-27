@@ -31,7 +31,6 @@ public class CovidTesting implements DiseaseTesting {
 		for (Person p: people_to_test_today) {
 			double random_to_check_if_test_is_accurate = world.random.nextDouble();
 			if (p.hasCovid() && random_to_check_if_test_is_accurate < testAccuracy()){
-				System.out.println("tested positive");
 				updatePropertiesForPositiveTest(p);
 				} 
 			else {
