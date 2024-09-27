@@ -278,7 +278,6 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 					}
 				if (!i.getHost().hasMild()) {
 					i.getHost().setMild();
-					i.getHost().elligableForTesting();
 				}
 
 
@@ -520,7 +519,6 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 				i.getHost().getLocation().getRootSuperLocation().metric_new_recovered++;
 				i.getHost().setRecovered();
 				i.getHost().removeCovid();
-				i.getHost().notElligableForTesting();
 				// the Person may have stopped moving when ill - reactivate!
 				if(i.getHost().isImmobilised()){
 					i.getHost().setMobility(true);

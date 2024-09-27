@@ -1,0 +1,4 @@
+economic_status, movement_probability
+"Not working, inactive, not in universe",0.8
+"Current Students",1
+"Homemakers/Housework",0.8
