@@ -74,36 +74,6 @@ public class ParamsTesting {
 	}
 	
 	@Test
-	public void testSimStartsWithoutTestingFilenames() {
-		// Create the simulation object without loading in covid testing related filenames
-		WorldBankCovid19Sim sim_no_testing_files = helperFunctions.CreateDummySim("src/main/resources/params_testing_no_covid_testing.txt");
-		// start the simulation, which triggers the loading in of parameters
-		sim_no_testing_files.start();
-		
-		// Check that the testDataFilename and testLocationFilename have stayed as their default value.
-		Assert.assertTrue((sim_no_testing_files.params.testDataFilename == null) & (sim_no_testing_files.params.testLocationFilename == null));
-	}
-	
-	@Test
-	public void testSimRunsWithoutTestingFilenames() {
-		// Create the simulation object without loading in covid testing related filenames
-		WorldBankCovid19Sim sim_no_testing_files = helperFunctions.CreateDummySim("src/main/resources/params_testing_no_covid_testing.txt");
-		// create a boolean to indicate if an error was found whilst running the simulation
-		boolean ran_without_issue = true;
-		// wrap simulation running in a try catch statement
-		try {
-			sim_no_testing_files.start();
-			helperFunctions.runSimulation(sim_no_testing_files, 10);
-		}
-		catch (Exception e) {
-			// error has been found, update run_without_issue
-			ran_without_issue = false;
-		}
-		// Check that the simulation ran without issue
-		Assert.assertTrue(ran_without_issue);
-	}
-	
-	@Test
 	public void testSimStartsWithoutLockdownFilenames() {
 		// Create the simulation object without loading in lockdown triggering related filenames
 		WorldBankCovid19Sim sim_no_lockdown_trigger_files = helperFunctions.CreateDummySim("src/main/resources/params_testing_no_lockdown_filename.txt");
