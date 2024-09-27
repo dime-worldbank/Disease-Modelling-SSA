@@ -147,6 +147,7 @@ public class Person extends MobileAgent {
 	boolean testedPositiveForCovid = false;
 	boolean covidTestLogged = false;
 
+
 	boolean hasSpuriousSymptomsForCovid = false;
 	boolean hasSpuriousObject = false;
 

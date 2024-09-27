@@ -42,6 +42,16 @@ public class helperFunctions {
 			list_index ++;
 		}
 	}
+	public static void runSimulation(WorldBankCovid19Sim sim, int numDays) {
+		while(sim.schedule.getTime() < sim.params.ticks_per_day * numDays && !sim.schedule.scheduleComplete()){
+			sim.schedule.step(sim);
+		}
+	}
+	public static void runSimulationForTicks(WorldBankCovid19Sim sim, int numTicks) {
+		while(sim.schedule.getTime() < numTicks && !sim.schedule.scheduleComplete()){
+			sim.schedule.step(sim);
+		}
+	}	
 	public static HashSet<String> getUniqueNodesOverCourseofSim(WorldBankCovid19Sim world, double numDaysToRun, NodeOption option, double sample_regularity){
 		
 		

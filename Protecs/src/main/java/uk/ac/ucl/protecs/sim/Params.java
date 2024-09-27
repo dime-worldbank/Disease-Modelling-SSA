@@ -4,10 +4,12 @@ import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -20,7 +22,7 @@ public class Params {
 	public boolean verbose = true;
 	
 	public double infection_beta = 0.016;
-	public double rate_of_spurious_symptoms = 0.1;
+	public double rate_of_spurious_symptoms = 0.004;
 	public int lineListWeightingFactor = 1; // the line list contains only detected instances, which can be biased 
 											// - weight this if we suspect it's undercounting
 	public boolean setting_perfectMixing = false; // if TRUE: there are no work or social bubbles; individuals have
@@ -62,12 +64,15 @@ public class Params {
 	// holders for epidemic-related data
 	
 	HashMap <Location, Integer> lineList;
-	ArrayList <Double> lockdownChangeList;
+	ArrayList <Double> lockdownChangeList = new ArrayList <Double>();
 	
-	// holders for testing
-	public ArrayList <Integer> test_dates;
-	public ArrayList <Integer> number_of_tests_per_day;
-	public ArrayList <String> admin_zones_to_test_in;
+	// holders for testing data
+	public ArrayList<String> admin_zones_to_test_in;
+	public ArrayList<Integer> test_dates;
+	public ArrayList<Integer> number_of_tests_per_day;
+
+
+	
 	
 	// parameters drawn from Kerr et al 2020 - https://www.medrxiv.org/content/10.1101/2020.05.10.20097469v3.full.pdf
 	public ArrayList <Integer> infection_age_params;
@@ -105,29 +110,30 @@ public class Params {
 	public ArrayList <Double> prob_birth_by_age;
 	// data files
 	
-	public String dataDir = "";
+	public String dataDir = null;
 	
 	
-	public String population_filename = "";
-	public String admin_zone_transition_LOCKDOWN_filename = "";
-	public String admin_zone_transition_PRELOCKDOWN_filename = "";
-	public String admin_zone_leaving_filename = "";
+	public String population_filename = null;
+	public String admin_zone_transition_LOCKDOWN_filename = null;
+	public String admin_zone_transition_PRELOCKDOWN_filename = null;
+	public String admin_zone_leaving_filename = null;
 	
-	public String economic_status_weekday_movement_prob_filename = "";
-	public String economic_status_otherday_movement_prob_filename = "";
-	public String economic_status_num_daily_interacts_filename = "";
+	public String economic_status_weekday_movement_prob_filename = null;
+	public String economic_status_otherday_movement_prob_filename = null;
+	public String economic_status_num_daily_interacts_filename = null;
 	
-	public String econ_interaction_distrib_filename = "";
+	public String econ_interaction_distrib_filename = null;
 	
-	public String line_list_filename = "";
-	public String infection_transition_params_filename = "";
-	public String lockdown_changeList_filename = "";
-	public String all_cause_mortality_filename = "";
-	public String birth_rate_filename = "";
+	public String line_list_filename = null;
+	public String infection_transition_params_filename = null;
+	public String lockdown_changeList_filename = null;
+	public String all_cause_mortality_filename = null;
+	public String birth_rate_filename = null;
 	
-	public String testDataFilename = "";
-	public String testLocationFilename = "";
-			
+	public String testDataFilename = null;
+	public String testLocationFilename = null;
+
+	
 	
 	// time
 	public static int hours_per_tick = 4; // the number of hours each tick represents
@@ -146,29 +152,43 @@ public class Params {
 	
 	
 	public Params(String paramsFilename, boolean isVerbose){
-		
 		this.verbose = isVerbose;
+		// Read in parameter file locations
 		readInParamFile(paramsFilename);
-		
+		// Load in movement data.
 		dailyTransitionLockdownProbs = load_admin_zone_data(dataDir + admin_zone_transition_LOCKDOWN_filename);
 		dailyTransitionPrelockdownProbs = load_admin_zone_data(dataDir + admin_zone_transition_PRELOCKDOWN_filename);
+		// Check origin-destination matrices are formatted as expected
+		assert (dailyTransitionLockdownProbs.size() == dailyTransitionPrelockdownProbs.size()): "Movement data for pre and post lockdown inconsistent, look into ODMs";
+		assert (dailyTransitionLockdownProbs.get(0).size() == dailyTransitionPrelockdownProbs.get(0).size()): "Movement data for pre and post lockdown inconsistent, look into ODMs";
 		
+		// Load in the probability of leaving the house
 		economic_status_weekday_movement_prob = readInEconomicData(dataDir + economic_status_weekday_movement_prob_filename, "economic_status", "movement_probability");
 		economic_status_otherday_movement_prob = readInEconomicData(dataDir + economic_status_otherday_movement_prob_filename, "economic_status", "movement_probability");
-		
+		assert (economic_status_otherday_movement_prob.size() == economic_status_weekday_movement_prob.size()): "Inconsistent data for ecom movement prob between weekday and otherday";
+
+		// Load in predetermined number of interactions per econ status (perfect mixing, probably no longer used)
 		economic_num_interactions_weekday_perTick = readInEconomicData(dataDir  + economic_status_num_daily_interacts_filename, "economic_status", "interactions");
-		//HashMap <String, Double> econBubbleHolder =
-		// TODO: not reading in bubbles in any meaningful way. Must read.
+		assert (economic_num_interactions_weekday_perTick.size() == economic_status_otherday_movement_prob.size()): "Number of interactions not specified for every occupation";
 		
+		// Load in interactions between economic status data(perfect mixing, probably no longer used)
 		load_econStatus_distrib(dataDir  + econ_interaction_distrib_filename);
 		
+		assert (orderedEconStatuses.size() == economic_num_interactions_weekday_perTick.size()): "Econ interaction matrix incomplete";
+		// Load in where you want COVID cases to be initialised
 		load_line_list(dataDir  + line_list_filename);
-		load_lockdown_changelist(dataDir +  lockdown_changeList_filename);
+		// Load in disease progression parameters
 		load_infection_params(dataDir  + infection_transition_params_filename);
-
-		load_all_cause_mortality_params(dataDir + all_cause_mortality_filename);
-		load_all_birthrate_params(dataDir + birth_rate_filename);
-
+		
+		// Load in whether/when you want to trigger lockdown only if a file name has been declared
+		if (!(lockdown_changeList_filename == null)) {
+			load_lockdown_changelist(dataDir +  lockdown_changeList_filename);
+		}
+		// only load in all cause mortality and birth rate files only if demography is set to true, or if these file name fields are initialised		
+		if (this.demography | (!(all_cause_mortality_filename == null) & !(birth_rate_filename == null))) {
+			load_all_cause_mortality_params(dataDir + all_cause_mortality_filename);
+			load_all_birthrate_params(dataDir + birth_rate_filename);
+		}
 		// load the testing data
 		if (this.covidTesting | (!(testDataFilename == null) & !(testLocationFilename == null))) {
 			load_testing(dataDir + testDataFilename);
@@ -204,18 +224,19 @@ public class Params {
 				Field f = this.getClass().getDeclaredField(bits[0].trim());
 				f.setAccessible(true);
 				String myVal = bits[1].trim();
+				
 				try {
 					f.set(this, Integer.parseInt(myVal));
 				} catch (Exception e){
 					if(myVal.equals("true") || myVal.equals("false"))
 						f.set(this, Boolean.parseBoolean(myVal));
-					else
-						f.set(this, myVal);	
+					else f.set(this, myVal);	
 				}
 			}			
 		paramFile.close();
 		} catch (Exception e) {
 			e.printStackTrace();
+			fail();
 		}
 
 
@@ -259,6 +280,7 @@ public class Params {
 			lineListDataFile.close();
 		} catch (Exception e) {
 			System.err.println("File input error: " + lineListFilename);
+			fail();
 		}
 	}
 	
@@ -284,9 +306,6 @@ public class Params {
 			int dayIndex = columnNames.get("day");
 			int levelIndex = columnNames.get("level");
 			
-			// set up data container
-			lockdownChangeList = new ArrayList <Double> ();
-			
 			// read in the raw data
 			boolean started = false;
 			while ((s = lockdownListDataFile.readLine()) != null) {
@@ -305,6 +324,7 @@ public class Params {
 			lockdownListDataFile.close();
 		} catch (Exception e) {
 			System.err.println("File input error: " + lockdownChangelistFilename);
+			fail();
 		}
 	}
 	
@@ -454,7 +474,8 @@ public class Params {
 
 			lineListDataFile.close();
 			} catch (Exception e) {
-				System.err.println("File input error: " + filename);
+				System.out.println("File input error: " + filename);
+				fail();
 			}
 		}
 	
@@ -508,6 +529,7 @@ public class Params {
 			lineListDataFile.close();
 			} catch (Exception e) {
 				System.err.println("File input error: " + filename);
+				fail();
 			}
 	}
 	
@@ -558,6 +580,7 @@ public class Params {
 			lineListDataFile.close();
 			} catch (Exception e) {
 				System.err.println("File input error: " + filename);
+				fail();
 			}
 	}
 
@@ -621,10 +644,14 @@ public class Params {
 			}
 			assert (economicInteractionDistrib.size() > 0): "economicInteractionDistrib not loaded";
 			assert (economicInteractionCumulativeDistrib.size() > 0): "economicInteractionCumulativeDistrib not loaded";
-			assert (orderedEconStatuses.size() > 0): "orderedEconStatuses not loaded";			
+			assert (orderedEconStatuses.size() > 0): "orderedEconStatuses not loaded";
+			assert (orderedEconStatuses.size() == economicInteractionCumulativeDistrib.size()): "Inconsistencies in econ interaction file";
+			assert (economicInteractionDistrib.size() == economicInteractionCumulativeDistrib.size()): "Inconsistencies in econ interaction file";
+
 			econDistribData.close();
 		} catch (Exception e) {
-			System.err.println("File input error: " + econ_interaction_distrib_filename);
+			assert (false): "File input error: " + econ_interaction_distrib_filename;
+			fail();
 		}
 	}
 	
@@ -667,7 +694,7 @@ public class Params {
 			int homeregionIndex = rawColumnNames.get("home_region");
 			
 			// assemble use of admin zone names for other purposes
-			for(int i = homeregionIndex + 1; i < header.length; i++){
+			for(int i = Math.max(weekdayIndex, homeregionIndex) + 1; i < header.length; i++){
 				adminZoneNames.add(header[i]);
 			}
 			// set up holders for the information
@@ -688,7 +715,7 @@ public class Params {
 				// the key here is the name of the admin zone, and the value is transition probability
 				HashMap <String, Double> transferFromAdminZone = new HashMap <String, Double> ();
 				ArrayList <Double> cumulativeProbTransfer = new ArrayList <Double> ();
-				for(int i = homeregionIndex + 1; i < bits.length; i++){
+				for(int i = Math.max(weekdayIndex, homeregionIndex) + 1; i < bits.length; i++){
 					transferFromAdminZone.put(header[i], Double.parseDouble(bits[i]));
 					cumulativeProbTransfer.add(Double.parseDouble(bits[i])/100.);
 				}
@@ -710,6 +737,7 @@ public class Params {
 			return probHolder;
 		} catch (Exception e) {
 			System.err.println("File input error: " + adminZoneFilename);
+			fail();
 			return null;
 		}
 	}
@@ -762,6 +790,7 @@ public class Params {
 			return econData;
 		} catch (Exception e) {
 			System.err.println("File input error: " + econFilename);
+			fail();
 		}
 		return null;
 	}
