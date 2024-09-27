@@ -65,10 +65,6 @@ public class Params {
 	HashMap <Location, Integer> lineList;
 	ArrayList <Double> lockdownChangeList = new ArrayList <Double>();
 	
-	// holders for testing
-	public ArrayList <Integer> test_dates;
-	public ArrayList <Integer> number_of_tests_per_day;
-	public ArrayList <String> admin_zones_to_test_in;
 	
 	// parameters drawn from Kerr et al 2020 - https://www.medrxiv.org/content/10.1101/2020.05.10.20097469v3.full.pdf
 	public ArrayList <Integer> infection_age_params;
@@ -126,8 +122,6 @@ public class Params {
 	public String all_cause_mortality_filename = null;
 	public String birth_rate_filename = null;
 	
-	public String testDataFilename = null;
-	public String testLocationFilename = null;
 	
 	// time
 	public static int hours_per_tick = 4; // the number of hours each tick represents
@@ -181,11 +175,6 @@ public class Params {
 		if (this.demography | (!(all_cause_mortality_filename == null) & !(birth_rate_filename == null))) {
 			load_all_cause_mortality_params(dataDir + all_cause_mortality_filename);
 			load_all_birthrate_params(dataDir + birth_rate_filename);
-		}
-		// load the testing data only if a filename has been declared in the parameter files
-		if (!(testDataFilename == null) & !(testLocationFilename == null)) {
-			load_testing(dataDir + testDataFilename);
-			load_testing_locations(dataDir + testLocationFilename);
 		}
 	}
 	
@@ -321,83 +310,6 @@ public class Params {
 		}
 	}
 	
-	public void load_testing(String testDataFilename) {
-		try {
-			
-			System.out.println("Reading in testing data from " + testDataFilename);
-			
-			// Open the tracts file
-			FileInputStream fstream = new FileInputStream(testDataFilename);
-
-			// Convert our input stream to a BufferedReader
-			BufferedReader testingDataFile = new BufferedReader(new InputStreamReader(fstream));
-			String s;
-
-			// extract the header
-			s = testingDataFile.readLine();
-
-			// map the header into column names relative to location
-			String [] header = splitRawCSVString(s);
-			HashMap <String, Integer> columnNames = parseHeader(header);
-			int dayIndex = columnNames.get("date");
-			int number_of_tests = columnNames.get("number_of_tests");
-			
-			// set up data containers
-			test_dates = new ArrayList <Integer> ();
-			number_of_tests_per_day = new ArrayList <Integer> ();
-			
-			// read in the raw data
-			while ((s = testingDataFile.readLine()) != null) {
-				String [] bits = splitRawCSVString(s);
-				int dayVal = Integer.parseInt(bits[dayIndex]);
-				Integer tests_on_day = Integer.parseInt(bits[number_of_tests]);
-				test_dates.add((Integer)dayVal);
-				number_of_tests_per_day.add((Integer)tests_on_day);
-			}
-			assert (number_of_tests_per_day.size() > 0): "Number of tests per day not loaded";
-
-		} catch (Exception e) {
-			System.err.println("File input error: " + testDataFilename);
-			fail();
-		}
-	}
-	
-	public void load_testing_locations(String testLocationsFilename) {
-		try {
-			// TODO: Sort out how this works to allow names to be passed rather than numbers
-			System.out.println("Reading in testing locations from " + testLocationsFilename);
-			
-			// Open the tracts file
-			FileInputStream fstream = new FileInputStream(testLocationsFilename);
-
-			// Convert our input stream to a BufferedReader
-			BufferedReader testingDataFile = new BufferedReader(new InputStreamReader(fstream));
-			String s;
-
-			// extract the header
-			s = testingDataFile.readLine();
-
-			// map the header into column names relative to location
-			String [] header = splitRawCSVString(s);
-			HashMap <String, Integer> columnNames = parseHeader(header);
-			int admin_zone_numbers = columnNames.get("number");
-			
-			// set up data containers
-			admin_zones_to_test_in = new ArrayList <String> ();
-			
-			// read in the raw data
-			while ((s = testingDataFile.readLine()) != null) {
-				String [] bits = splitRawCSVString(s);
-				String zone_to_test_in = "d_" + bits[admin_zone_numbers];
-				admin_zones_to_test_in.add(zone_to_test_in);
-			}
-			assert (admin_zones_to_test_in.size() > 0): "Number of admin zone to test in not loaded";
-
-		} catch (Exception e) {
-			System.err.println("File input error: " + testLocationsFilename);
-			fail();
-		}
-	}
 	
 	public void load_infection_params(String filename){
 		try {
