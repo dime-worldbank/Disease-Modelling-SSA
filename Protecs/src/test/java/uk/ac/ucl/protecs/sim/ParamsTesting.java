@@ -141,6 +141,8 @@ public class ParamsTesting {
 	// params_w_faulty_econ_distribution.txt
 	// params_w_faulty_linelist.txt
 	// params_w_faulty_inf_transitions.txt
+	// params_w_faulty_covid_test_numbers.txt
+	// params_w_faulty_covid_test_locations.txt
 	
 	@Test
 	public void testParamsWillRejectFaultyInputData() {	
@@ -166,7 +168,8 @@ public class ParamsTesting {
 	    return Arrays.asList(
 	            new String[]{"src/main/resources/params_w_faulty_ODM.txt", "src/main/resources/params_w_faulty_econ_status_movement_prob.txt",
 	            		"src/main/resources/params_w_faulty_econ_interactions.txt", "src/main/resources/params_w_faulty_econ_distribution.txt",
-	            		"src/main/resources/params_w_faulty_linelist.txt", "src/main/resources/params_w_faulty_inf_transitions.txt"
+	            		"src/main/resources/params_w_faulty_linelist.txt", "src/main/resources/params_w_faulty_inf_transitions.txt",
+	            		"src/main/resources/params_w_faulty_covid_test_numbers.txt", "src/main/resources/params_w_faulty_covid_test_locations.txt"
 	            		}
 	    
 	    );

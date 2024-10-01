@@ -4,12 +4,10 @@ import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -399,6 +397,10 @@ public class Params {
 				admin_zones_to_test_in.add(zone_to_test_in);
 			}
 			assert (admin_zones_to_test_in.size() > 0): "Number of admin zone to test in not loaded";
+			for (String location: admin_zones_to_test_in) {
+				assert (adminZoneNames.contains(location)): "Location to test in not found in model admin zones";
+			}
+			
 			testingDataFile.close();
 		} catch (Exception e) {
 			fail();
