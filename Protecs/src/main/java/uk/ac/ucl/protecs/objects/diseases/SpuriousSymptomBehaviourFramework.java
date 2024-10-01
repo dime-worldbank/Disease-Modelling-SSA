@@ -11,6 +11,7 @@ public class SpuriousSymptomBehaviourFramework extends BehaviourFramework{
 	WorldBankCovid19Sim myWorld;
 	BehaviourNode susceptibleNode = null, exposedNode = null, deadNode = null;
 	
+	// create an enum title for each of the spurious symptom behaviour nodes, susceptible (no symptoms), exposed (has symptoms) and dead (has passed away so can't have symptoms)
 	public enum SpuriousSymptomNodeTitle{
 		SUSCEPTIBLE("susceptible"), EXPOSED("exposed"),  DEAD("dead");
 
@@ -31,6 +32,8 @@ public class SpuriousSymptomBehaviourFramework extends BehaviourFramework{
         	}
         }
 	}
+	// create an enum title to progress the onset of symptoms step-wise
+
 	public enum nextStepSpurious{
 		NO_SYMPTOMS("noSymptoms"), CAUSE_SYMPTOMS("causeSymptoms"), HAS_DIED("hasDied");
 		public String key;
