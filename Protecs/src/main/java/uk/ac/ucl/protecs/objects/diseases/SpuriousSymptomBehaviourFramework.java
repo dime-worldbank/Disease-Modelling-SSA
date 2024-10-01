@@ -11,9 +11,10 @@ public class SpuriousSymptomBehaviourFramework extends BehaviourFramework{
 	WorldBankCovid19Sim myWorld;
 	BehaviourNode susceptibleNode = null, exposedNode = null, deadNode = null;
 	
-	// create an enum title for each of the spurious symptom behaviour nodes, susceptible (no symptoms), exposed (has symptoms) and dead (has passed away so can't have symptoms)
+	// create an enum title for each of the spurious symptom behaviour nodes, susceptible (no symptoms), exposed (has symptoms), 
+	// dead (has passed away so can't have symptoms), setup (for initialising) and recover for removing symptoms
 	public enum SpuriousSymptomNodeTitle{
-		SUSCEPTIBLE("susceptible"), EXPOSED("exposed"),  DEAD("dead");
+		SUSCEPTIBLE("susceptible"), EXPOSED("exposed"), DEAD("dead"), SETUP("initialSetUp"), RECOVER("recover");
 
         String key;
      
@@ -27,6 +28,10 @@ public class SpuriousSymptomBehaviourFramework extends BehaviourFramework{
         		return EXPOSED;
         	case "dead":
         		return DEAD;
+        	case "initialSetUp":
+        		return SETUP;
+        	case "recover":
+        		return RECOVER;
         	default:
         		throw new IllegalArgumentException();
         	}
@@ -135,16 +140,16 @@ public class SpuriousSymptomBehaviourFramework extends BehaviourFramework{
 					return 1;
 				}
 				// Use switch statement to clearly create conditional actions based on the current state of this person's symptoms 
-				String action = "";
+				SpuriousSymptomNodeTitle action = null;
 				// if this is there first time then they will have a time of creation and no recovery time set
 				if (symptom.timeRecovered == Double.MAX_VALUE) {
-					action = "initialSetUp";
+					action = SpuriousSymptomNodeTitle.SETUP;
 				}
 				if (time >= symptom.timeRecovered) {
-					action = "recover";
+					action = SpuriousSymptomNodeTitle.RECOVER;
 				}
 				switch (action) {
-					case "initialSetUp":{
+					case SETUP:{
 						symptom.getHost().setHasSpuriousObject();
 						symptom.timeLastTriggered = time;
 						symptom.getHost().setCovidSpuriousSymptoms();
@@ -153,7 +158,7 @@ public class SpuriousSymptomBehaviourFramework extends BehaviourFramework{
 						symptom.timeRecovered = timeUntilRecovered;
 						return 1;
 						}
-					case "recover":{
+					case RECOVER:{
 						symptom.getHost().removeCovidSpuriousSymptoms();
 						symptom.getHost().removeEligibilityForCovidTesting();
 						symptom.timeLastTriggered = Double.MAX_VALUE;
