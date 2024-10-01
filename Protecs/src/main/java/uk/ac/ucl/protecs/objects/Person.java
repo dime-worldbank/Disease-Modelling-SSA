@@ -142,7 +142,7 @@ public class Person extends MobileAgent {
 	boolean hadCovid = false;
 	
 	// Covid testing properties
-	boolean EligibleForCovidTesting = false;
+	boolean eligibleForCovidTesting = false;
 	boolean hasBeenTestedForCovid = false;
 	boolean testedPositiveForCovid = false;
 	boolean covidTestLogged = false;
@@ -704,9 +704,9 @@ public class Person extends MobileAgent {
 
 	// COVID TESTING FUNCTIONS
 	// filtering and setting who should be tested
-	public boolean isEligibleForCovidTesting() {return this.EligibleForCovidTesting; }
-	public void setEligibleForCovidTesting() {this.EligibleForCovidTesting = true; }
-	public void removeEligibilityForCovidTesting() {this.EligibleForCovidTesting = false; }
+	public boolean isEligibleForCovidTesting() {return this.eligibleForCovidTesting; }
+	public void setEligibleForCovidTesting() {this.eligibleForCovidTesting = true; }
+	public void removeEligibilityForCovidTesting() {this.eligibleForCovidTesting = false; }
 	// filtering and setting who has been tested
 	public void setHasBeenTestedForCovid() {this.hasBeenTestedForCovid = true; }
 	public boolean hasBeenTestedForCovid() {return this.hasBeenTestedForCovid; }
