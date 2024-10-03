@@ -4,12 +4,10 @@ import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +26,7 @@ public class Params {
 	public boolean setting_perfectMixing = false; // if TRUE: there are no work or social bubbles; individuals have
 	// equal chance of interacting with anyone else in the simulation
 	public boolean demography = false;
+	public boolean covidTesting = false;
 
 	
 	public HashMap <String, Double> economic_status_weekday_movement_prob;
@@ -64,6 +63,13 @@ public class Params {
 	
 	HashMap <Location, Integer> lineList;
 	ArrayList <Double> lockdownChangeList = new ArrayList <Double>();
+	
+	// holders for testing data
+	public ArrayList<String> admin_zones_to_test_in;
+	public ArrayList<Integer> test_dates;
+	public ArrayList<Integer> number_of_tests_per_day;
+
+
 	
 	
 	// parameters drawn from Kerr et al 2020 - https://www.medrxiv.org/content/10.1101/2020.05.10.20097469v3.full.pdf
@@ -122,10 +128,15 @@ public class Params {
 	public String all_cause_mortality_filename = null;
 	public String birth_rate_filename = null;
 	
+	public String testDataFilename = null;
+	public String testLocationFilename = null;
+
+	
 	
 	// time
 	public static int hours_per_tick = 4; // the number of hours each tick represents
 	public static int ticks_per_day = 24 / hours_per_tick;
+	public static int ticks_per_week = ticks_per_day * 7;
 	public static int ticks_per_year = ticks_per_day * 365;
 	
 	public static int hour_start_day_weekday = 8 / hours_per_tick;
@@ -160,10 +171,10 @@ public class Params {
 		
 		// Load in interactions between economic status data(perfect mixing, probably no longer used)
 		load_econStatus_distrib(dataDir  + econ_interaction_distrib_filename);
+		
 		assert (orderedEconStatuses.size() == economic_num_interactions_weekday_perTick.size()): "Econ interaction matrix incomplete";
 		// Load in where you want COVID cases to be initialised
 		load_line_list(dataDir  + line_list_filename);
-		
 		// Load in disease progression parameters
 		load_infection_params(dataDir  + infection_transition_params_filename);
 		
@@ -175,6 +186,11 @@ public class Params {
 		if (this.demography | (!(all_cause_mortality_filename == null) & !(birth_rate_filename == null))) {
 			load_all_cause_mortality_params(dataDir + all_cause_mortality_filename);
 			load_all_birthrate_params(dataDir + birth_rate_filename);
+		}
+		// load the testing data
+		if (this.covidTesting | (!(testDataFilename == null) & !(testLocationFilename == null))) {
+			load_testing(dataDir + testDataFilename);
+			load_testing_locations(dataDir + testLocationFilename);
 		}
 	}
 	
@@ -215,7 +231,7 @@ public class Params {
 					else f.set(this, myVal);	
 				}
 			}			
-
+		paramFile.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail();
@@ -259,7 +275,7 @@ public class Params {
 				lineList.put(myAdminZone, myCount);
 			}
 			assert (lineList.size() > 0): "lineList not loaded";
-
+			lineListDataFile.close();
 		} catch (Exception e) {
 			System.err.println("File input error: " + lineListFilename);
 			fail();
@@ -276,11 +292,11 @@ public class Params {
 			FileInputStream fstream = new FileInputStream(lockdownChangelistFilename);
 
 			// Convert our input stream to a BufferedReader
-			BufferedReader lineListDataFile = new BufferedReader(new InputStreamReader(fstream));
+			BufferedReader lockdownListDataFile = new BufferedReader(new InputStreamReader(fstream));
 			String s;
 
 			// extract the header
-			s = lineListDataFile.readLine();
+			s = lockdownListDataFile.readLine();
 
 			// map the header into column names relative to location
 			String [] header = splitRawCSVString(s);
@@ -290,7 +306,7 @@ public class Params {
 			
 			// read in the raw data
 			boolean started = false;
-			while ((s = lineListDataFile.readLine()) != null) {
+			while ((s = lockdownListDataFile.readLine()) != null) {
 				String [] bits = splitRawCSVString(s);
 				int dayVal = Integer.parseInt(bits[dayIndex]);
 				Integer myLevel = Integer.parseInt(bits[levelIndex]);
@@ -303,13 +319,94 @@ public class Params {
 					started = false;
 				}
 			}
-
+			lockdownListDataFile.close();
 		} catch (Exception e) {
 			System.err.println("File input error: " + lockdownChangelistFilename);
 			fail();
 		}
 	}
 	
+	public void load_testing(String testDataFilename) {
+		try {
+			
+			System.out.println("Reading in testing data from " + testDataFilename);
+			
+			// Open the tracts file
+			FileInputStream fstream = new FileInputStream(testDataFilename);
+
+			// Convert our input stream to a BufferedReader
+			BufferedReader testingDataFile = new BufferedReader(new InputStreamReader(fstream));
+			String s;
+
+			// extract the header
+			s = testingDataFile.readLine();
+
+			// map the header into column names relative to location
+			String [] header = splitRawCSVString(s);
+			HashMap <String, Integer> columnNames = parseHeader(header);
+			int dayIndex = columnNames.get("date");
+			int number_of_tests = columnNames.get("number_of_tests");
+			
+			// set up data containers
+			test_dates = new ArrayList <Integer> ();
+			number_of_tests_per_day = new ArrayList <Integer> ();
+			
+			// read in the raw data
+			while ((s = testingDataFile.readLine()) != null) {
+				String [] bits = splitRawCSVString(s);
+				int dayVal = Integer.parseInt(bits[dayIndex]);
+				Integer tests_on_day = Integer.parseInt(bits[number_of_tests]);
+				test_dates.add((Integer)dayVal);
+				number_of_tests_per_day.add((Integer)tests_on_day);
+			}
+			assert (number_of_tests_per_day.size() > 0): "Number of tests per day not loaded";
+			testingDataFile.close();
+		} catch (Exception e) {
+			fail();
+			System.err.println("File input error: " + testDataFilename);
+		}
+	}
+	
+	public void load_testing_locations(String testLocationsFilename) {
+		try {
+			// TODO: Sort out how this works to allow names to be passed rather than numbers
+			System.out.println("Reading in testing locations from " + testLocationsFilename);
+			
+			// Open the tracts file
+			FileInputStream fstream = new FileInputStream(testLocationsFilename);
+
+			// Convert our input stream to a BufferedReader
+			BufferedReader testingDataFile = new BufferedReader(new InputStreamReader(fstream));
+			String s;
+
+			// extract the header
+			s = testingDataFile.readLine();
+
+			// map the header into column names relative to location
+			String [] header = splitRawCSVString(s);
+			HashMap <String, Integer> columnNames = parseHeader(header);
+			int admin_zone_name = columnNames.get("name");
+			
+			// set up data containers
+			admin_zones_to_test_in = new ArrayList <String> ();
+			
+			// read in the raw data
+			while ((s = testingDataFile.readLine()) != null) {
+				String [] bits = splitRawCSVString(s);
+				String zone_to_test_in = bits[admin_zone_name];
+				admin_zones_to_test_in.add(zone_to_test_in);
+			}
+			assert (admin_zones_to_test_in.size() > 0): "Number of admin zone to test in not loaded";
+			for (String location: admin_zones_to_test_in) {
+				assert (adminZoneNames.contains(location)): "Location to test in not found in model admin zones " + location;
+			}
+			
+			testingDataFile.close();
+		} catch (Exception e) {
+			fail();
+			System.err.println("File input error: " + testLocationsFilename);
+		}
+	}
 	
 	public void load_infection_params(String filename){
 		try {
@@ -377,7 +474,7 @@ public class Params {
 			assert (infection_p_cri_by_age.size() > 0): "infection_p_cri_by_age not loaded";
 			assert (infection_p_dea_by_age.size() > 0): "infection_p_dea_by_age not loaded";
 
-
+			lineListDataFile.close();
 			} catch (Exception e) {
 				System.out.println("File input error: " + filename);
 				fail();
@@ -431,6 +528,7 @@ public class Params {
 				prob_death_by_age_female.add(female_prob_death);
 
 			}
+			lineListDataFile.close();
 			} catch (Exception e) {
 				System.err.println("File input error: " + filename);
 				fail();
@@ -481,6 +579,7 @@ public class Params {
 				prob_birth_by_age.add(female_prob_birth);
 
 			}
+			lineListDataFile.close();
 			} catch (Exception e) {
 				System.err.println("File input error: " + filename);
 				fail();

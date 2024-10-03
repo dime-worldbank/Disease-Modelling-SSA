@@ -33,12 +33,10 @@ public class DemographyTesting {
 		// Increase the birth rate to ensure births take place
 		helperFunctions.setParameterListsToValue(sim, sim.params.prob_birth_by_age, 1.0);
 		// Run the simulation for 100 days
-		int numDays = 100;
+		int numDays = 100; 
 		
 		int original_number_of_agents = sim.agents.size();
-		while(sim.schedule.getTime() < Params.ticks_per_day * numDays && !sim.schedule.scheduleComplete()){
-			sim.schedule.step(sim);
-		}	
+		helperFunctions.runSimulation(sim, numDays);
 		int final_number_of_agents = sim.agents.size();
 		
 		Assert.assertTrue(final_number_of_agents > original_number_of_agents);
@@ -58,9 +56,7 @@ public class DemographyTesting {
 		int numDays = 100;
 				
 		int original_number_of_agents = sim.agents.size();
-		while(sim.schedule.getTime() < Params.ticks_per_day * numDays && !sim.schedule.scheduleComplete()){
-			sim.schedule.step(sim);
-		}	
+		helperFunctions.runSimulation(sim, numDays);
 		int final_number_of_agents = sim.agents.size();
 		Assert.assertTrue(final_number_of_agents == original_number_of_agents);
 
@@ -96,12 +92,8 @@ public class DemographyTesting {
 		// Run the simulation for 100 days
 		int numDays = 100;
 						
-		while(sim_with_male_mortality.schedule.getTime() < Params.ticks_per_day * numDays && !sim_with_male_mortality.schedule.scheduleComplete()){
-			sim_with_male_mortality.schedule.step(sim_with_male_mortality);
-		}	
-		while(sim_with_female_mortality.schedule.getTime() < Params.ticks_per_day * numDays && !sim_with_female_mortality.schedule.scheduleComplete()){
-			sim_with_female_mortality.schedule.step(sim_with_female_mortality);
-		}	
+		helperFunctions.runSimulation(sim_with_male_mortality, numDays);
+		helperFunctions.runSimulation(sim_with_female_mortality, numDays);	
 		// Get the counts of the number of males and females that are alive at the end of the simulation
 		int with_male_mortality_final_male_counts = getAliveCountsBySex(sim_with_male_mortality, SEX.MALE, true);
 		int with_male_mortality_final_female_counts = getAliveCountsBySex(sim_with_male_mortality, SEX.FEMALE, true);
@@ -134,9 +126,7 @@ public class DemographyTesting {
 		// run for a year so that every one has had a birthday
 		int numDays = 364;
 				
-		while(sim.schedule.getTime() < Params.ticks_per_day * numDays && !sim.schedule.scheduleComplete()){
-			sim.schedule.step(sim);
-		}	
+		helperFunctions.runSimulation(sim, numDays);
 		ArrayList <Integer> finalAges = new ArrayList <Integer> ();
 		for (Person p: sim.agents) {
 			finalAges.add(p.getAge());

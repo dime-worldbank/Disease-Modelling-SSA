@@ -46,12 +46,13 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void exposedBehaviourNodesLeadToSusceptiblePresymptomaticAndAsymptomaticOnly() {
 		// create a simulation and start
+
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt");
 		sim.start();
 		// Ensure that no one disease progression occurs beyond the exposed stage
-		HaltDiseaseProgressionAtStage(sim, CoronavirusBehaviourNodeTitle.PRESYMPTOMATIC);
+		helperFunctions.HaltDiseaseProgressionAtStage(sim, CoronavirusBehaviourNodeTitle.PRESYMPTOMATIC);
 		// make sure no one recovers from their infection
-		StopRecoveryHappening(sim);
+		helperFunctions.StopRecoveryHappening(sim);
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
 		// seed a number of the specific node to the run
@@ -70,6 +71,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void presymptomaticBehaviourNodesLeadToMildCasesOnly() {
 		// create a simulation and start
+
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt");
 		sim.start();
 		// Make sure there are no new infections
@@ -77,11 +79,11 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Make everyone have a critical infection
 		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.PRESYMPTOMATIC), 
 				NodeOption.CoronavirusInfectiousBehaviour);		// Make Sure no one's disease progresses beyond a Mild infection
-		HaltDiseaseProgressionAtStage(sim, CoronavirusBehaviourNodeTitle.MILD);
+		helperFunctions.HaltDiseaseProgressionAtStage(sim, CoronavirusBehaviourNodeTitle.MILD);
 		// Set up a duration to run the simulation
 		int numDays = 100; 
 		// Make sure no one recovers from COVID
-		StopRecoveryHappening(sim);
+		helperFunctions.StopRecoveryHappening(sim);
 		// Run the simulation and record the infectious behaviour nodes activated in this simulation
 		HashSet<String> uniqueNodesInRun = getUniqueNodesInSim(sim, numDays);
 		// we would expect only the presymptomatic and mild node to show up in this run
@@ -121,7 +123,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Make everyone have a critical infection
 		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD), 
 				NodeOption.CoronavirusInfectiousBehaviour);		// Ensure that no one disease progression occurs beyond the severe stage
-		HaltDiseaseProgressionAtStage(sim, CoronavirusBehaviourNodeTitle.SEVERE);
+		helperFunctions.HaltDiseaseProgressionAtStage(sim, CoronavirusBehaviourNodeTitle.SEVERE);
 		// Set up a duration to run the simulation
 		int numDays = 100; 
 		// Run the simulation and record the infectious behaviour nodes activated in this simulation
@@ -139,7 +141,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt");
 		sim.start();
 		// Ensure that no one disease progression occurs beyond the exposed stage
-		HaltDiseaseProgressionAtStage(sim, CoronavirusBehaviourNodeTitle.SEVERE);
+		helperFunctions.HaltDiseaseProgressionAtStage(sim, CoronavirusBehaviourNodeTitle.SEVERE);
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
 		// seed a number of the specific node to the run
@@ -165,7 +167,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Make everyone have a critical infection
 		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.SEVERE), 
 				NodeOption.CoronavirusInfectiousBehaviour);		// Ensure that no one disease progression occurs beyond the critical stage
-		HaltDiseaseProgressionAtStage(sim, CoronavirusBehaviourNodeTitle.CRITICAL);
+		helperFunctions.HaltDiseaseProgressionAtStage(sim, CoronavirusBehaviourNodeTitle.CRITICAL);
 		// Set up a duration to run the simulation
 		int numDays = 100; 
 		// Run the simulation and record the infectious behaviour nodes activated in this simulation
@@ -180,10 +182,11 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void confirmSevereInfectionsResolveToRecoveredWhenTheyDoNotProgress() {
 		// create a simulation and start
+
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt");
 		sim.start();
 		// Ensure that no one disease progression occurs beyond the exposed stage
-		HaltDiseaseProgressionAtStage(sim, CoronavirusBehaviourNodeTitle.CRITICAL);
+		helperFunctions.HaltDiseaseProgressionAtStage(sim, CoronavirusBehaviourNodeTitle.CRITICAL);
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
 		// seed a number of the specific node to the run
@@ -201,6 +204,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void criticaBehaviourlNodesLeadToDeadOrRecoveredOnly() {
 		// create a simulation and start
+
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt");
 		sim.start();
 		
@@ -225,7 +229,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt");
 		sim.start();
 		// Ensure that no one disease progression occurs beyond the exposed stage
-		HaltDiseaseProgressionAtStage(sim, CoronavirusBehaviourNodeTitle.CRITICAL);
+		helperFunctions.HaltDiseaseProgressionAtStage(sim, CoronavirusBehaviourNodeTitle.CRITICAL);
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
 		// seed a number of the specific node to the run
@@ -298,51 +302,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	
     // ================================ Helper functions ==================================================
 	
-	private void HaltDiseaseProgressionAtStage(WorldBankCovid19Sim world, CoronavirusBehaviourNodeTitle stage) {
-		// You present this function with a stage in the disease which you want to halt the infection, then this
-		// function changes the parameters which allows the disease to progress further
-		switch (stage) {
-		case EXPOSED:
-			int exp_idx = 0;
-			// Make sure there are no transitions from exposed to symptomatic COVID
-			for (double val: world.params.infection_p_sym_by_age) {
-				world.params.infection_p_sym_by_age.set(exp_idx, 0.0);
-				exp_idx ++;
-			}
-			break;
-		case PRESYMPTOMATIC:
-			world.params.infectiousToSymptomatic_mean = Integer.MAX_VALUE;
-			world.params.infectiousToSymptomatic_std = 0;
-			break;
-		case MILD:
-			int mild_idx = 0;
-			// Make sure there are no transitions from exposed to symptomatic COVID
-			for (double val: world.params.infection_p_sym_by_age) {
-				world.params.infection_p_sev_by_age.set(mild_idx, 0.0);
-				mild_idx ++;
-			}
-			break;
-		case SEVERE:
-			int severe_idx = 0;
-			// Make sure there are no transitions from exposed to symptomatic COVID
-			for (double val: world.params.infection_p_sym_by_age) {
-				world.params.infection_p_cri_by_age.set(severe_idx, 0.0);
-				severe_idx ++;
-			}
-			break;
-		case CRITICAL:
-			int critical_idx = 0;
-			// Make sure there are no transitions from exposed to symptomatic COVID
-			for (double val: world.params.infection_p_sym_by_age) {
-				world.params.infection_p_dea_by_age.set(critical_idx, 0.0);
-				critical_idx ++;
-			}
-			break;
-		default:
-			System.out.print("No parameters changed");
-		}
-		
-	}
+	
 	
 	private void ForceExposedInfectionsCauseDisease(WorldBankCovid19Sim world) {
 		int idx = 0;
@@ -353,18 +313,6 @@ public class CoronavirusInfectiousBehaviourTesting {
 	}
 
 	
-	private void StopRecoveryHappening(WorldBankCovid19Sim world) {
-		// This function sets the recovery time of COVID at various stages of the disease to an very high integer beyond the range
-		// of the simulation, thereby stopping recovery from COVID happening
-		world.params.asymptomaticToRecovery_mean = Integer.MAX_VALUE;
-		world.params.asymptomaticToRecovery_std = 0;
-		world.params.symptomaticToRecovery_mean = Integer.MAX_VALUE;
-		world.params.symptomaticToRecovery_std = 0;
-		world.params.severeToRecovery_mean = Integer.MAX_VALUE;
-		world.params.severeToRecovery_std = 0;
-		world.params.criticalToRecovery_mean = Integer.MAX_VALUE;
-		world.params.criticalToRecovery_std = 0;
-	}
 	
 	private HashSet<String> getUniqueNodesInSim(WorldBankCovid19Sim world, int numDaysToRun){
 		// This function runs the simulation for a predetermined number of days. Every simulation day, this function will store the 
@@ -398,11 +346,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		HashSet <String> behaviourNodeBin = new HashSet<String>();
 		
 		// Simulate over the time period and get the disease stages present in the simulation
-		while(world.schedule.getTime() < Params.ticks_per_day * numDaysToRun && !world.schedule.scheduleComplete()){
-			// create a list to store the disease nodes that occur in the simulation
-			ArrayList <String> nodesBin = new ArrayList<String>();
-			world.schedule.step(world);
-		}
+		helperFunctions.runSimulation(world, numDaysToRun);
+		
 		for (Infection i: world.infections) {
 			behaviourNodeBin.add(i.getBehaviourName());
 		}

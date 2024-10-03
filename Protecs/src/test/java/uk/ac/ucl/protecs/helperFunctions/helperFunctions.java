@@ -9,6 +9,7 @@ import java.util.Random;
 import uk.ac.ucl.protecs.objects.Person;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.objects.diseases.Infection;
+import uk.ac.ucl.protecs.objects.diseases.CoronavirusBehaviourFramework.CoronavirusBehaviourNodeTitle;
 import uk.ac.ucl.protecs.sim.Params;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import swise.behaviours.BehaviourNode;
@@ -190,5 +191,72 @@ public class helperFunctions {
 		}
 		}
 		return locationBin;
+	}
+	public static void StopRecoveryHappening(WorldBankCovid19Sim world) {
+		// This function sets the recovery time of COVID at various stages of the disease to an very high integer beyond the range
+		// of the simulation, thereby stopping recovery from COVID happening
+		world.params.asymptomaticToRecovery_mean = Integer.MAX_VALUE;
+		world.params.asymptomaticToRecovery_std = 0;
+		world.params.symptomaticToRecovery_mean = Integer.MAX_VALUE;
+		world.params.symptomaticToRecovery_std = 0;
+		world.params.severeToRecovery_mean = Integer.MAX_VALUE;
+		world.params.severeToRecovery_std = 0;
+		world.params.criticalToRecovery_mean = Integer.MAX_VALUE;
+		world.params.criticalToRecovery_std = 0;
+	}
+	
+	public static void HaltDiseaseProgressionAtStage(WorldBankCovid19Sim world, CoronavirusBehaviourNodeTitle stage) {
+		// You present this function with a stage in the disease which you want to halt the infection, then this
+		// function changes the parameters which allows the disease to progress further
+		switch (stage) {
+		case EXPOSED:
+			int exp_idx = 0;
+			// Make sure there are no transitions from exposed to symptomatic COVID
+			for (double val: world.params.infection_p_sym_by_age) {
+				world.params.infection_p_sym_by_age.set(exp_idx, 0.0);
+				exp_idx ++;
+			}
+			break;
+		case PRESYMPTOMATIC:
+			world.params.infectiousToSymptomatic_mean = Integer.MAX_VALUE;
+			world.params.infectiousToSymptomatic_std = 0;
+			break;
+		case MILD:
+			int mild_idx = 0;
+			// Make sure there are no transitions from exposed to symptomatic COVID
+			for (double val: world.params.infection_p_sym_by_age) {
+				world.params.infection_p_sev_by_age.set(mild_idx, 0.0);
+				mild_idx ++;
+			}
+			break;
+		case SEVERE:
+			int severe_idx = 0;
+			// Make sure there are no transitions from exposed to symptomatic COVID
+			for (double val: world.params.infection_p_sym_by_age) {
+				world.params.infection_p_cri_by_age.set(severe_idx, 0.0);
+				severe_idx ++;
+			}
+			break;
+		case CRITICAL:
+			int critical_idx = 0;
+			// Make sure there are no transitions from exposed to symptomatic COVID
+			for (double val: world.params.infection_p_sym_by_age) {
+				world.params.infection_p_dea_by_age.set(critical_idx, 0.0);
+				critical_idx ++;
+			}
+			break;
+		default:
+			System.out.print("No parameters changed");
+		}
+		
+	}
+	public static int GetNumberAlive(WorldBankCovid19Sim world) {
+		int counter = 0;
+		for (Person p: world.agents) {if (p.isAlive()) {counter++;}}
+		return counter;
+	}
+	
+	public static void StopCovidFromSpreading(WorldBankCovid19Sim world) {
+		world.params.infection_beta = 0.0;
 	}
 }

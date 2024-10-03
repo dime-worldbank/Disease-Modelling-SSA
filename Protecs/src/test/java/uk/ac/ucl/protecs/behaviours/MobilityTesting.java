@@ -41,6 +41,7 @@ public class MobilityTesting {
 		this.params = fileName;
 	}
 
+
 	@Test
 	public void PeopleDoingTheCommunityNodeBehaviourSwitchToTheHomeNodeBehviourAtTheEndOfDay() {
 		// set up the simulation
@@ -133,18 +134,22 @@ public class MobilityTesting {
 	@Test
 	public void MakeSureThatPeopleOnlyGoToTheCommunityAndHomeLocationsWithPerfectMixing() {
 		//Arrange
+
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(params + ".txt");
 		sim.start();
-		// ensure that perfect mixing is turned on
-		sim.params.setting_perfectMixing = true;
-		int numDays = 100; 
-		// Run the simulation and record the infectious behaviour nodes reached in this simulation
-		HashSet<String> uniqueLocationTypesInRun = helperFunctions.getUniqueLocationsOverCourseOfSimulation(sim, numDays);
-		// we would expect only the home and community node to appear in the simulation
-		List<String> expectedLocationTypes = Arrays.asList(LocationCategory.HOME.key, LocationCategory.COMMUNITY.key);
-		// Make sure than no other movement behaviour nodes are reaching in the simulation
-		Assert.assertTrue(expectedLocationTypes.containsAll(uniqueLocationTypesInRun) && uniqueLocationTypesInRun.containsAll(expectedLocationTypes));
+		// make everyone go to the community
+		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.movementFramework.setMobilityNodeForTesting(mobilityNodeTitle.COMMUNITY), 
+				NodeOption.MovementBehaviour);
+		
+		// people will go home once the day has ended, therefore we need to run this until the end of the time they will be out in the community.
+		// There are 4 hours per tick, meaning 6 ticks per day. We check they are home after the 5th tick of the simulation.
+		List<String> uniqueNodesInRun = helperFunctions.getFinalBehaviourNodesInSim(sim, 5.01 / sim.params.ticks_per_day, NodeOption.MovementBehaviour);
+		// only expect people to be at home
+		List<String> expectedNodes = Arrays.asList(mobilityNodeTitle.HOME.key);
+
+		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun) && uniqueNodesInRun.containsAll(expectedNodes));
 	}
+	
 	
 //	@Test
 //	public void LockdownReducesTheNumberOfVisitsToTheCommunity() {
