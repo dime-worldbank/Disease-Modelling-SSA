@@ -140,12 +140,17 @@ public class SpuriousSymptomBehaviourFramework extends BehaviourFramework{
 					return 1;
 				}
 				// Use switch statement to clearly create conditional actions based on the current state of this person's symptoms 
-				SpuriousSymptomBehaviourNode action = null;
+				SpuriousSymptomBehaviourNode action = SpuriousSymptomBehaviourNode.EXPOSED;
 				// if this is there first time then they will have a time of creation and no recovery time set
 				if (symptom.timeRecovered == Double.MAX_VALUE) {
 					action = SpuriousSymptomBehaviourNode.SETUP;
 				}
+				// If the current time is later than the time we need to remove symptoms, remove spurious symptoms
 				if (time >= symptom.timeRecovered) {
+					action = SpuriousSymptomBehaviourNode.RECOVER;
+				}
+				// If the host has a symptomatic infection, remove spurious symptoms
+				if (symptom.getHost().hasSymptomaticCovid()) {
 					action = SpuriousSymptomBehaviourNode.RECOVER;
 				}
 				switch (action) {

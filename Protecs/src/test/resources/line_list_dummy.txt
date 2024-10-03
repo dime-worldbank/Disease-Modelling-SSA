@@ -1,2 +1,2 @@
 admin_zone, count
-d_1, 15
+d_2, 1
