@@ -1,4 +1,4 @@
-dataDir: src/main/resources/testing/
+dataDir: src/test/resources/
 
 population_filename: census_dummy.csv
 
@@ -14,9 +14,9 @@ community_num_interaction_perTick: 5
 setting_perfectMixing: true
 demography: true
 
-line_list_filename: line_list_dummy.txt
+line_list_filename: line_list_faulty.txt
 infection_transition_params_filename: covasim_infect_transitions.txt
-
+lockdown_changeList_filename: lockdownChangelistDefault.txt
 lineListWeightingFactor: 1
 
 all_cause_mortality_filename: test_mortality_rates.txt

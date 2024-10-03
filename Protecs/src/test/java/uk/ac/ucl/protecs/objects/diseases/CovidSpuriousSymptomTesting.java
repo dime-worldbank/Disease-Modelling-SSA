@@ -19,7 +19,7 @@ public class CovidSpuriousSymptomTesting{
 	
 	@Test
 	public void CheckPeopleWithSymptomaticCovidDoNotGetSpuriousSymptoms() {
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/testing/covid_testing_params.txt");
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/test/resources/covid_testing_params.txt");
 		sim.start();
 		int numDays = 8;
 		// Give the population mild Covid and spurious symptoms to see if those with mild covid have their spurious symptoms resolved 
@@ -50,7 +50,7 @@ public class CovidSpuriousSymptomTesting{
 	
 	@Test
 	public void CheckPeopleCanHaveAsymptomaticCovidAndSpuriousSymptoms() {
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/testing/covid_testing_params.txt");
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/test/resources/covid_testing_params.txt");
 		sim.start();
 		int numDays = 1;
 		giveAFractionASpuriousSymptom(1, sim);
@@ -67,7 +67,7 @@ public class CovidSpuriousSymptomTesting{
 	
 	@Test
 	public void CheckSettingCovidSpuriousSymptomAndTestingEligibilityPropertiesAreBeingRemovedAfterAWeek() {
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/testing/covid_testing_params.txt");
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/test/resources/covid_testing_params.txt");
 		sim.start();
 		int numDays = 8;
 		// Change the rate of setting Covid spurious symptoms so we have control the number of people who get given symptoms
@@ -91,7 +91,7 @@ public class CovidSpuriousSymptomTesting{
 	
 	@Test
 	public void CheckCovidSpuriousSymptomAndTestingEligibilityPropertiesAreBeingSetWhenCreated() {
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/testing/covid_testing_params.txt");
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/test/resources/covid_testing_params.txt");
 		sim.start();
 		int numDays = 7;	
 		// Remove the development of new symptoms
@@ -110,7 +110,7 @@ public class CovidSpuriousSymptomTesting{
 
 	@Test
 	public void CheckSpuriousObjectsAreCreated() {
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/testing/covid_testing_params.txt");
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/test/resources/covid_testing_params.txt");
 		sim.start();
 		int numDays = 8;
 		// Change the rate of setting Covid spurious symptoms so we have control the number of people who get given symptoms

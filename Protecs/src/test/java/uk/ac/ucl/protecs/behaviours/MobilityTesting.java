@@ -100,7 +100,7 @@ public class MobilityTesting {
 	@Test
 	public void PeopleWithinTheHomeLocationGoToTheCommunityLocationAtTheStartOfDay() {
 		// set up the simulation
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/testing/params_no_district_movement.txt");
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/test/resources/params_no_district_movement.txt");
 		sim.start();
 		// people start at home and then go to the community afterwards
 		helperFunctions.makePeopleAlwaysLeaveHome(sim);
@@ -201,7 +201,7 @@ public class MobilityTesting {
 	@Parameterized.Parameters
 	public static List<String> params() {
 	    return Arrays.asList(
-	            new String[]{"src/main/resources/testing/params", "src/main/resources/testing/params_ward_dummy"}
+	            new String[]{"src/test/resources/params", "src/test/resources/params_ward_dummy"}
 	    
 	    );
 	}

@@ -17,7 +17,7 @@ public class CovidTestingTesting {
 	
 	@Test
 	public void CheckTestsOnlyHappenForThoseWithSymptomsOfCovid() {
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/testing/covid_testing_params.txt");
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/test/resources/covid_testing_params.txt");
 		sim.start();
 		int numDays = 1;
 		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(0.5, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD),
