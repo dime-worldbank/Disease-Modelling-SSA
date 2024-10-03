@@ -271,18 +271,6 @@ public class helperFunctions {
 		}
 		return locationBin;
 	}
-	public static void StopRecoveryHappening(WorldBankCovid19Sim world) {
-		// This function sets the recovery time of COVID at various stages of the disease to an very high integer beyond the range
-		// of the simulation, thereby stopping recovery from COVID happening
-		world.params.asymptomaticToRecovery_mean = Integer.MAX_VALUE;
-		world.params.asymptomaticToRecovery_std = 0;
-		world.params.symptomaticToRecovery_mean = Integer.MAX_VALUE;
-		world.params.symptomaticToRecovery_std = 0;
-		world.params.severeToRecovery_mean = Integer.MAX_VALUE;
-		world.params.severeToRecovery_std = 0;
-		world.params.criticalToRecovery_mean = Integer.MAX_VALUE;
-		world.params.criticalToRecovery_std = 0;
-	}
 	
 	public static void HaltDiseaseProgressionAtStage(WorldBankCovid19Sim world, CoronavirusBehaviourNodeTitle stage) {
 		// You present this function with a stage in the disease which you want to halt the infection, then this
@@ -329,11 +317,7 @@ public class helperFunctions {
 		}
 		
 	}
-	public static int GetNumberAlive(WorldBankCovid19Sim world) {
-		int counter = 0;
-		for (Person p: world.agents) {if (p.isAlive()) {counter++;}}
-		return counter;
-	}
+
 	
 	public static void StopCovidFromSpreading(WorldBankCovid19Sim world) {
 		world.params.infection_beta = 0.0;
