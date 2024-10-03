@@ -398,7 +398,7 @@ public class Params {
 			}
 			assert (admin_zones_to_test_in.size() > 0): "Number of admin zone to test in not loaded";
 			for (String location: admin_zones_to_test_in) {
-				assert (adminZoneNames.contains(location)): "Location to test in not found in model admin zones";
+				assert (adminZoneNames.contains(location)): "Location to test in not found in model admin zones " + location;
 			}
 			
 			testingDataFile.close();
