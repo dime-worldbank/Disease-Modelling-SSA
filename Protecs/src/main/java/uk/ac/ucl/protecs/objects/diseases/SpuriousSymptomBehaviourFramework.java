@@ -145,7 +145,12 @@ public class SpuriousSymptomBehaviourFramework extends BehaviourFramework{
 				if (symptom.timeRecovered == Double.MAX_VALUE) {
 					action = SpuriousSymptomBehaviourNode.SETUP;
 				}
+				// If the current time is later than the time we need to remove symptoms, remove spurious symptoms
 				if (time >= symptom.timeRecovered) {
+					action = SpuriousSymptomBehaviourNode.RECOVER;
+				}
+				// If the host has a symptomatic infection, remove spurious symptoms
+				if (symptom.getHost().hasSymptomaticCovid()) {
 					action = SpuriousSymptomBehaviourNode.RECOVER;
 				}
 				switch (action) {

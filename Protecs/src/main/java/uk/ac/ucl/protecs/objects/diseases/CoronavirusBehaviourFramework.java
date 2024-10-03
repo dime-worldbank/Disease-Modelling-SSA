@@ -280,8 +280,10 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 					i.getHost().setMild();
 					i.getHost().isEligibleForCovidTesting();
 				}
-
-
+				if (i.getHost().hasCovidSpuriousSymptoms()) {
+					i.getHost().removeCovidSpuriousSymptoms();
+				}
+				
 				// if the agent is scheduled to recover, make sure that it
 				// does so
 				if(time >= i.time_recovered){

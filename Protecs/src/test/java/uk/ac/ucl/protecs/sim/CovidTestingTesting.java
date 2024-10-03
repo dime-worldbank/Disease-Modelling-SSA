@@ -23,15 +23,16 @@ public class CovidTestingTesting {
 		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(0.5, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD),
 				NodeOption.CoronavirusInfectiousBehaviour);
 		helperFunctions.StopRecoveryHappening(sim);
+		helperFunctions.StopCovidFromSpreading(sim);
 		helperFunctions.runSimulation(sim, numDays);
 		List<Person> hasBeenTested = peopleWhoHaveBeenTested(sim);
-		int numWithSpurious = 0;
-		int numWithSymptomaticCovid = 0;
+		int numWithBothSpuriousAndSymptomaticCovid = 0;
 		for (Person p: hasBeenTested) {
-			if (p.hasCovidSpuriousSymptoms()) {numWithSpurious++;}
-			if (p.hasSymptomaticCovid()) {numWithSymptomaticCovid++;}
+			if (p.hasCovidSpuriousSymptoms() & p.hasSymptomaticCovid()) {
+				numWithBothSpuriousAndSymptomaticCovid++;
+				}
 		}
-		Assert.assertTrue(hasBeenTested.size() == numWithSpurious + numWithSymptomaticCovid);
+		Assert.assertTrue(numWithBothSpuriousAndSymptomaticCovid == 0);
 		
 	}
 	
