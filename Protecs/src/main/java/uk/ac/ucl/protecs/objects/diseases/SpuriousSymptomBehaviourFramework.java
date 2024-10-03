@@ -13,14 +13,14 @@ public class SpuriousSymptomBehaviourFramework extends BehaviourFramework{
 	
 	// create an enum title for each of the spurious symptom behaviour nodes, susceptible (no symptoms), exposed (has symptoms), 
 	// dead (has passed away so can't have symptoms), setup (for initialising) and recover for removing symptoms
-	public enum SpuriousSymptomNodeTitle{
+	public enum SpuriousSymptomBehaviourNode{
 		SUSCEPTIBLE("susceptible"), EXPOSED("exposed"), DEAD("dead"), SETUP("initialSetUp"), RECOVER("recover");
 
         String key;
      
-        SpuriousSymptomNodeTitle(String key) { this.key = key; }
+        SpuriousSymptomBehaviourNode(String key) { this.key = key; }
     
-        static SpuriousSymptomNodeTitle getValue(String x) {
+        static SpuriousSymptomBehaviourNode getValue(String x) {
         	switch (x) {
         	case "susceptible":
         		return SUSCEPTIBLE;
@@ -70,7 +70,7 @@ public class SpuriousSymptomBehaviourFramework extends BehaviourFramework{
 		susceptibleNode = new BehaviourNode(){
 
 			@Override
-			public String getTitle() { return SpuriousSymptomNodeTitle.SUSCEPTIBLE.key; }
+			public String getTitle() { return SpuriousSymptomBehaviourNode.SUSCEPTIBLE.key; }
 
 			@Override
 			public double next(Steppable s, double time) {
@@ -120,7 +120,7 @@ public class SpuriousSymptomBehaviourFramework extends BehaviourFramework{
 		exposedNode = new BehaviourNode(){
 
 			@Override
-			public String getTitle() { return SpuriousSymptomNodeTitle.EXPOSED.key; }
+			public String getTitle() { return SpuriousSymptomBehaviourNode.EXPOSED.key; }
 
 			/**
 			 * After being exposed, the disease may develop in a number of ways.
@@ -140,13 +140,13 @@ public class SpuriousSymptomBehaviourFramework extends BehaviourFramework{
 					return 1;
 				}
 				// Use switch statement to clearly create conditional actions based on the current state of this person's symptoms 
-				SpuriousSymptomNodeTitle action = null;
+				SpuriousSymptomBehaviourNode action = null;
 				// if this is there first time then they will have a time of creation and no recovery time set
 				if (symptom.timeRecovered == Double.MAX_VALUE) {
-					action = SpuriousSymptomNodeTitle.SETUP;
+					action = SpuriousSymptomBehaviourNode.SETUP;
 				}
 				if (time >= symptom.timeRecovered) {
-					action = SpuriousSymptomNodeTitle.RECOVER;
+					action = SpuriousSymptomBehaviourNode.RECOVER;
 				}
 				switch (action) {
 					case SETUP:{
@@ -182,7 +182,7 @@ public class SpuriousSymptomBehaviourFramework extends BehaviourFramework{
 		deadNode = new BehaviourNode(){
 
 			@Override
-			public String getTitle() { return SpuriousSymptomNodeTitle.DEAD.key; }
+			public String getTitle() { return SpuriousSymptomBehaviourNode.DEAD.key; }
 
 			@Override
 			public double next(Steppable s, double time) {
@@ -202,7 +202,7 @@ public class SpuriousSymptomBehaviourFramework extends BehaviourFramework{
 		}
 	
 		
-		public BehaviourNode setNode(SpuriousSymptomNodeTitle behaviour) {
+		public BehaviourNode setNode(SpuriousSymptomBehaviourNode behaviour) {
 			BehaviourNode toreturn;
 
 			switch (behaviour) {
