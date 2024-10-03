@@ -14,7 +14,7 @@ community_num_interaction_perTick: 5
 setting_perfectMixing: true
 demography:false
 
-line_list_filename: line_list_no_inf.txt
+line_list_filename: line_list_empty.txt
 infection_transition_params_filename: covasim_infect_transitions.txt
 lockdown_changeList_filename: lockdownChangelist.txt
 lineListWeightingFactor: 1
