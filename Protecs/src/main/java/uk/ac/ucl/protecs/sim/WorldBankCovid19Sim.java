@@ -451,8 +451,6 @@ public class WorldBankCovid19Sim extends SimState {
 		String outputFilename = "dailyReport_" + myBeta + "_" + numDays + "_" + seed;
 		String infectionsOutputFilename = "infections_" + myBeta + "_" + numDays + "_" + seed + ".txt"; 
 		String paramsFilename = "src/main/resources/params.txt";
-		boolean demography = false;
-		boolean covidTesting = true;
 
 		// read in any extra settings from the command line
 		if(args.length < 0){
@@ -490,9 +488,7 @@ public class WorldBankCovid19Sim extends SimState {
 
 		// ensure that all parameters are set
 		mySim.params.infection_beta = myBeta / mySim.params.ticks_per_day; // normalised to be per tick
-		mySim.params.demography = true;
 		mySim.targetDuration = numDays;
-		mySim.params.rate_of_spurious_symptoms = 1;
 		mySim.start(); // start the simulation
 		
 		mySim.infections_export_filename = infectionsOutputFilename; // overwrite the export filename

@@ -1,0 +1,21 @@
+dataDir: src/main/resources/
+
+population_filename: census_dummy.csv
+
+admin_zone_transition_LOCKDOWN_filename: dailyDistrictTransitionProb_postLockdown.csv
+admin_zone_transition_PRELOCKDOWN_filename: dailyDistrictTransitionProb_preLockdown.csv
+
+economic_status_weekday_movement_prob_filename: econStatusMovementProb_otherday.txt
+economic_status_otherday_movement_prob_filename: econStatusMovementProb_weekday.txt
+economic_status_num_daily_interacts_filename: numWeeklyInteractionsByStatus.txt
+econ_interaction_distrib_filename: interactionMatrixByStatus.txt
+
+community_num_interaction_perTick: 5
+setting_perfectMixing: true
+demography: false
+
+line_list_filename: line_list_dummy.txt
+infection_transition_params_filename: covasim_infect_transitions.txt
+lockdown_changeList_filename: lockdownChangelistDefault.txt
+lineListWeightingFactor: 1
+
