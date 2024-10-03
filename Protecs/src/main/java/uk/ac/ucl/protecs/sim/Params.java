@@ -74,7 +74,7 @@ public class Params {
 	public ArrayList <String> admin_zones_to_test_in; 
 	
 	// holders for workplace bubble constraints
-	public HashMap <OCCUPATION, LocationCategory> OccupationConstraintList;
+	public HashMap <OCCUPATION, LocationCategory> OccupationConstraintList = new HashMap <OCCUPATION, LocationCategory> ();
 	 
 	// parameters drawn from Kerr et al 2020 - https://www.medrxiv.org/content/10.1101/2020.05.10.20097469v3.full.pdf
 	public ArrayList <Integer> infection_age_params;
@@ -173,10 +173,13 @@ public class Params {
 		// Load in disease progression parameters
 		load_infection_params(dataDir  + infection_transition_params_filename);
 		
-		// load the workplace contacts data
-		load_workplace_contacts(dataDir + workplaceContactsFilename);
-		// load in the file to determine which occupations will have reduced mobility
-		load_occupational_constraints(dataDir + workplaceConstraintsFilename);
+		// Load in workplace contact parameters if setting_perfectMixing is false
+		if (!this.setting_perfectMixing) {
+			// load the workplace contacts data
+			load_workplace_contacts(dataDir + workplaceContactsFilename);
+			// load in the file to determine which occupations will have reduced mobility
+			load_occupational_constraints(dataDir + workplaceConstraintsFilename);
+		}
 		
 		// Load in whether/when you want to trigger lockdown only if a file name has been declared
 		if (!(lockdown_changeList_filename == null)) {
@@ -746,7 +749,7 @@ public class Params {
 				// the key here is the name of the admin zone, and the value is transition probability
 				HashMap <String, Double> transferFromAdminZone = new HashMap <String, Double> ();
 				ArrayList <Double> cumulativeProbTransfer = new ArrayList <Double> ();
-				for(int i = homeregionIndex + 1; i < bits.length; i++){
+				for(int i = Math.max(weekdayIndex, homeregionIndex) + 1; i < bits.length; i++){
 					transferFromAdminZone.put(header[i], Double.parseDouble(bits[i]));
 					cumulativeProbTransfer.add(Double.parseDouble(bits[i])/100.);
 				}
