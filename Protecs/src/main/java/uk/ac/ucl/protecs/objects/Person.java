@@ -178,7 +178,17 @@ public class Person extends MobileAgent {
 	boolean recovered = false;
 	boolean hasCovid = false;
 	boolean hadCovid = false;
+	
+	// Covid testing properties
+	boolean eligibleForCovidTesting = false;
+	boolean hasBeenTestedForCovid = false;
+	boolean testedPositiveForCovid = false;
+	boolean covidTestLogged = false;
 
+
+	boolean hasSpuriousSymptomsForCovid = false;
+	boolean hasSpuriousObject = false;
+	Integer timeToRemoveCovidSpuriousSymptoms = Integer.MAX_VALUE;
 
 	// bubble interaction counters
 	int number_of_interactions_at_work = Integer.MIN_VALUE;
@@ -355,7 +365,7 @@ public class Person extends MobileAgent {
 		// if there is no one else other than the individual at the location, save computation time and return out
 		else if(this.currentLocation.getPersonsHere().length < 2) {
 			return; 
-			}
+			} 
 		
 		if(myWorld.params.setting_perfectMixing) {
 			
@@ -365,7 +375,7 @@ public class Person extends MobileAgent {
 		else {
 			structuredMixingInteractions();
 			return;
-		}
+		} 
 	}
 		// now apply the rules based on the setting
 
@@ -425,7 +435,7 @@ public class Person extends MobileAgent {
 	
 		}
 		*/
-
+ 
 	private void perfectMixingInteractions() {
 		Object [] peopleHere = this.currentLocation.getPersonsHere();
 		int numPeople = peopleHere.length;
@@ -446,7 +456,7 @@ public class Person extends MobileAgent {
 		
 		// don't interact with the same person twice
 		HashSet <Person> otherPeople = new HashSet <Person> ();
-		otherPeople.add(this); 
+		otherPeople.add(this);  
 		
 		for(int i = 0; i < myNumInteractions; i++) {
 			Person otherPerson = (Person) peopleHere[myWorld.random.nextInt(numPeople)]; 
@@ -454,7 +464,7 @@ public class Person extends MobileAgent {
 			// don't interact with the same person multiple times
 			if(otherPeople.contains(otherPerson)) {
 				i -= 1;
-				continue;
+				continue; 
 			}
 			else
 				otherPeople.add(otherPerson); 
@@ -467,7 +477,7 @@ public class Person extends MobileAgent {
 					&& myProb < myWorld.params.infection_beta){
 				CoronavirusInfection inf = new CoronavirusInfection(otherPerson, this, myWorld.infectiousFramework.getHomeNode(), myWorld);
 				myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting); 
-			} 
+			}  
 
 		}
 	}
@@ -476,7 +486,7 @@ public class Person extends MobileAgent {
 		if(currentLocation instanceof Household){
 			assert (!this.atWork): "at work but having interactions at home";
 			interactWithin(currentLocation.personsHere, null, currentLocation.personsHere.size());		
-			myWorld.home_interaction_counter ++;
+			myWorld.home_interaction_counter ++; 
 		}
 		// they may be at their economic activity site!
 		else if(currentLocation instanceof Workplace){
@@ -487,15 +497,15 @@ public class Person extends MobileAgent {
 			myNumInteractions = (int) this.number_of_interactions_at_work / 2;
 
 			if (myNumInteractions > currentLocation.personsHere.size()) myNumInteractions = currentLocation.personsHere.size();
-			// interact
+			// interact 
 			interactWithin(workBubble, currentLocation.personsHere, myNumInteractions);
 			myWorld.work_interaction_counter ++;
 
 		}
 		else {
-			myWorld.community_interaction_counter ++;
+			myWorld.community_interaction_counter ++; 
 
-			perfectMixingInteractions();
+			perfectMixingInteractions(); 
 		}
 	
 	}
@@ -549,7 +559,7 @@ public class Person extends MobileAgent {
 			// check if they are already infected; if they are not, infect with with probability BETA
 			if(p.myInfection == null 
 					&& myWorld.random.nextDouble() < myWorld.params.infection_beta){
-				CoronavirusInfection inf = new CoronavirusInfection(p, this, myWorld.infectiousFramework.getHomeNode(), myWorld); 
+				CoronavirusInfection inf = new CoronavirusInfection(p, this, myWorld.infectiousFramework.getHomeNode(), myWorld);  
 				myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting);
 			}
 
@@ -575,19 +585,19 @@ public class Person extends MobileAgent {
 		boolean largerCommunityContext = largerCommunity != null;
 
 		// set up the probabilities
-		double groupSize = group.size();
+		double groupSize = group.size(); 
 		double numberOfInteractions = interactNumber; 
 		double probabilityOfInteractingWithAnyGivenGroupMember = numberOfInteractions / groupSize;
 
 		// create the iterator and iterate over the set elements
-		// TODO: look at selection without replacement 
+		// TODO: look at selection without replacement   
 		Iterator myIt = group.iterator();
-		while(myIt.hasNext() && numberOfInteractions > 0) { 
+		while(myIt.hasNext() && numberOfInteractions > 0) {  
 			
 			// generate the likelihood of selecting this particular element
 			double prob = myWorld.random.nextDouble();
 			
-			if(prob <= probabilityOfInteractingWithAnyGivenGroupMember) { // INTERACT WITH THE PERSON 
+			if(prob <= probabilityOfInteractingWithAnyGivenGroupMember) { // INTERACT WITH THE PERSON  
 				
 				// pull them out!
 				Person p = (Person) myIt.next();
@@ -636,7 +646,7 @@ public class Person extends MobileAgent {
 	public Location getCommunityLocation(){ return communityLocation;}
 
 	public Location getWorkLocation() { 
-		return workLocation;
+		return workLocation; 
 	}
 	public boolean atWorkNow(){ return this.atWork; }
 	public void setAtWork(boolean atWork) { this.atWork = atWork; }
@@ -647,7 +657,7 @@ public class Person extends MobileAgent {
 	public void sendHome() {
 		this.transferTo(myHousehold);
 		this.setActivityNode(myWorld.movementFramework.getHomeNode());
-		this.setAtWork(false); 
+		this.setAtWork(false);  
 	}
 	
 	// BUBBLE MANAGEMENT
@@ -733,7 +743,7 @@ public class Person extends MobileAgent {
 
 	public String getCurrentAdminZone() {return this.getHousehold().getRootSuperLocation().myId;}
 	public void setUnemployed() {this.isUnemployed = true;}
-	public boolean isUnemployed() {return this.isUnemployed;} 
+	public boolean isUnemployed() {return this.isUnemployed;}  
 	public void resetWorkplaceContacts() { this.number_of_interactions_at_work = Integer.MIN_VALUE;}
 	// UTILS
 	
@@ -770,10 +780,61 @@ public class Person extends MobileAgent {
 	
 	public void resetCovidLog() { this.covidLogged = false; this.asymptomaticLogged = false; this.mildLogged = false; this.severeLogged = false; this.criticalLogged = false;}
 
-
+	// COVID TESTING FUNCTIONS
+	// filtering and setting who should be tested
+	public boolean isEligibleForCovidTesting() {return this.eligibleForCovidTesting; }
+	public void setEligibleForCovidTesting() {this.eligibleForCovidTesting = true; }
+	public void removeEligibilityForCovidTesting() {this.eligibleForCovidTesting = false; }
+	// filtering and setting who has been tested
+	public void setHasBeenTestedForCovid() {this.hasBeenTestedForCovid = true; }
+	public boolean hasBeenTestedForCovid() {return this.hasBeenTestedForCovid; }
+	public void setTestedPositiveForCovid() {this.testedPositiveForCovid = true; }
+	public boolean hasTestedPositiveForCovid() {return this.testedPositiveForCovid; }
+	public boolean getCovidTestLogged() {return this.covidTestLogged;}
+	public void confirmCovidTestingLogged() {this.covidTestLogged = true; }
+	public boolean inADistrictTesting() {
+	    boolean answer = this.myWorld.params.admin_zones_to_test_in.stream().anyMatch(x -> x.equals((this.myHousehold.getRootSuperLocation()).myId));
+	    return answer;
+	  }
+	
 	public Household getHouseholdAsType() {
 		
 		return this.myHousehold;
+	}
+
+	public void setCovidSpuriousSymptoms() {
+		this.hasSpuriousSymptomsForCovid = true;		
+	}
+
+	public void removeCovidSpuriousSymptoms() {
+		this.hasSpuriousSymptomsForCovid = false;
+	}
+	public boolean hasCovidSpuriousSymptoms() {
+		return this.hasSpuriousSymptomsForCovid;
+	}
+	public boolean hasSpuriousObject() {
+		return this.hasSpuriousObject;
+	}
+	public void setHasSpuriousObject() {
+		this.hasSpuriousObject = true;
+	}
+	
+	public void setCovidSpuriousSymptomRemovalDate(int time) {
+		this.timeToRemoveCovidSpuriousSymptoms = time;
+	}
+	public int getCovidSpuriousSymptomRemovalDate() {
+		return this.timeToRemoveCovidSpuriousSymptoms;
+	}
+	public boolean removeCovidSpuriousSymptomsToday() {
+		int time = (int)(myWorld.schedule.getTime() / myWorld.params.ticks_per_day);
+		return (this.timeToRemoveCovidSpuriousSymptoms > time);
+	}
+
+	public boolean hasSymptomaticCovid() {
+		if (this.hasCovid() & !this.hasAsymptCovid()) {
+			return true;
+		}
+		return false;
 	}
 	
 }

@@ -34,7 +34,7 @@ public class DemographyTesting {
 		// Increase the birth rate to ensure births take place
 		helperFunctions.setParameterListsToValue(sim, sim.params.prob_birth_by_age, 1.0);
 		// Run the simulation for 100 days
-		int numDays = 100;
+		int numDays = 100; 
 		
 		int original_number_of_agents = sim.agents.size();
 		helperFunctions.runSimulation(sim, numDays);

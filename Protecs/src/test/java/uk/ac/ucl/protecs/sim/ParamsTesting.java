@@ -103,11 +103,44 @@ public class ParamsTesting {
 		Assert.assertTrue(ran_without_issue);
 	}
 	
+
+	@Test
+	public void testSimStartsWithoutCovidTestingFilenames() {
+		// Create the simulation object without loading in lockdown triggering related filenames
+		WorldBankCovid19Sim sim_no_covid_testing_files = helperFunctions.CreateDummySim("src/main/resources/params_testing_no_covid_testing_file.txt");
+		// start the simulation, which triggers the loading in of parameters
+		sim_no_covid_testing_files.start();
+		
+		// Check that the lockdown_changeList_filename has stayed as their default value.
+		Assert.assertTrue(sim_no_covid_testing_files.params.lockdown_changeList_filename == null);
+	}
+	
+	@Test
+	public void testSimRunsWithoutCovidTestingFilenames() {
+		// Create the simulation object without loading in lockdown triggering related filenames
+		WorldBankCovid19Sim sim_no_covid_testing_files = helperFunctions.CreateDummySim("src/main/resources/params_testing_no_covid_testing_file.txt");
+		// create a boolean to indicate if an error was found whilst running the simulation
+		boolean ran_without_issue = true;
+		// wrap simulation running in a try catch statement
+		try {
+			sim_no_covid_testing_files.start();
+			helperFunctions.runSimulation(sim_no_covid_testing_files, 10);
+		}
+		catch (Exception e) {
+			// error has been found, update run_without_issue
+			ran_without_issue = false;
+		}
+		// Check that the simulation ran without issue
+		Assert.assertTrue(ran_without_issue);
+	}
+	
 	// run reject faulty files in bulk
 	// params_w_faulty_ODM.txt
 	// params_w_faulty_econ_status_movement_prob.txt
 	// params_w_faulty_linelist.txt
 	// params_w_faulty_inf_transitions.txt
+	// params_w_faulty_covid_test_numbers.txt
+	// params_w_faulty_covid_test_locations.txt
 	
 	@Test
 	public void testParamsWillRejectFaultyInputData() {	
@@ -132,7 +165,7 @@ public class ParamsTesting {
 	public static List<String> params() {
 	    return Arrays.asList(
 	            new String[]{"src/main/resources/params_w_faulty_ODM.txt", "src/main/resources/params_w_faulty_econ_status_movement_prob.txt",
-	            		"src/main/resources/params_w_faulty_linelist.txt", "src/main/resources/params_w_faulty_inf_transitions.txt"
+	            		"src/main/resources/params_w_faulty_linelist.txt", "src/main/resources/params_w_faulty_inf_transitions.txt" 
 	            		}
 	    
 	    );
