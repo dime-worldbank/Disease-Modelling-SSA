@@ -140,7 +140,7 @@ public class SpuriousSymptomBehaviourFramework extends BehaviourFramework{
 					return 1;
 				}
 				// Use switch statement to clearly create conditional actions based on the current state of this person's symptoms 
-				SpuriousSymptomBehaviourNode action = null;
+				SpuriousSymptomBehaviourNode action = SpuriousSymptomBehaviourNode.SETUP;
 				// if this is there first time then they will have a time of creation and no recovery time set
 				if (symptom.timeRecovered == Double.MAX_VALUE) {
 					action = SpuriousSymptomBehaviourNode.SETUP;
