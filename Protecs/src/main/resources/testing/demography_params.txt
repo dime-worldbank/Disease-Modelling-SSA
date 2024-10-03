@@ -1,12 +1,12 @@
-dataDir: src/main/resources/
+dataDir: src/main/resources/testing/
 
-population_filename: census_dummy.csv
+population_filename: larger_pop_census_dummy.csv
 
-admin_zone_transition_LOCKDOWN_filename: dailyDistrictTransitionProb_postLockdown.csv
+admin_zone_transition_LOCKDOWN_filename: dailyDistrictTransitionProb_preLockdown.csv
 admin_zone_transition_PRELOCKDOWN_filename: dailyDistrictTransitionProb_preLockdown.csv
 
 economic_status_weekday_movement_prob_filename: econStatusMovementProb_otherday.txt
-economic_status_otherday_movement_prob_filename: econStatusMovementProb_faulty.txt
+economic_status_otherday_movement_prob_filename: econStatusMovementProb_weekday.txt
 economic_status_num_daily_interacts_filename: numWeeklyInteractionsByStatus.txt
 econ_interaction_distrib_filename: interactionMatrixByStatus.txt
 
@@ -14,9 +14,9 @@ community_num_interaction_perTick: 5
 setting_perfectMixing: true
 demography: true
 
-line_list_filename: line_list_dummy.txt
+line_list_filename: line_list_empty.txt
 infection_transition_params_filename: covasim_infect_transitions.txt
-lockdown_changeList_filename: lockdownChangelistDefault.txt
+lockdown_changeList_filename: lockdownChangelist.txt
 lineListWeightingFactor: 1
 
 all_cause_mortality_filename: test_mortality_rates.txt

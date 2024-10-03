@@ -1,9 +1,9 @@
-dataDir: src/main/resources/
+dataDir: src/main/resources/testing/
 
 population_filename: census_dummy.csv
 
-admin_zone_transition_LOCKDOWN_filename: dailyDistrictTransitionProb_postLockdown_will_fail.csv
-admin_zone_transition_PRELOCKDOWN_filename: dailyDistrictTransitionProb_preLockdown.csv
+admin_zone_transition_LOCKDOWN_filename: dailyDistrictTransitionProb_postLockdown_alt.csv
+admin_zone_transition_PRELOCKDOWN_filename: dailyDistrictTransitionProb_preLockdown_alt.csv
 
 economic_status_weekday_movement_prob_filename: econStatusMovementProb_otherday.txt
 economic_status_otherday_movement_prob_filename: econStatusMovementProb_weekday.txt
@@ -21,5 +21,3 @@ lineListWeightingFactor: 1
 
 all_cause_mortality_filename: test_mortality_rates.txt
 birth_rate_filename: test_birth_rates.txt
-
-t

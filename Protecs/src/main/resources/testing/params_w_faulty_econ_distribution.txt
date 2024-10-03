@@ -1,4 +1,4 @@
-dataDir: src/main/resources/
+dataDir: src/main/resources/testing/
 
 population_filename: census_dummy.csv
 
@@ -7,8 +7,8 @@ admin_zone_transition_PRELOCKDOWN_filename: dailyDistrictTransitionProb_preLockd
 
 economic_status_weekday_movement_prob_filename: econStatusMovementProb_otherday.txt
 economic_status_otherday_movement_prob_filename: econStatusMovementProb_weekday.txt
-economic_status_num_daily_interacts_filename: numWeeklyInteractionsByStatusFaulty.txt
-econ_interaction_distrib_filename: interactionMatrixByStatus.txt
+economic_status_num_daily_interacts_filename: numWeeklyInteractionsByStatus.txt
+econ_interaction_distrib_filename: interactionMatrixByStatusFaulty.txt
 
 community_num_interaction_perTick: 5
 setting_perfectMixing: true
