@@ -114,6 +114,8 @@ public class WorldBankCovid19Sim extends SimState {
 		this.covidByEconOutputFilename = outputFilename + "_Economic_Status_Covid.txt";
 		this.adminZonePercentDiedFromCovidOutputFilename = outputFilename + "_Percent_In_Admin_Zone_Died_From_Covid.txt";
 		this.adminZonePercentCovidCasesFatalOutputFilename = outputFilename + "_Percent_Covid_Cases_Fatal_In_Admin_Zone.txt";
+		this.covidTestingOutputFilename = outputFilename + "_Covid_Testing.txt";
+
 	}
 	
 	public void start(){

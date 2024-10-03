@@ -18,6 +18,8 @@ import uk.ac.ucl.protecs.objects.Person;
 import uk.ac.ucl.protecs.objects.Person.OCCUPATION;
 import uk.ac.ucl.protecs.objects.Person.SEX;
 
+import static org.junit.Assert.fail;
+
 public class LoadPopulation{
 	
 	
@@ -165,6 +167,7 @@ public class LoadPopulation{
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.err.println("File input error: " + agentsFilename);
+			fail();
 		}
 	}
 }
