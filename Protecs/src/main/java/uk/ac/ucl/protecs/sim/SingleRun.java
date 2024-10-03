@@ -7,7 +7,7 @@ import java.util.Random;
 public class SingleRun {
 	
 	public static void main(String [] args) {
-		double beta = 0.3;
+		double beta = 0.3; 
 
 		// set the number of days the simulation will run
 		int numDays = 300;
@@ -17,9 +17,9 @@ public class SingleRun {
 		LocalDateTime timestamp = LocalDateTime.now();  
 		// Get location of parameter file
 
-		String paramFilename = "src/main/resources/workplace_bubbles_params.txt";
+		String paramFilename = "src/main/resources/workplace_bubbles_params.txt"; 
 		// Create a name for the output file
-		String outputFilename = "single_run_" + timestamp.toString();
+		String outputFilename = "single_run_" + timestamp.toString(); 
 		// create a name for the simulation information file
 		String sim_info_filename = "single_run_sim_info_" + timestamp.toString() + ".txt";
 		
@@ -29,7 +29,7 @@ public class SingleRun {
         int seed = random.nextInt(1000000);
         // create the simulation object
 
-		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(seed, new Params(paramFilename, true), outputFilename);
+		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(seed, new Params(paramFilename, true), outputFilename); 
 
 		// Set how long the simulation should run for
 		mySim.targetDuration = numDays;

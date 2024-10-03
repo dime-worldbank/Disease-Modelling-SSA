@@ -60,8 +60,7 @@ public class Person extends MobileAgent {
 		HEALTHCARE_SOCIAL_WORK("healthcare_social_work"), EDUCATION("education"), RELIGIOUS("religious"), TRANSPORT_SECTOR("transport_sector"),
 		SUBSISTENCE_AG("subsistence_ag"), AG_ESTATES("ag_estates"), STUDENTS_TEACHERS("students_teachers");
 		public String key;
-	    
-		
+	     
 		OCCUPATION(String key) { this.key = key; }
 		
 		public static OCCUPATION getValue(String x) {
@@ -179,11 +178,7 @@ public class Person extends MobileAgent {
 	boolean recovered = false;
 	boolean hasCovid = false;
 	boolean hadCovid = false;
-	public boolean elligableForTesting = false;
-	boolean hasBeenTested = false;
-	boolean hasTestedPositive = false;
-	boolean hasSpuriousSymptoms = false;
-	public int timeToRemoveSymptoms = 100000000;
+
 
 	// bubble interaction counters
 	int number_of_interactions_at_work = Integer.MIN_VALUE;
@@ -352,19 +347,19 @@ public class Person extends MobileAgent {
 		if (this.isDead) return;
 		// if not currently in the space, do not try to interact
 		else if(currentLocation == null) return;
-		// if they do not have an infection object return out
+		// if they do not have an infection object return out 
 		else if(myInfection == null){
 			System.out.println("ERROR: " + this.myId + " asked to infect others, but is not infected!");
 			return;
 		}
 		// if there is no one else other than the individual at the location, save computation time and return out
 		else if(this.currentLocation.getPersonsHere().length < 2) {
-			return;
+			return; 
 			}
 		
 		if(myWorld.params.setting_perfectMixing) {
 			
-			perfectMixingInteractions();
+			perfectMixingInteractions(); 
 			return;
 		}
 		else {
@@ -451,10 +446,10 @@ public class Person extends MobileAgent {
 		
 		// don't interact with the same person twice
 		HashSet <Person> otherPeople = new HashSet <Person> ();
-		otherPeople.add(this);
+		otherPeople.add(this); 
 		
 		for(int i = 0; i < myNumInteractions; i++) {
-			Person otherPerson = (Person) peopleHere[myWorld.random.nextInt(numPeople)];
+			Person otherPerson = (Person) peopleHere[myWorld.random.nextInt(numPeople)]; 
 			
 			// don't interact with the same person multiple times
 			if(otherPeople.contains(otherPerson)) {
@@ -462,17 +457,17 @@ public class Person extends MobileAgent {
 				continue;
 			}
 			else
-				otherPeople.add(otherPerson);
+				otherPeople.add(otherPerson); 
 			
-			myWorld.testingAgeDist.add(otherPerson.age);
+			myWorld.testingAgeDist.add(otherPerson.age); 
 			
 			// check if they are already infected; if they are not, infect with with probability BETA
 			double myProb = myWorld.random.nextDouble();
 			if(otherPerson.myInfection == null 
 					&& myProb < myWorld.params.infection_beta){
 				CoronavirusInfection inf = new CoronavirusInfection(otherPerson, this, myWorld.infectiousFramework.getHomeNode(), myWorld);
-				myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting);
-			}
+				myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting); 
+			} 
 
 		}
 	}
@@ -554,7 +549,7 @@ public class Person extends MobileAgent {
 			// check if they are already infected; if they are not, infect with with probability BETA
 			if(p.myInfection == null 
 					&& myWorld.random.nextDouble() < myWorld.params.infection_beta){
-				CoronavirusInfection inf = new CoronavirusInfection(p, this, myWorld.infectiousFramework.getHomeNode(), myWorld);
+				CoronavirusInfection inf = new CoronavirusInfection(p, this, myWorld.infectiousFramework.getHomeNode(), myWorld); 
 				myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting);
 			}
 
@@ -581,18 +576,18 @@ public class Person extends MobileAgent {
 
 		// set up the probabilities
 		double groupSize = group.size();
-		double numberOfInteractions = interactNumber;
+		double numberOfInteractions = interactNumber; 
 		double probabilityOfInteractingWithAnyGivenGroupMember = numberOfInteractions / groupSize;
 
 		// create the iterator and iterate over the set elements
-		// TODO: look at selection without replacement
+		// TODO: look at selection without replacement 
 		Iterator myIt = group.iterator();
-		while(myIt.hasNext() && numberOfInteractions > 0) {
+		while(myIt.hasNext() && numberOfInteractions > 0) { 
 			
 			// generate the likelihood of selecting this particular element
 			double prob = myWorld.random.nextDouble();
 			
-			if(prob <= probabilityOfInteractingWithAnyGivenGroupMember) { // INTERACT WITH THE PERSON
+			if(prob <= probabilityOfInteractingWithAnyGivenGroupMember) { // INTERACT WITH THE PERSON 
 				
 				// pull them out!
 				Person p = (Person) myIt.next();
@@ -605,7 +600,7 @@ public class Person extends MobileAgent {
 					continue;
 				
 				// if neither of the above are true, the interaction can take place!
-				numberOfInteractions -= 1;
+				numberOfInteractions -= 1; 
 				
 				// check if they are already infected; if they are not, infect with with probability BETA
 				if(p.myInfection == null 
@@ -617,7 +612,7 @@ public class Person extends MobileAgent {
 			}
 			else // just pass over it
 				myIt.next();
-			groupSize -= 1;
+			groupSize -= 1; 
 			probabilityOfInteractingWithAnyGivenGroupMember = numberOfInteractions / groupSize;
 		}
 	}
@@ -640,7 +635,7 @@ public class Person extends MobileAgent {
 
 	public Location getCommunityLocation(){ return communityLocation;}
 
-	public Location getWorkLocation() {
+	public Location getWorkLocation() { 
 		return workLocation;
 	}
 	public boolean atWorkNow(){ return this.atWork; }
@@ -652,14 +647,14 @@ public class Person extends MobileAgent {
 	public void sendHome() {
 		this.transferTo(myHousehold);
 		this.setActivityNode(myWorld.movementFramework.getHomeNode());
-		this.setAtWork(false);
+		this.setAtWork(false); 
 	}
 	
 	// BUBBLE MANAGEMENT
 	
 	public void addToWorkBubble(Collection <Person> newPeople){ workBubble.addAll(newPeople);}	
 	public HashSet <Person> getWorkBubble(){ return workBubble; }
-	public String checkWorkplaceID() { return myWorkplace.getId(); }
+	public String checkWorkplaceID() { return myWorkplace.getId(); } 
 	public void setWorkBubble(HashSet <Person> newBubble) { workBubble = newBubble; }
 
 	public void addToCommunityBubble(Collection <Person> newPeople){ communityBubble.addAll(newPeople);}
@@ -727,12 +722,7 @@ public class Person extends MobileAgent {
 	public void removeSevere() { this.severe = false; }
 	public void setCritical() { this.critical = true; }
 	public void setRecovered() { this.recovered = true; }
-	public void elligableForTesting() {this.elligableForTesting = true; } 
-	public void notElligableForTesting() {this.elligableForTesting = false; } 
-	public void setTested() { this.hasBeenTested = true; }
-	public void setTestedPositive() { this.hasTestedPositive = true; }
-	public void setSymptomRemovalDate(int time) { this.timeToRemoveSymptoms = time; }
-	public void removeTestedPositive() { this.hasTestedPositive = false; }
+
 	public void removeCovid() { 
 		this.asymptomatic = false;
 		this.mild = false;
@@ -743,7 +733,7 @@ public class Person extends MobileAgent {
 
 	public String getCurrentAdminZone() {return this.getHousehold().getRootSuperLocation().myId;}
 	public void setUnemployed() {this.isUnemployed = true;}
-	public boolean isUnemployed() {return this.isUnemployed;}
+	public boolean isUnemployed() {return this.isUnemployed;} 
 	public void resetWorkplaceContacts() { this.number_of_interactions_at_work = Integer.MIN_VALUE;}
 	// UTILS
 	

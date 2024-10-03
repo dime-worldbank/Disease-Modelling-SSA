@@ -1,0 +1,5 @@
+economic_status,interactions,bubble_size
+"Not working, inactive, not in universe",1,10
+Current Students,6,30
+Homemakers/Housework,3,15
+Office workers,5,30
