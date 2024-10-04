@@ -121,6 +121,7 @@ public class MobilityTesting {
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(params + ".txt");
 		sim.start();
 		// make everyone go to the community
+		sim.params.setting_perfectMixing = true;		
 		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.movementFramework.setMobilityNodeForTesting(mobilityNodeTitle.COMMUNITY), 
 				NodeOption.MovementBehaviour);
 		
