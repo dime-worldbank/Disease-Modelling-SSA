@@ -139,6 +139,7 @@ public class Person extends MobileAgent {
 	// activity
 	BehaviourNode currentActivityNode = null;
 	Infection myInfection = null; // TODO make a hashset of different infections! Allow multiple!!
+	CoronavirusInfection myCovidInfection = null;
 	
 	// behaviours
 	boolean immobilised = false;
@@ -473,10 +474,10 @@ public class Person extends MobileAgent {
 			
 			// check if they are already infected; if they are not, infect with with probability BETA
 			double myProb = myWorld.random.nextDouble();
-			if(otherPerson.myInfection == null 
+			if(otherPerson.myCovidInfection == null 
 					&& myProb < myWorld.params.infection_beta){
-				CoronavirusInfection inf = new CoronavirusInfection(otherPerson, this, myWorld.infectiousFramework.getHomeNode(), myWorld);
-				myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting); 
+				myCovidInfection = new CoronavirusInfection(otherPerson, this, myWorld.infectiousFramework.getHomeNode(), myWorld);
+				myWorld.schedule.scheduleOnce(myCovidInfection, myWorld.param_schedule_infecting); 
 			}  
 
 		}
@@ -613,10 +614,10 @@ public class Person extends MobileAgent {
 				numberOfInteractions -= 1; 
 				
 				// check if they are already infected; if they are not, infect with with probability BETA
-				if(p.myInfection == null 
+				if(p.myCovidInfection == null 
 						&& myWorld.random.nextDouble() < myWorld.params.infection_beta){
-					Infection inf = new CoronavirusInfection(p, this, myWorld.infectiousFramework.getHomeNode(), myWorld);
-					myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting);
+					myCovidInfection = new CoronavirusInfection(p, this, myWorld.infectiousFramework.getHomeNode(), myWorld);
+					myWorld.schedule.scheduleOnce(myCovidInfection, myWorld.param_schedule_infecting);
 				}
 
 			}
@@ -697,6 +698,8 @@ public class Person extends MobileAgent {
 
 
 	public Infection getInfection(){ return myInfection; }
+	
+	public CoronavirusInfection getCovidInfection() { return myCovidInfection; }
 	
 	public void setMobility(boolean mobile){ this.immobilised = !mobile; }
 	public boolean isImmobilised(){ return this.immobilised; }
