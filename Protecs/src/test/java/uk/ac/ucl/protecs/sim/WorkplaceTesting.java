@@ -88,7 +88,7 @@ public class WorkplaceTesting{
 		// some jobs are based in the community, change to match
 		for (Person p: sim.agents) {
 			// get people who aren't at work, but should be
-			if (!(p.getLocation() instanceof Workplace) && !p.isUnemployed() && !p.visitingNow()) {
+			if (!p.isUnemployed() && !p.visitingNow() && !(p.getLocation() instanceof Workplace)) {
 				// if they aren't forced to stay out of their workplace and aren't at work assert false
 				if (!sim.params.OccupationConstraintList.containsKey(p.getEconStatus()))
 					// force an assertion failure
