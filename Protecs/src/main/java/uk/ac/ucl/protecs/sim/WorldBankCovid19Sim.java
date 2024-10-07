@@ -23,44 +23,44 @@ import sim.engine.Steppable;
 public class WorldBankCovid19Sim extends SimState {
 
 	// the objects which make up the system
-	public ArrayList <Person> agents;
-	public ArrayList <Household> households;
-	public ArrayList <Workplace> workplaces;
+	public ArrayList <Person> agents = null;
+	public ArrayList <Household> households = null;
+	public ArrayList <Workplace> workplaces = null;
 
-	public ArrayList <Infection> infections;
-	public HashSet <OCCUPATION> occupationsInSim;
-	public ArrayList <CoronavirusSpuriousSymptom> CovidSpuriousSymptomsList;
+	public ArrayList <Infection> infections = null;
+	public HashSet <OCCUPATION> occupationsInSim = null;
+	public ArrayList <CoronavirusSpuriousSymptom> CovidSpuriousSymptomsList = null;
 	public Random random;
 	
-	ArrayList <Location> adminBoundaries;
+	ArrayList <Location> adminBoundaries = null;
 	
-	HashMap <Location, ArrayList<Person>> personsToAdminBoundary; 
+	HashMap <Location, ArrayList<Person>> personsToAdminBoundary = null; 
 	
-	public MovementBehaviourFramework movementFramework;
-	public CoronavirusBehaviourFramework infectiousFramework;
-	public SpuriousSymptomBehaviourFramework spuriousFramework;
-	public Params params;
+	public MovementBehaviourFramework movementFramework = null;
+	public CoronavirusBehaviourFramework infectiousFramework = null;
+	public SpuriousSymptomBehaviourFramework spuriousFramework = null;
+	public Params params = null;
 	public boolean lockedDown = false;
 	// create a variable to determine if COVID testing will take place
 	public boolean covidTesting = false;
 	// the names of file names of each output filename		
-	public String outputFilename;
-	public String covidIncOutputFilename; 
-	public String populationOutputFilename;
-	public String covidIncDeathOutputFilename;
-	public String otherIncDeathOutputFilename;
-	public String birthRateOutputFilename;
-	public String adminZonePopSizeOutputFilename;
-	public String casesPerAdminZoneFilename; 
-	public String infections_export_filename;
-	public String adminZoneCovidPrevalenceOutputFilename;
-	public String adminZonePercentDiedFromCovidOutputFilename;
-	public String adminZonePercentCovidCasesFatalOutputFilename;
-	public String adminZonePopBreakdownOutputFilename;
-	public String sim_info_filename;
-	public String covidCountsOutputFilename;
-	public String covidByEconOutputFilename;
-	public String covidTestingOutputFilename;
+	public String outputFilename = null;
+	public String covidIncOutputFilename = null; 
+	public String populationOutputFilename = null;
+	public String covidIncDeathOutputFilename = null;
+	public String otherIncDeathOutputFilename = null;
+	public String birthRateOutputFilename = null;
+	public String adminZonePopSizeOutputFilename = null;
+	public String casesPerAdminZoneFilename = null; 
+	public String infections_export_filename = null;
+	public String adminZoneCovidPrevalenceOutputFilename = null;
+	public String adminZonePercentDiedFromCovidOutputFilename = null;
+	public String adminZonePercentCovidCasesFatalOutputFilename = null;
+	public String adminZonePopBreakdownOutputFilename = null;
+	public String sim_info_filename = null;
+	public String covidCountsOutputFilename = null;
+	public String covidByEconOutputFilename = null;
+	public String covidTestingOutputFilename = null;
 	int targetDuration = 0;
 	
 	// ordering information

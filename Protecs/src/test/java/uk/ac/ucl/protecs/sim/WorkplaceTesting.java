@@ -39,8 +39,7 @@ public class WorkplaceTesting{
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/workplace_bubbles_params.txt");
 		sim.start();
 		// check that the workplace locations have been created
-		Assert.assertTrue(sim.workplaces.size() > 0);
-
+		Assert.assertNotNull(sim.workplaces);
 	}
 	@Test
 	public void checkWorkplaceBubblesAreBeingMade() {
@@ -48,11 +47,9 @@ public class WorkplaceTesting{
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/workplace_bubbles_params.txt");
 		sim.start();
 		// check that everyone has a bubble associated with their workplace
-		boolean hasBeenGivenABubble = true;
 		for (Person p: sim.agents) {
-			if (p.getWorkBubble().isEmpty()) {hasBeenGivenABubble = false;}
+			if (p.getWorkBubble().isEmpty()) { Assert.fail("Person " + p.getAge() + "has not been given a bubble correctly"); }
 		}
-		Assert.assertTrue(hasBeenGivenABubble);
 	}
 	@Test
 	public void checkWorkplaceBubblesContainEveryoneInWorkplace() {
@@ -66,18 +63,15 @@ public class WorkplaceTesting{
 						Person::checkWorkplaceID
 						)
 				);
-		boolean bubbleContainsEveryoneInWorkplace = true;
 		// check that for each person, everyone who belongs to the workplace features in their bubble
 		for (Workplace w: sim.workplaces) {
 			String workplaceID = w.getId();
 			List<Person> thisBubble = belongingToBubble.get(workplaceID);
 			HashSet<Person> bubbleAsHashset = new HashSet<Person>(thisBubble);
 			for (Person p: thisBubble) {
-				bubbleContainsEveryoneInWorkplace = p.getWorkBubble().containsAll(bubbleAsHashset);
+				Assert.assertTrue(p.getWorkBubble().containsAll(bubbleAsHashset));
 			}
 		}
-		Assert.assertTrue(bubbleContainsEveryoneInWorkplace);
-
 	}
 	@Test
 	public void checkPeopleGoToTheirWorkplace() {
@@ -92,15 +86,15 @@ public class WorkplaceTesting{
 		helperFunctions.runSimulationForTicks(sim, numTicks);
 		// determine if everyone has travelled to their workplace
 		// some jobs are based in the community, change to match
-		boolean allAtWork = true;
 		for (Person p: sim.agents) {
+			// get people who aren't at work, but should be
 			if (!(p.getLocation() instanceof Workplace) && !p.isUnemployed() && !p.visitingNow()) {
+				// if they aren't forced to stay out of their workplace and aren't at work assert false
 				if (!sim.params.OccupationConstraintList.containsKey(p.getEconStatus()))
-					allAtWork = false;
+					// force an assertion failure
+					Assert.assertTrue(p.getLocation() instanceof Workplace);
 				}
-		}
-		Assert.assertTrue(allAtWork);
-		
+		}		
 	}
 	@Test
 	public void testWorkplaceContactsCountDataisBeingLoaded() {
@@ -132,22 +126,15 @@ public class WorkplaceTesting{
 		// run for three ticks (people leave the house at tick 2 and leave work at tick 4)
 		int numTicks = 3;
 		helperFunctions.runSimulationForTicks(sim, numTicks);
-		// create some boolean variables to catch errors if the come up
-		boolean thoseImmobilisedStayAtHome = true;
-		boolean hasimmobilisedProperty = true;
 		// iterate over the simulation population and check that those who are constrained to home are in fact at home and have had the immobilised property set
 		for (Person p: sim.agents) {
 			if (sim.params.OccupationConstraintList.containsKey(p.getEconStatus())) {
 				if (sim.params.OccupationConstraintList.get(p.getEconStatus()).equals(LocationCategory.HOME)) {
-					hasimmobilisedProperty = (p.isImmobilised() == true);
-					if (!(p.getLocation() instanceof Household)) {
-						thoseImmobilisedStayAtHome = false;
-					}
+					Assert.assertTrue(p.isImmobilised() == true);
+					Assert.assertTrue(!(p.getLocation() instanceof Household));
 				}
 			}
-		}
-		Assert.assertTrue(thoseImmobilisedStayAtHome & hasimmobilisedProperty);
-		
+		}	
 	}
 	@Test
 	public void testThoseConstrainedToTheCommunityAreNotAtWork() {
@@ -159,19 +146,14 @@ public class WorkplaceTesting{
 		// run for three ticks (people leave the house at tick 2 and leave work at tick 4)
 		int numTicks = 3;
 		helperFunctions.runSimulationForTicks(sim, numTicks);
-		// create some boolean variables to catch errors if the come up
-		boolean thoseConstrainedAreInCommunity = true;
 		// iterate over the simulation population and check that those who are constrained to the community are at their community spaces
 		for (Person p: sim.agents) {
 			if (sim.params.OccupationConstraintList.containsKey(p.getEconStatus())) {
 				if (sim.params.OccupationConstraintList.get(p.getEconStatus()).equals(LocationCategory.COMMUNITY)) {
-					if ((p.getLocation() instanceof Household) || (p.getLocation() instanceof Workplace)) {
-						thoseConstrainedAreInCommunity = false;
-					}
+					Assert.assertTrue(p.getLocation().getLocationType().equals(LocationCategory.COMMUNITY));
 				}
 			}
 		}
-		Assert.assertTrue(thoseConstrainedAreInCommunity);
 		
 	}
 	@Test
