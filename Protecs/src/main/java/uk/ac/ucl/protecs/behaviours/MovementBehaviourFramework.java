@@ -91,7 +91,6 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 				// First check if they are visiting another district
 				if (!stayingInHomeDistrict) p.setVisiting(true);
 				if (p.visitingNow() & !stayingInHomeDistrict) {
-					myWorld.outbound_trip_counter ++;
 					// travelling to another district!
 					p.transferTo(target);
 					p.setActivityNode(communityNode);
@@ -104,7 +103,6 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 				// if they aren't visiting, are they at work or the community?
 				else {
 					// Check they are going to work
-					myWorld.stay_home_counter ++;
 					boolean goToWork = myWorld.random.nextDouble() < myWorld.params.prob_go_to_work;
 
 					// if unemployed or homemaker don't go to work

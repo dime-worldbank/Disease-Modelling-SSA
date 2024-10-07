@@ -487,7 +487,6 @@ public class Person extends MobileAgent {
 		if(currentLocation instanceof Household){
 			assert (!this.atWork): "at work but having interactions at home";
 			interactWithin(currentLocation.personsHere, null, currentLocation.personsHere.size());		
-			myWorld.home_interaction_counter ++; 
 		}
 		// they may be at their economic activity site!
 		else if(currentLocation instanceof Workplace){
@@ -500,11 +499,9 @@ public class Person extends MobileAgent {
 			if (myNumInteractions > currentLocation.personsHere.size()) myNumInteractions = currentLocation.personsHere.size();
 			// interact 
 			interactWithin(workBubble, currentLocation.personsHere, myNumInteractions);
-			myWorld.work_interaction_counter ++;
 
 		}
 		else {
-			myWorld.community_interaction_counter ++; 
 
 			perfectMixingInteractions(); 
 		}
