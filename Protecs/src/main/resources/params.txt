@@ -17,6 +17,3 @@ line_list_filename: line_list_dummy.txt
 infection_transition_params_filename: covasim_infect_transitions.txt
 lockdown_changeList_filename: lockdownChangelistDefault.txt
 lineListWeightingFactor: 1
-
-workplaceContactsFilename: contact_counts_final.csv
-workplaceConstraintsFilename: workplace_constraints_empty.txt
