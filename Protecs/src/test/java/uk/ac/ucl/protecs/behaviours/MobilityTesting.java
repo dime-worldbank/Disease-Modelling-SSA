@@ -13,7 +13,6 @@ import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.behaviours.MovementBehaviourFramework.mobilityNodeTitle;
 import uk.ac.ucl.protecs.helperFunctions.*;
 import uk.ac.ucl.protecs.helperFunctions.helperFunctions.NodeOption;
-import uk.ac.ucl.protecs.objects.Location.LocationCategory;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;

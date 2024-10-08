@@ -8,11 +8,9 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
-import uk.ac.ucl.protecs.objects.Person;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusBehaviourFramework.CoronavirusBehaviourNodeTitle;
 import uk.ac.ucl.protecs.sim.Params;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
-import swise.behaviours.BehaviourNode;
 import uk.ac.ucl.protecs.helperFunctions.*;
 import uk.ac.ucl.protecs.helperFunctions.helperFunctions.NodeOption;
 

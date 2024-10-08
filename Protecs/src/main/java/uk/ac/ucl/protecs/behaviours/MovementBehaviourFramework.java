@@ -6,7 +6,6 @@ import uk.ac.ucl.protecs.sim.*;
 import sim.engine.Steppable;
 import swise.behaviours.BehaviourFramework;
 import swise.behaviours.BehaviourNode;
-import uk.ac.ucl.protecs.objects.Workplace;
 
 /**
  * The MovementBehaviourFramework is an extension on the basis of the BehaviourFramework which

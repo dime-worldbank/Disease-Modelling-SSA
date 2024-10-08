@@ -8,7 +8,6 @@ import org.junit.Test;
 
 import uk.ac.ucl.protecs.objects.Person;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusBehaviourFramework.CoronavirusBehaviourNodeTitle;
-import uk.ac.ucl.protecs.objects.diseases.CoronavirusSpuriousSymptom;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 
 import java.util.List;
