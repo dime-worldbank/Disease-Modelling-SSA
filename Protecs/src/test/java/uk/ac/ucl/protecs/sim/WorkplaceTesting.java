@@ -48,7 +48,7 @@ public class WorkplaceTesting{
 		sim.start();
 		// check that everyone has a bubble associated with their workplace
 		for (Person p: sim.agents) {
-			if (p.getWorkBubble().isEmpty()) { Assert.fail("Person " + p.getAge() + "has not been given a bubble correctly"); }
+			if (p.getWorkBubble().isEmpty()) { Assert.fail("Person " + p.getID() + "has not been given a bubble correctly"); }
 		}
 	}
 	@Test
