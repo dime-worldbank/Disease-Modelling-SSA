@@ -1,4 +1,4 @@
-dataDir: src/main/resources/
+dataDir: src/test/resources/
 
 population_filename: small_ipums_5p_wp_bubbles.csv
 

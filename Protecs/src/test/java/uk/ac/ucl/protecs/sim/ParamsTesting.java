@@ -164,9 +164,8 @@ public class ParamsTesting {
 	@Parameterized.Parameters
 	public static List<String> params() {
 	    return Arrays.asList(
-	            new String[]{"src/test/resources/params_w_faulty_ODM.txt", "src/test/resources/params_w_faulty_econ_status_movement_prob.txt",
-	            		"src/test/resources/params_w_faulty_econ_interactions.txt", "src/test/resources/params_w_faulty_econ_distribution.txt",
-	            		"src/test/resources/params_w_faulty_linelist.txt", "src/test/resources/params_w_faulty_inf_transitions.txt",
+	            new String[]{"src/test/resources/params_w_faulty_ODM.txt", "src/test/resources/params_w_faulty_econ_status_movement_prob.txt",  
+	            		"src/test/resources/params_w_faulty_linelist.txt", "src/test/resources/params_w_faulty_inf_transitions.txt", 
 	            		"src/test/resources/params_w_faulty_covid_test_numbers.txt", "src/test/resources/params_w_faulty_covid_test_locations.txt"
 	            		}
 	    

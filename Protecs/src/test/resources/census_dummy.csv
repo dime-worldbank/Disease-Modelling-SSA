@@ -1,10 +1,16 @@
-,person_id,age,sex,household_id,district_id,economic_status,economic_activity_location_id,school_goers,manufacturing_workers
-0,0,27,female,1146000,d_1,Office workers,1.0,0,0.0
-1,1,40,male,2300000,d_2,Office workers,1.0,0,0.0
-2,2,20,male,4198000,d_1,"Not working, inactive, not in universe",1.0,0,0.0
-3,3,41,female,3465000,d_1,Teachers,1.0,1,0.0
-4,4,15,female,882000,d_2,"Not working, inactive, not in universe",1.0,0,0.0
-5,5,23,female,2524000,d_1,Homemakers/Housework,1.0,0,0.0
-6,6,16,female,4751000,d_1,Current Students,1.0,1,0.0
-7,7,19,female,902000,d_2,Current Students,1.0,1,0.0
-8,8,57,female,6668000,d_1,Service workers,1.0,0,0.0
+,person_id,age,sex,household_id,workplace_id,district_id,economic_status,economic_activity_location_id,school_goers,manufacturing_workers
+0,0,27,female,1146000,district_1_ag_estates_1,d_1,ag_estates,1.0,0,0.0
+1,1,27,female,1146001,district_1_ag_estates_1,d_1,ag_estates,1.0,0,0.0
+2,2,27,female,1146002,district_1_ag_estates_2,d_1,ag_estates,1.0,0,0.0
+3,3,27,female,1146003,district_1_ag_estates_2,d_1,ag_estates,1.0,0,0.0
+4,4,40,male,2300000,district_1_manu_mining_trades_1,d_1,manu_mining_trades,1.0,0,0.0
+5,5,40,male,2300001,district_1_manu_mining_trades_1,d_1,manu_mining_trades,1.0,0,0.0
+6,6,40,male,2300002,district_2_manu_mining_trades_1,d_2,manu_mining_trades,1.0,0,0.0
+7,7,40,male,2300003,district_2_manu_mining_trades_1,d_2,manu_mining_trades,1.0,0,0.0
+8,8,20,male,4198000,district_1_police_army_1,d_1,police_army,1.0,0,0.0
+9,9,20,male,4198001,district_1_police_army_1,d_1,police_army,1.0,0,0.0
+10,10,20,male,4198002,district_1_police_army_2,d_1,police_army,1.0,0,0.0
+11,11,20,male,4198003,district_1_police_army_2,d_1,police_army,1.0,0,0.0
+12,12,41,female,3465000,district_1_education_1,d_1,education,1.0,1,0.0
+13,13,41,female,3465001,district_1_education_1,d_1,education,1.0,1,0.0
+14,14,41,female,3465002,district_2_education_1,d_2,education,1.0,1,0.0
