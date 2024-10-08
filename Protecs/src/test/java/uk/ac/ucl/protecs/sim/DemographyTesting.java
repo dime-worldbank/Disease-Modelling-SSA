@@ -26,6 +26,7 @@ public class DemographyTesting {
 	@Test
 	public void testBirthsAreIncreasingPopSize() {
 		// Create the simulation object
+
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/demography_params.txt");
 		sim.start();
 		// turn off deaths to only focus on births.
@@ -44,6 +45,7 @@ public class DemographyTesting {
 	@Test
 	public void testBirthsDoNotOccurInMen() {		
 		// Create the simulation object
+
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/demography_params.txt");
 		sim.start();
 		// turn off deaths to only focus on births.
@@ -66,6 +68,7 @@ public class DemographyTesting {
 		Random rand = new Random();
 		int seed = rand.nextInt(1000000000);
 		// Create the simulation objects
+
 		WorldBankCovid19Sim sim_with_male_mortality = helperFunctions.CreateDummySimWithSeed(seed, "src/main/resources/demography_params.txt");
 		sim_with_male_mortality.start();
 		// turn off female mortality in this simulation
@@ -114,6 +117,7 @@ public class DemographyTesting {
 	@Test
 	public void testUpdateAges() {		
 		// Create the simulation object
+
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/demography_params.txt");
 		sim.start();
 		// turn off deaths births and deaths

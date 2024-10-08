@@ -1,11 +1,27 @@
-economic_status, movement_probability
-"Not working, inactive, not in universe",0.8
-"Current Students",0.8
-"Homemakers/Housework",0.8
-"Office workers",0.8
-"Teachers",0.8
-"Service Workers",0.8
-"Agriculture Workers",0.8
-"Industry Workers",0.8
-"In the army",0.8
-"Disabled and not working",0.1
+economic_status,movement_probability
+ag_estates,0.8
+manu_mining_trades,0.8
+police_army,0.8
+education,0.8
+healthcare_social_work,0.8
+service_retail,0.8
+informal_petty_trade,0.8
+subsistence_ag,0.8
+unemployed_not_ag,0.8
+other,0.8
+transport_sector,0.8
+office_worker,0.8
+students_teachers,0.8
+religious,0.8
+student,0.8
+inactive,0.8
+office workers,0.8 
+"not working, inactive, not in universe",0.8
+teachers,0.8 
+homemakers/housework,0.8 
+current students,0.8
+service workers,0.8 
+industry workers,0.8
+disabled and not working,0.8
+in the army,0.8 
+agriculture workers,0.8

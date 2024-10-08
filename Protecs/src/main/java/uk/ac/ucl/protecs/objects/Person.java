@@ -25,8 +25,8 @@ public class Person extends MobileAgent {
 
 	// larger group membership
 	Household myHousehold;
-
-	// personal/demographic attributes. Age is changed in demography so cannot be private, birthday is generated at creation and should be constant
+	Workplace myWorkplace;
+	// personal/demographic attributes
 	int age;
 	private final int birthday;
 	// only two options considered for biological sex, therefore use enum
@@ -53,8 +53,12 @@ public class Person extends MobileAgent {
 	// economic attributes. Economic status is read in from census file and can be accessed, but not changed
 	public enum OCCUPATION{
 		OFFICE_WORKER("office workers"), UNEMPLOYED("not working, inactive, not in universe"), TEACHER("teachers"),
-		HOMEMAKER("homemakers/housework"), STUDENT("current students"), SERVICE_WORKERS("service workers"), AGRICULTURE("agriculture workers"),
-		INDUSTRY("industry workers"), ARMY("in the army"), DISABLED_NOT_WORKING("disabled and not working");
+		HOMEMAKER("homemakers/housework"), CURRENT_STUDENTS("current students"), SERVICE_WORKERS("service workers"), AGRICULTURE("agriculture workers"),
+		INDUSTRY("industry workers"), ARMY("in the army"), DISABLED_NOT_WORKING("disabled and not working"), SERVICE_RETAIL("service_retail"),
+		UNEMPLOYED_NOT_AG("unemployed_not_ag"), OFFICE_WORKERS("office_worker"), INACTIVE("inactive"), STUDENT("student"), 
+		INFORMAL_PETTY_TRADE("informal_petty_trade"), OTHER("other"), MANU_MINING_TRADES("manu_mining_trades"), POLICE_ARMY("police_army"),
+		HEALTHCARE_SOCIAL_WORK("healthcare_social_work"), EDUCATION("education"), RELIGIOUS("religious"), TRANSPORT_SECTOR("transport_sector"),
+		SUBSISTENCE_AG("subsistence_ag"), AG_ESTATES("ag_estates"), STUDENTS_TEACHERS("students_teachers");
 		public String key;
 	     
 		OCCUPATION(String key) { this.key = key; }
@@ -71,8 +75,10 @@ public class Person extends MobileAgent {
         		return HOMEMAKER;
         	case "service workers":
         		return SERVICE_WORKERS;
-        	case "current students":
+        	case "student":
         		return STUDENT;
+        	case "current students":
+        		return CURRENT_STUDENTS;
         	case "agriculture workers":
         		return AGRICULTURE;
         	case "industry workers":
@@ -81,6 +87,36 @@ public class Person extends MobileAgent {
         		return ARMY;
         	case "disabled and not working":
         		return DISABLED_NOT_WORKING;
+        	case "service_retail":
+        		return SERVICE_RETAIL;
+        	case "unemployed_not_ag":
+        		return UNEMPLOYED_NOT_AG;
+        	case "office_worker":
+        		return OFFICE_WORKERS;
+        	case "inactive":
+        		return INACTIVE;
+        	case "informal_petty_trade":
+        		return INFORMAL_PETTY_TRADE;
+        	case "other":
+        		return OTHER;
+        	case "manu_mining_trades": 
+        		return MANU_MINING_TRADES;
+        	case "police_army":
+        		return POLICE_ARMY;
+        	case "healthcare_social_work":
+        		return HEALTHCARE_SOCIAL_WORK;
+        	case "education":
+        		return EDUCATION;
+        	case "religious":
+        		return RELIGIOUS;
+        	case "transport_sector":
+        		return TRANSPORT_SECTOR;
+        	case "subsistence_ag":
+        		return SUBSISTENCE_AG;
+        	case "ag_estates":
+        		return AG_ESTATES;
+        	case "students_teachers":
+        		return STUDENTS_TEACHERS;
         	default:
         		throw new IllegalArgumentException();
         	}
@@ -96,17 +132,20 @@ public class Person extends MobileAgent {
 	
 	// social attributes
 	Location communityLocation;
+	Location workLocation;
 	HashSet <Person> workBubble;
 	HashSet <Person> communityBubble;
 	
 	// activity
 	BehaviourNode currentActivityNode = null;
 	Infection myInfection = null; // TODO make a hashset of different infections! Allow multiple!!
+	CoronavirusInfection myCovidInfection = null;
 	
 	// behaviours
 	boolean immobilised = false;
 	boolean visiting = false;
 	boolean atWork = false;
+	boolean isUnemployed = false;
 	
 	// copy of world
 	WorldBankCovid19Sim myWorld;
@@ -150,8 +189,10 @@ public class Person extends MobileAgent {
 
 	boolean hasSpuriousSymptomsForCovid = false;
 	boolean hasSpuriousObject = false;
-
 	Integer timeToRemoveCovidSpuriousSymptoms = Integer.MAX_VALUE;
+
+	// bubble interaction counters
+	int number_of_interactions_at_work = Integer.MIN_VALUE;
 	
 	
 	/**
@@ -166,7 +207,7 @@ public class Person extends MobileAgent {
 	 * @param economic_activity_location Location for weekday economic activity (workplace, school, etc.)
 	 * @param world Copy of the simulation
 	 */
-	public Person(int id, int age, int birthday, SEX sex, OCCUPATION economic_status, boolean schoolGoer, Household hh, WorldBankCovid19Sim world){
+	public Person(int id, int age, int birthday, SEX sex, OCCUPATION economic_status, boolean schoolGoer, Household hh, Workplace w, WorldBankCovid19Sim world){
 		super();
 
 		// demographic characteristics
@@ -185,12 +226,15 @@ public class Person extends MobileAgent {
 
 		// record-keeping
 		myHousehold = hh;
+		myWorkplace = w;
 		myWorld = world;
 		
 		// agents are initialised uninfected
 		
 		communityLocation = myHousehold.getRootSuperLocation();
 		communityLocation.setLocationType(LocationCategory.COMMUNITY);
+
+		workLocation = myWorkplace;
 		workBubble = new HashSet <Person> ();
 		communityBubble = new HashSet <Person> ();
 		
@@ -314,11 +358,26 @@ public class Person extends MobileAgent {
 		if (this.isDead) return;
 		// if not currently in the space, do not try to interact
 		else if(currentLocation == null) return;
+		// if they do not have an infection object return out 
 		else if(myInfection == null){
 			System.out.println("ERROR: " + this.myId + " asked to infect others, but is not infected!");
 			return;
 		}
+		// if there is no one else other than the individual at the location, save computation time and return out
+		else if(this.currentLocation.getPersonsHere().length < 2) {
+			return; 
+			} 
 		
+		if(myWorld.params.setting_perfectMixing) {
+			
+			perfectMixingInteractions(); 
+			return;
+		}
+		else {
+			structuredMixingInteractions();
+			return;
+		} 
+	}
 		// now apply the rules based on the setting
 
 		// they may be at home
@@ -377,68 +436,76 @@ public class Person extends MobileAgent {
 	
 		}
 		*/
+ 
+	private void perfectMixingInteractions() {
+		Object [] peopleHere = this.currentLocation.getPersonsHere();
+		int numPeople = peopleHere.length;
 		
-		if(myWorld.params.setting_perfectMixing) {
+		double someInteractions = myWorld.params.community_num_interaction_perTick;
+		
+		double myNumInteractions = Math.min(numPeople - 1, someInteractions);
+		
+		// this number may be probabilistic - e.g. 3.5. In this case, in 50% of ticks they should
+		// interact with 4 people, and in 50% of ticks they should interact with only 3.
+		
+		// Thus, we calculate the probability of the extra person
+		double diff = myNumInteractions - Math.floor(myNumInteractions); // number between 0 and 1
+		
+		// if the random number is less than this, we bump the number up to the higher number this tick
+		if(myWorld.random.nextDouble() < diff)
+				myNumInteractions = Math.ceil(myNumInteractions);
+		
+		// don't interact with the same person twice
+		HashSet <Person> otherPeople = new HashSet <Person> ();
+		otherPeople.add(this);  
+		
+		for(int i = 0; i < myNumInteractions; i++) {
+			Person otherPerson = (Person) peopleHere[myWorld.random.nextInt(numPeople)]; 
 			
-			Object [] peopleHere = this.currentLocation.getPersonsHere();
-			int numPeople = peopleHere.length;
-			
-			double someInteractions = myWorld.params.community_num_interaction_perTick;
-			if(this.atWork)
-				someInteractions = myWorld.params.economic_num_interactions_weekday_perTick.get(this.economic_status);
-			
-			double myNumInteractions = Math.min(numPeople - 1, someInteractions);
-			
-			// this number may be probabilistic - e.g. 3.5. In this case, in 50% of ticks they should
-			// interact with 4 people, and in 50% of ticks they should interact with only 3.
-			
-			// Thus, we calculate the probability of the extra person
-			double diff = myNumInteractions - Math.floor(myNumInteractions); // number between 0 and 1
-			
-			// if the random number is less than this, we bump the number up to the higher number this tick
-			if(myWorld.random.nextDouble() < diff)
-					myNumInteractions = Math.ceil(myNumInteractions);
-			
-//			System.out.print("OUTPUT\t" + myWorld.schedule.getTime() + "\t");
-//			System.out.print(this.toString() + "\tintwith\t" + myNumInteractions + "\t" + numPeople + "\t");
-//			System.out.print(currentLocation.toString());
-//			System.out.print(">>>" + currentLocation.getRootSuperLocation().toString() + "\t");
-//			String infecteds = "";
-			
-			// don't interact with the same person twice
-			HashSet <Person> otherPeople = new HashSet <Person> ();
-			otherPeople.add(this);
-			
-			for(int i = 0; i < myNumInteractions; i++) {
-				Person otherPerson = (Person) peopleHere[myWorld.random.nextInt(numPeople)];
-				
-				// don't interact with the same person multiple times
-				if(otherPeople.contains(otherPerson)) {
-					i -= 1;
-					continue;
-				}
-				else
-					otherPeople.add(otherPerson);
-				
-
-				//System.out.print(", " + otherPerson.age);
-				myWorld.testingAgeDist.add(otherPerson.age);
-				
-				// check if they are already infected; if they are not, infect with with probability BETA
-				double myProb = myWorld.random.nextDouble();
-				if(otherPerson.myInfection == null 
-						&& myProb < myWorld.params.infection_beta){
-					Infection inf = new CoronavirusInfection(otherPerson, this, myWorld.infectiousFramework.getHomeNode(), myWorld);
-					myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting);
-//					infecteds += otherPerson.toString() + " infected with prob " + myProb + "; ";
-				}
-
+			// don't interact with the same person multiple times
+			if(otherPeople.contains(otherPerson)) {
+				i -= 1;
+				continue; 
 			}
-//			System.out.println("\t" + infecteds);
-			return;
+			else
+				otherPeople.add(otherPerson); 
+			
+			myWorld.testingAgeDist.add(otherPerson.age); 
+			
+			// check if they are already infected; if they are not, infect with with probability BETA
+			double myProb = myWorld.random.nextDouble();
+			if(otherPerson.myCovidInfection == null 
+					&& myProb < myWorld.params.infection_beta){
+				myCovidInfection = new CoronavirusInfection(otherPerson, this, myWorld.infectiousFramework.getHomeNode(), myWorld);
+				myWorld.schedule.scheduleOnce(myCovidInfection, myWorld.param_schedule_infecting); 
+			}  
+
 		}
-		else
-			System.out.println("ERROR: structured mixing under revision");
+	}
+	
+	private void structuredMixingInteractions() {
+		if(currentLocation instanceof Household){
+			assert (!this.atWork): "at work but having interactions at home";
+			interactWithin(currentLocation.personsHere, null, currentLocation.personsHere.size());		
+		}
+		// they may be at their economic activity site!
+		else if(currentLocation instanceof Workplace){
+			int myNumInteractions;
+			if (this.number_of_interactions_at_work < 0) 
+				this.number_of_interactions_at_work = myWorld.params.getWorkplaceContactCount(this.getEconStatus(), this.myWorld.random.nextDouble());
+			
+			myNumInteractions = (int) this.number_of_interactions_at_work / 2;
+
+			if (myNumInteractions > currentLocation.personsHere.size()) myNumInteractions = currentLocation.personsHere.size();
+			// interact 
+			interactWithin(workBubble, currentLocation.personsHere, myNumInteractions);
+
+		}
+		else {
+
+			perfectMixingInteractions(); 
+		}
+	
 	}
 
 
@@ -490,7 +557,7 @@ public class Person extends MobileAgent {
 			// check if they are already infected; if they are not, infect with with probability BETA
 			if(p.myInfection == null 
 					&& myWorld.random.nextDouble() < myWorld.params.infection_beta){
-				Infection inf = new CoronavirusInfection(p, this, myWorld.infectiousFramework.getHomeNode(), myWorld);
+				CoronavirusInfection inf = new CoronavirusInfection(p, this, myWorld.infectiousFramework.getHomeNode(), myWorld);  
 				myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting);
 			}
 
@@ -516,18 +583,19 @@ public class Person extends MobileAgent {
 		boolean largerCommunityContext = largerCommunity != null;
 
 		// set up the probabilities
-		double d = group.size();
-		double n = interactNumber;
-		double cutOff = n / d;
+		double groupSize = group.size(); 
+		double numberOfInteractions = interactNumber; 
+		double probabilityOfInteractingWithAnyGivenGroupMember = numberOfInteractions / groupSize;
 
 		// create the iterator and iterate over the set elements
+		// TODO: look at selection without replacement   
 		Iterator myIt = group.iterator();
-		while(myIt.hasNext() && n > 0) {
+		while(myIt.hasNext() && numberOfInteractions > 0) {  
 			
 			// generate the likelihood of selecting this particular element
 			double prob = myWorld.random.nextDouble();
 			
-			if(prob <= cutOff) { // INTERACT WITH THE PERSON
+			if(prob <= probabilityOfInteractingWithAnyGivenGroupMember) { // INTERACT WITH THE PERSON  
 				
 				// pull them out!
 				Person p = (Person) myIt.next();
@@ -540,20 +608,20 @@ public class Person extends MobileAgent {
 					continue;
 				
 				// if neither of the above are true, the interaction can take place!
-				n -= 1;
+				numberOfInteractions -= 1; 
 				
 				// check if they are already infected; if they are not, infect with with probability BETA
-				if(p.myInfection == null 
+				if(p.myCovidInfection == null 
 						&& myWorld.random.nextDouble() < myWorld.params.infection_beta){
-					Infection inf = new CoronavirusInfection(p, this, myWorld.infectiousFramework.getHomeNode(), myWorld);
-					myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting);
+					myCovidInfection = new CoronavirusInfection(p, this, myWorld.infectiousFramework.getHomeNode(), myWorld);
+					myWorld.schedule.scheduleOnce(myCovidInfection, myWorld.param_schedule_infecting);
 				}
 
 			}
 			else // just pass over it
 				myIt.next();
-			d -= 1;
-			cutOff = n / d;
+			groupSize -= 1; 
+			probabilityOfInteractingWithAnyGivenGroupMember = numberOfInteractions / groupSize;
 		}
 	}
 	
@@ -574,6 +642,10 @@ public class Person extends MobileAgent {
 	public boolean isHome(){ return currentLocation == myHousehold;}
 
 	public Location getCommunityLocation(){ return communityLocation;}
+
+	public Location getWorkLocation() { 
+		return workLocation; 
+	}
 	public boolean atWorkNow(){ return this.atWork; }
 	public void setAtWork(boolean atWork) { this.atWork = atWork; }
 	
@@ -583,12 +655,14 @@ public class Person extends MobileAgent {
 	public void sendHome() {
 		this.transferTo(myHousehold);
 		this.setActivityNode(myWorld.movementFramework.getHomeNode());
+		this.setAtWork(false);  
 	}
 	
 	// BUBBLE MANAGEMENT
 	
 	public void addToWorkBubble(Collection <Person> newPeople){ workBubble.addAll(newPeople);}	
 	public HashSet <Person> getWorkBubble(){ return workBubble; }
+	public String checkWorkplaceID() { return myWorkplace.getId(); } 
 	public void setWorkBubble(HashSet <Person> newBubble) { workBubble = newBubble; }
 
 	public void addToCommunityBubble(Collection <Person> newPeople){ communityBubble.addAll(newPeople);}
@@ -621,6 +695,8 @@ public class Person extends MobileAgent {
 
 
 	public Infection getInfection(){ return myInfection; }
+	
+	public CoronavirusInfection getCovidInfection() { return myCovidInfection; }
 	
 	public void setMobility(boolean mobile){ this.immobilised = !mobile; }
 	public boolean isImmobilised(){ return this.immobilised; }
@@ -666,7 +742,9 @@ public class Person extends MobileAgent {
 		}
 
 	public String getCurrentAdminZone() {return this.getHousehold().getRootSuperLocation().myId;}
-
+	public void setUnemployed() {this.isUnemployed = true;}
+	public boolean isUnemployed() {return this.isUnemployed;}  
+	public void resetWorkplaceContacts() { this.number_of_interactions_at_work = Integer.MIN_VALUE;}
 	// UTILS
 	
 	public String toString(){ return "P_" + this.myId;}

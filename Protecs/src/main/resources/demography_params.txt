@@ -1,13 +1,12 @@
 dataDir: src/main/resources/
 
-population_filename: larger_pop_census_dummy.csv
+population_filename: new_large_census.csv
 
 admin_zone_transition_LOCKDOWN_filename: dailyDistrictTransitionProb_preLockdown.csv
 admin_zone_transition_PRELOCKDOWN_filename: dailyDistrictTransitionProb_preLockdown.csv
 
 economic_status_weekday_movement_prob_filename: econStatusMovementProb_otherday.txt
 economic_status_otherday_movement_prob_filename: econStatusMovementProb_weekday.txt
-economic_status_num_daily_interacts_filename: numWeeklyInteractionsByStatus.txt
 econ_interaction_distrib_filename: interactionMatrixByStatus.txt
 
 community_num_interaction_perTick: 5
@@ -21,3 +20,6 @@ lineListWeightingFactor: 1
 
 all_cause_mortality_filename: test_mortality_rates.txt
 birth_rate_filename: test_birth_rates.txt
+
+workplaceContactsFilename: contact_counts_final.csv
+workplaceConstraintsFilename: workplace_constraints_empty.txt 

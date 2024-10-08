@@ -273,6 +273,7 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 					return Double.MAX_VALUE;
 				}
 				i.getHost().infectNeighbours();
+
 				if (i.getHost().hasPresymptCovid()) {
 					i.getHost().removePresympt();
 					}
@@ -356,6 +357,7 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 					return Double.MAX_VALUE;
 				}
 				i.getHost().infectNeighbours();
+
 				if (i.getHost().hasMild()) {
 					i.getHost().removeMild();
 					}
@@ -431,6 +433,7 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 					return Double.MAX_VALUE;
 				}
 				i.getHost().infectNeighbours();
+
 
 				if (i.getHost().hasSevere()) {
 					i.getHost().removeSevere();
@@ -523,8 +526,19 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 				i.getHost().removeEligibilityForCovidTesting();
 				// the Person may have stopped moving when ill - reactivate!
 				if(i.getHost().isImmobilised()){
-					i.getHost().setMobility(true);
-					myWorld.schedule.scheduleOnce(i.getHost());	// schedule the agent to begin moving again!				
+					// remobilise this person if they aren't being held at home by occupational constraint
+					// first check if there is any constraint to this persons movement by checking their econ status
+					if (!myWorld.params.OccupationConstraintList.containsKey(i.getHost().getEconStatus())){
+						i.getHost().setMobility(true);
+						myWorld.schedule.scheduleOnce(i.getHost()); // schedule the agent to begin moving again!	
+					}
+					else {
+						// their occupation has some constraint, if it is that they stay at home, keep them at home
+						if (!myWorld.params.OccupationConstraintList.get(i.getHost().getEconStatus()).equals("Home")) {
+							i.getHost().setMobility(true);
+							myWorld.schedule.scheduleOnce(i.getHost()); // schedule the agent to begin moving again!	
+						}
+					}
 				}
 				
 				// no need to update again!
