@@ -23,41 +23,44 @@ import sim.engine.Steppable;
 public class WorldBankCovid19Sim extends SimState {
 
 	// the objects which make up the system
-	public ArrayList <Person> agents;
-	public ArrayList <Household> households;
-	public ArrayList <Infection> infections;
-	public ArrayList <CoronavirusSpuriousSymptom> CovidSpuriousSymptomsList;
+	public ArrayList <Person> agents = null;
+	public ArrayList <Household> households = null;
+	public ArrayList <Workplace> workplaces = null;
+
+	public ArrayList <Infection> infections = null;
+	public HashSet <OCCUPATION> occupationsInSim = null;
+	public ArrayList <CoronavirusSpuriousSymptom> CovidSpuriousSymptomsList = null;
 	public Random random;
 	
-	ArrayList <Location> adminBoundaries;
+	ArrayList <Location> adminBoundaries = null;
 	
-	HashMap <Location, ArrayList<Person>> personsToAdminBoundary; 
+	HashMap <Location, ArrayList<Person>> personsToAdminBoundary = null; 
 	
-	public MovementBehaviourFramework movementFramework;
-	public CoronavirusBehaviourFramework infectiousFramework;
-	public SpuriousSymptomBehaviourFramework spuriousFramework;
-	public Params params;
+	public MovementBehaviourFramework movementFramework = null;
+	public CoronavirusBehaviourFramework infectiousFramework = null;
+	public SpuriousSymptomBehaviourFramework spuriousFramework = null;
+	public Params params = null;
 	public boolean lockedDown = false;
 	// create a variable to determine if COVID testing will take place
 	public boolean covidTesting = false;
 	// the names of file names of each output filename		
-	public String outputFilename;
-	public String covidIncOutputFilename; 
-	public String populationOutputFilename;
-	public String covidIncDeathOutputFilename;
-	public String otherIncDeathOutputFilename;
-	public String birthRateOutputFilename;
-	public String adminZonePopSizeOutputFilename;
-	public String casesPerAdminZoneFilename; 
-	public String infections_export_filename;
-	public String adminZoneCovidPrevalenceOutputFilename;
-	public String adminZonePercentDiedFromCovidOutputFilename;
-	public String adminZonePercentCovidCasesFatalOutputFilename;
-	public String adminZonePopBreakdownOutputFilename;
-	public String sim_info_filename;
-	public String covidCountsOutputFilename;
-	public String covidByEconOutputFilename;
-	public String covidTestingOutputFilename;
+	public String outputFilename = null;
+	public String covidIncOutputFilename = null; 
+	public String populationOutputFilename = null;
+	public String covidIncDeathOutputFilename = null;
+	public String otherIncDeathOutputFilename = null;
+	public String birthRateOutputFilename = null;
+	public String adminZonePopSizeOutputFilename = null;
+	public String casesPerAdminZoneFilename = null; 
+	public String infections_export_filename = null;
+	public String adminZoneCovidPrevalenceOutputFilename = null;
+	public String adminZonePercentDiedFromCovidOutputFilename = null;
+	public String adminZonePercentCovidCasesFatalOutputFilename = null;
+	public String adminZonePopBreakdownOutputFilename = null;
+	public String sim_info_filename = null;
+	public String covidCountsOutputFilename = null;
+	public String covidByEconOutputFilename = null;
+	public String covidTestingOutputFilename = null;
 	int targetDuration = 0;
 	
 	// ordering information
@@ -69,12 +72,14 @@ public class WorldBankCovid19Sim extends SimState {
 	public static int param_schedule_COVID_SpuriousSymptoms = 98;
 	public static int param_schedule_COVID_Testing = 99;
 	public static int param_schedule_reporting_reset = param_schedule_reporting + 1;
+
 	
-	public ArrayList <Integer> testingAgeDist = new ArrayList <Integer> ();	
+	public ArrayList <Integer> testingAgeDist = new ArrayList <Integer> ();
+	
 	// record-keeping
 	
 	ArrayList <HashMap <String, Double>> dailyRecord = new ArrayList <HashMap <String, Double>> ();
-
+	
 	// meta
 	public long timer = -1;
 	
@@ -87,6 +92,7 @@ public class WorldBankCovid19Sim extends SimState {
 		super(seed);
 		this.params = params;
 		this.outputFilename = outputFilename + ".txt";
+		this.random = new Random(this.seed());
 		this.covidIncOutputFilename = outputFilename + "_Incidence_Of_Covid.txt"; 
 		this.populationOutputFilename = outputFilename + "_Overall_Demographics.txt";
 		this.covidIncDeathOutputFilename = outputFilename + "_Incidence_Of_Covid_Death.txt";
@@ -103,6 +109,7 @@ public class WorldBankCovid19Sim extends SimState {
 		this.adminZonePercentDiedFromCovidOutputFilename = outputFilename + "_Percent_In_Admin_Zone_Died_From_Covid.txt";
 		this.adminZonePercentCovidCasesFatalOutputFilename = outputFilename + "_Percent_Covid_Cases_Fatal_In_Admin_Zone.txt";
 		this.covidTestingOutputFilename = outputFilename + "_Covid_Testing.txt";
+
 	}
 	
 	public void start(){
@@ -117,8 +124,19 @@ public class WorldBankCovid19Sim extends SimState {
 		// RESET SEED
 		random = new Random(this.seed());
 
+		// initialise the agent storage
+		// holders for construction
+		agents = new ArrayList <Person> ();
+		households = new ArrayList <Household> ();
+		workplaces = new ArrayList <Workplace> ();
+
+		// initialise the holder
+		personsToAdminBoundary = new HashMap <Location, ArrayList<Person>>();
+		// initialise occupations in sim
+		occupationsInSim = new HashSet <OCCUPATION>(); 
+		
 		// load the population
-		load_population(params.dataDir + params.population_filename);
+		LoadPopulation.load_population(params.dataDir + params.population_filename, this);
 		
 		// if there are no agents, SOMETHING IS WRONG. Flag this issue!
 		if(agents.size() == 0) {
@@ -129,6 +147,8 @@ public class WorldBankCovid19Sim extends SimState {
 		// set up the social networks
 		//InteractionUtilities.create_work_bubbles(this);
 		//InteractionUtilities.create_community_bubbles(this);
+
+		// RESET SEED
 
 		// set up the infections
 		infections = new ArrayList <Infection> ();
@@ -199,6 +219,7 @@ public class WorldBankCovid19Sim extends SimState {
 		};
 		schedule.scheduleRepeating(0, this.param_schedule_updating_locations, updateLocationLists);
 		
+
 		if (this.params.covidTesting) {
 			CovidSpuriousSymptomsList = new ArrayList <CoronavirusSpuriousSymptom> ();
 			schedule.scheduleRepeating(CovidSpuriousSymptoms.createSymptomObject(this));
@@ -240,7 +261,7 @@ public class WorldBankCovid19Sim extends SimState {
 
 		// Report on the breakdown of population size by space (adminZonePopSizeOutputFilename)
 		schedule.scheduleRepeating(Logging.ReportAdminZonePopulationSize(this), this.param_schedule_reporting, params.ticks_per_day);
-				
+		
 		// Report on the percent of the population with COVID by space (adminZoneCovidPrevalenceOutputFilename)
 		schedule.scheduleRepeating(Logging.ReportPercentInAdminZoneWithCovid(this), this.param_schedule_reporting, params.ticks_per_day);
 				
@@ -261,7 +282,7 @@ public class WorldBankCovid19Sim extends SimState {
 				
 		// Report on the percent of COVID cases that are fatal per admin zone (adminZonePercentCovidCasesFatalOutputFilename)
 		schedule.scheduleRepeating(Logging.ReportPercentOfCovidCasesThatAreFatalPerAdminZone(this), this.param_schedule_reporting, params.ticks_per_day);
-				
+
 		// Report on the prevalence of COVID death per admin zone (adminZonePercentDiedFromCovidOutputFilename)
 		schedule.scheduleRepeating(Logging.adminZonePercentDiedFromCovidOutputFilename(this), this.param_schedule_reporting, params.ticks_per_day);
 				
@@ -273,13 +294,16 @@ public class WorldBankCovid19Sim extends SimState {
 
 			@Override
 			public void step(SimState arg0) {
-				double currentTime = arg0.schedule.getTime();
+				int currentTime = (int) (arg0.schedule.getTime() / params.ticks_per_day); 
 				if(params.lockdownChangeList.size() == 0)
 					return;
 				double nextChange = params.lockdownChangeList.get(0);
 				if(currentTime >= nextChange) {
 					params.lockdownChangeList.remove(0);
 					lockedDown = !lockedDown;
+					if (lockedDown) System.out.println("Going into lockdown at day " + currentTime);
+					else System.out.println("Exiting lockdown at day " + currentTime); 
+//					return;
 				}
 				
 			}
@@ -287,12 +311,6 @@ public class WorldBankCovid19Sim extends SimState {
 		};
 		schedule.scheduleRepeating(0, this.param_schedule_lockdown, lockdownTrigger);
 		
-		String filenameSuffix = (this.params.ticks_per_day * this.params.infection_beta) + "_" 
-				+ this.params.lineListWeightingFactor + "_"
-				+ this.targetDuration + "_"
-				+ this.seed() + ".txt";
-		//outputFilename = "results_" + filenameSuffix;
-//		infections_export_filename = "infections_" + filenameSuffix;
 
 		ImportExport.exportMe(outputFilename, Location.metricNamesToString(), timer);
 		Steppable reporter = new Steppable(){
@@ -315,108 +333,8 @@ public class WorldBankCovid19Sim extends SimState {
 			}
 		};
 		schedule.scheduleRepeating(reporter, this.param_schedule_reporting, params.ticks_per_day);
-
 	}
 	
-	public void load_population(String agentsFilename){
-		try {
-			
-			// holders for construction
-			agents = new ArrayList <Person> ();
-			households = new ArrayList <Household> ();
-			
-			// initialise the holder
-			personsToAdminBoundary = new HashMap <Location, ArrayList<Person>>();
-			for(Location l: adminBoundaries){
-				personsToAdminBoundary.put(l, new ArrayList <Person> ());
-			}
-
-			
-			// use a helpful holder to find households by their names
-			HashMap <String, Household> rawHouseholds = new HashMap <String, Household> ();
-			
-			System.out.println("Reading in agents from " + agentsFilename);
-			
-			// Open the file
-			FileInputStream fstream = new FileInputStream(agentsFilename);
-
-			// Convert our input stream to a BufferedReader
-			BufferedReader agentData = new BufferedReader(new InputStreamReader(fstream));
-			String s;
-
-			// get rid of the header
-			s = agentData.readLine();
-			//Params.parseHeader(s.split(',')); TODO fix meeee
-			
-			System.out.print("BEGIN READING IN PEOPLE...");
-			
-			// read in the raw data
-			//int myIndex = 10;
-			while ((s = agentData.readLine()) != null ){//&& myIndex > 0) {
-				//myIndex--;
-				
-				// separate the columns from the raw text
-				String[] bits = Params.splitRawCSVString(s);
-				
-				// make sure the larger units are set up before we create the individual
-
-				// set up the Household for the Person
-				String hhName = bits[4];
-				Household h = rawHouseholds.get(hhName);
-
-				// target admin zone
-				String myAdminZoneName = bits[5]; // TODO AN ABOMINATION, STANDARDISE IT
-				Location myAdminZone = params.adminZones.get(myAdminZoneName);
-
-				boolean schoolGoer = bits[8].equals("1");
-				
-				// if the Household doesn't already exist, create it and save it
-				if(h == null){
-					
-					// set up the Household
-					h = new Household(hhName, myAdminZone);
-					rawHouseholds.put(hhName, h);
-					households.add(h);
-				}
-				
-				// identify the location in which the person, possibly, works
-				
-				// set up the person
-				// create a random birthday
-				int birthday = this.random.nextInt(365);
-
-				// create and save the Person agent
-				Person p = new Person(Integer.parseInt(bits[1]), // ID 
-						Integer.parseInt(bits[2]), // age
-						birthday, // birthday to update population
-						SEX.getValue(bits[3].toLowerCase()), // sex
-						OCCUPATION.getValue(bits[6].toLowerCase()), // lower case all of the job titles
-						schoolGoer,
-						h,
-						this
-						);
-				h.addPerson(p);
-				p.setActivityNode(movementFramework.getHomeNode());
-				agents.add(p);
-				personsToAdminBoundary.get(myAdminZone).add(p);
-				
-				// schedule the agent to run at the beginning of the simulation
-				this.schedule.scheduleOnce(0, this.param_schedule_movement, p);
-				//this.schedule.scheduleRepeating(p);
-			}
-			
-			// clean up after ourselves!
-			agentData.close();
-							
-			System.out.println("FINISHED READING PEOPLE");
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.err.println("File input error: " + agentsFilename);
-		}
-	}
-	
-
-
 	
 	// thanks to THIS FRIEND: https://blogs.sas.com/content/iml/2014/06/04/simulate-lognormal-data-with-specified-mean-and-variance.html <3 to you Rick
 	public double nextRandomLognormal(double mean, double std){
@@ -444,9 +362,8 @@ public class WorldBankCovid19Sim extends SimState {
 	public static void main(String [] args){
 		
 		// default settings in the absence of commands!
-		int numDays = 70; // by default, one week
+		int numDays = 70; // by default, one week 
 		double myBeta = .3;
-
 		long seed = 12345;
 		String outputFilename = "dailyReport_" + myBeta + "_" + numDays + "_" + seed;
 		String infectionsOutputFilename = "infections_" + myBeta + "_" + numDays + "_" + seed + ".txt"; 
@@ -467,17 +384,11 @@ public class WorldBankCovid19Sim extends SimState {
 			if(args.length > 4)
 				outputFilename = args[4];
 			if(args.length > 5)
-			paramsFilename = args[5];
+				paramsFilename = args[5];
 		}
 				
 		
 		long startTime = System.currentTimeMillis(); // wallclock measurement of time - embarrassing.
-				
-		/*
-				String paramFilename = filenameBase + s + filenameSuffix;
-				String outputFilename = s + outputPrefix + i + outputSuffix;
-				
-		 */
 
 		// set up the simulation
 
@@ -490,9 +401,7 @@ public class WorldBankCovid19Sim extends SimState {
 		mySim.params.infection_beta = myBeta / mySim.params.ticks_per_day; // normalised to be per tick
 		mySim.targetDuration = numDays;
 		mySim.start(); // start the simulation
-		
-		mySim.infections_export_filename = infectionsOutputFilename; // overwrite the export filename
-		
+				
 		System.out.println("How many agents? " + mySim.agents.size());
 		System.out.println("Running...");
 
@@ -501,9 +410,7 @@ public class WorldBankCovid19Sim extends SimState {
 			mySim.schedule.step(mySim);
 			double myTime = mySim.schedule.getTime();
 		}
-		
-		ImportExport.exportInfections(infectionsOutputFilename, mySim.infections);
-		
+				
 		// end of wallclock determination of time
 		long endTime = System.currentTimeMillis();
 		mySim.timer = endTime - startTime;

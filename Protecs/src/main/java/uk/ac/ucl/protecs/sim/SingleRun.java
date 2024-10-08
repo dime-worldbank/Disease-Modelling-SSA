@@ -7,6 +7,8 @@ import java.util.Random;
 public class SingleRun {
 	
 	public static void main(String [] args) {
+		double beta = 0.3; 
+
 		// set the number of days the simulation will run
 		int numDays = 300;
 		// get current time, use to time stamp the results file, first format date time
@@ -15,11 +17,9 @@ public class SingleRun {
 		LocalDateTime timestamp = LocalDateTime.now();  
 		// Get location of parameter file
 
-		String paramFilename = "src/main/resources/params_for_parameter_loading.txt";
+		String paramFilename = "src/main/resources/workplace_bubbles_params.txt"; 
 		// Create a name for the output file
-		String outputFilename = "single_run_" + timestamp.toString() + ".txt";
-		// create a name for the infections output file
-		String infectionsOutputFilename = "single_run_infections_" + timestamp.toString() + ".txt";
+		String outputFilename = "single_run_" + timestamp.toString(); 
 		// create a name for the simulation information file
 		String sim_info_filename = "single_run_sim_info_" + timestamp.toString() + ".txt";
 		
@@ -29,7 +29,7 @@ public class SingleRun {
         int seed = random.nextInt(1000000);
         // create the simulation object
 
-		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(seed, new Params(paramFilename, false), outputFilename);
+		WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(seed, new Params(paramFilename, true), outputFilename); 
 
 		// Set how long the simulation should run for
 		mySim.targetDuration = numDays;
@@ -37,7 +37,6 @@ public class SingleRun {
 		// Begin the simulation
 		mySim.start();
 		// Update the file names of where we will import the infecitons output and the general simulation information output
-		mySim.infections_export_filename = infectionsOutputFilename;
 		mySim.sim_info_filename = sim_info_filename;
 				
 		// run the simulation step by step

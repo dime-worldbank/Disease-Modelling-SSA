@@ -137,8 +137,6 @@ public class ParamsTesting {
 	// run reject faulty files in bulk
 	// params_w_faulty_ODM.txt
 	// params_w_faulty_econ_status_movement_prob.txt
-	// params_w_faulty_econ_interactions.txt
-	// params_w_faulty_econ_distribution.txt
 	// params_w_faulty_linelist.txt
 	// params_w_faulty_inf_transitions.txt
 	// params_w_faulty_covid_test_numbers.txt

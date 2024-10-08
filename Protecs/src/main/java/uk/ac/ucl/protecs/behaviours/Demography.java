@@ -6,6 +6,7 @@ import java.util.List;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 import uk.ac.ucl.protecs.objects.Household;
+import uk.ac.ucl.protecs.objects.Workplace;
 import uk.ac.ucl.protecs.objects.Location;
 import uk.ac.ucl.protecs.objects.Person;
 import uk.ac.ucl.protecs.objects.Person.OCCUPATION;
@@ -208,6 +209,7 @@ public class Demography {
 			SEX sexAssigned = sexList.get(world.random.nextInt(sexList.size()));
 			OCCUPATION babiesJob = OCCUPATION.UNEMPLOYED;
 			Household babyHousehold = target.getHouseholdAsType();
+			Workplace babyWorkplace = null;
 			Location babyAdminZone = target.getLocation();
 			boolean babySchooling = false;
 			int birthday = time;
@@ -218,6 +220,7 @@ public class Demography {
 					babiesJob, // lower case all of the job titles
 					babySchooling,
 					babyHousehold, // household
+					babyWorkplace,
 					world
 					);				
 			// update the household and location to include the baby

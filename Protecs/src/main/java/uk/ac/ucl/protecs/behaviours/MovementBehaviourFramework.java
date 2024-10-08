@@ -6,6 +6,7 @@ import uk.ac.ucl.protecs.sim.*;
 import sim.engine.Steppable;
 import swise.behaviours.BehaviourFramework;
 import swise.behaviours.BehaviourNode;
+import uk.ac.ucl.protecs.objects.Workplace;
 
 /**
  * The MovementBehaviourFramework is an extension on the basis of the BehaviourFramework which
@@ -50,9 +51,8 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 
 			@Override
 			public double next(Steppable s, double time) {
-				
 				Person p = (Person) s;
-				
+
 				// the Person may have been sent home immobilised: update everything and don't schedule
 				// to run again until it has been un-immobilised!
 				if(p.isImmobilised()) {
@@ -72,49 +72,112 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 				if(myWorld.random.nextDouble() > myEconStatProb)
 					return myWorld.params.ticks_per_day; // rest until tomorrow
 
-				
-				// if it's morning, go out for the day
+				// if it's morning, go out for the day, reset the number of contacts they will have
 				if(hour >= myWorld.params.hour_start_day_weekday){ 
+					// reset occurs at hour 2
+					p.resetWorkplaceContacts();
 
-					Location target;
-					target = myWorld.params.getTargetMoveAdminZone(p, day, myWorld.random.nextDouble(), myWorld.lockedDown);
-					// define workday
-					boolean goToWork = (p.isSchoolGoer() || target == p.getCommunityLocation()) // schoolgoer or going to own admin zone
-							&& myWorld.params.isWeekday(day);
+					return determineDailyRoutine(p, hour, day);
+				}
+				
+				return 1; // otherwise it's not the morning - stay home for now, but check in again later!
+			}
+			
+			private double determineDailyRoutine(Person p, int hour, int day) {
+				Location target;
+				target = myWorld.params.getTargetMoveAdminZone(p, day, myWorld.random.nextDouble(), myWorld.lockedDown);
+				// then check if they are supposed to leave the admin zone they are currently in. If so, then they cannot go to work.
+				boolean stayingInHomeDistrict = target.getId().equals(p.getHousehold().getRootSuperLocation().getId());
+				// First check if they are visiting another district
+				if (!stayingInHomeDistrict) p.setVisiting(true);
+				if (p.visitingNow() & !stayingInHomeDistrict) {
+					// travelling to another district!
+					p.transferTo(target);
+					p.setActivityNode(communityNode);
+					p.setAtWork(false);
+					assert ! p.getHousehold().getSuper().equals(target) : 
+						"set to travel to a different district but didn't, home/target " + p.getHousehold().getSuper().getId() + " " + target.getId();
+					 // stay out until time to go home!
+					return myWorld.params.hour_end_day_otherday - hour;
+				}
+				// if they aren't visiting, are they at work or the community?
+				else {
+					// Check they are going to work
+					boolean goToWork = myWorld.random.nextDouble() < myWorld.params.prob_go_to_work;
 
+					// if unemployed or homemaker don't go to work
+					if (p.isUnemployed()) {
+						goToWork = false;
+					}
+					// first check if there is any constraints to this occupations movements. Note that if the model is using this code block then 
+					// this person has not been immobilised and if their movement is constrained it will mean that they only go to the community and not to work
+					boolean movementConstrained = myWorld.params.OccupationConstraintList.containsKey(p.getEconStatus());
+						
 					if(myWorld.params.setting_perfectMixing) // in perfect mixing, just go to the community!
 						goToWork = false;
 					
+					if (goToWork & !movementConstrained) target = p.getWorkLocation();
+
+					
 					p.transferTo(target);
 					assert (p.getLocation().equals(target)) : "Transfer to target didn't work";
-
 					// update appropriately
 					if(goToWork){ // working
 						p.setActivityNode(workNode);
 						p.setAtWork(true);
 						p.setVisiting(false);
 						return myWorld.params.hours_at_work_weekday;
-					}
-					
-					else if(target == p.getCommunityLocation()) { // in home admin zone, not working
+					}					
+					else { // in home district, not working
 						p.setActivityNode(communityNode);
 						p.setAtWork(false);	
+						p.setVisiting(false);
 						assert p.getHousehold().getSuper().getId().equals(target.getId()) : 
 							"set to travel to a within admin zone but didn't, home/target " + p.getHousehold().getSuper().getId() + " " + target.getId();
 						return myWorld.params.hour_end_day_otherday - hour; // stay out until time to go home!
 					}
-					
-					else{ // travelling to another admin zone!
-						p.setActivityNode(communityNode);
-						p.setAtWork(false);
-						p.setVisiting(true);
-						assert ! p.getHousehold().getSuper().equals(target) : 
-							"set to travel to a different admin zone but didn't, home/target " + p.getHousehold().getSuper().getId() + " " + target.getId();
-						return myWorld.params.hour_end_day_otherday - hour; // stay out until time to go home!
-					}
-				}
-				return 1; // otherwise it's not the morning - stay home for now, but check in again later!
 			}
+			}
+			
+//			private double oldDetermineDailyRoutine(Person p, int hour, int day) {
+//				Location target;
+//				target = myWorld.params.getTargetMoveDistrict(p, day, myWorld.random.nextDouble(), myWorld.lockedDown);
+//				assert target.getId().startsWith("d_"): "target is a null location";
+//				// define workday
+//				boolean goToWork = (p.isSchoolGoer() || target == p.getCommunityLocation()) // schoolgoer or going to own district
+//						&& myWorld.params.isWeekday(day);
+//
+//				if(myWorld.params.setting_perfectMixing) // in perfect mixing, just go to the community!
+//					goToWork = false;
+//				
+//				p.transferTo(target);
+//				assert (p.getLocation().equals(target)) : "Transfer to target didn't work";
+//
+//				// update appropriately
+//				if(goToWork){// working
+//					p.setActivityNode(workNode);
+//					p.setAtWork(true);
+//					p.setVisiting(false);
+//					return myWorld.params.hours_at_work_weekday;
+//				}
+//				
+//				else if(target == p.getCommunityLocation()) { // in home district, not working
+//					p.setActivityNode(communityNode);
+//					p.setAtWork(false);	
+//					assert p.getHousehold().getSuper().getId().equals(target.getId()) : 
+//						"set to travel to a within district but didn't, home/target " + p.getHousehold().getSuper().getId() + " " + target.getId();
+//					return myWorld.params.hour_end_day_otherday - hour; // stay out until time to go home!
+//				}
+//				
+//				else{ // travelling to another district!
+//					p.setActivityNode(communityNode);
+//					p.setAtWork(false);
+//					p.setVisiting(true);
+//					assert ! p.getHousehold().getSuper().equals(target) : 
+//						"set to travel to a different district but didn't, home/target " + p.getHousehold().getSuper().getId() + " " + target.getId();
+//					return myWorld.params.hour_end_day_otherday - hour; // stay out until time to go home!
+//				}
+//			}
 
 			@Override
 			public boolean isEndpoint() {
@@ -131,10 +194,9 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 			public double next(Steppable s, double time) {
 
 				Person p = (Person) s;
-				
+
 				// extract time info
 				int hour = ((int)time) % Params.ticks_per_day;
-
 				
 				// if it's too late, go straight home
 				if(hour > myWorld.params.hour_end_day_weekday){
@@ -171,7 +233,7 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 			public double next(Steppable s, double time) {
 				
 				Person p = (Person) s;
-				
+
 				// extract time info
 				int hour = ((int)time) % Params.ticks_per_day;
 

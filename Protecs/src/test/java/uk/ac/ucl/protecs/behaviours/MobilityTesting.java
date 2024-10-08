@@ -47,6 +47,7 @@ public class MobilityTesting {
 		// set up the simulation
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(params + ".txt");
 		sim.start();
+
 		// make everyone go to the community
 		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.movementFramework.setMobilityNodeForTesting(mobilityNodeTitle.COMMUNITY), 
 				NodeOption.MovementBehaviour);
@@ -121,7 +122,6 @@ public class MobilityTesting {
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(params + ".txt");
 		sim.start();
 		// ensure that perfect mixing is turned on
-		sim.params.setting_perfectMixing = true;
 		int numDays = 100; 
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
 		HashSet<String> uniqueNodesInRun = helperFunctions.getUniqueNodesOverCourseofSim(sim, numDays, NodeOption.MovementBehaviour, 0.0);
@@ -138,6 +138,7 @@ public class MobilityTesting {
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(params + ".txt");
 		sim.start();
 		// make everyone go to the community
+		sim.params.setting_perfectMixing = true;		
 		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.movementFramework.setMobilityNodeForTesting(mobilityNodeTitle.COMMUNITY), 
 				NodeOption.MovementBehaviour);
 		

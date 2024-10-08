@@ -1347,6 +1347,8 @@ public class Logging {
 				}
 				covid_number_and_deaths += "\n";
 				ImportExport.exportMe(world.covidCountsOutputFilename, covid_number_and_deaths, world.timer);
+
+
 			}
 		};
 	}
@@ -1361,6 +1363,7 @@ public class Logging {
 				int time = (int) (arg0.schedule.getTime() / world.params.ticks_per_day);
 
 				OCCUPATION[] economic_status = OCCUPATION.values();
+
 				ArrayList <Integer> status_counts = new ArrayList<Integer>();
 				ArrayList <Integer> status_covid_counts = new ArrayList<Integer>();
 				ArrayList <Integer> status_covid_death_counts = new ArrayList<Integer>();
@@ -1407,7 +1410,8 @@ public class Logging {
 								)
 						)
 						);
-				for (OCCUPATION status: economic_status) {
+
+				for (OCCUPATION status: world.occupationsInSim) {
 					try {
 					status_covid_counts.add(economic_alive_has_covid.get(status).get(true).get(true).get(false).intValue());
 					}
@@ -1430,8 +1434,9 @@ public class Logging {
 						status_counts.add(0);
 					}
 				}
+				
 				String econ_status_categories = "";
-				for (OCCUPATION job: economic_status) {
+				for (OCCUPATION job: world.occupationsInSim) {
 					econ_status_categories += job.name() + t;
 				}
 				econ_status_categories += "\n";
@@ -1498,7 +1503,6 @@ public class Logging {
 					}	
 				}
 			};
-		}
-
-
+	}
+		
 }

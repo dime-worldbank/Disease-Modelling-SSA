@@ -23,8 +23,9 @@ public class Params {
 	public double rate_of_spurious_symptoms = 0.004;
 	public int lineListWeightingFactor = 1; // the line list contains only detected instances, which can be biased 
 											// - weight this if we suspect it's undercounting
-	public boolean setting_perfectMixing = false; // if TRUE: there are no work or social bubbles; individuals have
+	public boolean setting_perfectMixing = true; // if TRUE: there are no work or social bubbles; individuals have
 	// equal chance of interacting with anyone else in the simulation
+	public double prob_go_to_work = 0.8;
 	public boolean demography = false;
 	public boolean covidTesting = false;
 
@@ -32,8 +33,10 @@ public class Params {
 	public HashMap <String, Double> economic_status_weekday_movement_prob;
 	public HashMap <String, Double> economic_status_otherday_movement_prob;
 	
-	public HashMap <String, Double> economic_num_interactions_weekday_perTick;
-	public static int community_num_interaction_perTick = 3;
+	public HashMap <String, List<Double>> workplaceContactProbability;
+	public ArrayList <String> occupationNames;
+	public ArrayList <Integer> workplaceContactCounts;  
+	public static int community_num_interaction_perTick = 5;
 
 	public static int community_bubble_size = 30;
 	
@@ -72,6 +75,9 @@ public class Params {
 
 	
 	
+	// holders for workplace bubble constraints
+	public HashMap <OCCUPATION, LocationCategory> OccupationConstraintList = new HashMap <OCCUPATION, LocationCategory> ();
+	  
 	// parameters drawn from Kerr et al 2020 - https://www.medrxiv.org/content/10.1101/2020.05.10.20097469v3.full.pdf
 	public ArrayList <Integer> infection_age_params;
 	public ArrayList <Double> infection_r_sus_by_age;
@@ -128,10 +134,12 @@ public class Params {
 	public String all_cause_mortality_filename = null;
 	public String birth_rate_filename = null;
 	
+	public String workplaceContactsFilename = null;
+	public String workplaceConstraintsFilename= null;
+		
 	public String testDataFilename = null;
 	public String testLocationFilename = null;
 
-	
 	
 	// time
 	public static int hours_per_tick = 4; // the number of hours each tick represents
@@ -160,23 +168,21 @@ public class Params {
 		assert (dailyTransitionLockdownProbs.size() == dailyTransitionPrelockdownProbs.size()): "Movement data for pre and post lockdown inconsistent, look into ODMs";
 		assert (dailyTransitionLockdownProbs.get(0).size() == dailyTransitionPrelockdownProbs.get(0).size()): "Movement data for pre and post lockdown inconsistent, look into ODMs";
 		
-		// Load in the probability of leaving the house
 		economic_status_weekday_movement_prob = readInEconomicData(dataDir + economic_status_weekday_movement_prob_filename, "economic_status", "movement_probability");
-		economic_status_otherday_movement_prob = readInEconomicData(dataDir + economic_status_otherday_movement_prob_filename, "economic_status", "movement_probability");
+		economic_status_otherday_movement_prob = readInEconomicData(dataDir + economic_status_otherday_movement_prob_filename, "economic_status", "movement_probability");				
 		assert (economic_status_otherday_movement_prob.size() == economic_status_weekday_movement_prob.size()): "Inconsistent data for ecom movement prob between weekday and otherday";
-
-		// Load in predetermined number of interactions per econ status (perfect mixing, probably no longer used)
-		economic_num_interactions_weekday_perTick = readInEconomicData(dataDir  + economic_status_num_daily_interacts_filename, "economic_status", "interactions");
-		assert (economic_num_interactions_weekday_perTick.size() == economic_status_otherday_movement_prob.size()): "Number of interactions not specified for every occupation";
-		
-		// Load in interactions between economic status data(perfect mixing, probably no longer used)
-		load_econStatus_distrib(dataDir  + econ_interaction_distrib_filename);
-		
-		assert (orderedEconStatuses.size() == economic_num_interactions_weekday_perTick.size()): "Econ interaction matrix incomplete";
 		// Load in where you want COVID cases to be initialised
 		load_line_list(dataDir  + line_list_filename);
 		// Load in disease progression parameters
 		load_infection_params(dataDir  + infection_transition_params_filename);
+		
+		// Load in workplace contact parameters if setting_perfectMixing is false
+		if (!this.setting_perfectMixing) { 
+			// load the workplace contacts data
+			load_workplace_contacts(dataDir + workplaceContactsFilename);
+			// load in the file to determine which occupations will have reduced mobility
+			load_occupational_constraints(dataDir + workplaceConstraintsFilename);
+		}
 		
 		// Load in whether/when you want to trigger lockdown only if a file name has been declared
 		if (!(lockdown_changeList_filename == null)) {
@@ -193,7 +199,6 @@ public class Params {
 			load_testing_locations(dataDir + testLocationFilename);
 		}
 	}
-	
 	//
 	// DATA IMPORT UTILITIES
 	//
@@ -275,7 +280,6 @@ public class Params {
 				lineList.put(myAdminZone, myCount);
 			}
 			assert (lineList.size() > 0): "lineList not loaded";
-			lineListDataFile.close();
 		} catch (Exception e) {
 			System.err.println("File input error: " + lineListFilename);
 			fail();
@@ -362,8 +366,8 @@ public class Params {
 			assert (number_of_tests_per_day.size() > 0): "Number of tests per day not loaded";
 			testingDataFile.close();
 		} catch (Exception e) {
-			fail();
 			System.err.println("File input error: " + testDataFilename);
+			fail();
 		}
 	}
 	
@@ -403,10 +407,135 @@ public class Params {
 			
 			testingDataFile.close();
 		} catch (Exception e) {
-			fail();
 			System.err.println("File input error: " + testLocationsFilename);
+			fail();
 		}
 	}
+	
+	public void load_workplace_contacts(String workplaceFilename){
+
+		// set up structure to hold transition probability
+		workplaceContactProbability = new HashMap <String, List<Double>> ();
+
+		// set up structure to hold transition probability
+		occupationNames = new ArrayList <String> ();
+		workplaceContactCounts = new ArrayList <Integer>();
+
+		
+		try {
+			
+			if(verbose)
+				System.out.println("Reading in workplace contact data from " + workplaceFilename);
+			
+			// Open the tracts file
+			FileInputStream fstream = new FileInputStream(workplaceFilename);
+
+			// Convert our input stream to a BufferedReader
+			BufferedReader workplaceData = new BufferedReader(new InputStreamReader(fstream));
+			
+			String s;
+
+			// extract the header
+			s = workplaceData.readLine();
+			
+			// map the header into column names
+			String [] header = splitRawCSVString(s);
+			HashMap <String, Integer> rawColumnNames = new HashMap <String, Integer> ();
+			for(int i = 0; i < header.length; i++){
+				rawColumnNames.put(header[i], new Integer(i));
+			}
+			int occupationIndex = rawColumnNames.get("Work contacts yesterday");
+			
+			// assemble use of district names for other purposes
+			for(int i = occupationIndex + 1; i < header.length; i++){
+				workplaceContactCounts.add(Integer.parseInt(header[i]));
+			}
+			// set up holders for the information
+			
+			
+			if(verbose)
+				System.out.println("BEGIN READING IN WORKPLACE CONTACTS");
+			
+			
+			// read in the raw data
+			while ((s = workplaceData.readLine()) != null) {
+				String [] bits = splitRawCSVString(s);
+				
+				// extract the occupation
+				String occupationName = bits[occupationIndex];
+				
+				// set up a new set workplace contact count probabilities
+				ArrayList <Double> cumulativeProbCount = new ArrayList <Double> ();
+				for(int i = occupationIndex + 1; i < bits.length; i++){
+					cumulativeProbCount.add(Double.parseDouble(bits[i]));
+				}
+
+				// save the transitions
+//				dailyTransitionProbs.get(dayOfWeek).put( districtName, transferFromDistrict);
+				workplaceContactProbability.put(occupationName, cumulativeProbCount);
+			}
+			// clean up after ourselves
+			workplaceData.close();
+		} catch (Exception e) {
+			System.err.println("File input error: " + workplaceFilename);
+			fail();
+		}
+		
+	}
+	
+	private void load_occupational_constraints(String workplaceConstraints) {
+
+		// set up structure to hold transition probability
+		OccupationConstraintList = new HashMap<OCCUPATION, LocationCategory>();
+		
+		try {
+			
+			if(verbose)
+				System.out.println("Reading in workplace constraints from " + workplaceConstraints);
+			
+			// Open the tracts file
+			FileInputStream fstream = new FileInputStream(workplaceConstraints);
+
+			// Convert our input stream to a BufferedReader
+			BufferedReader workplaceData = new BufferedReader(new InputStreamReader(fstream));
+			
+			String s;
+
+			// extract the header
+			s = workplaceData.readLine();
+			
+			// map the header into column names
+			String [] header = splitRawCSVString(s);
+			HashMap <String, Integer> rawColumnNames = new HashMap <String, Integer> ();
+			for(int i = 0; i < header.length; i++){
+				rawColumnNames.put(header[i], new Integer(i));
+			}
+			int occupationIndex = rawColumnNames.get("Occupation");			
+			int constraintIndex = rawColumnNames.get("Constraint");			
+			if(verbose)
+				System.out.println("BEGIN READING IN OCCUPATION CONSTRAINTS");
+			
+			
+			// read in the raw data
+			while ((s = workplaceData.readLine()) != null) {
+				String [] bits = splitRawCSVString(s);
+				
+				// extract the occupation
+				OCCUPATION occupationName = OCCUPATION.getValue(bits[occupationIndex].toLowerCase());
+				LocationCategory locationName = LocationCategory.getValue(bits[constraintIndex].toLowerCase());
+
+				// save the transitions
+				OccupationConstraintList.put(occupationName, locationName);
+			}
+			// clean up after ourselves
+			workplaceData.close();
+		} catch (Exception e) {
+			System.err.println("File input error: " + workplaceConstraints);
+			fail();
+		}
+		
+	}
+
 	
 	public void load_infection_params(String filename){
 		try {
@@ -587,75 +716,71 @@ public class Params {
 	}
 
 	// Economic
-	
-	public void load_econStatus_distrib(String filename){
-		economicInteractionDistrib = new HashMap <String, Map<String, Double>> ();
-		economicInteractionCumulativeDistrib = new HashMap <String, List<Double>> ();
-		econBubbleSize = new HashMap <String, Integer> ();
-		orderedEconStatuses = new ArrayList <String> ();
-		
-		try {
-			
-			if(verbose)
-				System.out.println("Reading in econ interaction data from " + filename);
-			
-			// Open the tracts file
-			FileInputStream fstream = new FileInputStream(filename);
-
-			// Convert our input stream to a BufferedReader
-			BufferedReader econDistribData = new BufferedReader(new InputStreamReader(fstream));
-			String s;
-
-			// extract the header
-			s = econDistribData.readLine();
-			
-			// map the header into column names relative to location
-			String [] header = splitRawCSVString(s);
-			HashMap <String, Integer> rawColumnNames = new HashMap <String, Integer> ();
-			for(int i = 0; i < header.length; i++){
-				rawColumnNames.put(header[i], new Integer(i));
-			}
-			//int bubbleIndex = rawColumnNames.get("Bubble");
-			
-			while ((s = econDistribData.readLine()) != null) {
-				String [] bits = splitRawCSVString(s);
-				String myTitle = bits[0].toLowerCase();
-				if(verbose)
-					System.out.println(bits);
-				
-				// save bubble info
-				//econBubbleSize.put(myTitle, Integer.parseInt(bits[bubbleIndex]));
-				
-				// save interaction info
-				HashMap <String, Double> interacts = new HashMap <String, Double> ();
-				ArrayList <Double> interactsCum = new ArrayList <Double> ();
-				double cumTotal = 0;
-				for(int i = 1;//bubbleIndex + 1; 
-						i < bits.length; i++){
-					Double val = Double.parseDouble(bits[i]);
-					interacts.put(header[i], val);
-					
-					cumTotal += val;
-					interactsCum.add(cumTotal);
-				}
-				economicInteractionDistrib.put(myTitle, interacts);
-				economicInteractionCumulativeDistrib.put(myTitle, interactsCum);
-				
-				// save ordering info
-				orderedEconStatuses.add(bits[0].toLowerCase());
-			}
-			assert (economicInteractionDistrib.size() > 0): "economicInteractionDistrib not loaded";
-			assert (economicInteractionCumulativeDistrib.size() > 0): "economicInteractionCumulativeDistrib not loaded";
-			assert (orderedEconStatuses.size() > 0): "orderedEconStatuses not loaded";
-			assert (orderedEconStatuses.size() == economicInteractionCumulativeDistrib.size()): "Inconsistencies in econ interaction file";
-			assert (economicInteractionDistrib.size() == economicInteractionCumulativeDistrib.size()): "Inconsistencies in econ interaction file";
-
-			econDistribData.close();
-		} catch (Exception e) {
-			assert (false): "File input error: " + econ_interaction_distrib_filename;
-			fail();
-		}
-	}
+	// ------------------- This form of including workplace bubbles in the model has been replaced ------------------------------
+//	public void load_econStatus_distrib(String filename){
+//		economicInteractionDistrib = new HashMap <String, Map<String, Double>> ();
+//		economicInteractionCumulativeDistrib = new HashMap <String, List<Double>> ();
+//		econBubbleSize = new HashMap <String, Integer> ();
+//		orderedEconStatuses = new ArrayList <String> ();
+//		
+//		try {
+//			
+//			if(verbose)
+//				System.out.println("Reading in econ interaction data from " + filename);
+//			
+//			// Open the tracts file
+//			FileInputStream fstream = new FileInputStream(filename);
+//
+//			// Convert our input stream to a BufferedReader
+//			BufferedReader econDistribData = new BufferedReader(new InputStreamReader(fstream));
+//			String s;
+//
+//			// extract the header
+//			s = econDistribData.readLine();
+//			
+//			// map the header into column names relative to location
+//			String [] header = splitRawCSVString(s);
+//			HashMap <String, Integer> rawColumnNames = new HashMap <String, Integer> ();
+//			for(int i = 0; i < header.length; i++){
+//				rawColumnNames.put(header[i], new Integer(i));
+//			}
+//			//int bubbleIndex = rawColumnNames.get("Bubble");
+//			
+//			while ((s = econDistribData.readLine()) != null) {
+//				String [] bits = splitRawCSVString(s);
+//				String myTitle = bits[0].toLowerCase();
+//				if(verbose)
+//					System.out.println(bits);
+//				
+//				// save bubble info
+//				//econBubbleSize.put(myTitle, Integer.parseInt(bits[bubbleIndex]));
+//				
+//				// save interaction info
+//				HashMap <String, Double> interacts = new HashMap <String, Double> ();
+//				ArrayList <Double> interactsCum = new ArrayList <Double> ();
+//				double cumTotal = 0;
+//				for(int i = 1;//bubbleIndex + 1; 
+//						i < bits.length; i++){
+//					Double val = Double.parseDouble(bits[i]);
+//					interacts.put(header[i], val);
+//					
+//					cumTotal += val;
+//					interactsCum.add(cumTotal);
+//				}
+//				economicInteractionDistrib.put(myTitle, interacts);
+//				economicInteractionCumulativeDistrib.put(myTitle, interactsCum);
+//				
+//				// save ordering info
+//				orderedEconStatuses.add(bits[0].toLowerCase());
+//			}
+//			assert (economicInteractionDistrib.size() > 0): "economicInteractionDistrib not loaded";
+//			assert (economicInteractionCumulativeDistrib.size() > 0): "economicInteractionCumulativeDistrib not loaded";
+//			assert (orderedEconStatuses.size() > 0): "orderedEconStatuses not loaded";			
+//			econDistribData.close();
+//		} catch (Exception e) {
+//			System.err.println("File input error: " + econ_interaction_distrib_filename);
+//		}
+//	}
 	
 	public ArrayList <Map<String, List<Double>>> load_admin_zone_data(String adminZoneFilename){
 		
@@ -729,6 +854,7 @@ public class Params {
 			// create Locations for each admin zone
 			for(String d: adminZoneNames){
 				Location l = new Location(d);
+				l.setLocationType(LocationCategory.COMMUNITY);
 				adminZones.put(d, l);
 			}
 			
@@ -862,6 +988,16 @@ public class Params {
 				return -1;
 			else return economic_status_otherday_movement_prob.get(occ_as_string);
 		}
+	}
+	
+	public int getWorkplaceContactCount(OCCUPATION occupation, double random) {
+		List <Double> probabilityOfCount = workplaceContactProbability.get(occupation.key);
+		int indexOfCount = 0;
+		for (double probability: probabilityOfCount) {
+			if (random < probability) break;
+			indexOfCount ++;
+		}
+		return workplaceContactCounts.get(indexOfCount);
 	}
 
 	/**
