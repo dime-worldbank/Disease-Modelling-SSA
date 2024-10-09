@@ -57,8 +57,6 @@ public class ParamsTesting {
 	public void testSimRunsWithoutDemographyFilenames() {
 		// Create the simulation object without loading in demography related filenames
 		WorldBankCovid19Sim sim_no_demog_files = helperFunctions.CreateDummySim("src/test/resources/params_testing_no_demography.txt");
-		// create a boolean to indicate if an error was found whilst running the simulation
-		boolean ran_without_issue = true;
 		// wrap simulation running in a try catch statement
 		try {
 			// initialise and simulation
@@ -67,10 +65,9 @@ public class ParamsTesting {
 		}
 		catch (Exception e) {
 			// error has been found, update run_without_issue
-			ran_without_issue = false;
+			Assert.fail();
 		}
-		// Check that the simulation ran without issue
-		Assert.assertTrue(ran_without_issue);
+		
 	}
 	
 	@Test
@@ -88,19 +85,14 @@ public class ParamsTesting {
 	public void testSimRunsWithoutLockdownFilenames() {
 		// Create the simulation object without loading in lockdown triggering related filenames
 		WorldBankCovid19Sim sim_no_lockdown_trigger_files = helperFunctions.CreateDummySim("src/test/resources/params_testing_no_lockdown_filename.txt");
-		// create a boolean to indicate if an error was found whilst running the simulation
-		boolean ran_without_issue = true;
 		// wrap simulation running in a try catch statement
 		try {
 			sim_no_lockdown_trigger_files.start();
 			helperFunctions.runSimulation(sim_no_lockdown_trigger_files, 10);
 		}
 		catch (Exception e) {
-			// error has been found, update run_without_issue
-			ran_without_issue = false;
+			Assert.fail();
 		}
-		// Check that the simulation ran without issue
-		Assert.assertTrue(ran_without_issue);
 	}
 	
 
@@ -119,19 +111,15 @@ public class ParamsTesting {
 	public void testSimRunsWithoutCovidTestingFilenames() {
 		// Create the simulation object without loading in lockdown triggering related filenames
 		WorldBankCovid19Sim sim_no_covid_testing_files = helperFunctions.CreateDummySim("src/test/resources/params_testing_no_covid_testing_file.txt");
-		// create a boolean to indicate if an error was found whilst running the simulation
-		boolean ran_without_issue = true;
 		// wrap simulation running in a try catch statement
 		try {
 			sim_no_covid_testing_files.start();
 			helperFunctions.runSimulation(sim_no_covid_testing_files, 10);
 		}
 		catch (Exception e) {
-			// error has been found, update run_without_issue
-			ran_without_issue = false;
+			Assert.fail();
 		}
-		// Check that the simulation ran without issue
-		Assert.assertTrue(ran_without_issue);
+		
 	}
 	
 	// run reject faulty files in bulk

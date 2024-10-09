@@ -43,7 +43,6 @@ public class CovidSpuriousSymptomTesting{
 			numberOfPeopleWithSpuriousSymptoms = checkSpuriousSymptomAndTestingEligibilityHasBeenAssigned(sim, true).size();
 			}
 		catch (Exception e) {}
-		System.out.println(numberOfPeopleWithSpuriousSymptoms);
 		Assert.assertTrue(numberOfPeopleWithSpuriousSymptoms == 0);
 	}
 	
@@ -84,7 +83,6 @@ public class CovidSpuriousSymptomTesting{
 		helperFunctions.runSimulation(sim, numDays);
 		// Check that there are no spurious symptoms remaining in the population
 		List<Person> peopleWithoutSpuriousSymptoms = checkSpuriousSymptomAndTestingEligibilityHasBeenAssigned(sim, false);
-		System.out.println("stop");
 		Assert.assertTrue(peopleWithoutSpuriousSymptoms.size() == sim.agents.size());	
 	}
 	
