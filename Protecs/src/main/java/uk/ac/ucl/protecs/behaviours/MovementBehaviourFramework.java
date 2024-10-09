@@ -64,11 +64,11 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 				// extract time info
 				int hour = ((int)time) % Params.ticks_per_day;
 				int day = (int)(time / Params.ticks_per_day) % 7; // because 7 days in a week
-				assert (hour >= 0) : "Hour of the day not valid";
-				assert (day >= 0) : "Day not valid";
+				assert (hour >= 0) : "Hour of the day not valid " + hour;
+				assert (day >= 0) : "Day not valid " + day;
 				// determine likelihood of leaving the home today
 				double myEconStatProb = myWorld.params.getEconProbByDay(day, p.getEconStatus());
-				assert (myEconStatProb >= 0.0) & (myEconStatProb <= 1.0) : "Probability not valid";
+				assert (myEconStatProb >= 0.0) & (myEconStatProb <= 1.0) : "Probability not valid " + myEconStatProb;
 				if(myWorld.random.nextDouble() > myEconStatProb)
 					return myWorld.params.ticks_per_day; // rest until tomorrow
 
@@ -120,7 +120,7 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 
 					
 					p.transferTo(target);
-					assert (p.getLocation().equals(target)) : "Transfer to target didn't work";
+					assert (p.getLocation().equals(target)) : "Transfer to target didn't work " + target.getId();
 					// update appropriately
 					if(goToWork){ // working
 						p.setActivityNode(workNode);
@@ -241,7 +241,7 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 					p.transferTo(p.getHousehold());
 					p.setActivityNode(homeNode);
 					p.setVisiting(false);
-					assert p.getLocation().getId().equals(p.getHousehold().getId()) : "person isn't home but should be";
+					assert p.getLocation().getId().equals(p.getHousehold().getId()) : "person isn't home but should be " + p.getLocation().getId();
 					return myWorld.params.hours_sleeping;
 				}
 				return 1; // check in again soon, but we have more time!

@@ -102,9 +102,9 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 					// moderate this based on the age of the host
 					double mySymptLikelihood = myWorld.params.getLikelihoodByAge(
 							myWorld.params.infection_p_sym_by_age, myWorld.params.infection_age_params, i.getHost().getAge());
-					assert (mySymptLikelihood >= 0.0) & (mySymptLikelihood <= 1.0) : "probability out of bounds";
-					assert i.getHost() != null : "PROBLEM WITH INFECTION";
-					assert i.getHost().getLocation() != null : "PROBLEM WITH LOCATION";
+					assert (mySymptLikelihood >= 0.0) & (mySymptLikelihood <= 1.0) : "probability out of bounds " + mySymptLikelihood;
+					assert i.getHost() != null : "PROBLEM WITH INFECTION IN PERSON " + i.getHost().getID();
+					assert i.getHost().getLocation() != null : "PROBLEM WITH LOCATION " + i.getHost().getLocation().getId();
 
 					// activate the next step probabilistically
 					if(myWorld.random.nextDouble() < mySymptLikelihood){
@@ -138,12 +138,12 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 					i.time_infected = time;
 //					---------------- mySusceptLikelihood is sometimes greater than 1, is this correct -------------------------------------
 //					assert (mySusceptLikelihood >= 0.0) & (mySusceptLikelihood <= 1.0): "probability out of bounds: " + mySusceptLikelihood;
-					assert (i.getHost() != null && i.getHost().getLocation() != null) : "PROBLEM WITH INFECTION HOST OR LOCATION";
+					assert (i.getHost() != null && i.getHost().getLocation() != null) : "PROBLEM WITH INFECTION HOST OR LOCATION. P: " + i.getHost() + "L: " + i.getHost().getLocation();
 					// the agent has been infected - set the time at which it will become infecTIOUS
 					double timeUntilInfectious = myWorld.nextRandomLognormal(
 							myWorld.params.exposedToInfectious_mean,
 							myWorld.params.exposedToInfectious_std);
-					assert (timeUntilInfectious > 0): "Something has gone wrong in deciding when a person will become infectious";
+					assert (timeUntilInfectious > 0): "Something has gone wrong in deciding when a person will become infectious, time: " + timeUntilInfectious;
 					i.time_contagious = time + timeUntilInfectious;
 					// update the person's properties to show they have covid
 					i.getHost().storeCovid();
@@ -198,7 +198,7 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 					double time_until_symptoms = myWorld.nextRandomLognormal(
 							myWorld.params.infectiousToSymptomatic_mean, 
 							myWorld.params.infectiousToSymptomatic_std);
-					assert (time_until_symptoms >= 0.0) : "sheduled time not in future";
+					assert (time_until_symptoms >= 0.0) : "sheduled time not in future: " + time_until_symptoms;
 					i.time_start_symptomatic = time + time_until_symptoms;
 				}
 				
@@ -243,7 +243,7 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 					double time_until_recovered = myWorld.nextRandomLognormal(
 							myWorld.params.asymptomaticToRecovery_mean, 
 							myWorld.params.asymptomaticToRecovery_std);
-					assert (time_until_recovered > 0) : "Time until recovered is not set to the future";
+					assert (time_until_recovered > 0) : "Time until recovered is not set to the future " + time_until_recovered;
 					i.time_recovered = time + time_until_recovered;
 				}
 				
@@ -310,7 +310,7 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 					// determine if the patient will become sicker
 					double mySevereLikelihood = myWorld.params.getLikelihoodByAge(
 							myWorld.params.infection_p_sev_by_age, myWorld.params.infection_age_params, i.getHost().getAge());
-					assert (mySevereLikelihood >= 0.0) & (mySevereLikelihood <= 1.0) : "probablilty not valid";
+					assert (mySevereLikelihood >= 0.0) & (mySevereLikelihood <= 1.0) : "probablilty not valid: " + mySevereLikelihood;
 					if(myWorld.random.nextDouble() < mySevereLikelihood){
 						double time_until_severe = myWorld.nextRandomLognormal(
 								myWorld.params.symptomaticToSevere_mean, 
@@ -324,7 +324,7 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 						double time_until_recovered = myWorld.nextRandomLognormal(
 								myWorld.params.symptomaticToRecovery_mean, 
 								myWorld.params.symptomaticToRecovery_std);
-						assert time_until_recovered > 0 : "time until recovery not scheduled in future";
+						assert time_until_recovered > 0 : "time until recovery not scheduled in future: " + time_until_recovered;
 
 						i.time_recovered = time + time_until_recovered;
 						return 1;
@@ -383,7 +383,7 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 
 					double myCriticalLikelihood = myWorld.params.getLikelihoodByAge(
 							myWorld.params.infection_p_cri_by_age, myWorld.params.infection_age_params, i.getHost().getAge());
-					assert (myCriticalLikelihood >= 0.0) & (myCriticalLikelihood <= 1.0) : "probablilty not valid";
+					assert (myCriticalLikelihood >= 0.0) & (myCriticalLikelihood <= 1.0) : "probablilty not valid " + myCriticalLikelihood;
 
 					// determine if the patient will become sicker
 					if(myWorld.random.nextDouble() < myCriticalLikelihood){
@@ -400,7 +400,7 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 						double time_until_recovered = myWorld.nextRandomLognormal(
 								myWorld.params.severeToRecovery_mean, 
 								myWorld.params.severeToRecovery_std);
-						assert time_until_recovered > 0.0 : "time until recovered not in future";
+						assert time_until_recovered > 0.0 : "time until recovered not in future " + time_until_recovered;
 
 						i.time_recovered = time + time_until_recovered;
 						return 1;
@@ -468,14 +468,14 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 					double myDeathLikelihood = myWorld.params.getLikelihoodByAge(
 							myWorld.params.infection_p_dea_by_age, myWorld.params.infection_age_params, i.getHost().getAge());
 					
-					assert (myDeathLikelihood >= 0.0) & (myDeathLikelihood <= 1.0) : "probablilty not valid";
+					assert (myDeathLikelihood >= 0.0) & (myDeathLikelihood <= 1.0) : "probablilty not valid " + myDeathLikelihood;
 
 					// determine if the patient will die
 					if(myWorld.random.nextDouble() < myDeathLikelihood){
 						double time_until_death = myWorld.nextRandomLognormal(
 								myWorld.params.criticalToDeath_mean, 
 								myWorld.params.criticalToDeath_std);
-						assert time_until_death > 0.0 : "time until died not in future";
+						assert time_until_death > 0.0 : "time until died not in future " + time_until_death;
 
 						i.time_died = time + time_until_death;
 					}
@@ -485,7 +485,7 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 						double time_until_recovered = myWorld.nextRandomLognormal(
 								myWorld.params.criticalToRecovery_mean, 
 								myWorld.params.criticalToRecovery_std);
-						assert time_until_recovered > 0.0 : "time until recovered not in future";
+						assert time_until_recovered > 0.0 : "time until recovered not in future " + time_until_recovered;
 
 						i.time_recovered = time + time_until_recovered;
 						return 1;
