@@ -121,6 +121,7 @@ public class MobilityTesting {
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(params + ".txt");
 		sim.start();
 		// ensure that perfect mixing is turned on
+		sim.params.setting_perfectMixing = true;
 		int numDays = 100; 
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
 		HashSet<String> uniqueNodesInRun = helperFunctions.getUniqueNodesOverCourseofSim(sim, numDays, NodeOption.MovementBehaviour, 0.0);
@@ -160,12 +161,12 @@ public class MobilityTesting {
 //	
 	@Test
 	public void LockdownReducesTheNumberOfVisitsToOtherAdminZones() {
-		WorldBankCovid19Sim sim_no_lockdown = helperFunctions.CreateDummySim(params + ".txt");
+		WorldBankCovid19Sim sim_no_lockdown = helperFunctions.CreateDummySimWithSeed(8497966, params + ".txt");
 		sim_no_lockdown.start();
 		
 		int noLockdownOutboundTripCounts = outboundTripCountInSim(sim_no_lockdown, 100);
 		
-		WorldBankCovid19Sim sim_with_lockdown = helperFunctions.CreateDummySim(params + "_with_lockdown.txt");
+		WorldBankCovid19Sim sim_with_lockdown = helperFunctions.CreateDummySimWithSeed(8497966, params + "_with_lockdown.txt");
 		sim_with_lockdown.start();
 
 		int lockdownOutboundTripCounts = outboundTripCountInSim(sim_with_lockdown, 100);
