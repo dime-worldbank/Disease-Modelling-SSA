@@ -359,7 +359,11 @@ public class Person extends MobileAgent {
 		// if not currently in the space, do not try to interact
 		else if(currentLocation == null) return;
 		// if they do not have an infection object return out 
-		else if(myInfection == null){
+//		else if(myInfection == null){
+//			System.out.println("ERROR: " + this.myId + " asked to infect others, but is not infected!");
+//			return;
+//		}
+		else if(myCovidInfection == null){
 			System.out.println("ERROR: " + this.myId + " asked to infect others, but is not infected!");
 			return;
 		}
@@ -686,6 +690,7 @@ public class Person extends MobileAgent {
 
 		
 	public void setInfection(Infection i){ myInfection = i; }
+	public void setCoronavirusInfection(CoronavirusInfection i) { myCovidInfection = i;}
 	public boolean hadCovid() { return this.hadCovid; }
 	public boolean hasAsymptCovid() { return this.asymptomatic; }
 	public boolean hasMild() { return this.mild; }

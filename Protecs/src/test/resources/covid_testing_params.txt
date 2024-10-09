@@ -20,6 +20,3 @@ lineListWeightingFactor: 1
 covidTesting: true
 testDataFilename: dummy_n_tests.txt
 testLocationFilename: most_travelled_from_testing.txt
-
-workplaceContactsFilename: contact_counts_final.csv
-workplaceConstraintsFilename: workplace_constraints_empty.txt 

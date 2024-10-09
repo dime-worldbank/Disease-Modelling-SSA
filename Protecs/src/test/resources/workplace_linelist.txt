@@ -1,3 +1,0 @@
-admin_zone, count
-d_1, 5
-d_2, 5

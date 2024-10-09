@@ -12,12 +12,9 @@ econ_interaction_distrib_filename: interactionMatrixByStatus.txt
 
 setting_perfectMixing: false
 
-line_list_filename: workplace_linelist.txt
+line_list_filename: line_list_dummy.txt
 infection_transition_params_filename: covasim_infect_transitions.txt
 lockdown_changeList_filename: lockdownChangelist.txt
-
-all_cause_mortality_filename: test_mortality_rates.txt
-birth_rate_filename: test_birth_rates.txt
 
 workplaceContactsFilename: contact_counts_w_student_teacher.csv
 workplaceConstraintsFilename: workplace_constraints_default.txt

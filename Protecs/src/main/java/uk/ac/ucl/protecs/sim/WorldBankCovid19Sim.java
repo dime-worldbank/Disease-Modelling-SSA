@@ -187,7 +187,7 @@ public class WorldBankCovid19Sim extends SimState {
 					newlyInfected.add(p);
 				
 				// create new person
-				Infection inf = new CoronavirusInfection(p, null, infectiousFramework.getInfectedEntryPoint(l), this, 0);
+				CoronavirusInfection inf = new CoronavirusInfection(p, null, infectiousFramework.getInfectedEntryPoint(l), this, 0);
 				// update this person's properties
 				
 				// update this person's properties so we can keep track of the number of cases etc				
