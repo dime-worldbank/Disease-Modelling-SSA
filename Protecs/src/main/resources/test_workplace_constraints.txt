@@ -1,5 +1,0 @@
-Occupation,Constraint
-manu_mining_trades,Home
-service_retail,Community
-inactive,Community
-unemployed_not_ag,Community

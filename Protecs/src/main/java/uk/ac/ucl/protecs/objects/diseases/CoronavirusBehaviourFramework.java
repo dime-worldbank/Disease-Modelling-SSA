@@ -281,8 +281,10 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 					i.getHost().setMild();
 					i.getHost().isEligibleForCovidTesting();
 				}
-
-
+				if (i.getHost().hasCovidSpuriousSymptoms()) {
+					i.getHost().removeCovidSpuriousSymptoms();
+				}
+				
 				// if the agent is scheduled to recover, make sure that it
 				// does so
 				if(time >= i.time_recovered){
@@ -521,6 +523,16 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 				i.getHost().setRecovered();
 				i.getHost().removeCovid();
 				i.getHost().getLocation().getRootSuperLocation().metric_new_recovered++;
+
+//				try {
+//				
+//					i.getHost().getLocation().getRootSuperLocation().metric_new_recovered++;
+//				}
+//				catch (Exception e){
+//					System.out.println("Location " + i.getHost().getLocation() + " has no super location");
+//				}
+				
+				
 				i.getHost().setRecovered();
 				i.getHost().removeCovid();
 				i.getHost().removeEligibilityForCovidTesting();

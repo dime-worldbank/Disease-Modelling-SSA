@@ -1,8 +1,5 @@
 package uk.ac.ucl.protecs.sim;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -190,7 +187,7 @@ public class WorldBankCovid19Sim extends SimState {
 					newlyInfected.add(p);
 				
 				// create new person
-				Infection inf = new CoronavirusInfection(p, null, infectiousFramework.getInfectedEntryPoint(l), this, 0);
+				CoronavirusInfection inf = new CoronavirusInfection(p, null, infectiousFramework.getInfectedEntryPoint(l), this, 0);
 				// update this person's properties
 				
 				// update this person's properties so we can keep track of the number of cases etc				
@@ -399,9 +396,7 @@ public class WorldBankCovid19Sim extends SimState {
 
 		// ensure that all parameters are set
 		mySim.params.infection_beta = myBeta / mySim.params.ticks_per_day; // normalised to be per tick
-		mySim.params.demography = true;
 		mySim.targetDuration = numDays;
-		mySim.params.rate_of_spurious_symptoms = 1;
 		mySim.start(); // start the simulation
 				
 		System.out.println("How many agents? " + mySim.agents.size());

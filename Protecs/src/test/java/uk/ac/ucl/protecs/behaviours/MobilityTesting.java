@@ -13,7 +13,6 @@ import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.behaviours.MovementBehaviourFramework.mobilityNodeTitle;
 import uk.ac.ucl.protecs.helperFunctions.*;
 import uk.ac.ucl.protecs.helperFunctions.helperFunctions.NodeOption;
-import uk.ac.ucl.protecs.objects.Location.LocationCategory;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -98,6 +97,23 @@ public class MobilityTesting {
 
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun) && uniqueNodesInRun.containsAll(expectedNodes));
 	}
+	@Test
+	public void PeopleWithinTheHomeLocationGoToTheCommunityLocationAtTheStartOfDay() {
+		// set up the simulation
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/test/resources/params_no_district_movement.txt");
+		sim.start();
+		// people start at home and then go to the community afterwards
+		helperFunctions.makePeopleAlwaysLeaveHome(sim);
+		List<String> _unused = helperFunctions.getFinalBehaviourNodesInSim(sim, 2.01 / sim.params.ticks_per_day, NodeOption.MovementBehaviour);
+		// Create a hashset to store the whether everyone is at their community location
+		
+		HashSet<Boolean> allAtCommunity =  new HashSet<Boolean>();
+		for (Person p: sim.agents) {
+			allAtCommunity.add(p.getCommunityLocation().getPeople().contains(p));
+		}
+		// if everyone is at the community, then allAtHome should not have false in it
+		Assert.assertFalse(allAtCommunity.contains(false));
+	}
 	
 	@Test
 	public void MakeSureThatPeopleOnlyDoTheCommunityAndHomeNodeBehavioursWithPerfectMixing() {
@@ -105,6 +121,7 @@ public class MobilityTesting {
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(params + ".txt");
 		sim.start();
 		// ensure that perfect mixing is turned on
+		sim.params.setting_perfectMixing = true;
 		int numDays = 100; 
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
 		HashSet<String> uniqueNodesInRun = helperFunctions.getUniqueNodesOverCourseofSim(sim, numDays, NodeOption.MovementBehaviour, 0.0);
@@ -144,12 +161,12 @@ public class MobilityTesting {
 //	
 	@Test
 	public void LockdownReducesTheNumberOfVisitsToOtherAdminZones() {
-		WorldBankCovid19Sim sim_no_lockdown = helperFunctions.CreateDummySim(params + ".txt");
+		WorldBankCovid19Sim sim_no_lockdown = helperFunctions.CreateDummySimWithSeed(8497966, params + ".txt");
 		sim_no_lockdown.start();
 		
 		int noLockdownOutboundTripCounts = outboundTripCountInSim(sim_no_lockdown, 100);
 		
-		WorldBankCovid19Sim sim_with_lockdown = helperFunctions.CreateDummySim(params + "_with_lockdown.txt");
+		WorldBankCovid19Sim sim_with_lockdown = helperFunctions.CreateDummySimWithSeed(8497966, params + "_with_lockdown.txt");
 		sim_with_lockdown.start();
 
 		int lockdownOutboundTripCounts = outboundTripCountInSim(sim_with_lockdown, 100);
@@ -185,7 +202,7 @@ public class MobilityTesting {
 	@Parameterized.Parameters
 	public static List<String> params() {
 	    return Arrays.asList(
-	            new String[]{"src/main/resources/params", "src/main/resources/params_ward_dummy"}
+	            new String[]{"src/test/resources/params", "src/test/resources/params_ward_dummy"}
 	    
 	    );
 	}

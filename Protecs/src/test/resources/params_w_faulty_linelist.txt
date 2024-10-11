@@ -1,4 +1,4 @@
-dataDir: src/main/resources/
+dataDir: src/test/resources/
 
 population_filename: census_dummy.csv
 
@@ -13,7 +13,8 @@ econ_interaction_distrib_filename: interactionMatrixByStatus.txt
 community_num_interaction_perTick: 5
 setting_perfectMixing: true
 
-line_list_filename: line_list_dummy.txt
+line_list_filename: line_list_faulty.txt
 infection_transition_params_filename: covasim_infect_transitions.txt
 lockdown_changeList_filename: lockdownChangelistDefault.txt
 lineListWeightingFactor: 1
+
