@@ -15,9 +15,11 @@ import java.util.stream.Collectors;
 
 public class CovidTestingTesting {
 	
+	private final static String paramsDir = "src/test/resources/";
+	
 	@Test
 	public void CheckTestsOnlyHappenForThoseWithSymptomsOfCovid() {
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/test/resources/covid_testing_params.txt");
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "covid_testing_params.txt");
 		sim.start();
 		int numDays = 1;
 		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(0.5, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD),

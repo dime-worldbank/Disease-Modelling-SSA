@@ -22,11 +22,12 @@ public class DemographyTesting {
 		births,
 		deaths
 	}
-	
+	private final static String paramsDir = "src/test/resources/";
+
 	@Test
 	public void testBirthsAreIncreasingPopSize() {
 		// Create the simulation object
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/test/resources/demography_params.txt");
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
 		sim.start();
 		// turn off deaths to only focus on births.
 		turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
@@ -44,7 +45,7 @@ public class DemographyTesting {
 	@Test
 	public void testBirthsDoNotOccurInMen() {		
 		// Create the simulation object
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/test/resources/demography_params.txt");
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
 		sim.start();
 		// turn off deaths to only focus on births.
 		turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
@@ -114,7 +115,7 @@ public class DemographyTesting {
 	@Test
 	public void testUpdateAges() {		
 		// Create the simulation object
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/test/resources/demography_params.txt");
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
 		sim.start();
 		// turn off deaths births and deaths
 		turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);

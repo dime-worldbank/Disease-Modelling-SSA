@@ -28,7 +28,8 @@ public class WorkplaceTesting{
 	// ===== We check that the parameters being used to predict workplace contacts are being loaded                             =======
 	// ================================================================================================================================
 	private final String params;
-	
+	private final static String paramsDir = "src/test/resources/";
+
 	public WorkplaceTesting(String fileName) {
 		this.params = fileName;
 	}
@@ -36,7 +37,7 @@ public class WorkplaceTesting{
 	@Test
 	public void checkPopulationWorkplacesAreBeingLoaded() {
 		// workplaces are read in from the csv file now, initialise the simulation
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/test/resources/workplace_bubbles_params.txt");
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "workplace_bubbles_params.txt");
 		sim.start();
 		// check that the workplace locations have been created
 		Assert.assertNotNull(sim.workplaces);
@@ -44,7 +45,7 @@ public class WorkplaceTesting{
 	@Test
 	public void checkWorkplaceBubblesAreBeingMade() {
 		// bubbles are created after during the loading in process of the population
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/test/resources/workplace_bubbles_params.txt");
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "workplace_bubbles_params.txt");
 		sim.start();
 		// check that everyone has a bubble associated with their workplace
 		for (Person p: sim.agents) {
@@ -55,7 +56,7 @@ public class WorkplaceTesting{
 	public void checkWorkplaceBubblesContainEveryoneInWorkplace() {
 		// bubbles are created after during the loading in process of the population
 
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/test/resources/workplace_bubbles_params.txt");
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "workplace_bubbles_params.txt");
 		sim.start();
 		// create a function to search through the population and get people belonging to certain bubbles
 		Map<String, List<Person>> belongingToBubble = sim.agents.stream().collect(
@@ -76,7 +77,7 @@ public class WorkplaceTesting{
 	@Test
 	public void checkPeopleGoToTheirWorkplace() {
 		// check the movement of the population to their workplaces
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/test/resources/workplace_bubbles_params.txt");
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "workplace_bubbles_params.txt");
 		makePeopleLeaveTheHouseEachDay(sim);
 		// make everyone decide to go to their workplace
 		sim.params.prob_go_to_work = 1.1d;
@@ -99,7 +100,7 @@ public class WorkplaceTesting{
 	@Test
 	public void testWorkplaceContactsCountDataisBeingLoaded() {
 		// check the parameters associated with workplace contacts are being loaded
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/test/resources/workplace_bubbles_params.txt");
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "workplace_bubbles_params.txt");
 		sim.start();
 		boolean contactCountDataLoaded = sim.params.workplaceContactCounts.size() > 0;
 		boolean contactProbabilityDataLoaded = sim.params.workplaceContactProbability.keySet().size() > 0;
@@ -110,7 +111,7 @@ public class WorkplaceTesting{
 	@Test
 	public void testWorkplaceConstraintsAreBeingLoaded() {
 		// check the parameters associated with workplace constraints
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/test/resources/workplace_bubbles_with_constraints.txt");
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "workplace_bubbles_with_constraints.txt");
 		sim.start();
 		boolean occupationsNamed = sim.params.OccupationConstraintList.keySet().size() > 0;
 		boolean constraintsLoaded = sim.params.OccupationConstraintList.values().size() > 0;
@@ -121,7 +122,7 @@ public class WorkplaceTesting{
 	@Test
 	public void testThoseConstrainedToHomeAreImmobilised() {
 		// check the parameters associated with workplace constraints
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/test/resources/workplace_bubbles_with_constraints.txt");
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "workplace_bubbles_with_constraints.txt");
 		sim.start();
 		// run for three ticks (people leave the house at tick 2 and leave work at tick 4)
 		int numTicks = 3;
@@ -139,7 +140,7 @@ public class WorkplaceTesting{
 	@Test
 	public void testThoseConstrainedToTheCommunityAreNotAtWork() {
 		// check the parameters associated with workplace constraints
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/test/resources/workplace_bubbles_with_constraints.txt");
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "workplace_bubbles_with_constraints.txt");
 		// make sure that everyone leaves the house that day
 		makePeopleLeaveTheHouseEachDay(sim);
 		sim.start();
