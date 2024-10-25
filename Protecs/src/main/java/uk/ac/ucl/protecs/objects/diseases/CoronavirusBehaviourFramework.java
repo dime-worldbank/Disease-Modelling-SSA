@@ -522,17 +522,7 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 				// update person's properties
 				i.getHost().setRecovered();
 				i.getHost().removeCovid();
-				i.getHost().getLocation().getRootSuperLocation().metric_new_recovered++;
-
-//				try {
-//				
-//					i.getHost().getLocation().getRootSuperLocation().metric_new_recovered++;
-//				}
-//				catch (Exception e){
-//					System.out.println("Location " + i.getHost().getLocation() + " has no super location");
-//				}
-				
-				
+				i.getHost().getLocation().getRootSuperLocation().metric_new_recovered++;				
 				i.getHost().setRecovered();
 				i.getHost().removeCovid();
 				i.getHost().removeEligibilityForCovidTesting();
