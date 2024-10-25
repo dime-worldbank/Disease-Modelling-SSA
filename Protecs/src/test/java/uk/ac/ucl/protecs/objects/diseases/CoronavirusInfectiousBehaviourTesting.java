@@ -8,11 +8,9 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
-import uk.ac.ucl.protecs.objects.Person;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusBehaviourFramework.CoronavirusBehaviourNodeTitle;
 import uk.ac.ucl.protecs.sim.Params;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
-import swise.behaviours.BehaviourNode;
 import uk.ac.ucl.protecs.helperFunctions.*;
 import uk.ac.ucl.protecs.helperFunctions.helperFunctions.NodeOption;
 
@@ -22,12 +20,12 @@ public class CoronavirusInfectiousBehaviourTesting {
 	// === happening as they should do. Each of the behaviour nodes are forced into the population and then the ======
 	// === infectious behaviour nodes that are meant to be transitioned to via the model's inner workings are checked =
 	// === against the infectious behaviour nodes that were activated by the simulation. ==============================
-	
+	private final static String paramsDir = "src/test/resources/";
+
 	@Test
 	public void ifThereAreNoCovidInfectionsPeopleStaySusceptible() {
 		// create a simulation and start
-
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt");
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
 		sim.start();
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
@@ -48,7 +46,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	public void exposedBehaviourNodesLeadToSusceptiblePresymptomaticAndAsymptomaticOnly() {
 		// create a simulation and start
 
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt");
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
 		sim.start();
 		// Ensure that no one disease progression occurs beyond the exposed stage
 		helperFunctions.HaltDiseaseProgressionAtStage(sim, CoronavirusBehaviourNodeTitle.PRESYMPTOMATIC);
@@ -73,7 +71,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	public void presymptomaticBehaviourNodesLeadToMildCasesOnly() {
 		// create a simulation and start
 
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt");
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
 		sim.start();
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
@@ -96,8 +94,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void asymptomaticBehaviourNodesLeadsToRecoveredOnly() {
 		// create a simulation and start
-
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt");
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
 		sim.start();
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
@@ -117,8 +114,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void mildBehaviourNodesLeadToSevereAndRecoveredOnly() {
 		// create a simulation and start
-
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt");
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
 		sim.start();
 		
 		// Make sure there are no new infections
@@ -141,8 +137,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void confirmMildInfectionsResolveToRecoveredWhenTheyDoNotProgress() {
 		// create a simulation and start
-
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt");
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
 		sim.start();
 		// Ensure that no one disease progression occurs beyond the exposed stage
 		helperFunctions.HaltDiseaseProgressionAtStage(sim, CoronavirusBehaviourNodeTitle.SEVERE);
@@ -163,8 +158,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void severeBehaviourNodesLeadToCriticalAndRecoveredOnly() {
 		// create a simulation and start
-
-		WorldBankCovid19Sim sim =helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt");
+		WorldBankCovid19Sim sim =helperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
 		sim.start();
 		
 		// Make sure there are no new infections
@@ -188,7 +182,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	public void confirmSevereInfectionsResolveToRecoveredWhenTheyDoNotProgress() {
 		// create a simulation and start
 
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt");
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
 		sim.start();
 		// Ensure that no one disease progression occurs beyond the exposed stage
 		helperFunctions.HaltDiseaseProgressionAtStage(sim, CoronavirusBehaviourNodeTitle.CRITICAL);
@@ -210,7 +204,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	public void criticaBehaviourlNodesLeadToDeadOrRecoveredOnly() {
 		// create a simulation and start
 
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt");
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
 		sim.start();
 		
 		// Make sure there are no new infections
@@ -231,8 +225,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void confirmCriticalInfectionsResolveToRecoveredWhenTheyDoNotProgress() {
 		// create a simulation and start
-
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt");
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
 		sim.start();
 		// Ensure that no one disease progression occurs beyond the exposed stage
 		helperFunctions.HaltDiseaseProgressionAtStage(sim, CoronavirusBehaviourNodeTitle.CRITICAL);
@@ -252,8 +245,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void recoveredBehaviourNodesStayRecovered() {
 		// create a simulation and start
-
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt");
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
 		sim.start();
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
@@ -271,8 +263,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void deadBehaviourNodesStayDead() {
 		// create a simulation and start
-
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt");
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
 		sim.start();
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
@@ -290,8 +281,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void ifWeGiveEveryoneAnInfectionEventuallyTheyWillRecoverOrDie() {
 		// create a simulation and start
-
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/InfectiousBehaviourTestParams.txt");
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
 		sim.start();
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;

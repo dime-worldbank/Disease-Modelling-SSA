@@ -1,4 +1,4 @@
-dataDir: src/main/resources/
+dataDir: src/test/resources/
 
 population_filename: census_dummy.csv
 
