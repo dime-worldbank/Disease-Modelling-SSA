@@ -53,11 +53,14 @@ public class LoadPopulation{
 			int ageIndex = columnNames.get("age");
 			int sexIndex = columnNames.get("sex");
 			int householdIDIndex = columnNames.get("household_id");
-			int workplaceIDIndex = columnNames.get("workplace_id");
 			int districtIDIndex = columnNames.get("district_id");
 			int economicStatusIndex = columnNames.get("economic_status");
 			int schoolGoerIndex = columnNames.get("school_goers");
-
+			int workplaceIDIndex = Integer.MAX_VALUE;
+			if (!sim.params.setting_perfectMixing) {
+				workplaceIDIndex = columnNames.get("workplace_id");
+			}
+			
 						
 			
 			System.out.print("BEGIN READING IN PEOPLE...");
@@ -75,7 +78,11 @@ public class LoadPopulation{
 				// set up the Household for the Person
 				String hhName = bits[householdIDIndex];
 				Household h = rawHouseholds.get(hhName);
-				String wpName = bits[workplaceIDIndex];
+				String wpName = "None";
+				if (workplaceIDIndex < Integer.MAX_VALUE) {
+					wpName = bits[workplaceIDIndex];
+				}
+				
 				Workplace w = rawWorkplaces.get(wpName);
 
 				// target district

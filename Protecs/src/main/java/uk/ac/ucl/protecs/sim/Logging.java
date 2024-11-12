@@ -25,7 +25,7 @@ public class Logging {
 	// tab shortcut
 	private final static String t = "\t";
 	// age sex breakdown header
-	private final static String age_sex_categories = t + "sex" + age_categories + "\n";
+	private final static String age_sex_categories = t + "sex" + t + age_categories + "\n";
 
 	// set up commonly used functions to avoid repetition
 	// get those alive of given age and sex
