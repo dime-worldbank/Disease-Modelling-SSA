@@ -103,8 +103,8 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 					double mySymptLikelihood = myWorld.params.getLikelihoodByAge(
 							myWorld.params.infection_p_sym_by_age, myWorld.params.infection_age_params, i.getHost().getAge());
 					assert (mySymptLikelihood >= 0.0) & (mySymptLikelihood <= 1.0) : "probability out of bounds " + mySymptLikelihood;
-					assert i.getHost() != null : "PROBLEM WITH INFECTION IN PERSON " + i.getHost().getID();
-					assert i.getHost().getLocation() != null : "PROBLEM WITH LOCATION " + i.getHost().getLocation().getId();
+					assert i.getHost() != null : "PROBLEM WITH INFECTION IN PERSON. INFECTION IS NULL " + i.getHost().getID();
+					assert i.getHost().getLocation() != null : "PROBLEM WITH LOCATION, LOCATION IS NULL" + i.getHost().getLocation().getId();
 
 					// activate the next step probabilistically
 					if(myWorld.random.nextDouble() < mySymptLikelihood){
@@ -138,12 +138,13 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 					i.time_infected = time;
 //					---------------- mySusceptLikelihood is sometimes greater than 1, is this correct -------------------------------------
 //					assert (mySusceptLikelihood >= 0.0) & (mySusceptLikelihood <= 1.0): "probability out of bounds: " + mySusceptLikelihood;
-					assert (i.getHost() != null && i.getHost().getLocation() != null) : "PROBLEM WITH INFECTION HOST OR LOCATION. P: " + i.getHost() + "L: " + i.getHost().getLocation();
+					assert i.getHost() != null : "PROBLEM WITH INFECTION IN PERSON. INFECTION IS NULL " + i.getHost().getID();
+					assert i.getHost().getLocation() != null : "PROBLEM WITH LOCATION, LOCATION IS NULL" + i.getHost().getLocation().getId();
 					// the agent has been infected - set the time at which it will become infecTIOUS
 					double timeUntilInfectious = myWorld.nextRandomLognormal(
 							myWorld.params.exposedToInfectious_mean,
 							myWorld.params.exposedToInfectious_std);
-					assert (timeUntilInfectious > 0): "Something has gone wrong in deciding when a person will become infectious, time: " + timeUntilInfectious;
+					assert (timeUntilInfectious > 0): "Something has gone wrong in deciding when a person will become infectious, time is not in future: " + timeUntilInfectious;
 					i.time_contagious = time + timeUntilInfectious;
 					// update the person's properties to show they have covid
 					i.getHost().storeCovid();

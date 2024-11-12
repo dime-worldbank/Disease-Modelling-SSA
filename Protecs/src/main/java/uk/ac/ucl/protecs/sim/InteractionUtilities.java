@@ -225,7 +225,7 @@ public class InteractionUtilities {
 			ArrayList <Double> interDistrib = (ArrayList <Double>)
 					world.params.economicInteractionCumulativeDistrib.get(myStatus);
 			int bubbleSize = world.params.econBubbleSize.get(myStatus);
-			assert (bubbleSize > 0): "This person's bubble size isn't right: " + bubbleSize;
+			assert (bubbleSize > 0): "This person's bubble size is less than one " + bubbleSize;
 			// pull out the relevant list of potential friends in my admin zone
 			HashMap <OCCUPATION, List<Person>> binsOfWorkers = 
 					(HashMap <OCCUPATION, List<Person>>) peoplePerAdminZonePerJob.get(myWorkLocation);

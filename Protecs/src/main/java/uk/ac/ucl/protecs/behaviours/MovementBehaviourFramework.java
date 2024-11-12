@@ -63,8 +63,8 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 				// extract time info
 				int hour = ((int)time) % Params.ticks_per_day;
 				int day = (int)(time / Params.ticks_per_day) % 7; // because 7 days in a week
-				assert (hour >= 0) : "Hour of the day not valid " + hour;
-				assert (day >= 0) : "Day not valid " + day;
+				assert (hour >= 0) : "Hour of the day not valid, somehow has become negative " + hour;
+				assert (day >= 0) : "Day not valid, somehow has become negative " + day;
 				// determine likelihood of leaving the home today
 				double myEconStatProb = myWorld.params.getEconProbByDay(day, p.getEconStatus());
 				assert (myEconStatProb >= 0.0) & (myEconStatProb <= 1.0) : "Probability not valid " + myEconStatProb;
@@ -119,7 +119,7 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 
 					
 					p.transferTo(target);
-					assert (p.getLocation().equals(target)) : "Transfer to target didn't work " + target.getId();
+					assert (p.getLocation().equals(target)) : "Transfer to target didn't work, meant to be at " + target.getId() + " but is instead at " + p.getLocation().getId();
 					// update appropriately
 					if(goToWork){ // working
 						p.setActivityNode(workNode);
@@ -132,7 +132,7 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 						p.setAtWork(false);	
 						p.setVisiting(false);
 						assert p.getHousehold().getSuper().getId().equals(target.getId()) : 
-							"set to travel to a within admin zone but didn't, home/target " + p.getHousehold().getSuper().getId() + " " + target.getId();
+							"set to travel to a within admin zone but didn't, home/target is " + p.getHousehold().getSuper().getId() + " " + target.getId();
 						return myWorld.params.hour_end_day_otherday - hour; // stay out until time to go home!
 					}
 			}
