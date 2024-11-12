@@ -9,6 +9,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import uk.ac.ucl.protecs.helperFunctions.*;
+import uk.ac.ucl.protecs.objects.Person;
 
 //================================================ Testing =======================================================================
 //===== Here we test that the params.java is loading in information needed for the simulation, can run without certain parameter =
@@ -27,7 +28,24 @@ public class ParamsTesting {
 		this.params = fileName;
 	}
 	private final static String paramsDir = "src/test/resources/";
-
+	
+	@Test
+	public void testOldStyleCensusStillLoads() {
+		// Create the simulation object with the older style census
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "params_old_census.txt");
+		// attempt to load that object in to the simulation
+		try {
+			sim.start();
+			helperFunctions.runSimulation(sim, 10);
+		}
+		catch (Exception e) {
+			Assert.fail();
+		}
+		// Check the default of 'None' is present
+		for (Person p: sim.agents) {
+			Assert.assertTrue(p.checkWorkplaceID().equals("wpNone"));
+		}
+	}
 	
 	@Test
 	public void testdailyTransitionWeekdayAndHomeRegionColumnOrderIsMutable() {
