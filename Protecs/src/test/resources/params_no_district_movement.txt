@@ -1,9 +1,10 @@
-dataDir: src/main/resources/
+dataDir: src/test/resources/
 
 population_filename: census_dummy.csv
 
 admin_zone_transition_LOCKDOWN_filename: dailyDistrictTransitionProb_postLockdown.csv
-admin_zone_transition_PRELOCKDOWN_filename: dailyDistrictTransitionProb_preLockdown.csv
+admin_zone_transition_PRELOCKDOWN_filename: dailyDistrictTransitionProb_postLockdown.csv
+admin_zone_leaving_filename: intra_district_decreased_mobility_rates.csv
 
 economic_status_weekday_movement_prob_filename: econStatusMovementProb_otherday.txt
 economic_status_otherday_movement_prob_filename: econStatusMovementProb_weekday.txt

@@ -54,7 +54,7 @@ public class CoronavirusInfection implements Infection {
 	public CoronavirusInfection(Person myHost, Person mySource, BehaviourNode initNode, WorldBankCovid19Sim sim, int time){
 		
 		host = myHost;
-		myHost.setInfection(this);
+		myHost.setCoronavirusInfection(this);
 		
 		source = mySource;
 		

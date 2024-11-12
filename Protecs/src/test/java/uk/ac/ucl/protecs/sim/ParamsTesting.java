@@ -26,15 +26,16 @@ public class ParamsTesting {
 	public ParamsTesting(String fileName) {
 		this.params = fileName;
 	}
+	private final static String paramsDir = "src/test/resources/";
 
 	
 	@Test
 	public void testdailyTransitionWeekdayAndHomeRegionColumnOrderIsMutable() {
 		// Create the simulation object with column order 'weekday,home_region,...' in the ODMs
-		WorldBankCovid19Sim original_order_sim = helperFunctions.CreateDummySim("src/main/resources/params_testing_odm_order.txt");
+		WorldBankCovid19Sim original_order_sim = helperFunctions.CreateDummySim(paramsDir + "params_testing_odm_order.txt");
 		original_order_sim.start();
 		// Create the simulation with column order 'home_region,weekday,...' in the ODMs
-		WorldBankCovid19Sim alternative_order_sim = helperFunctions.CreateDummySim("src/main/resources/params_testing_odm_order_alt.txt");
+		WorldBankCovid19Sim alternative_order_sim = helperFunctions.CreateDummySim(paramsDir + "params_testing_odm_order_alt.txt");
 		alternative_order_sim.start();
 		// check that regardless of column order of the first two columns in the csv file, the ODMs are the same for both lockdown and non-lockdown 
 		boolean ld_odms_equal = original_order_sim.params.dailyTransitionLockdownProbs.equals(alternative_order_sim.params.dailyTransitionLockdownProbs);
@@ -46,7 +47,7 @@ public class ParamsTesting {
 	@Test
 	public void testSimStartsWithoutDemographyFilenames() {
 		// Create the simulation object without loading in demography related filenames
-		WorldBankCovid19Sim sim_no_demog_files = helperFunctions.CreateDummySim("src/main/resources/params_testing_no_demography.txt");
+		WorldBankCovid19Sim sim_no_demog_files = helperFunctions.CreateDummySim(paramsDir + "params_testing_no_demography.txt");
 		// start the simulation, which triggers the loading in of parameters
 		sim_no_demog_files.start();
 		// Check that the birth_rate_filename and all_cause_mortality_filename have stayed as their default value.
@@ -56,9 +57,7 @@ public class ParamsTesting {
 	@Test
 	public void testSimRunsWithoutDemographyFilenames() {
 		// Create the simulation object without loading in demography related filenames
-		WorldBankCovid19Sim sim_no_demog_files = helperFunctions.CreateDummySim("src/main/resources/params_testing_no_demography.txt");
-		// create a boolean to indicate if an error was found whilst running the simulation
-		boolean ran_without_issue = true;
+		WorldBankCovid19Sim sim_no_demog_files = helperFunctions.CreateDummySim(paramsDir + "params_testing_no_demography.txt");
 		// wrap simulation running in a try catch statement
 		try {
 			// initialise and simulation
@@ -67,16 +66,15 @@ public class ParamsTesting {
 		}
 		catch (Exception e) {
 			// error has been found, update run_without_issue
-			ran_without_issue = false;
+			Assert.fail();
 		}
-		// Check that the simulation ran without issue
-		Assert.assertTrue(ran_without_issue);
+		
 	}
 	
 	@Test
 	public void testSimStartsWithoutLockdownFilenames() {
 		// Create the simulation object without loading in lockdown triggering related filenames
-		WorldBankCovid19Sim sim_no_lockdown_trigger_files = helperFunctions.CreateDummySim("src/main/resources/params_testing_no_lockdown_filename.txt");
+		WorldBankCovid19Sim sim_no_lockdown_trigger_files = helperFunctions.CreateDummySim(paramsDir + "params_testing_no_lockdown_filename.txt");
 		// start the simulation, which triggers the loading in of parameters
 		sim_no_lockdown_trigger_files.start();
 		
@@ -87,27 +85,22 @@ public class ParamsTesting {
 	@Test
 	public void testSimRunsWithoutLockdownFilenames() {
 		// Create the simulation object without loading in lockdown triggering related filenames
-		WorldBankCovid19Sim sim_no_lockdown_trigger_files = helperFunctions.CreateDummySim("src/main/resources/params_testing_no_lockdown_filename.txt");
-		// create a boolean to indicate if an error was found whilst running the simulation
-		boolean ran_without_issue = true;
+		WorldBankCovid19Sim sim_no_lockdown_trigger_files = helperFunctions.CreateDummySim(paramsDir + "params_testing_no_lockdown_filename.txt");
 		// wrap simulation running in a try catch statement
 		try {
 			sim_no_lockdown_trigger_files.start();
 			helperFunctions.runSimulation(sim_no_lockdown_trigger_files, 10);
 		}
 		catch (Exception e) {
-			// error has been found, update run_without_issue
-			ran_without_issue = false;
+			Assert.fail();
 		}
-		// Check that the simulation ran without issue
-		Assert.assertTrue(ran_without_issue);
 	}
 	
 
 	@Test
 	public void testSimStartsWithoutCovidTestingFilenames() {
 		// Create the simulation object without loading in lockdown triggering related filenames
-		WorldBankCovid19Sim sim_no_covid_testing_files = helperFunctions.CreateDummySim("src/main/resources/params_testing_no_covid_testing_file.txt");
+		WorldBankCovid19Sim sim_no_covid_testing_files = helperFunctions.CreateDummySim(paramsDir + "params_testing_no_covid_testing_file.txt");
 		// start the simulation, which triggers the loading in of parameters
 		sim_no_covid_testing_files.start();
 		
@@ -118,20 +111,16 @@ public class ParamsTesting {
 	@Test
 	public void testSimRunsWithoutCovidTestingFilenames() {
 		// Create the simulation object without loading in lockdown triggering related filenames
-		WorldBankCovid19Sim sim_no_covid_testing_files = helperFunctions.CreateDummySim("src/main/resources/params_testing_no_covid_testing_file.txt");
-		// create a boolean to indicate if an error was found whilst running the simulation
-		boolean ran_without_issue = true;
+		WorldBankCovid19Sim sim_no_covid_testing_files = helperFunctions.CreateDummySim(paramsDir + "params_testing_no_covid_testing_file.txt");
 		// wrap simulation running in a try catch statement
 		try {
 			sim_no_covid_testing_files.start();
 			helperFunctions.runSimulation(sim_no_covid_testing_files, 10);
 		}
 		catch (Exception e) {
-			// error has been found, update run_without_issue
-			ran_without_issue = false;
+			Assert.fail();
 		}
-		// Check that the simulation ran without issue
-		Assert.assertTrue(ran_without_issue);
+		
 	}
 	
 	// run reject faulty files in bulk
@@ -164,8 +153,9 @@ public class ParamsTesting {
 	@Parameterized.Parameters
 	public static List<String> params() {
 	    return Arrays.asList(
-	            new String[]{"src/main/resources/params_w_faulty_ODM.txt", "src/main/resources/params_w_faulty_econ_status_movement_prob.txt",
-	            		"src/main/resources/params_w_faulty_linelist.txt", "src/main/resources/params_w_faulty_inf_transitions.txt" 
+	            new String[]{paramsDir + "params_w_faulty_ODM.txt", paramsDir + "params_w_faulty_econ_status_movement_prob.txt",  
+	            		paramsDir + "params_w_faulty_linelist.txt", paramsDir + "params_w_faulty_inf_transitions.txt", 
+	            		paramsDir + "params_w_faulty_covid_test_numbers.txt", paramsDir + "params_w_faulty_covid_test_locations.txt"
 	            		}
 	    
 	    );
