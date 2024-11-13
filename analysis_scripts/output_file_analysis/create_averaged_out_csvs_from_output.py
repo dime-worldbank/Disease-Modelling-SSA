@@ -10,8 +10,8 @@ try:
     folder_path = sys.argv[1]
     output_save_path = sys.argv[2]
 except IndexError:
-    folder_path = "/Users/robbiework/Desktop/mobility_paper_runs/"
-    output_save_path = "/Users/robbiework/PycharmProjects/spacialEpidemiologyAnalysis/files_to_upload_to_r_group/"
+    folder_path = "/Users/robbiework/Desktop/test_logging/"
+    output_save_path = "/Users/robbiework/Desktop/test_model_output/"
 
 
 def main():
@@ -51,13 +51,12 @@ def main():
                         pass
 
             # process them into a format we can use for easily creating plots
-            if 'Admin_Zone_Demographics' in output_filename:
+            if 'Admin_Zone_level_Demographics' in output_filename:
                 output_df_mean = output_df.groupby(['day', 'admin_zone', 'sex']).mean().reset_index()
                 output_df_std = output_df.groupby(['day', 'admin_zone', 'sex']).std().reset_index()
                 averaged_output[scenario + "_" + output_filename + "_mean"] = output_df_mean
                 averaged_output[scenario + "_" + output_filename + "_std"] = output_df_std
             elif 'Age_Gender_Demographics_Covid' in output_filename:
-                # pass
                 output_df_mean = output_df.groupby(['day', 'metric', 'sex']).mean()
                 output_df_std = output_df.groupby(['day', 'metric', 'sex']).std()
                 for metric in output_df.metric.unique():
@@ -66,6 +65,11 @@ def main():
                             output_df_mean.xs((metric, sex), level=('metric', 'sex'))
                         averaged_output[scenario + '_' + output_filename + "_" + metric + '_' + sex + "_std"] = \
                             output_df_std.xs((metric, sex), level=('metric', 'sex'))
+            elif 'Overall_Demographics' in output_filename:
+                output_df_mean = output_df.groupby(['day', 'sex']).mean().reset_index()
+                output_df_std = output_df.groupby(['day', 'sex']).mean().reset_index()
+                averaged_output[scenario + "_" + output_filename + "_mean"] = output_df_mean
+                averaged_output[scenario + "_" + output_filename + "_std"] = output_df_std
             elif ('Cases_Per_District' in output_filename) or ('Cases_Per_Admin_Zone' in output_filename):
                 output_df_mean = output_df.groupby(['day', 'metric']).mean()
                 output_df_std = output_df.groupby(['day', 'metric']).std()
@@ -89,7 +93,6 @@ def main():
                     averaged_output[scenario + '_' + output_filename + "_" + metric + "_std"] = \
                         output_df_std.xs(metric, level='metric')
             elif 'Incidence_Of_Covid' in output_filename:
-                # pass
                 output_df_mean = output_df.groupby(['day', 'sex']).mean()
                 output_df_std = output_df.groupby(['day', 'sex']).std()
                 for sex in output_df.sex.unique():
@@ -106,7 +109,6 @@ def main():
                     averaged_output[scenario + '_' + output_filename + "_" + sex + "_std"] = \
                         output_df_std.xs(sex, level='sex')
             elif 'Incidence_Of_Other_Death' in output_filename:
-                # pass
                 output_df_mean = output_df.groupby(['day', 'sex']).mean()
                 output_df_std = output_df.groupby(['day', 'sex']).std()
                 for sex in output_df.sex.unique():
@@ -116,6 +118,16 @@ def main():
                         output_df_std.xs(sex, level='sex')
             elif ('Percent_In_District_With_Covid' in output_filename) or \
                     ('Percent_In_Admin_Zone_With_Covid' in output_filename):
+                output_df_mean = output_df.groupby('day').mean()
+                output_df_std = output_df.groupby('day').std()
+                averaged_output[scenario + '_' + output_filename + "_std"] = output_df_mean
+                averaged_output[scenario + '_' + output_filename + "_std"] = output_df_std
+            elif 'Percent_Covid_Cases_Fatal_In_Admin_Zone' in output_filename:
+                output_df_mean = output_df.groupby('day').mean()
+                output_df_std = output_df.groupby('day').std()
+                averaged_output[scenario + '_' + output_filename + "_std"] = output_df_mean
+                averaged_output[scenario + '_' + output_filename + "_std"] = output_df_std
+            elif 'Percent_In_Admin_Zone_Died_From_Covid' in output_filename:
                 output_df_mean = output_df.groupby('day').mean()
                 output_df_std = output_df.groupby('day').std()
                 averaged_output[scenario + '_' + output_filename + "_std"] = output_df_mean
