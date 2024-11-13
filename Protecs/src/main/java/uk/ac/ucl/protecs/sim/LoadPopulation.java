@@ -60,7 +60,7 @@ public class LoadPopulation{
 			if (!sim.params.setting_perfectMixing) {
 				workplaceIDIndex = columnNames.get("workplace_id");
 			}
-			
+			boolean usingWorkplaces = (schoolGoerIndex == Integer.MAX_VALUE);
 						
 			
 			System.out.print("BEGIN READING IN PEOPLE...");
@@ -78,11 +78,7 @@ public class LoadPopulation{
 				// set up the Household for the Person
 				String hhName = bits[householdIDIndex];
 				Household h = rawHouseholds.get(hhName);
-				String wpName = "None";
-				if (workplaceIDIndex < Integer.MAX_VALUE) {
-					wpName = bits[workplaceIDIndex];
-				}
-				
+				String wpName = "None";				
 				Workplace w = rawWorkplaces.get(wpName);
 
 				// target district
@@ -98,13 +94,16 @@ public class LoadPopulation{
 					rawHouseholds.put(hhName, h);
 					sim.households.add(h);
 				}
-				// if the workplace doesn't already exist, create it and save it
-				if(w == null){
+				if (usingWorkplaces) {
+					// if the workplace doesn't already exist, create it and save it
+					if(w == null){
+						wpName = bits[workplaceIDIndex];
+						// set up the Household
+						w = new Workplace(wpName, myAdminZone);
+						rawWorkplaces.put(wpName, w);
+						sim.workplaces.add(w);
 					
-					// set up the Household
-					w = new Workplace(wpName, myAdminZone);
-					rawWorkplaces.put(wpName, w);
-					sim.workplaces.add(w);
+					}
 				}
 
 				// set up the person
@@ -122,8 +121,11 @@ public class LoadPopulation{
 						w,
 						sim
 						);
+				if (usingWorkplaces) {
+					w.addPerson(p);
+				} 
+
 				h.addPerson(p);
-				w.addPerson(p);
 //				p.setLocation(myDistrict);
 				p.setActivityNode(sim.movementFramework.getHomeNode());
 				sim.agents.add(p);
