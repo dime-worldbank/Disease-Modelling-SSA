@@ -406,11 +406,13 @@ public class Logging {
 					Map<SEX, Map<Integer, Map<Boolean, Long>>> age_sex_alive_map_copy = age_sex_alive_map(world);
 					//	We now iterate over the age ranges, create a variable to keep track of the iterations						
 					Integer idx = 0;
+					Integer male_count = null;
+					Integer female_count = null;
 					for (Integer val: upper_age_range) {
 						// for each age group we begin to count the number of people who fall into each category, create variables
 						// to store this information in
-						Integer male_count = 0;
-						Integer female_count = 0;
+						male_count = 0;
+						female_count = 0;
 						// iterate over the ages set in the age ranges (lower value from lower_age_range, upper from upper_age_range)
 						for (int age = lower_age_range.get(idx); age < val; age++) {
 							try {
