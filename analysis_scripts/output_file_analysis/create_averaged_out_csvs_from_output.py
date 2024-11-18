@@ -5,7 +5,8 @@ import pandas.errors
 import re
 import sys
 
-# define your file paths, if running from IDE specify file paths in 'if' part, otherwise specify in terminal
+# define your file paths, if running from IDE specify file paths in 'except' part folder_path/outout_save_path variable,
+# otherwise specify in terminal
 try:
     folder_path = sys.argv[1]
     output_save_path = sys.argv[2]
@@ -15,6 +16,11 @@ except IndexError:
 
 
 def main():
+    # Quick check on the input and output folder variable names, this makes sure that the rest of the operations done on
+    # these folders will work as intended
+    assert folder_path[-1] == '/', "Please add a '/' to the end of your input folder path"
+    assert output_save_path[-1] == '/', "Please add a '/' to the end of your output save path"
+
     # create folders to store the model output data and plots
     if not os.path.exists(output_save_path + 'averaged_outputs'):
         os.makedirs(output_save_path + 'averaged_outputs')
@@ -27,7 +33,7 @@ def main():
             scenarios.append(file.split('_')[1])
             if (re.split(r'\d+', file)[1][1:-4] != '') & file.endswith('.txt'):
                 output_filenames.append(re.split(r'\d+', file)[1][1:-4])
-
+    # Only need the unique names of the scenario and output filenames for averaging and storing the results
     scenarios = np.unique(scenarios)
     output_filenames = np.unique(output_filenames)
     # iterate over the scenarios and outputs to create dictionaries for each scenario with corresponding averaged output
@@ -36,21 +42,32 @@ def main():
         for output_filename in output_filenames:
             # loop over all the output files
             output_df = pd.DataFrame()
-            for file in os.listdir(folder_path):
-                if (scenario in file) and (output_filename in file):
-                    try:
-                        data = pd.read_csv(folder_path + file, delimiter='\t')
-                    except pandas.errors.ParserError:
-                        pass
-                    try:
-                        data = data.loc[:, ~data.columns.str.contains('Unnamed')]
-                        if len(output_df.columns) == 0:
-                            output_df = pd.DataFrame(columns=data.columns)
-                        output_df = pd.concat([output_df, data])
-                    except NameError:
-                        pass
+            # Filter through the output files and pull out only those that are of this scenario and of this particular
+            # output file type
+            relevant_files = [f for f in os.listdir(folder_path) if re.search(scenario, f)]
+            relevant_files = [f for f in relevant_files if re.search(output_filename, f)]
+            # Iterate over the relevant file names
+            for file in relevant_files:
+                # Try to avoid issues that may have happened in the running of the model, e.g. parse errors and
+                # name errors
+                try:
+                    # Load in the data
+                    data = pd.read_csv(folder_path + file, delimiter='\t')
+                    # Drop any 'unnamed' columns
+                    data = data.loc[:, ~data.columns.str.contains('Unnamed')]
+                    # If this is the first time loading in the dataframe, we need to copy the column format of the
+                    # loaded in data in our output dataframe
+                    if len(output_df.columns) == 0:
+                        output_df = pd.DataFrame(columns=data.columns)
+                    # Concat any existing dataframes with the one being loaded in for this line
+                    output_df = pd.concat([output_df, data])
+                except (pandas.errors.ParserError, NameError) as e:
+                    pass
 
-            # process them into a format we can use for easily creating plots
+            # Process them into a format we can use for easily creating plots by averaging out certain output files.
+            # Some output files will have certain breakdowns of the population that they focus on, e.g. sex, location,
+            # age etc... As we are doing a general purpose averaging of the model output rather than a bespoke one, we
+            # choose options we think are best for this purpose.
             if 'Admin_Zone_level_Demographics' in output_filename:
                 output_df_mean = output_df.groupby(['day', 'admin_zone', 'sex']).mean().reset_index()
                 output_df_std = output_df.groupby(['day', 'admin_zone', 'sex']).std().reset_index()
@@ -132,9 +149,11 @@ def main():
                 output_df_std = output_df.groupby('day').std()
                 averaged_output[scenario + '_' + output_filename + "_std"] = output_df_mean
                 averaged_output[scenario + '_' + output_filename + "_std"] = output_df_std
+            # Finally at the end of all the averaging. We have a quick check and a message to the user, explaining that
+            # certain output files did not get aggregated.
             else:
                 print(output_filename + " did not get aggregated")
-
+    # Now save all the averaged output files in the 'output_save_path' location
     for key in averaged_output.keys():
         averaged_output[key].to_csv(output_save_path + 'averaged_outputs/' + key + ".csv")
 
