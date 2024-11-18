@@ -4,6 +4,17 @@ import pandas as pd
 from matplotlib import pyplot as plt
 import re
 import sys
+import warnings
+
+
+# Create a warning for the user to indicate where plots may be unclear using this script
+class ManyScenariosBeingPlottedWarning(Warning):
+    def __init__(self, message):
+        self.message = message
+
+    def __str__(self):
+        return repr(self.message)
+
 
 # define your file paths, if running from IDE specify file paths in 'if' part, otherwise specify in terminal
 try:
@@ -15,57 +26,53 @@ except IndexError:
 
 
 def main():
-    # Check that the user has specified an appropriate file path for this
-    assert averaged_out_folder_path[-1] == '/', 'Please add / to the end of your file path'
+    # Check the format of the input and output files
+    assert averaged_out_folder_path[-1] == '/', "Please add '/' to the end of the input file path"
     assert averaged_out_folder_path.split('/')[-2] == 'averaged_outputs', \
         "This script only generates plots from averaged model runs, please use " \
         "'create_averaged_out_csvs_form_output.py first."
-    # Create output from the cases per district csv files
-    csv_files_contain = 'Cases_Per_Admin'
-    cumulative_file_names = []
-    new_deaths_file_names = []
-    total_asympt_file_names = []
-    total_mild_file_names = []
-    total_severe_file_names = []
-    total_critical_file_names = []
-    total_recovered_file_names = []
-    total_cases_file_names = []
+    # Check that the user has specified an appropriate file path for this
+    assert output_save_path[-1] == '/', "Please add '/' to the end of your output save path"
+
+    # Before we begin plotting, let's gather some overall information about what has been run here, get the names of the
+    # scenarios here
     scenarios = []
-    # store the file names sensibly
     for file in os.listdir(averaged_out_folder_path):
-        if csv_files_contain in file:
-            if 'cumulative' in file:
-                cumulative_file_names.append(file)
-            elif 'new_deaths' in file:
-                new_deaths_file_names.append(file)
-            elif 'asympt' in file:
-                total_asympt_file_names.append(file)
-            elif 'mild' in file:
-                total_mild_file_names.append(file)
-            elif 'severe' in file:
-                total_severe_file_names.append(file)
-            elif 'critical' in file:
-                total_critical_file_names.append(file)
-            elif 'recovered' in file:
-                total_recovered_file_names.append(file)
-            elif 'total_cases' in file:
-                total_cases_file_names.append(file)
+        if ".csv" in file:
             scenarios.append(file.split('_')[0])
 
-    # unique scenarios and how many there are, also create the output save name
     scenarios = np.unique(scenarios)
     scenario_output_str = ""
     for scenario in scenarios:
         scenario_output_str += '_' + scenario
         print("Generating plots for " + scenario + "...\n")
     number_of_scenarios = len(scenarios)
+    # We are creating auto generated plots here
     if number_of_scenarios > 6:
-        print("Generating plots for numerous scenarios, graphs may not be clear")
-    # Create a plot that looks at how many cases by each classification there are in each scenario
+        warnings.warn(
+            ManyScenariosBeingPlottedWarning(
+                "You are creating plots on more than 6 different scenarios, some of the output may be unclear."
+            )
+        )
+
+    # Create output from the cases per district csv files
+    csv_files_contain = 'Cases_Per_Admin_Zone'
+    cumulative_file_names = find_file(averaged_out_folder_path, csv_files_contain + '_cumulative')
+    new_deaths_file_names = find_file(averaged_out_folder_path, csv_files_contain + '_new_deaths')
+    total_asympt_file_names = find_file(averaged_out_folder_path, csv_files_contain + '_total_asympt')
+    total_mild_file_names = find_file(averaged_out_folder_path, csv_files_contain + '_total_mild')
+    total_severe_file_names = find_file(averaged_out_folder_path, csv_files_contain + '_total_severe')
+    total_critical_file_names = find_file(averaged_out_folder_path, csv_files_contain + '_total_critical')
+    total_recovered_file_names = find_file(averaged_out_folder_path, csv_files_contain + '_total_recovered')
+    total_cases_file_names = find_file(averaged_out_folder_path, csv_files_contain + '_total_cases')
+
+    # ========== Create a bar chart that looks at how many cases by each classification there are in each scenario =====
     scenario_bin = dict()
     fig1 = plt.figure(figsize=(6, 6))
     ax1 = plt.subplot(1, 1, 1)
     for idx, scenario in enumerate(scenarios):
+        # Initialise the bar plot values, search through each scenario and count how many cases per disease state there
+        # are in the simulation
         asympt_mild_severe_critical_dead_recovered_bin = [0, 0, 0, 0, 0, 0]
         for file in total_asympt_file_names:
             if (scenario in file) & ('mean' in file):
@@ -116,7 +123,8 @@ def main():
     plt.savefig(output_save_path + scenario_output_str[1:] + "_Breakdown_Of_Covid_Cases_By_Type.png")
     plt.close(fig1)
 
-    # Create a plot showing the total number of cases in each scenario
+    # ================= Create a plot showing the total number of cases in each scenario ===============================
+    #
     fig1 = plt.figure(figsize=(8, 8))
     ax1 = plt.subplot(1, 1, 1)
     total_cases_mean_bin = dict()
@@ -124,7 +132,9 @@ def main():
     for scenario in scenarios:
         for file in total_cases_file_names:
             if (scenario in file) & ('mean' in file):
-                total_cases_mean_bin[scenario] = list(pd.read_csv(averaged_out_folder_path + file, index_col='day').sum(axis=1))
+                total_cases_mean_bin[scenario] = list(
+                    pd.read_csv(averaged_out_folder_path + file, index_col='day'
+                                ).sum(axis=1))
 
     for key in total_cases_mean_bin.keys():
         ax1.plot(np.arange(len(total_cases_mean_bin[key])), total_cases_mean_bin[key], label=key)
@@ -157,7 +167,7 @@ def main():
                 has_cases_dict[scenario] = list(masked_data.sum(axis=1))
                 number_of_zones[scenario] = len(raw_data.columns)
 
-    # Create a plot showing the number of admin zones with at least one case
+    # ================== Create a plot showing the number of admin zones with at least one case ========================
     fig1 = plt.figure(figsize=(8, 8))
     ax1 = plt.subplot(1, 1, 1)
 
@@ -192,17 +202,7 @@ def main():
 
     # create folders to store the model output data and plots
     csv_files_contain = 'Economic_Status'
-    file_names = []
-    scenarios = []
-    for file in os.listdir(averaged_out_folder_path):
-        if csv_files_contain in file:
-            file_names.append(file)
-            scenarios.append(file.split('_')[0])
-    scenarios = np.unique(scenarios)
-    scenario_output_str = ""
-    for scenario in scenarios:
-        scenario_output_str += '_' + scenario
-    number_of_scenarios = len(scenarios)
+    file_names = find_file(averaged_out_folder_path, csv_files_contain)
 
     # get the number of people in each occupation to inform the order in which we plot
     occupation_order_to_plot = []
@@ -233,7 +233,7 @@ def main():
                     cases_per_occ_counts.append(data[col].sum())
         scenario_bin[scenario] = cases_per_occ_counts
 
-    # create a plot that shows the number of cases in each occupation
+    #  ===================== create a plot that shows the number of cases in each occupation ===========================
     colours = ['r', 'b', 'g', 'y', 'c', 'k', 'coral', 'saddlebrown', 'pink', 'cornflowerblue', 'olive',
                'lightsteelblue', 'gold', 'crimson', 'teal']
     fig1 = plt.figure(figsize=(8, 8))
@@ -275,19 +275,9 @@ def main():
     plt.savefig(output_save_path + scenario_output_str[1:] + "_cases_by_occ_long_bar.png")
     plt.close(fig1)
 
-
     csv_files_contain = 'Age_Gender_Demographics_Covid_cases'
-    file_names = []
-    scenarios = []
-    for file in os.listdir(averaged_out_folder_path):
-        if csv_files_contain in file:
-            file_names.append(file)
-            scenarios.append(file.split('_')[0])
-    scenarios = np.unique(scenarios)
-    scenario_output_str = ""
-    for scenario in scenarios:
-        scenario_output_str += '_' + scenario
-    number_of_scenarios = len(scenarios)
+    file_names = find_file(averaged_out_folder_path, csv_files_contain)
+
     fig1 = plt.figure(figsize=(12, 6))
     axs = [plt.subplot(1, 2, 1), plt.subplot(1, 2, 2)]
     axs[0].set_title('Males', weight='bold')
@@ -314,7 +304,6 @@ def main():
                     total_cases[scenario] = data.sum().sum()
                     total_cases_std[scenario] = std_data.sum().sum()
 
-
     axs[0].legend()
     axs[1].legend()
 
@@ -323,6 +312,7 @@ def main():
 
     plt.savefig(output_save_path + scenario_output_str[1:] + "_Covid_Age_Sex_Demographics_Cases.png")
     plt.close(fig1)
+    #  ========== Create a plot that shows the age sex breakdown in COVID deaths =======================================
     csv_files_contain = 'Age_Gender_Demographics_Covid_deaths'
     file_names = []
     for file in os.listdir(averaged_out_folder_path):
@@ -362,6 +352,7 @@ def main():
 
     plt.savefig(output_save_path + scenario_output_str[1:] + "_Covid_Age_Sex_Demographics_Deaths.png")
     plt.close(fig1)
+    #  ========== Create a plot that shows the age sex breakdown in COVID cases ========================================
 
     fig1 = plt.figure(figsize=(6, 6), constrained_layout=True)
     ax = plt.subplot(1, 1, 1)
@@ -381,6 +372,7 @@ def main():
     ax.set_title("Total COVID-19 Deaths in each scenario", weight='bold')
     plt.savefig(output_save_path + scenario_output_str[1:] + "_Total_Covid_Deaths.png")
     plt.close(fig1)
+    #  ========== Create a plot that shows the population demographics at the start of the simulation ==================
 
     csv_files_contain = "Overall_Demographics"
     file_names = []
@@ -418,6 +410,7 @@ def main():
 
     plt.savefig(output_save_path + scenario_output_str[1:] + "_Simulation_Start_Demographics.png")
     plt.close(fig1)
+    #  ========== Create a plot that shows the population demographics at the end of the simulation ====================
 
     fig1 = plt.figure(figsize=(12, 6))
     axs = [plt.subplot(1, 2, 1), plt.subplot(1, 2, 2)]
@@ -452,6 +445,15 @@ def main():
 
     plt.savefig(output_save_path + scenario_output_str[1:] + "_Simulation_End_Demographics.png")
     plt.close(fig1)
+
+
+def find_file(folder, str_in_name):
+    output_list = []
+    for f in os.listdir(folder):
+        if str_in_name in f:
+            output_list.append(f)
+
+    return output_list
 
 
 if __name__ == "__main__":
