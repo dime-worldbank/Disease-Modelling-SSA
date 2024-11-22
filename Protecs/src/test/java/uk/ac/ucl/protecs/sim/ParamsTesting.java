@@ -43,7 +43,7 @@ public class ParamsTesting {
 		}
 		// Check the default of 'None' is present
 		for (Person p: sim.agents) {
-			Assert.assertTrue(p.checkWorkplaceID().equals("wpNone"));
+			Assert.assertTrue(p.getWorkplace() == null);
 		}
 	}
 	

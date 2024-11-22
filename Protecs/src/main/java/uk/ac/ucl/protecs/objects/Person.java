@@ -685,6 +685,8 @@ public class Person extends MobileAgent {
 	public SEX getSex() {return this.sex;};
 	public OCCUPATION getEconStatus(){ return economic_status;}
 	public Location getHousehold(){ return myHousehold; }
+	public Location getWorkplace(){ return myWorkplace; }
+
 
 	public boolean hasPresymptCovid() { return this.presymptomatic; }
 
