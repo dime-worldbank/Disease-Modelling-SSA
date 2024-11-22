@@ -94,16 +94,15 @@ public class LoadPopulation{
 					rawHouseholds.put(hhName, h);
 					sim.households.add(h);
 				}
-				if (usingWorkplaces) {
+				if (usingWorkplaces && w == null) {
 					// if the workplace doesn't already exist, create it and save it
-					if(w == null){
-						wpName = bits[workplaceIDIndex];
-						// set up the Household
-						w = new Workplace(wpName, myAdminZone);
-						rawWorkplaces.put(wpName, w);
-						sim.workplaces.add(w);
+					wpName = bits[workplaceIDIndex];
+					// set up the Household
+					w = new Workplace(wpName, myAdminZone);
+					rawWorkplaces.put(wpName, w);
+					sim.workplaces.add(w);
 					
-					}
+					
 				}
 
 				// set up the person
