@@ -62,6 +62,7 @@ def main():
                     # Concat any existing dataframes with the one being loaded in for this line
                     output_df = pd.concat([output_df, data])
                 except (pandas.errors.ParserError, NameError) as e:
+                    print("Error in reading in scenario " + scenario + "file " + file)
                     pass
 
             # Process them into a format we can use for easily creating plots by averaging out certain output files.
