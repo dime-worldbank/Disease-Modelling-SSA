@@ -597,11 +597,11 @@ public class Params {
 				infection_p_dea_by_age.add(p_dea);
 
 			}
-			assert (infection_r_sus_by_age.size() > 0): "infection_r_sus_by_age not loaded";
-			assert (infection_p_sym_by_age.size() > 0): "infection_p_sym_by_age not loaded";
-			assert (infection_p_sev_by_age.size() > 0): "infection_p_sev_by_age not loaded";
-			assert (infection_p_cri_by_age.size() > 0): "infection_p_cri_by_age not loaded";
-			assert (infection_p_dea_by_age.size() > 0): "infection_p_dea_by_age not loaded";
+			assert (infection_r_sus_by_age.size() > 0): "infection_r_sus_by_age is negative, cannot be the case";
+			assert (infection_p_sym_by_age.size() > 0): "infection_p_sym_by_age is negative, cannot be the case";
+			assert (infection_p_sev_by_age.size() > 0): "infection_p_sev_by_age is negative, cannot be the case";
+			assert (infection_p_cri_by_age.size() > 0): "infection_p_cri_by_age is negative, cannot be the case";
+			assert (infection_p_dea_by_age.size() > 0): "infection_p_dea_by_age is negative, cannot be the case";
 
 			lineListDataFile.close();
 			} catch (Exception e) {
