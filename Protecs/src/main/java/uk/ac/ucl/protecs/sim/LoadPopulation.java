@@ -53,11 +53,14 @@ public class LoadPopulation{
 			int ageIndex = columnNames.get("age");
 			int sexIndex = columnNames.get("sex");
 			int householdIDIndex = columnNames.get("household_id");
-			int workplaceIDIndex = columnNames.get("workplace_id");
 			int districtIDIndex = columnNames.get("district_id");
 			int economicStatusIndex = columnNames.get("economic_status");
 			int schoolGoerIndex = columnNames.get("school_goers");
-
+			int workplaceIDIndex = Integer.MAX_VALUE;
+			if (!sim.params.setting_perfectMixing) {
+				workplaceIDIndex = columnNames.get("workplace_id");
+			}
+			boolean usingWorkplaces = (workplaceIDIndex < Integer.MAX_VALUE);
 						
 			
 			System.out.print("BEGIN READING IN PEOPLE...");
@@ -75,7 +78,7 @@ public class LoadPopulation{
 				// set up the Household for the Person
 				String hhName = bits[householdIDIndex];
 				Household h = rawHouseholds.get(hhName);
-				String wpName = bits[workplaceIDIndex];
+				String wpName = "None";				
 				Workplace w = rawWorkplaces.get(wpName);
 
 				// target district
@@ -91,13 +94,15 @@ public class LoadPopulation{
 					rawHouseholds.put(hhName, h);
 					sim.households.add(h);
 				}
-				// if the workplace doesn't already exist, create it and save it
-				if(w == null){
-					
+				if (usingWorkplaces && w == null) {
+					// if the workplace doesn't already exist, create it and save it
+					wpName = bits[workplaceIDIndex];
 					// set up the Household
 					w = new Workplace(wpName, myAdminZone);
 					rawWorkplaces.put(wpName, w);
 					sim.workplaces.add(w);
+					
+					
 				}
 
 				// set up the person
@@ -115,8 +120,8 @@ public class LoadPopulation{
 						w,
 						sim
 						);
+
 				h.addPerson(p);
-				w.addPerson(p);
 //				p.setLocation(myDistrict);
 				p.setActivityNode(sim.movementFramework.getHomeNode());
 				sim.agents.add(p);
