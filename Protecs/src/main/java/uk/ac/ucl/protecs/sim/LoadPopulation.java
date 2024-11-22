@@ -60,7 +60,7 @@ public class LoadPopulation{
 			if (!sim.params.setting_perfectMixing) {
 				workplaceIDIndex = columnNames.get("workplace_id");
 			}
-			boolean usingWorkplaces = (schoolGoerIndex == Integer.MAX_VALUE);
+			boolean usingWorkplaces = (workplaceIDIndex < Integer.MAX_VALUE);
 						
 			
 			System.out.print("BEGIN READING IN PEOPLE...");
