@@ -120,9 +120,6 @@ public class LoadPopulation{
 						w,
 						sim
 						);
-				if (usingWorkplaces) {
-					w.addPerson(p);
-				} 
 
 				h.addPerson(p);
 //				p.setLocation(myDistrict);
