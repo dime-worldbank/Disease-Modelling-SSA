@@ -29,7 +29,7 @@ def main():
     scenarios = []
     output_filenames = []
     for file in os.listdir(folder_path):
-        if file != '.DS_Store':
+        if ~file.startswith('.'):
             scenarios.append(file.split('_')[1])
             if (re.split(r'\d+', file)[1][1:-4] != '') & file.endswith('.txt'):
                 output_filenames.append(re.split(r'\d+', file)[1][1:-4])
