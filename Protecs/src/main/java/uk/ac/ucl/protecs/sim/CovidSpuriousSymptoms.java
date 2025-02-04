@@ -8,6 +8,7 @@ import sim.engine.SimState;
 import sim.engine.Steppable;
 import uk.ac.ucl.protecs.objects.Person;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusSpuriousSymptom;
+import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 
 public class CovidSpuriousSymptoms implements SpuriousSymptoms {
 	

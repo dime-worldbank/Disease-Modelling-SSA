@@ -4,6 +4,7 @@ import sim.engine.SimState;
 import uk.ac.ucl.protecs.objects.Location;
 import uk.ac.ucl.protecs.objects.Person;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
+import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import swise.behaviours.BehaviourNode;
 
 public class CoronavirusSpuriousSymptom implements Infection{
@@ -28,6 +29,8 @@ public class CoronavirusSpuriousSymptom implements Infection{
 		this.timeCreated = time;
 		this.myWorld = sim;
 		this.myWorld.CovidSpuriousSymptomsList.add(this);
+		this.host.addInfection(DISEASE.COVIDSPURIOUSSYMPTOM, this);
+
 
 	}
 

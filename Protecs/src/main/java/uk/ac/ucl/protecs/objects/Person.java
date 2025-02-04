@@ -1,11 +1,13 @@
 package uk.ac.ucl.protecs.objects;
 
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
+import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import sim.engine.SimState;
 import swise.agents.MobileAgent;
 import swise.behaviours.BehaviourNode;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
@@ -140,6 +142,8 @@ public class Person extends MobileAgent {
 	BehaviourNode currentActivityNode = null;
 	Infection myInfection = null; // TODO make a hashset of different infections! Allow multiple!!
 	CoronavirusInfection myCovidInfection = null;
+	
+	HashMap <String, Infection> myInfectionSet = new HashMap <String, Infection>();
 	
 	// behaviours
 	boolean immobilised = false;
@@ -672,6 +676,11 @@ public class Person extends MobileAgent {
 	public void addToCommunityBubble(Collection <Person> newPeople){ communityBubble.addAll(newPeople);}
 	public HashSet <Person> getCommunityBubble(){ return communityBubble; }
 	public void setCommunityBubble(HashSet <Person> newBubble) { communityBubble = newBubble; }
+	
+	// MODULAR DISEASE MANAGEMENT
+	public void addInfection(DISEASE disease, Infection i) {
+		this.myInfectionSet.put(disease.key, i);
+	};
 
 	// ATTRIBUTES
 

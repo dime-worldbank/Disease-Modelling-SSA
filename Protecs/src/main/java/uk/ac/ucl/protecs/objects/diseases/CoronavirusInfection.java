@@ -3,6 +3,7 @@ package uk.ac.ucl.protecs.objects.diseases;
 import uk.ac.ucl.protecs.objects.Location;
 import uk.ac.ucl.protecs.objects.Person;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
+import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import sim.engine.SimState;
 import swise.behaviours.BehaviourNode;
 
@@ -55,7 +56,7 @@ public class CoronavirusInfection implements Infection {
 		
 		host = myHost;
 		myHost.setCoronavirusInfection(this);
-		
+		myHost.addInfection(DISEASE.COVID, this);
 		source = mySource;
 		
 		//	epidemic_state = Params.state_susceptible;

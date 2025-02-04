@@ -13,6 +13,7 @@ import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusSpuriousSymptom;
 import uk.ac.ucl.protecs.objects.diseases.Infection;
 import uk.ac.ucl.protecs.objects.diseases.SpuriousSymptomBehaviourFramework;
+import uk.ac.ucl.protecs.objects.diseases.SpuriousSymptomBehaviourFramework.SpuriousSymptomBehaviourNode;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusBehaviourFramework;
 import sim.engine.SimState;
 import sim.engine.Steppable;
@@ -69,6 +70,28 @@ public class WorldBankCovid19Sim extends SimState {
 	public static int param_schedule_COVID_SpuriousSymptoms = 98;
 	public static int param_schedule_COVID_Testing = 99;
 	public static int param_schedule_reporting_reset = param_schedule_reporting + 1;
+	
+	// Create a enum list of diseases modelled currently, these will be used to categorise any infections a person may get over the course of the simulation.
+	public enum DISEASE{
+		DUMMY("dummy"), COVID("covid"), COVIDSPURIOUSSYMPTOM("covidspurioussymptom");
+
+        public String key;
+     
+        DISEASE(String key) { this.key = key; }
+    
+        static DISEASE getValue(String x) {
+        	switch (x) {
+        	case "dummy":
+        		return DUMMY;
+        	case "covid":
+        		return COVID;
+        	case "covidspurioussymptom":
+        		return COVIDSPURIOUSSYMPTOM;
+        	default:
+        		throw new IllegalArgumentException();
+        	}
+        }
+	}
 
 	
 	public ArrayList <Integer> testingAgeDist = new ArrayList <Integer> ();
@@ -149,6 +172,7 @@ public class WorldBankCovid19Sim extends SimState {
 
 		// set up the infections
 		infections = new ArrayList <Infection> ();
+		// TODO expand this to include all infection types
 		for(Location l: params.lineList.keySet()){
 			
 			// activate this location
