@@ -27,7 +27,7 @@ public class WorldBankCovid19Sim extends SimState {
 
 	public ArrayList <Infection> infections = null;
 	public HashSet <OCCUPATION> occupationsInSim = null;
-	public ArrayList <CoronavirusSpuriousSymptom> CovidSpuriousSymptomsList = null;
+	public ArrayList <Infection> CovidSpuriousSymptomsList = null;
 	public Random random;
 	
 	ArrayList <Location> adminBoundaries = null;
@@ -242,7 +242,7 @@ public class WorldBankCovid19Sim extends SimState {
 		
 
 		if (this.params.covidTesting) {
-			CovidSpuriousSymptomsList = new ArrayList <CoronavirusSpuriousSymptom> ();
+			CovidSpuriousSymptomsList = new ArrayList <Infection> ();
 			schedule.scheduleRepeating(CovidSpuriousSymptoms.createSymptomObject(this));
 			schedule.scheduleRepeating(CovidTesting.Testing(this), this.param_schedule_COVID_Testing, params.ticks_per_day);
 			

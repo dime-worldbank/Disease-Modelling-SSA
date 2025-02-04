@@ -9,6 +9,7 @@ import org.junit.Test;
 import uk.ac.ucl.protecs.objects.Person;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusBehaviourFramework.CoronavirusBehaviourNodeTitle;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
+import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 
 import java.util.List;
 import java.util.Map;
@@ -127,10 +128,11 @@ public class CovidSpuriousSymptomTesting{
 	public void giveAFractionASpuriousSymptom(double fraction, WorldBankCovid19Sim sim) {
 		for (Person p: sim.agents) {
 			if (sim.random.nextDouble() <= fraction) {
-			CoronavirusSpuriousSymptom CovSpuriousSymptoms = new CoronavirusSpuriousSymptom(p, sim, sim.spuriousFramework.getStandardEntryPoint(), 0);
+			p.addInfection(DISEASE.COVIDSPURIOUSSYMPTOM, new CoronavirusSpuriousSymptom(p, sim, sim.spuriousFramework.getStandardEntryPoint(), 0));
+
 			p.setHasSpuriousObject();
-			sim.CovidSpuriousSymptomsList.add(CovSpuriousSymptoms);
-			sim.schedule.scheduleOnce(1, sim.param_schedule_infecting, CovSpuriousSymptoms);
+			sim.CovidSpuriousSymptomsList.add(p.getInfectionSet().get(DISEASE.COVIDSPURIOUSSYMPTOM.key));
+			sim.schedule.scheduleOnce(1, sim.param_schedule_infecting, p.getInfectionSet().get(DISEASE.COVIDSPURIOUSSYMPTOM.key));
 		}
 		}
 	}

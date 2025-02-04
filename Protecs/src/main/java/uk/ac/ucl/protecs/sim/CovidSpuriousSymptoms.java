@@ -28,10 +28,10 @@ public class CovidSpuriousSymptoms implements SpuriousSymptoms {
 		List<Person> people_to_give_symptoms_to = filterForEligiblePeople(world);
 		try {
 		for (Person p : people_to_give_symptoms_to) {
-			CoronavirusSpuriousSymptom CovSpuriousSymptoms = new CoronavirusSpuriousSymptom(p, world, world.spuriousFramework.getStandardEntryPoint(), time);
+			p.addInfection(DISEASE.COVIDSPURIOUSSYMPTOM, new CoronavirusSpuriousSymptom(p, world, world.spuriousFramework.getStandardEntryPoint(), time));
 			p.setHasSpuriousObject();
-			world.CovidSpuriousSymptomsList.add(CovSpuriousSymptoms);
-			world.schedule.scheduleOnce(world.schedule.getTime(), world.param_schedule_infecting, CovSpuriousSymptoms);
+			world.CovidSpuriousSymptomsList.add(p.getInfectionSet().get(DISEASE.COVIDSPURIOUSSYMPTOM.key));
+			world.schedule.scheduleOnce(world.schedule.getTime(), world.param_schedule_infecting, p.getInfectionSet().get(DISEASE.COVIDSPURIOUSSYMPTOM.key));
 	
 	      } 
 		} catch (NullPointerException e) {

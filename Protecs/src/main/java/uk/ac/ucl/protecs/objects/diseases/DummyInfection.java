@@ -47,7 +47,6 @@ public class DummyInfection implements Infection {
 	public DummyInfection(Person myHost, Person mySource, BehaviourNode initNode, WorldBankCovid19Sim sim, int time){
 		
 		host = myHost;
-		// myHost.setCoronavirusInfection(this);
 		
 		source = mySource;
 		

@@ -140,8 +140,6 @@ public class Person extends MobileAgent {
 	
 	// activity
 	BehaviourNode currentActivityNode = null;
-	Infection myInfection = null; // TODO make a hashset of different infections! Allow multiple!!
-	CoronavirusInfection myCovidInfection = null;
 	
 	HashMap <String, Infection> myInfectionSet = new HashMap <String, Infection>();
 	
@@ -263,66 +261,7 @@ public class Person extends MobileAgent {
 			myWorld.schedule.scheduleOnce(time + myDelta, myWorld.param_schedule_movement, this);
 		else
 			myWorld.schedule.scheduleOnce(this, myWorld.param_schedule_movement);
-			
-		// HACK TO ENSURE INTERACTION AWAY FROM HOME ADMIN ZONE
-		// check if out of home admin zone
-/*		if(visiting) {
-			
-			// if this Person is not infected, check if they catch anything from their neighbours!
-			if(this.myInfection == null)
-				myWorld.schedule.scheduleOnce(new Steppable() {
-
-					@Override
-					public void step(SimState arg0) {
-						
-						// set up: not at home, so out in the community!
-						Object [] checkWithin = currentLocation.personsHere_list;
-						int myNumInteractions = myWorld.params.community_interaction_count;
-						int sizeOfCommunity = checkWithin.length;
-						myNumInteractions = Math.min(myNumInteractions, sizeOfCommunity);
-						
-						// utilities
-						HashSet <Integer> indicesChecked = new HashSet <Integer> ();
-						
-						// select the interaction partners
-						for(int i = 0; i < myNumInteractions; i++){
-							
-							// make sure there are people left to add 
-							if(indicesChecked.size() >= sizeOfCommunity) {
-								return; // everyone available has been checked! No need to look any more!
-							}
-
-							// choose a random Person who is also here
-							int j = myWorld.random.nextInt(sizeOfCommunity);
-							
-							// is this someone who hasn't already been checked?
-							if(indicesChecked.contains(j)) { // already checked
-								i--;
-								continue;
-							}
-							else // they're being checked now!
-								indicesChecked.add(j);
-							
-							// pull this Person out
-							Person p = (Person) checkWithin[j];
-							
-							// check if they are already infected; if they are are, this Person is infected with with probability BETA
-							if(p.myInfection != null 
-									&& myWorld.random.nextDouble() < myWorld.params.infection_beta){
-								
-								Infection inf = new Infection(myWrapper(), p, myWorld.infectiousFramework.getHomeNode(), myWorld);
-								myWorld.schedule.scheduleOnce(inf, 10);
-							}
-
-						}
-												
-					}
-				
-				}, myWorld.param_schedule_infecting);
-		}
-		//if(this.myId % 10000 == 0) System.out.print(">");
-		 * 
-		 */
+		
 	}	
 
 	Person myWrapper() { return this; }
@@ -367,7 +306,7 @@ public class Person extends MobileAgent {
 //			System.out.println("ERROR: " + this.myId + " asked to infect others, but is not infected!");
 //			return;
 //		}
-		else if(myCovidInfection == null){
+		else if(!myInfectionSet.containsKey(DISEASE.COVID.key)){
 			System.out.println("ERROR: " + this.myId + " asked to infect others, but is not infected!");
 			return;
 		}
@@ -386,64 +325,7 @@ public class Person extends MobileAgent {
 			return;
 		} 
 	}
-		// now apply the rules based on the setting
-
-		// they may be at home
-/*		if(currentLocation instanceof Household){
-
-			interactWithin(currentLocation.personsHere, null, currentLocation.personsHere.size());
-			
-		}
 		
-		// they may be at their economic activity site!
-		else if(atWork){
-			
-			// set up the stats
-			Double d = myWorld.params.economic_num_interactions_weekday.get(this.economic_status);
-			int myNumInteractions = (int) Math.round(d);
-			
-			// interact
-			interactWithin(workBubble, currentLocation.personsHere, myNumInteractions);
-		}
-		
-		else {
-
-			// set up the holders
-			int myNumInteractions = myWorld.params.community_interaction_count;
-			
-			if(myWorld.params.setting_perfectMixing) {			
-				int numPeople = myWorld.agents.size();
-				for(int i = 0; i < myNumInteractions; i++) {
-					Person otherPerson = myWorld.agents.get(myWorld.random.nextInt(numPeople));
-					if(otherPerson == this) {
-						i--;
-						continue;
-					}
-					
-					// check if they are already infected; if they are not, infect with with probability BETA
-					if(otherPerson.myInfection == null 
-							&& myWorld.random.nextDouble() < myWorld.params.infection_beta){
-						Infection inf = new Infection(otherPerson, this, myWorld.infectiousFramework.getHomeNode(), myWorld);
-						myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting);
-					}
-
-				}
-				
-				return;
-			}
-			
-			Location myHomeCommunity = this.getHousehold().getRootSuperLocation();
-
-			// will need to check if constrained by own local social bubble
-			boolean inHomeCommunity = currentLocation == myHomeCommunity;
-
-			if(inHomeCommunity)
-				interactWithin(communityBubble, currentLocation.personsHere, myNumInteractions);
-			else
-				interactWithin(currentLocation.personsHere, null, myNumInteractions);
-	
-		}
-		*/
  
 	private void perfectMixingInteractions() {
 		Object [] peopleHere = this.currentLocation.getPersonsHere();
@@ -482,12 +364,11 @@ public class Person extends MobileAgent {
 			
 			// check if they are already infected; if they are not, infect with with probability BETA
 			double myProb = myWorld.random.nextDouble();
-			if(otherPerson.myCovidInfection == null 
-					&& myProb < myWorld.params.infection_beta){
-				myCovidInfection = new CoronavirusInfection(otherPerson, this, myWorld.infectiousFramework.getHomeNode(), myWorld);
-				myWorld.schedule.scheduleOnce(myCovidInfection, myWorld.param_schedule_infecting); 
-			}  
-
+			if (!otherPerson.myInfectionSet.containsKey(DISEASE.COVID.key) && myProb < myWorld.params.infection_beta) {
+				otherPerson.myInfectionSet.put(DISEASE.COVID.key, 
+						new CoronavirusInfection(otherPerson, this, myWorld.infectiousFramework.getHomeNode(), myWorld));
+				myWorld.schedule.scheduleOnce(otherPerson.myInfectionSet.get(DISEASE.COVID.key), myWorld.param_schedule_infecting); 
+			}
 		}
 	}
 	
@@ -514,62 +395,6 @@ public class Person extends MobileAgent {
 			perfectMixingInteractions(); 
 		}
 	
-	}
-
-
-	void OLDinteractWithin(HashSet <Person> group, HashSet <Person> largerCommunity, int interactNumber) {
-		
-		// setup
-		Object [] checkWithin = group.toArray();
-		int sizeOfCommunity = group.size();
-		boolean largerCommunityContext = largerCommunity != null;
-		
-		// utilities
-		HashSet <Integer> indicesChecked = new HashSet <Integer> ();
-		
-		// select the interaction partners
-		for(int i = 0; i < interactNumber; i++){
-			
-			// make sure there are people left to add 
-			if(indicesChecked.size() >= sizeOfCommunity) {
-				return; // everyone available has been checked! No need to look any more!
-			}
-
-			// choose a random Person who is also here
-			int j = myWorld.random.nextInt(sizeOfCommunity);
-			
-			// is this someone who hasn't already been checked?
-			if(indicesChecked.contains(j)) { // already checked
-				i--;
-				continue;
-			}
-			else // they're being checked now!
-				indicesChecked.add(j);
-			
-			// pull this Person out
-			Person p = (Person) checkWithin[j];
-			
-			if(p == this) { // make sure it's not us!
-				i--;
-				continue;
-			}
-			
-			// if we are within a larger community, we have to make sure our target interaction is present
-			if(largerCommunityContext) {
-				
-				// make sure that Person is actually here right now!
-				if(!largerCommunity.contains(p))
-					continue;
-			}
-			
-			// check if they are already infected; if they are not, infect with with probability BETA
-			if(p.myInfection == null 
-					&& myWorld.random.nextDouble() < myWorld.params.infection_beta){
-				CoronavirusInfection inf = new CoronavirusInfection(p, this, myWorld.infectiousFramework.getHomeNode(), myWorld);  
-				myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting);
-			}
-
-		}	
 	}
 	
 	/**
@@ -619,10 +444,9 @@ public class Person extends MobileAgent {
 				numberOfInteractions -= 1; 
 				
 				// check if they are already infected; if they are not, infect with with probability BETA
-				if(p.myCovidInfection == null 
-						&& myWorld.random.nextDouble() < myWorld.params.infection_beta){
-					myCovidInfection = new CoronavirusInfection(p, this, myWorld.infectiousFramework.getHomeNode(), myWorld);
-					myWorld.schedule.scheduleOnce(myCovidInfection, myWorld.param_schedule_infecting);
+				if(!p.myInfectionSet.containsKey(DISEASE.COVID.key) && myWorld.random.nextDouble() < myWorld.params.infection_beta){
+					p.myInfectionSet.put(DISEASE.COVID.key, new CoronavirusInfection(p, this, myWorld.infectiousFramework.getHomeNode(), myWorld));
+					myWorld.schedule.scheduleOnce(p.myInfectionSet.get(DISEASE.COVID.key), myWorld.param_schedule_infecting);
 				}
 
 			}
@@ -681,6 +505,8 @@ public class Person extends MobileAgent {
 	public void addInfection(DISEASE disease, Infection i) {
 		this.myInfectionSet.put(disease.key, i);
 	};
+	public HashMap<String, Infection> getInfectionSet() {return this.myInfectionSet; }
+
 
 	// ATTRIBUTES
 
@@ -700,20 +526,13 @@ public class Person extends MobileAgent {
 	public boolean hasPresymptCovid() { return this.presymptomatic; }
 
 		
-	public void setInfection(Infection i){ myInfection = i; }
-	public void setCoronavirusInfection(CoronavirusInfection i) { myCovidInfection = i;}
 	public boolean hadCovid() { return this.hadCovid; }
 	public boolean hasAsymptCovid() { return this.asymptomatic; }
 	public boolean hasMild() { return this.mild; }
 	public boolean hasSevere() { return this.severe; }
 	public boolean hasCritical() { return this.critical; }
 	public boolean hasRecovered() { return this.recovered; }
-
-
-	public Infection getInfection(){ return myInfection; }
-	
-	public CoronavirusInfection getCovidInfection() { return myCovidInfection; }
-	
+		
 	public void setMobility(boolean mobile){ this.immobilised = !mobile; }
 	public boolean isImmobilised(){ return this.immobilised; }
 

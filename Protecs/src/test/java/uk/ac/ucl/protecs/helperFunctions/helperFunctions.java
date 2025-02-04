@@ -12,6 +12,7 @@ import uk.ac.ucl.protecs.objects.diseases.Infection;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusBehaviourFramework.CoronavirusBehaviourNodeTitle;
 import uk.ac.ucl.protecs.sim.Params;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
+import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import swise.behaviours.BehaviourNode;
 
 public class helperFunctions {
@@ -57,7 +58,7 @@ public class helperFunctions {
 		// Make this function assigns an infectious behaviour node of your choice to a certain percentage of the population
 		for (Person p: world.agents) {
 			double rand = world.random.nextDouble();
-			if (p.getCovidInfection().equals(null) && rand <= fraction) {			
+			if (!p.getInfectionSet().containsKey(DISEASE.COVID.key) && rand <= fraction) {			
 				CoronavirusInfection inf = new CoronavirusInfection(p, null, world.infectiousFramework.getHomeNode(), world);
 				inf.setBehaviourNode(Node);
 				world.infections.add(inf);
