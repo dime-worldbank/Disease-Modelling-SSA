@@ -35,7 +35,6 @@ public class CoronavirusSpuriousSymptom implements Infection{
 		this.currentBehaviourNode = initNode;
 		this.timeCreated = time;
 		this.myWorld = sim;
-		this.myWorld.CovidSpuriousSymptomsList.add(this);
 		this.myWorld.infections.add(this);
 		this.host.addInfection(DISEASE.COVIDSPURIOUSSYMPTOM, this);
 

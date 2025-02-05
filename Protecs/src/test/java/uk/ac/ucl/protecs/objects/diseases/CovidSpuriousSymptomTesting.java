@@ -131,7 +131,6 @@ public class CovidSpuriousSymptomTesting{
 			p.addInfection(DISEASE.COVIDSPURIOUSSYMPTOM, new CoronavirusSpuriousSymptom(p, sim, sim.spuriousFramework.getStandardEntryPoint(), 0));
 
 			p.setHasSpuriousObject();
-			sim.CovidSpuriousSymptomsList.add(p.getInfectionSet().get(DISEASE.COVIDSPURIOUSSYMPTOM.key));
 			sim.schedule.scheduleOnce(1, sim.param_schedule_infecting, p.getInfectionSet().get(DISEASE.COVIDSPURIOUSSYMPTOM.key));
 		}
 		}
