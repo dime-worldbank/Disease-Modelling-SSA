@@ -3,6 +3,7 @@ package uk.ac.ucl.protecs.objects.diseases;
 import uk.ac.ucl.protecs.objects.Location;
 import uk.ac.ucl.protecs.objects.Person;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
+import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import sim.engine.SimState;
 import swise.behaviours.BehaviourNode;
 
@@ -28,11 +29,14 @@ public class DummyInfection implements Infection {
 	int infected_symptomatic_status;
 
 	// infection timekeeping
-	// default these to -1 so it's clear when they've been reset
+	// default these to max value so it's clear when they've been reset
 	public double time_infected = Double.MAX_VALUE;
 	public double time_contagious = Double.MAX_VALUE;
 	public double time_start_symptomatic = Double.MAX_VALUE;
-	public double time_recovered = 	Double.MAX_VALUE;	
+	public double time_start_severe = Double.MAX_VALUE;
+	public double time_start_critical = Double.MAX_VALUE;
+	public double time_recovered = 	Double.MAX_VALUE;
+	public double time_died = Double.MAX_VALUE;
 	
 	/**
 	 * 
@@ -50,9 +54,7 @@ public class DummyInfection implements Infection {
 		
 		source = mySource;
 		
-		//	epidemic_state = Params.state_susceptible;
-		//	infected_symptomatic_status = Params.symptom_none;
-		//	clinical_state = Params.clinical_not_hospitalized;
+		source.addInfection(DISEASE.DUMMY, this);
 			
 		// store the time when it is infected!
 		time_infected = time;		
@@ -92,7 +94,77 @@ public class DummyInfection implements Infection {
 
 	@Override
 	public String writeOut() {
-		return "";
+		String rec = "";
+		
+		rec += "\t" + time_infected + "\t";
+		
+		// infected at:
+		
+		Location loc = infectedAtLocation;
+		
+		if(loc == null)
+			rec += "SEEDED";
+		else if(loc.getRootSuperLocation() != null)
+			rec += loc.getRootSuperLocation().getId();
+		else
+			rec += loc.getId();
+		
+		// progress of disease: get rid of max vals
+		
+		if(time_contagious == Double.MAX_VALUE)
+			rec += "\t-";
+		else
+			rec += "\t" + (int) time_contagious;
+		
+		if(time_start_symptomatic == Double.MAX_VALUE)
+			rec += "\t-";
+		else
+			rec += "\t" + (int) time_start_symptomatic;
+		
+		if(time_start_severe == Double.MAX_VALUE)
+			rec += "\t-";
+		else
+			rec += "\t" + (int) time_start_severe;
+		
+		if(time_start_critical == Double.MAX_VALUE)
+			rec += "\t-";
+		else
+			rec += "\t" + (int) time_start_critical;
+		
+		if(time_recovered == Double.MAX_VALUE)
+			rec += "\t-";
+		else
+			rec += "\t" + (int) time_recovered;
+		
+		if(time_died == Double.MAX_VALUE)
+			rec += "\t-";
+		else
+			rec += "\t" + (int) time_died;
+		// create variables to calculate DALYs, set to YLD zero as default
+		double yld = 0.0;
+		if(yld == 0.0)
+			rec += "\t-";
+		else
+			rec += "\t" + (double) yld;
+		// calculate YLL (basic)
+		// YLL = Life expectancy in years - age at time of death, if age at death < Life expectancy else 0
+		double yll = 0;
+		// Recored DALYs (YLL + YLD)
+		if (yll + yld == 0.0)
+			rec += "\t-";
+		else
+			rec += "\t" + (double) (yll + yld);
+		// record number of times with covid
+		rec += "\t" + host.getNumberOfTimesInfected();
+		
+		rec += "\n";
+		return rec;
+	}
+
+	@Override
+	public String getDiseaseName() {
+		
+		return "DUMMY";
 	}
 
 	

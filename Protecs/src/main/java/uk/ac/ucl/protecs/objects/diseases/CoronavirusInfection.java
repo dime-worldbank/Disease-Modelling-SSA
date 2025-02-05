@@ -29,7 +29,7 @@ public class CoronavirusInfection implements Infection {
 	int infected_symptomatic_status;
 
 	// infection timekeeping
-	// default these to -1 so it's clear when they've been reset
+	// default these to max value so it's clear when they've been reset
 	public double time_infected = Double.MAX_VALUE;
 	public double time_contagious = Double.MAX_VALUE;
 	public double time_start_symptomatic = Double.MAX_VALUE;
@@ -205,6 +205,12 @@ public class CoronavirusInfection implements Infection {
 		
 		rec += "\n";
 		return rec;
+	}
+
+	@Override
+	public String getDiseaseName() {
+	
+		return "COVID-19";
 	}
 
 	

@@ -16,7 +16,14 @@ public class CoronavirusSpuriousSymptom implements Infection{
 	double timeCreated = Double.MAX_VALUE;
 	double timeRecovered = Double.MAX_VALUE;
 	double timeLastTriggered = Double.MAX_VALUE;
-	
+	// default these to max value so it's clear when they've been reset
+	public double time_infected = Double.MAX_VALUE;
+	public double time_contagious = Double.MAX_VALUE;
+	public double time_start_symptomatic = Double.MAX_VALUE;
+	public double time_start_severe = Double.MAX_VALUE;
+	public double time_start_critical = Double.MAX_VALUE;
+	public double time_recovered = 	Double.MAX_VALUE;
+	public double time_died = Double.MAX_VALUE;
 	
 	// behaviours
 	BehaviourNode currentBehaviourNode = null;
@@ -29,6 +36,7 @@ public class CoronavirusSpuriousSymptom implements Infection{
 		this.timeCreated = time;
 		this.myWorld = sim;
 		this.myWorld.CovidSpuriousSymptomsList.add(this);
+		this.myWorld.infections.add(this);
 		this.host.addInfection(DISEASE.COVIDSPURIOUSSYMPTOM, this);
 
 
@@ -86,7 +94,78 @@ public class CoronavirusSpuriousSymptom implements Infection{
 
 	@Override
 	public String writeOut() {
-		return "P_" + String.valueOf(this.host.getID()) + " Inf at: " + String.valueOf(this.infectedAtLocation) + " created at: " + String.valueOf(this.timeCreated) + " Doing: " + String.valueOf(this.currentBehaviourNode.getTitle());
+		String rec = "";
+		
+		rec += "\t" + time_infected + "\t";
+		
+		// infected at:
+		
+		Location loc = infectedAtLocation;
+		
+		if(loc == null)
+			rec += "SEEDED";
+		else if(loc.getRootSuperLocation() != null)
+			rec += loc.getRootSuperLocation().getId();
+		else
+			rec += loc.getId();
+		
+		// progress of disease: get rid of max vals
+		
+		if(time_contagious == Double.MAX_VALUE)
+			rec += "\t-";
+		else
+			rec += "\t" + (int) time_contagious;
+		
+		if(time_start_symptomatic == Double.MAX_VALUE)
+			rec += "\t-";
+		else
+			rec += "\t" + (int) time_start_symptomatic;
+		
+		if(time_start_severe == Double.MAX_VALUE)
+			rec += "\t-";
+		else
+			rec += "\t" + (int) time_start_severe;
+		
+		if(time_start_critical == Double.MAX_VALUE)
+			rec += "\t-";
+		else
+			rec += "\t" + (int) time_start_critical;
+		
+		if(time_recovered == Double.MAX_VALUE)
+			rec += "\t-";
+		else
+			rec += "\t" + (int) time_recovered;
+		
+		if(time_died == Double.MAX_VALUE)
+			rec += "\t-";
+		else
+			rec += "\t" + (int) time_died;
+		// create variables to calculate DALYs, set to YLD zero as default
+		double yld = 0.0;
+		if(yld == 0.0)
+			rec += "\t-";
+		else
+			rec += "\t" + (double) yld;
+		// calculate YLL (basic)
+		// YLL = Life expectancy in years - age at time of death, if age at death < Life expectancy else 0
+		double yll = 0;
+		// Recored DALYs (YLL + YLD)
+		if (yll + yld == 0.0)
+			rec += "\t-";
+		else
+			rec += "\t" + (double) (yll + yld);
+		// record number of times with covid
+		rec += "\t" + host.getNumberOfTimesInfected();
+		
+		rec += "\n";
+		return rec;
+		
+	}
+
+	@Override
+	public String getDiseaseName() {
+		// TODO Auto-generated method stub
+		return "COVID-19_SPURIOUS_SYMPTOM";
 	}
 
 }

@@ -146,7 +146,7 @@ public class ImportExport {
 			
 			// shove it out
 			BufferedWriter exportFile = new BufferedWriter(new FileWriter(infections_export_filename, true));
-			exportFile.write("Host\tSource\tTime\tLocOfTransmission" + 
+			exportFile.write("Host\tInfType\tSource\tTime\tLocOfTransmission" + 
 					"\tContagiousAt\tSymptomaticAt\tSevereAt\tCriticalAt\tRecoveredAt\tDiedAt\tYLD\tYLL\tDALYs\tNTimesInfected"
 					+ "\n");
 			
@@ -154,6 +154,8 @@ public class ImportExport {
 			for(Infection i: infections) {
 				
 				String rec = i.getHost().getID() + "\t";
+				
+				rec += i.getDiseaseName() + "\t";
 				
 				// infected by:
 				

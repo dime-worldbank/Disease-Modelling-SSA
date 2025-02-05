@@ -19,31 +19,8 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 			mildNode = null, severeNode = null, criticalNode = null, recoveredNode = null, deadNode = null;
 
 	
-	public InfectiousBehaviourFramework(WorldBankCovid19Sim world, Infection infection){
+	public InfectiousBehaviourFramework(WorldBankCovid19Sim world){
 		myWorld = world;
-		myInfection = infection;
-		
-		susceptibleNode = new BehaviourNode(){
-
-			@Override
-			public String getTitle() {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public double next(Steppable s, double time) {
-				// TODO Auto-generated method stub
-				return 0;
-			}
-
-			@Override
-			public boolean isEndpoint() {
-				// TODO Auto-generated method stub
-				return false;
-			}
-			
-		};
 		
 		
 		}

@@ -11,6 +11,7 @@ import uk.ac.ucl.protecs.objects.Person.OCCUPATION;
 import uk.ac.ucl.protecs.objects.Person.SEX;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusSpuriousSymptom;
+import uk.ac.ucl.protecs.objects.diseases.DummyBehaviourFramework;
 import uk.ac.ucl.protecs.objects.diseases.Infection;
 import uk.ac.ucl.protecs.objects.diseases.SpuriousSymptomBehaviourFramework;
 import uk.ac.ucl.protecs.objects.diseases.SpuriousSymptomBehaviourFramework.SpuriousSymptomBehaviourNode;
@@ -19,6 +20,8 @@ import sim.engine.SimState;
 import sim.engine.Steppable;
 
 public class WorldBankCovid19Sim extends SimState {
+	// Create a boolean for developing disease modularity
+	public boolean developingModularity = true;
 
 	// the objects which make up the system
 	public ArrayList <Person> agents = null;
@@ -37,10 +40,9 @@ public class WorldBankCovid19Sim extends SimState {
 	public MovementBehaviourFramework movementFramework = null;
 	public CoronavirusBehaviourFramework infectiousFramework = null;
 	public SpuriousSymptomBehaviourFramework spuriousFramework = null;
+	public DummyBehaviourFramework dummyFramework = null;
 	public Params params = null;
 	public boolean lockedDown = false;
-	// create a variable to determine if COVID testing will take place
-	public boolean covidTesting = false;
 	// the names of file names of each output filename		
 	public String outputFilename = null;
 	public String covidIncOutputFilename = null; 
@@ -141,6 +143,9 @@ public class WorldBankCovid19Sim extends SimState {
 		movementFramework = new MovementBehaviourFramework(this);
 		infectiousFramework = new CoronavirusBehaviourFramework(this);
 		spuriousFramework = new SpuriousSymptomBehaviourFramework(this);
+		if (developingModularity) {
+			dummyFramework = new DummyBehaviourFramework(this);
+		}
 		// RESET SEED
 		random = new Random(this.seed());
 
@@ -437,7 +442,7 @@ public class WorldBankCovid19Sim extends SimState {
 		mySim.timer = endTime - startTime;
 		
 		System.out.println("...run finished after " + mySim.timer + " ms");
-		
+		ImportExport.exportInfections(outputFilename + "_infections.txt", mySim.infections);
 
 	}
 
