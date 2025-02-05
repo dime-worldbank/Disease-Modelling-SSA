@@ -7,6 +7,7 @@ import java.util.HashMap;
 
 import uk.ac.ucl.protecs.objects.Person;
 import uk.ac.ucl.protecs.objects.diseases.Infection;
+import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 
 public class ImportExport {
 
@@ -59,13 +60,13 @@ public class ImportExport {
 				String myStr = p.toString();
 				//myStr += ";" + p.getEconStatus() + ";" + p.getAge() + ";" + p.getInfectStatus();
 				
-				if(p.getInfection() != null){
-					Person source = p.getInfection().getSource();
+				if(p.getInfectionSet().containsKey(DISEASE.COVID.key)){					
+					Person source = p.getInfectionSet().get(DISEASE.COVID.key).getSource();
 					String sourceName = null;
 					if(source != null)
 						sourceName = source.toString();
 					//myStr += ";" + p.getInfection().getStartTime() + ";" + sourceName;
-					myStr = p.getInfection().getBehaviourName();
+					myStr = p.getInfectionSet().get(DISEASE.COVID.key).getBehaviourName();
 				}
 				else
 					//myStr += "Susceptible;;";
