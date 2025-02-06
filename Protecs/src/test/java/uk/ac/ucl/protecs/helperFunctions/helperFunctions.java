@@ -323,4 +323,12 @@ public class helperFunctions {
 	public static void StopCovidFromSpreading(WorldBankCovid19Sim world) {
 		world.params.infection_beta = 0.0;
 	}
+	
+	public static HashSet<DISEASE> InfectionsPresentInSim(WorldBankCovid19Sim world) {
+		HashSet<DISEASE> toReturn = new HashSet<DISEASE>();
+		for (Infection i: world.infections) {
+			toReturn.add(DISEASE.getValue(i.getDiseaseName()));
+		}
+		return toReturn;
+	}
 }

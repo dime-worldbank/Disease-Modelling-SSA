@@ -22,7 +22,7 @@ import sim.engine.Steppable;
 
 public class WorldBankCovid19Sim extends SimState {
 	// Create a boolean for developing disease modularity
-	public boolean developingModularity = true;
+	public boolean developingModularity = false;
 
 	// the objects which make up the system
 	public ArrayList <Person> agents = null;
@@ -81,13 +81,13 @@ public class WorldBankCovid19Sim extends SimState {
      
         DISEASE(String key) { this.key = key; }
     
-        static DISEASE getValue(String x) {
+        public static DISEASE getValue(String x) {
         	switch (x) {
-        	case "dummy":
+        	case "DUMMY":
         		return DUMMY;
-        	case "covid":
+        	case "COVID-19":
         		return COVID;
-        	case "covidspurioussymptom":
+        	case "COVID-19_SPURIOUS_SYMPTOM":
         		return COVIDSPURIOUSSYMPTOM;
         	default:
         		throw new IllegalArgumentException();
