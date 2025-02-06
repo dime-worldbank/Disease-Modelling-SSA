@@ -54,7 +54,7 @@ public class DummyInfection implements Infection {
 		
 		source = mySource;
 		
-		source.addInfection(DISEASE.DUMMY, this);
+		host.addInfection(DISEASE.DUMMY, this);
 			
 		// store the time when it is infected!
 		time_infected = time;		

@@ -12,6 +12,7 @@ import uk.ac.ucl.protecs.objects.Person.SEX;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusSpuriousSymptom;
 import uk.ac.ucl.protecs.objects.diseases.DummyBehaviourFramework;
+import uk.ac.ucl.protecs.objects.diseases.DummyInfection;
 import uk.ac.ucl.protecs.objects.diseases.Infection;
 import uk.ac.ucl.protecs.objects.diseases.SpuriousSymptomBehaviourFramework;
 import uk.ac.ucl.protecs.objects.diseases.SpuriousSymptomBehaviourFramework.SpuriousSymptomBehaviourNode;
@@ -243,7 +244,18 @@ public class WorldBankCovid19Sim extends SimState {
 			
 		};
 		schedule.scheduleRepeating(0, this.param_schedule_updating_locations, updateLocationLists);
-		
+		if (developingModularity) {
+			double num_to_seed = agents.size() / 10;
+			double i = 0.0;
+			for (Person a: agents) {
+				if (i < num_to_seed) {
+				DummyInfection inf = new DummyInfection(a, null, dummyFramework.getStandardEntryPoint(), this, 0);
+				schedule.scheduleOnce(1, param_schedule_infecting, inf);
+				i ++ ;
+				}
+				else break;
+			}
+		}
 
 		if (this.params.covidTesting) {
 			schedule.scheduleRepeating(CovidSpuriousSymptoms.createSymptomObject(this));

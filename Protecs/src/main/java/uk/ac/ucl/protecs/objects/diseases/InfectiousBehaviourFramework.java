@@ -18,10 +18,10 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 	BehaviourNode susceptibleNode = null, exposedNode = null, presymptomaticNode= null, asymptomaticNode = null,
 			mildNode = null, severeNode = null, criticalNode = null, recoveredNode = null, deadNode = null;
 
-	
+	BehaviourNode standardEntryPoint;
 	public InfectiousBehaviourFramework(WorldBankCovid19Sim world){
 		myWorld = world;
 		
-		
 		}
+	public void setStandardEntryPoint() {};	
 }
