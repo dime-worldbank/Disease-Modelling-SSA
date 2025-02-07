@@ -8,11 +8,8 @@ import sim.engine.Steppable;
 import swise.behaviours.BehaviourFramework;
 import swise.behaviours.BehaviourNode;
 
-public class CoronavirusBehaviourFramework extends BehaviourFramework {
+public class CoronavirusBehaviourFramework extends InfectiousBehaviourFramework {
 	
-	WorldBankCovid19Sim myWorld;
-	BehaviourNode susceptibleNode = null, exposedNode = null, presymptomaticNode= null, asymptomaticNode = null,
-			mildNode = null, severeNode = null, criticalNode = null, recoveredNode = null, deadNode = null;
 	
 	public enum CoronavirusBehaviourNodeTitle{
 		SUSCEPTIBLE("susceptible"), EXPOSED("exposed"), PRESYMPTOMATIC("presymptomatic"), ASYMPTOMATIC("asymptomatic"), 
@@ -50,11 +47,11 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 	
 	// PARAMS to control development of disease
 	
-	public CoronavirusBehaviourFramework(WorldBankCovid19Sim model){
-		myWorld = model;
+	public CoronavirusBehaviourFramework(WorldBankCovid19Sim myWorld){
+		super(myWorld);
 		
 		// the default status
-		susceptibleNode = new BehaviourNode(){
+		this.susceptibleNode = new BehaviourNode(){
 			
 			@Override
 			public String getTitle() { return CoronavirusBehaviourNodeTitle.SUSCEPTIBLE.key; }
@@ -72,7 +69,7 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 		};
 		
 		// the agent has been exposed - determine whether the infection will develop
-		exposedNode = new BehaviourNode(){
+		this.exposedNode = new BehaviourNode(){
 			
 			@Override
 			public String getTitle() { return CoronavirusBehaviourNodeTitle.EXPOSED.key; }
@@ -160,7 +157,7 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 				i.time_recovered = time;
 				// update the person's properties to show they don't have covid
 				i.getHost().removeCovid();
-				i.setBehaviourNode(susceptibleNode);
+				i.setBehaviourNode(setNodeForTesting(CoronavirusBehaviourNodeTitle.SUSCEPTIBLE));
 				return Double.MAX_VALUE;
 			}
 
@@ -172,7 +169,7 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 		};
 		
 		// the agent is infectious, but not yet showing symptoms
-		presymptomaticNode = new BehaviourNode(){
+		this.presymptomaticNode = new BehaviourNode(){
 			
 			
 			@Override
@@ -193,7 +190,7 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 				// determine when the infection will proceed to symptoms - this is
 				// only a matter of time in this case
 				if(time >= i.time_start_symptomatic){
-					i.setBehaviourNode(mildNode);
+					i.setBehaviourNode(setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD));
 				}
 				else if(i.time_start_symptomatic == Double.MAX_VALUE ){
 					double time_until_symptoms = myWorld.nextRandomLognormal(
@@ -215,7 +212,7 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 		};
 		
 		// the agent is infectious, but will not show symptoms. They will eventually recover.
-		asymptomaticNode = new BehaviourNode(){
+		this.asymptomaticNode = new BehaviourNode(){
 			
 
 			@Override
@@ -237,7 +234,7 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 				// determine when the agent will recover - this is
 				// only a matter of time in this case
 				if(time >= i.time_recovered){
-					i.setBehaviourNode(recoveredNode);
+					i.setBehaviourNode(setNodeForTesting(CoronavirusBehaviourNodeTitle.RECOVERED));
 				}
 				else if(i.time_recovered == Double.MAX_VALUE){ // has not been set
 					
@@ -260,7 +257,7 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 		};
 		
 		// the agent has a mild case and is infectious. They may recover, or else progress to a severe case.
-		mildNode = new BehaviourNode(){
+		this.mildNode = new BehaviourNode(){
 
 			@Override
 			public String getTitle() { return CoronavirusBehaviourNodeTitle.MILD.key; }
@@ -289,12 +286,12 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 				// if the agent is scheduled to recover, make sure that it
 				// does so
 				if(time >= i.time_recovered){
-					i.setBehaviourNode(recoveredNode);
+					i.setBehaviourNode(setNodeForTesting(CoronavirusBehaviourNodeTitle.RECOVERED));
 				}
 				
 				// otherwise, if it is scheduled to worsen, progress it
 				else if(time >= i.time_start_severe){
-					i.setBehaviourNode(severeNode);
+					i.setBehaviourNode(setNodeForTesting(CoronavirusBehaviourNodeTitle.SEVERE));
 
 					Person p = (Person) i.getHost();
 					
@@ -346,7 +343,7 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 		};
 
 		// the agent has a severe case and is infectious. They may recover, or else progress to a critical case.
-		severeNode = new BehaviourNode(){
+		this.severeNode = new BehaviourNode(){
 
 			@Override
 			public String getTitle() { return CoronavirusBehaviourNodeTitle.SEVERE.key; }
@@ -371,12 +368,12 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 				// if the agent is scheduled to recover, make sure that it
 				// does so
 				if(time >= i.time_recovered){
-					i.setBehaviourNode(recoveredNode);
+					i.setBehaviourNode(setNodeForTesting(CoronavirusBehaviourNodeTitle.RECOVERED));
 				}
 				
 				// otherwise, if it is scheduled to worsen, progress it
 				else if(time >= i.time_start_critical){
-					i.setBehaviourNode(criticalNode);
+					i.setBehaviourNode(setNodeForTesting(CoronavirusBehaviourNodeTitle.CRITICAL));
 					i.getHost().getLocation().getRootSuperLocation().metric_new_critical++;
 					return 1;
 				}
@@ -422,7 +419,7 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 		};
 
 		// the agent has a critical case and is infectious. They may recover, or else progress to death.
-		criticalNode = new BehaviourNode(){
+		this.criticalNode = new BehaviourNode(){
 			
 			@Override
 			public String getTitle() { return CoronavirusBehaviourNodeTitle.CRITICAL.key; }
@@ -448,12 +445,12 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 				// if the agent is scheduled to recover, make sure that it
 				// does so
 				if(time >= i.time_recovered ){
-					i.setBehaviourNode(recoveredNode);
+					i.setBehaviourNode(setNodeForTesting(CoronavirusBehaviourNodeTitle.RECOVERED));
 				}
 				
 				// otherwise, if it is scheduled to worsen, progress it
 				else if(time >= i.time_died){
-					i.setBehaviourNode(deadNode);
+					i.setBehaviourNode(setNodeForTesting(CoronavirusBehaviourNodeTitle.DEAD));
 					
 					if(!i.getHost().isDeadFromCovid()) {
 						Location myAdminZone = i.getHost().getLocation().getRootSuperLocation();
@@ -507,7 +504,7 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 		};
 		
 		// the agent has recovered.
-		recoveredNode = new BehaviourNode(){
+		this.recoveredNode = new BehaviourNode(){
 
 			@Override
 			public String getTitle() { return CoronavirusBehaviourNodeTitle.RECOVERED.key; }
@@ -555,7 +552,7 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 			
 		};
 		
-		deadNode = new BehaviourNode(){
+		this.deadNode = new BehaviourNode(){
 
 			@Override
 			public String getTitle() { return CoronavirusBehaviourNodeTitle.DEAD.key; }
@@ -580,7 +577,7 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 		
 
 		
-		entryPoint = exposedNode;
+		entryPoint = this.exposedNode;
 	}
 	
 	public BehaviourNode setNodeForTesting(CoronavirusBehaviourNodeTitle behaviour) {
@@ -588,50 +585,50 @@ public class CoronavirusBehaviourFramework extends BehaviourFramework {
 
 		switch (behaviour) {
 		case SUSCEPTIBLE:{
-			toreturn = susceptibleNode;
+			toreturn = this.susceptibleNode;
 			break;
 		}
 		case EXPOSED:{
-			toreturn = exposedNode;
+			toreturn = this.exposedNode;
 			break;
 		}
 		case PRESYMPTOMATIC:{
-			toreturn = presymptomaticNode;
+			toreturn = this.presymptomaticNode;
 			break;
 		}
 		case ASYMPTOMATIC:{
-			toreturn = asymptomaticNode;
+			toreturn = this.asymptomaticNode;
 			break;
 		}
 		case MILD:{
-			toreturn = mildNode;
+			toreturn = this.mildNode;
 			break;
 		}
 		case SEVERE:{
-			toreturn = severeNode;
+			toreturn = this.severeNode;
 			break;
 		}
 		case CRITICAL:{
-			toreturn = criticalNode;
+			toreturn = this.criticalNode;
 			break;
 		}
 		case RECOVERED:{
-			toreturn = recoveredNode;
+			toreturn = this.recoveredNode;
 			break;
 		}
 		case DEAD:{
-			toreturn = deadNode;
+			toreturn = this.deadNode;
 			break;
 		}
 		default:
-			toreturn = susceptibleNode;
+			toreturn = this.susceptibleNode;
 			break;
 		}
 			
 		return toreturn;
 	}
 	
-	public BehaviourNode getStandardEntryPoint(){ return susceptibleNode; }
+	public BehaviourNode getStandardEntryPoint(){ return this.susceptibleNode; }
 	public BehaviourNode getInfectedEntryPoint(Location l){
 				
 		if(myWorld.random.nextDouble() < .5){ // TODO make this based on real data

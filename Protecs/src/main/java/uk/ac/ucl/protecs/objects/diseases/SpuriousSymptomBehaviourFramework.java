@@ -5,11 +5,9 @@ import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import swise.behaviours.BehaviourFramework;
 import swise.behaviours.BehaviourNode;
 
-public class SpuriousSymptomBehaviourFramework extends BehaviourFramework{
+public class SpuriousSymptomBehaviourFramework extends InfectiousBehaviourFramework{
 
 	
-	WorldBankCovid19Sim myWorld;
-	BehaviourNode susceptibleNode = null, exposedNode = null, deadNode = null;
 	
 	// create an enum title for each of the spurious symptom behaviour nodes, susceptible (no symptoms), exposed (has symptoms), 
 	// dead (has passed away so can't have symptoms), setup (for initialising) and recover for removing symptoms
@@ -63,11 +61,11 @@ public class SpuriousSymptomBehaviourFramework extends BehaviourFramework{
 
 	// PARAMS to control development of disease
 	
-	public SpuriousSymptomBehaviourFramework(WorldBankCovid19Sim model){
-		myWorld = model;
+	public SpuriousSymptomBehaviourFramework(WorldBankCovid19Sim myWorld){
+		super(myWorld);
 		
 		// the default status
-		susceptibleNode = new BehaviourNode(){
+		this.susceptibleNode = new BehaviourNode(){
 
 			@Override
 			public String getTitle() { return SpuriousSymptomBehaviourNode.SUSCEPTIBLE.key; }
@@ -92,11 +90,11 @@ public class SpuriousSymptomBehaviourFramework extends BehaviourFramework{
 				// based on the next step string variable, choose the next thing to do for this person's spurious symptoms.
 				switch (nextStep) {
 				case CAUSE_SYMPTOMS:{
-					symptom.setBehaviourNode(exposedNode);
+					symptom.setBehaviourNode(setNode(SpuriousSymptomBehaviourNode.EXPOSED));
 					return myWorld.params.ticks_per_week;
 				}
 				case HAS_DIED:{
-					symptom.setBehaviourNode(deadNode);
+					symptom.setBehaviourNode(setNode(SpuriousSymptomBehaviourNode.DEAD));
 					return Double.MAX_VALUE;
 				}
 				case NO_SYMPTOMS:{
@@ -117,7 +115,7 @@ public class SpuriousSymptomBehaviourFramework extends BehaviourFramework{
 		};
 		
 		// the agent has been exposed, give them the symptoms of COVID for a week
-		exposedNode = new BehaviourNode(){
+		this.exposedNode = new BehaviourNode(){
 
 			@Override
 			public String getTitle() { return SpuriousSymptomBehaviourNode.EXPOSED.key; }
@@ -135,7 +133,7 @@ public class SpuriousSymptomBehaviourFramework extends BehaviourFramework{
 				}
 				// can't have spurious COVID symptoms if actually have covid
 				if (symptom.host.hasSymptomaticCovid()) {
-					symptom.setBehaviourNode(susceptibleNode);
+					symptom.setBehaviourNode(setNode(SpuriousSymptomBehaviourNode.SUSCEPTIBLE));
 					symptom.getHost().removeCovidSpuriousSymptoms();
 					return 1;
 				}
@@ -159,8 +157,7 @@ public class SpuriousSymptomBehaviourFramework extends BehaviourFramework{
 						symptom.timeLastTriggered = time;
 						symptom.getHost().setCovidSpuriousSymptoms();
 						symptom.getHost().setEligibleForCovidTesting();
-						double timeUntilRecovered = symptom.timeLastTriggered + myWorld.params.ticks_per_week;
-						symptom.timeRecovered = timeUntilRecovered;
+						symptom.timeRecovered = symptom.timeLastTriggered + myWorld.params.ticks_per_week;
 						return 1;
 						}
 					case RECOVER:{
@@ -168,7 +165,7 @@ public class SpuriousSymptomBehaviourFramework extends BehaviourFramework{
 						symptom.getHost().removeEligibilityForCovidTesting();
 						symptom.timeLastTriggered = Double.MAX_VALUE;
 						symptom.timeRecovered = Double.MAX_VALUE;
-						symptom.setBehaviourNode(susceptibleNode);
+						symptom.setBehaviourNode(setNode(SpuriousSymptomBehaviourNode.SUSCEPTIBLE));
 						return 1;
 					}
 					default:
@@ -184,7 +181,7 @@ public class SpuriousSymptomBehaviourFramework extends BehaviourFramework{
 			}
 			
 		};
-		deadNode = new BehaviourNode(){
+		this.deadNode = new BehaviourNode(){
 
 			@Override
 			public String getTitle() { return SpuriousSymptomBehaviourNode.DEAD.key; }
@@ -212,20 +209,20 @@ public class SpuriousSymptomBehaviourFramework extends BehaviourFramework{
 
 			switch (behaviour) {
 			case SUSCEPTIBLE:{
-				toreturn = susceptibleNode;
+				toreturn = this.susceptibleNode;
 				break;
 			}
 			case EXPOSED:{
-				toreturn = exposedNode;
+				toreturn = this.exposedNode;
 				break;
 			}
 			default:
 				System.out.println("No node requested");
-				toreturn = susceptibleNode;
+				toreturn = this.susceptibleNode;
 			}
 			return toreturn;
 
 		}
-		public BehaviourNode getStandardEntryPoint(){ return exposedNode; }
+		public BehaviourNode getStandardEntryPoint(){ return this.exposedNode; }
 
 }
