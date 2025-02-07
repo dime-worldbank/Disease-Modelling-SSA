@@ -118,7 +118,7 @@ public class helperFunctions {
 		// Make this function assigns an infectious behaviour node of your choice to a certain percentage of the population
 		for (Person p: world.agents) {
 			double rand = world.random.nextDouble();
-			if (!p.hasCovid() && rand <= fraction) {
+			if (!p.getInfectionSet().containsKey(DISEASE.COVID.key) && rand <= fraction) {
 				CoronavirusInfection inf = new CoronavirusInfection(p, null, world.infectiousFramework.getHomeNode(), world);
 				inf.setBehaviourNode(Node);
 				// kick off the infectious behaviour framework

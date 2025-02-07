@@ -93,7 +93,6 @@ public class CoronavirusBehaviourFramework extends InfectiousBehaviourFramework 
 					if(time < i.time_contagious)
 						return i.time_contagious - time;
 					// update the person's properties to show they have covid
-					i.getHost().storeCovid();
 					// The infected agent will either show symptoms or be asymptomatic - choose which at this time
 
 					// moderate this based on the age of the host
@@ -105,17 +104,15 @@ public class CoronavirusBehaviourFramework extends InfectiousBehaviourFramework 
 
 					// activate the next step probabilistically
 					if(myWorld.random.nextDouble() < mySymptLikelihood){
-						i.setBehaviourNode(presymptomaticNode);
+						i.setBehaviourNode(setNodeForTesting(CoronavirusBehaviourNodeTitle.PRESYMPTOMATIC));
 						i.getHost().getLocation().getRootSuperLocation().metric_new_cases_sympt++;
 						// Store this person's covid
-						i.getHost().storeCovid();
 					}
 					else{
-						i.setBehaviourNode(asymptomaticNode);
+						i.setBehaviourNode(setNodeForTesting(CoronavirusBehaviourNodeTitle.ASYMPTOMATIC));
 						if(i.getHost() != null && i.getHost().getLocation() != null) {
 							i.getHost().getLocation().getRootSuperLocation().metric_new_cases_asympt++;
 							// Store this person's covid
-							i.getHost().storeCovid();
 							}
 						else
 							System.out.println("PROBLEM WITH INFECTION HOST OR LOCATION");
@@ -144,8 +141,6 @@ public class CoronavirusBehaviourFramework extends InfectiousBehaviourFramework 
 					assert (timeUntilInfectious > 0): "Something has gone wrong in deciding when a person will become infectious, time is not in future: " + timeUntilInfectious;
 					i.time_contagious = time + timeUntilInfectious;
 					// update the person's properties to show they have covid
-					i.getHost().storeCovid();
-					i.getHost().updateCovidCounter();
 
 					return timeUntilInfectious;
 				}
@@ -156,7 +151,6 @@ public class CoronavirusBehaviourFramework extends InfectiousBehaviourFramework 
 				// 
 				i.time_recovered = time;
 				// update the person's properties to show they don't have covid
-				i.getHost().removeCovid();
 				i.setBehaviourNode(setNodeForTesting(CoronavirusBehaviourNodeTitle.SUSCEPTIBLE));
 				return Double.MAX_VALUE;
 			}
@@ -184,9 +178,6 @@ public class CoronavirusBehaviourFramework extends InfectiousBehaviourFramework 
 					return Double.MAX_VALUE;
 				}
 				i.getHost().infectNeighbours();
-				if (!i.getHost().hasPresymptCovid()) {
-					i.getHost().setPresympt();
-					}
 				// determine when the infection will proceed to symptoms - this is
 				// only a matter of time in this case
 				if(time >= i.time_start_symptomatic){
@@ -227,9 +218,6 @@ public class CoronavirusBehaviourFramework extends InfectiousBehaviourFramework 
 					return Double.MAX_VALUE;
 				}
 				i.getHost().infectNeighbours();
-				if (!i.getHost().hasAsymptCovid()) {
-					i.getHost().setAsympt();
-					}
 
 				// determine when the agent will recover - this is
 				// only a matter of time in this case
@@ -271,14 +259,9 @@ public class CoronavirusBehaviourFramework extends InfectiousBehaviourFramework 
 					return Double.MAX_VALUE;
 				}
 				i.getHost().infectNeighbours();
-
-				if (i.getHost().hasPresymptCovid()) {
-					i.getHost().removePresympt();
-					}
-				if (!i.getHost().hasMild()) {
-					i.getHost().setMild();
-					i.getHost().isEligibleForCovidTesting();
-				}
+				i.setSymptomatic();
+				i.getHost().isEligibleForCovidTesting();
+				
 				if (i.getHost().hasCovidSpuriousSymptoms()) {
 					i.getHost().removeCovidSpuriousSymptoms();
 				}
@@ -358,13 +341,6 @@ public class CoronavirusBehaviourFramework extends InfectiousBehaviourFramework 
 				}
 				i.getHost().infectNeighbours();
 
-				if (i.getHost().hasMild()) {
-					i.getHost().removeMild();
-					}
-				if (!i.getHost().hasSevere()) {
-					i.getHost().setSevere();
-				}
-
 				// if the agent is scheduled to recover, make sure that it
 				// does so
 				if(time >= i.time_recovered){
@@ -435,13 +411,6 @@ public class CoronavirusBehaviourFramework extends InfectiousBehaviourFramework 
 				i.getHost().infectNeighbours();
 
 
-				if (i.getHost().hasSevere()) {
-					i.getHost().removeSevere();
-				}
-				if (!i.getHost().hasCritical()) {
-					i.getHost().setCritical();
-				}
-
 				// if the agent is scheduled to recover, make sure that it
 				// does so
 				if(time >= i.time_recovered ){
@@ -452,13 +421,9 @@ public class CoronavirusBehaviourFramework extends InfectiousBehaviourFramework 
 				else if(time >= i.time_died){
 					i.setBehaviourNode(setNodeForTesting(CoronavirusBehaviourNodeTitle.DEAD));
 					
-					if(!i.getHost().isDeadFromCovid()) {
-						Location myAdminZone = i.getHost().getLocation().getRootSuperLocation();
-						myAdminZone.metric_died_count++;
-						myAdminZone.metric_new_deaths++;
-					}
-					else
-						System.out.println("hmm how did you get here?");
+					Location myAdminZone = i.getHost().getLocation().getRootSuperLocation();
+					myAdminZone.metric_died_count++;
+					myAdminZone.metric_new_deaths++;
 					return 1;
 				}
 				
@@ -518,11 +483,7 @@ public class CoronavirusBehaviourFramework extends InfectiousBehaviourFramework 
 				}
 				i.time_recovered = time;
 				// update person's properties
-				i.getHost().setRecovered();
-				i.getHost().removeCovid();
 				i.getHost().getLocation().getRootSuperLocation().metric_new_recovered++;				
-				i.getHost().setRecovered();
-				i.getHost().removeCovid();
 				i.getHost().removeEligibilityForCovidTesting();
 				// the Person may have stopped moving when ill - reactivate!
 				if(i.getHost().isImmobilised()){
@@ -540,7 +501,7 @@ public class CoronavirusBehaviourFramework extends InfectiousBehaviourFramework 
 						}
 					}
 				}
-				
+				i.setSymptomatic();
 				// no need to update again!
 				return Double.MAX_VALUE;
 			}
@@ -561,7 +522,6 @@ public class CoronavirusBehaviourFramework extends InfectiousBehaviourFramework 
 			public double next(Steppable s, double time) {
 				CoronavirusInfection i = (CoronavirusInfection) s;
 				// remove covid from person object
-				i.getHost().removeCovid();
 				i.getHost().die("covid");
 				i.time_died = time;
 								

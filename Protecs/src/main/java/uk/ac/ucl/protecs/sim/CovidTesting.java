@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 import uk.ac.ucl.protecs.objects.Person;
+import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 
 public class CovidTesting implements DiseaseTesting {
 
@@ -30,7 +31,7 @@ public class CovidTesting implements DiseaseTesting {
 		// test each person, check the results of the test and update the person's properties
 		for (Person p: people_to_test_today) {
 			double random_to_check_if_test_is_accurate = world.random.nextDouble();
-			if (p.hasCovid() && random_to_check_if_test_is_accurate < testAccuracy()){
+			if (p.getInfectionSet().containsKey(DISEASE.COVID.key) && random_to_check_if_test_is_accurate < testAccuracy()){
 				updatePropertiesForPositiveTest(p);
 				} 
 			else {

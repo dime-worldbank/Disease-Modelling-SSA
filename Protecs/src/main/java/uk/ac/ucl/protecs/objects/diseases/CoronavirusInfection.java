@@ -2,6 +2,9 @@ package uk.ac.ucl.protecs.objects.diseases;
 
 import uk.ac.ucl.protecs.objects.Location;
 import uk.ac.ucl.protecs.objects.Person;
+import uk.ac.ucl.protecs.objects.Person.OCCUPATION;
+import uk.ac.ucl.protecs.objects.Person.SEX;
+import uk.ac.ucl.protecs.objects.diseases.CoronavirusBehaviourFramework.CoronavirusBehaviourNodeTitle;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import sim.engine.SimState;
@@ -41,6 +44,21 @@ public class CoronavirusInfection implements Infection {
 	// clinical care
 	double time_start_hospitalised;
 	double time_end_hospitalised;
+	
+	// infection stages
+	boolean isSymptomatic = false;
+	boolean hasAsympt = false;
+	boolean hasMild = false;
+	
+	// loggers
+	boolean hasDeathLogged = false;
+	boolean hasCovidLogged = false;
+	boolean hasAsymptLogged = false;
+	boolean hasMildLogged = false;
+	boolean hasSevereLogged = false;
+	boolean hasCriticalLogged = false;
+	boolean hasLogged = false;
+	// counter
 	
 	/**
 	 * 
@@ -212,7 +230,165 @@ public class CoronavirusInfection implements Infection {
 	
 		return "COVID-19";
 	}
+		
+	@Override
+	public String getCurrentAdminZone() {return this.host.getHousehold().getRootSuperLocation().myId;}	
+	
+	@Override
+	public boolean isAlive() { return !this.host.isDead; }
+	
+	@Override
+	public boolean covidLogCheck () { return this.hasCovidLogged; }
 
+	@Override
+	public boolean isCovid() {
+		return true;
+	}
+
+	@Override
+	public boolean hasRecovered() {
+		// TODO Auto-generated method stub
+		return this.getCurrentBehaviourNode().getTitle().equals( CoronavirusBehaviourNodeTitle.RECOVERED.key);
+	}
+
+	@Override
+	public boolean hasAsympt() {
+		return this.getCurrentBehaviourNode().getTitle().equals( CoronavirusBehaviourNodeTitle.ASYMPTOMATIC.key);
+
+	}
+
+	@Override
+	public boolean getAsymptLogged() {
+		// TODO Auto-generated method stub
+		return this.hasAsymptLogged;
+	}
 	
+	public void confirmAsymptLogged() {this.hasAsymptLogged = true; }
+
+	@Override
+	public boolean hasMild() {
+		// TODO Auto-generated method stub
+		return this.getCurrentBehaviourNode().getTitle().equals( CoronavirusBehaviourNodeTitle.MILD.key);
+	}
+
+	@Override
+	public boolean getMildLogged() {
+		// TODO Auto-generated method stub
+		return this.hasMildLogged;
+	}
+
+	@Override
+	public void confirmMildLogged() {
+		this.hasMildLogged = true; 
+		
+	}
+
+	@Override
+	public boolean hasSevere() {
+		// TODO Auto-generated method stub
+		return this.getCurrentBehaviourNode().getTitle().equals( CoronavirusBehaviourNodeTitle.SEVERE.key);
+	}
+
+	@Override
+	public boolean getSevereLogged() {
+		// TODO Auto-generated method stub
+		return this.hasSevereLogged;
+	}
+
+	@Override
+	public void confirmSevereLogged() {
+		// TODO Auto-generated method stub
+		this.hasSevereLogged = true;
+	}
+
+	@Override
+	public boolean hasCritical() {
+		// TODO Auto-generated method stub
+		return this.getCurrentBehaviourNode().getTitle().equals( CoronavirusBehaviourNodeTitle.CRITICAL.key);
+	}
+
+	@Override
+	public boolean getCriticalLogged() {
+		// TODO Auto-generated method stub
+		return this.hasCriticalLogged;
+	}
+
+	@Override
+	public void confirmCriticalLogged() {
+		// TODO Auto-generated method stub
+		this.hasCriticalLogged = true;
+	}
+
+	@Override
+	public void confirmDeathLogged() {
+		// TODO Auto-generated method stub
+		this.hasDeathLogged = true;
+	}
+
+	@Override
+	public boolean getDeathLogged() {
+		// TODO Auto-generated method stub
+		return this.hasDeathLogged ;
+	}
+
+	@Override
+	public void setAsympt() {
+		// TODO Auto-generated method stub
+		this.hasAsympt = true;
+		
+	}
+
+	@Override
+	public int getAge() {
+		// TODO Auto-generated method stub
+		return this.host.getAge();
+	}
 	
+	@Override
+	public SEX getSex() {
+		// TODO Auto-generated method stub
+		return this.host.getSex();
+	}
+
+	@Override
+	public OCCUPATION getEconStatus() {
+		// TODO Auto-generated method stub
+		return this.host.getEconStatus();
+	}
+
+	@Override
+	public boolean getLogged() {
+		// TODO Auto-generated method stub
+		return hasLogged;
+	}
+	
+	@Override
+	public void setLogged() {
+		this.hasLogged = true;
+	}
+	
+	@Override
+	public void setMild() {
+		this.hasMild = true;
+		
+	}
+
+	@Override
+	public boolean isCovidSpuriousSymptom() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean isSymptomatic() {
+		// TODO Auto-generated method stub
+		return this.isSymptomatic;
+	}
+
+	@Override
+	public void setSymptomatic() {
+		this.isSymptomatic = !this.isSymptomatic;
+		
+	}
+
 }

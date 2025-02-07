@@ -11,7 +11,7 @@ import java.util.HashSet;
  */
 public class Location {
 	
-	String myId;
+	public String myId;
 	Location mySuperLocation; // the Location within which this Location exists
 	HashSet <Person> personsHere;
 	Object [] personsHere_list;

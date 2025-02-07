@@ -220,12 +220,11 @@ public class WorldBankCovid19Sim extends SimState {
 				// update this person's properties
 				
 				// update this person's properties so we can keep track of the number of cases etc				
-				p.storeCovid();
 				if (inf.getBehaviourName().equals("asymptomatic")) {
-					p.setAsympt();
+					inf.setAsympt();
 				}
 				else {
-					p.setMild();
+					inf.setMild();
 				}
 				schedule.scheduleOnce(1, param_schedule_infecting, inf);
 			}

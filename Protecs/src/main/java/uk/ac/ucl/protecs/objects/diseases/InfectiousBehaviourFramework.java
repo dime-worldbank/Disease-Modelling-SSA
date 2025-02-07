@@ -24,4 +24,5 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 		
 		}
 	public void setStandardEntryPoint() {};	
+	
 }

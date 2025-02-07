@@ -11,6 +11,7 @@ import uk.ac.ucl.protecs.objects.diseases.CoronavirusBehaviourFramework.Coronavi
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -78,7 +79,7 @@ public class CovidSpuriousSymptomTesting{
 		sim.params.infection_beta = 0.0;
 		// remove and existing infections from the population and assign half the population spurious symptoms
 		for (Person p: sim.agents) {
-			if (p.hadCovid()) {
+			if (p.getInfectionSet().containsKey(DISEASE.COVID.key)) {
 				p.die("");
 				}
 		}
@@ -98,7 +99,7 @@ public class CovidSpuriousSymptomTesting{
 		// Remove the development of new symptoms
 		sim.params.infection_beta = 0.0;
 		// remove all people with covid
-		for (Person p: sim.agents) { if (p.hadCovid()) {p.die("");}}
+		for (Person p: sim.agents) { if (p.getInfectionSet().containsKey(DISEASE.COVID.key)) {p.die("");}}
 		// create spurious symptoms
 		giveAFractionASpuriousSymptom(1, sim);
 		helperFunctions.runSimulation(sim, numDays);
@@ -136,29 +137,6 @@ public class CovidSpuriousSymptomTesting{
 		}
 	}
 	
-	public List<Person> getPopulationWithSpuriousSymptomAssignmentCriteria(WorldBankCovid19Sim world){
-	
-	Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, List<Person>>>>>> meetsSymptomAssignmentCriteria = (Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, List<Person>>>>>>) world.agents.stream().collect(
-            Collectors.groupingBy(
-              Person::isAlive, 
-              Collectors.groupingBy(
-                Person::hasMild, 
-                Collectors.groupingBy(
-                  Person::hasSevere, 
-                  Collectors.groupingBy(
-                    Person::hasCritical, 
-                    Collectors.groupingBy(
-                            Person::hasCovidSpuriousSymptoms, 
-                    Collectors.toList()
-                    )
-                  )
-                )
-              )
-            )
-            );
-	
-	return meetsSymptomAssignmentCriteria.get(true).get(false).get(false).get(false).get(true);
-	}
 	public List<Person> getPopulationWithSpuriousSymptoms(WorldBankCovid19Sim world){
 		
 		Map<Boolean, List<Person>> hasSpuriousSymptoms = (Map<Boolean, List<Person>>) world.agents.stream().collect(
@@ -171,18 +149,31 @@ public class CovidSpuriousSymptomTesting{
 		return hasSpuriousSymptoms.get(true);
 		}
 	public List<Person> getPopulationWithSpuriousSymptomsAndAsymptomaticCovid(WorldBankCovid19Sim world){
+		// get a list of spurious symptoms
+		Map<Boolean, List<Infection>> isSpuriousSymptom = (Map<Boolean, List<Infection>>) world.infections.stream().collect(
+				Collectors.groupingBy(
+						Infection::isCovidSpuriousSymptom
+						)
+				);
+		List<Infection> spuriousSymptoms = isSpuriousSymptom.get(true);
 		
-		Map<Boolean, Map<Boolean, List<Person>>> hasSpuriousSymptomsAndAsympt = (Map<Boolean, Map<Boolean, List<Person>>>) world.agents.stream().collect(
-	            Collectors.groupingBy(
-	              Person::hasCovidSpuriousSymptoms, 
-		            Collectors.groupingBy(
-		            	Person::hasAsymptCovid,
-	                    Collectors.toList()
-	                    )
-		            )
-	               );
+		Map<Boolean, Map<Boolean, List<Infection>>> isAsymptomaticCovid = (Map<Boolean, Map<Boolean, List<Infection>>>) world.infections.stream().collect(
+				Collectors.groupingBy(
+						Infection::isCovid,
+						Collectors.groupingBy(
+								Infection::isSymptomatic
+						)
+					)
+				);
+		List<Infection> asymptomaticCovid = isAsymptomaticCovid.get(true).get(false);
 		
-		return hasSpuriousSymptomsAndAsympt.get(true).get(true);
+		ArrayList<Person> filteredPopulation = new ArrayList<Person>();
+		
+		for (Infection spuriousSympt: spuriousSymptoms) filteredPopulation.add(spuriousSympt.getHost());
+		for (Infection asymptCovid: asymptomaticCovid) filteredPopulation.add(asymptCovid.getHost());
+
+		
+		return filteredPopulation;
 		}
 	
 	public List<Person> checkSpuriousSymptomAndTestingEligibilityHasBeenAssigned(WorldBankCovid19Sim world, boolean hasBeenAssigned){
