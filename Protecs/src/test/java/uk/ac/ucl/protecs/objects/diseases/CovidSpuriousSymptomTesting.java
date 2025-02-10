@@ -86,9 +86,9 @@ public class CovidSpuriousSymptomTesting{
 		giveAFractionASpuriousSymptom(0.5, sim);
 		// run the simulation
 		helperFunctions.runSimulation(sim, numDays);
-		// Check that there are no spurious symptoms remaining in the population
-		List<Person> peopleWithoutSpuriousSymptoms = checkSpuriousSymptomAndTestingEligibilityHasBeenAssigned(sim, false);
-		Assert.assertTrue(peopleWithoutSpuriousSymptoms.size() == sim.agents.size());	
+		// Check that there are no spurious symptoms remaining in the population by checking that all spurious symptoms are asymptomatic
+		List<Infection> peopleWithoutSpuriousSymptoms = checkSpuriousSymptomAndTestingEligibilityHasBeenAssigned(sim, true);
+		Assert.assertTrue(peopleWithoutSpuriousSymptoms == null);	
 	}
 	
 	@Test
@@ -105,7 +105,7 @@ public class CovidSpuriousSymptomTesting{
 		helperFunctions.runSimulation(sim, numDays);
 		int sizeThatShouldHaveBeenGivenSymptoms = helperFunctions.GetNumberAlive(sim);
 		// Check that there are no spurious symptoms remaining in the population
-		List<Person> peopleWithPropertiesAssigned = checkSpuriousSymptomAndTestingEligibilityHasBeenAssigned(sim, true);		
+		List<Infection> peopleWithPropertiesAssigned = checkSpuriousSymptomAndTestingEligibilityHasBeenAssigned(sim, true);		
 		Assert.assertTrue(peopleWithPropertiesAssigned.size() == sizeThatShouldHaveBeenGivenSymptoms);	
 	}
 	
@@ -121,7 +121,7 @@ public class CovidSpuriousSymptomTesting{
 		sim.params.infection_beta = 0.0;
 		// run the simulation
 		helperFunctions.runSimulation(sim, numDays);
-		List<Person> peopleWithPropertiesAssigned = checkSpuriousSymptomAndTestingEligibilityHasBeenAssigned(sim, true);
+		List<Infection> peopleWithPropertiesAssigned = checkSpuriousSymptomAndTestingEligibilityHasBeenAssigned(sim, true);
 		Assert.assertTrue((peopleWithPropertiesAssigned.size() > 0) & (peopleWithPropertiesAssigned.size() < sim.agents.size()));	
 
 
@@ -176,13 +176,13 @@ public class CovidSpuriousSymptomTesting{
 		return filteredPopulation;
 		}
 	
-	public List<Person> checkSpuriousSymptomAndTestingEligibilityHasBeenAssigned(WorldBankCovid19Sim world, boolean hasBeenAssigned){
+	public List<Infection> checkSpuriousSymptomAndTestingEligibilityHasBeenAssigned(WorldBankCovid19Sim world, boolean hasBeenAssigned){
 		
-		Map<Boolean, Map<Boolean, List<Person>>> propertiesChecked = (Map<Boolean, Map<Boolean, List<Person>>>) world.agents.stream().collect(
+		Map<Boolean, Map<Boolean, List<Infection>>> propertiesChecked = (Map<Boolean, Map<Boolean, List<Infection>>>) world.infections.stream().collect(
 	            Collectors.groupingBy(
-	              Person::hasCovidSpuriousSymptoms, 
+	            	Infection::isCovidSpuriousSymptom, 
 		            Collectors.groupingBy(
-		            	Person::isEligibleForCovidTesting,
+		            		Infection::isSymptomatic,
 	                    Collectors.toList()
 	                    )
 		            )

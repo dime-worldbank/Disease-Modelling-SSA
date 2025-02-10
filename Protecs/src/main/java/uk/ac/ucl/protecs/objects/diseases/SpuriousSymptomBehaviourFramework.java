@@ -153,15 +153,14 @@ public class SpuriousSymptomBehaviourFramework extends InfectiousBehaviourFramew
 				}
 				switch (action) {
 					case SETUP:{
-						symptom.getHost().setHasSpuriousObject();
 						symptom.timeLastTriggered = time;
-						symptom.getHost().setCovidSpuriousSymptoms();
+						symptom.setSymptomatic();
 						symptom.getHost().setEligibleForCovidTesting();
 						symptom.timeRecovered = symptom.timeLastTriggered + myWorld.params.ticks_per_week;
 						return 1;
 						}
 					case RECOVER:{
-						symptom.getHost().removeCovidSpuriousSymptoms();
+						symptom.setAsympt();
 						symptom.getHost().removeEligibilityForCovidTesting();
 						symptom.timeLastTriggered = Double.MAX_VALUE;
 						symptom.timeRecovered = Double.MAX_VALUE;
@@ -190,6 +189,7 @@ public class SpuriousSymptomBehaviourFramework extends InfectiousBehaviourFramew
 			public double next(Steppable s, double time) {
 				CoronavirusSpuriousSymptom symptom = (CoronavirusSpuriousSymptom) s;
 				// remove covid from person object
+				symptom.setAsympt();
 				symptom.getHost().removeCovidSpuriousSymptoms();								
 				return Double.MAX_VALUE; // no need to run ever again
 			}

@@ -27,6 +27,9 @@ public class CoronavirusSpuriousSymptom implements Infection{
 	public double time_recovered = 	Double.MAX_VALUE;
 	public double time_died = Double.MAX_VALUE;
 	
+	// track whether a person is displaying symptoms or not
+	public boolean symptomatic = false;
+	
 	// behaviours
 	BehaviourNode currentBehaviourNode = null;
 	
@@ -172,13 +175,13 @@ public class CoronavirusSpuriousSymptom implements Infection{
 	@Override
 	public String getCurrentAdminZone() {
 		// TODO Auto-generated method stub
-		return null;
+		return this.host.getHousehold().getRootSuperLocation().myId;
 	}
 
 	@Override
 	public boolean isAlive() {
 		// TODO Auto-generated method stub
-		return false;
+		return this.getHost().isAlive();
 	}
 
 	@Override
@@ -286,7 +289,7 @@ public class CoronavirusSpuriousSymptom implements Infection{
 	@Override
 	public void setAsympt() {
 		// TODO Auto-generated method stub
-		
+		this.symptomatic = false;
 	}
 	
 	@Override
@@ -332,12 +335,12 @@ public class CoronavirusSpuriousSymptom implements Infection{
 	@Override
 	public void setSymptomatic() {
 		// TODO Auto-generated method stub
-		
+		this.symptomatic = true;
 	}
 
 	@Override
 	public boolean isSymptomatic() {
 		// TODO Auto-generated method stub
-		return false;
+		return this.symptomatic;
 	}
 }

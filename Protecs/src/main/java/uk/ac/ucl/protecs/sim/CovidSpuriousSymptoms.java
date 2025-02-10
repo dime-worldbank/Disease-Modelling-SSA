@@ -59,10 +59,12 @@ public class CovidSpuriousSymptoms implements SpuriousSymptoms {
 					); 
 			List<Infection> spuriousSymptoms = isSpuriousSymptom.get(true);
 			// remove those with existing spurious symptoms from the potential list of people to give symptoms to
+			if (spuriousSymptoms != null) {
 			for (Infection existingSymptom: spuriousSymptoms) {
 				if (eligiblePersons.contains(existingSymptom.getHost())) {
 					eligiblePersons.remove(existingSymptom.getHost());
 				}
+			}
 			}
 			// get a list of the current symptomatic covid infections
 			Map<Boolean, Map<Boolean, Map<Boolean, List<Infection>>>> isSymptomaticCovid = (Map<Boolean, Map<Boolean, Map<Boolean,  List<Infection>>>>) world.infections.stream().collect(
@@ -77,14 +79,14 @@ public class CovidSpuriousSymptoms implements SpuriousSymptoms {
 		                    )
 		                   )	                
 		              );
-			
 			List<Infection> symptomaticCovid = isSymptomaticCovid.get(true).get(true).get(true);
+			if (symptomaticCovid != null) {
 			for (Infection symptomaticInfs: symptomaticCovid) {
 				if (eligiblePersons.contains(symptomaticInfs.getHost())) {
 					eligiblePersons.remove(symptomaticInfs.getHost());
 				}
 			}
-		
+			}
 		
 		double number_people_with_symptoms_as_double = world.params.rate_of_spurious_symptoms * eligiblePersons.size();
         int number_people_with_symptoms = (int)number_people_with_symptoms_as_double;          

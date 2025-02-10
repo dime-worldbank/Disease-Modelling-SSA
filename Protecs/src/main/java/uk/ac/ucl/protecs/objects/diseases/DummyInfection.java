@@ -172,7 +172,7 @@ public class DummyInfection implements Infection {
 	@Override
 	public String getCurrentAdminZone() {
 		// TODO Auto-generated method stub
-		return null;
+		return this.host.getHousehold().getRootSuperLocation().myId;
 	}
 
 	@Override
