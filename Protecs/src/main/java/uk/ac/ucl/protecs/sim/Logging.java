@@ -621,7 +621,7 @@ public class Logging {
 												Collectors.groupingBy(
 														Infection::isCovid,
 														Collectors.groupingBy(
-																Infection::covidLogCheck,
+																Infection::getLogged,
 										Collectors.counting()
 										)
 								)
@@ -1522,6 +1522,7 @@ public class Logging {
 						if(i.hasCritical() & !i.getCriticalLogged()) {
 							i.confirmCriticalLogged();
 						}
+						i.confirmLogged();
 					} 
 				}
 			};

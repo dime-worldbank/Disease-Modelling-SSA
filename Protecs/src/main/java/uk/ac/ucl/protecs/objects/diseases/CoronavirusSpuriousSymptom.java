@@ -55,7 +55,7 @@ public class CoronavirusSpuriousSymptom implements Infection{
 		double myDelta = this.currentBehaviourNode.next(this, time);
 		arg0.schedule.scheduleOnce(time + myDelta, myWorld.param_schedule_infecting, this);
 	}
-
+	// =============================================== relevant information on the host ==============================================================
 	@Override
 	public Person getHost() {
 		// TODO Auto-generated method stub
@@ -79,7 +79,38 @@ public class CoronavirusSpuriousSymptom implements Infection{
 		// TODO Auto-generated method stub
 		return this.timeCreated;
 	}
+	
+	@Override
+	public String getCurrentAdminZone() {
+		// TODO Auto-generated method stub
+		return this.host.getHousehold().getRootSuperLocation().myId;
+	}
+	
+	@Override
+	public boolean isAlive() {
+		// TODO Auto-generated method stub
+		return this.getHost().isAlive();
+	}
+	
+	@Override
+	public int getAge() {
+		// TODO Auto-generated method stub
+		return this.host.getAge();
+	}
+	
+	@Override
+	public SEX getSex() {
+		// TODO Auto-generated method stub
+		return this.host.getSex();
+	}
+	
+	@Override
+	public OCCUPATION getEconStatus() {
+		// TODO Auto-generated method stub
+		return this.host.getEconStatus();
+	}
 
+	// =============================================== Disease 'behaviours'================================================================================
 	@Override
 	public BehaviourNode getCurrentBehaviourNode() {
 		// TODO Auto-generated method stub
@@ -97,6 +128,178 @@ public class CoronavirusSpuriousSymptom implements Infection{
 		// TODO Auto-generated method stub
 		if(this.currentBehaviourNode == null) return "";
 		return this.currentBehaviourNode.getTitle();
+	}
+
+
+	// =============================================== Disease type classification ===========================================================================
+	@Override
+	public boolean isCovid() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+	@Override
+	public boolean isCovidSpuriousSymptom() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+	
+	@Override
+	public boolean isDummyInfection() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+	@Override
+	public String getDiseaseName() {
+		// TODO Auto-generated method stub
+		return "COVID-19_SPURIOUS_SYMPTOM";
+	}
+	
+	// =============================================== Disease progression ====================================================================================
+	@Override
+	public void setAsympt() {
+		// TODO Auto-generated method stub
+		this.symptomatic = false;
+	}
+	
+	@Override
+	public boolean hasAsympt() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void setSymptomatic() {
+		// TODO Auto-generated method stub
+		this.symptomatic = true;
+	}
+
+	@Override
+	public boolean isSymptomatic() {
+		// TODO Auto-generated method stub
+		return this.symptomatic;
+	}
+	
+	@Override
+	public void setMild() {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public boolean hasMild() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+	@Override
+	public void setSevere() {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public boolean hasSevere() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+	@Override
+	public void setCritical() {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public boolean hasCritical() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+	@Override
+	public void setRecovered() {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	public boolean hasRecovered() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	// =============================================== Disease logging ====================================================================================
+	@Override
+	public boolean getAsymptLogged() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void confirmAsymptLogged() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean getMildLogged() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void confirmMildLogged() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean getSevereLogged() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void confirmSevereLogged() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean getCriticalLogged() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void confirmCriticalLogged() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean getDeathLogged() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void confirmDeathLogged() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean getLogged() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void confirmLogged() {
+		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
@@ -169,196 +372,8 @@ public class CoronavirusSpuriousSymptom implements Infection{
 		
 	}
 
-	@Override
-	public String getDiseaseName() {
-		// TODO Auto-generated method stub
-		return "COVID-19_SPURIOUS_SYMPTOM";
-	}
-
-	@Override
-	public String getCurrentAdminZone() {
-		// TODO Auto-generated method stub
-		return this.host.getHousehold().getRootSuperLocation().myId;
-	}
-
-	@Override
-	public boolean isAlive() {
-		// TODO Auto-generated method stub
-		return this.getHost().isAlive();
-	}
-
-	@Override
-	public boolean covidLogCheck() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isCovid() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean hasRecovered() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean hasAsympt() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean getAsymptLogged() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void confirmAsymptLogged() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public boolean hasMild() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean getMildLogged() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void confirmMildLogged() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public boolean hasSevere() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean getSevereLogged() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void confirmSevereLogged() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public boolean hasCritical() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean getCriticalLogged() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void confirmCriticalLogged() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public boolean getDeathLogged() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void confirmDeathLogged() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setAsympt() {
-		// TODO Auto-generated method stub
-		this.symptomatic = false;
-	}
-	
-	@Override
-	public int getAge() {
-		// TODO Auto-generated method stub
-		return this.host.getAge();
-	}
-	@Override
-	public SEX getSex() {
-		// TODO Auto-generated method stub
-		return this.host.getSex();
-	}
-	@Override
-	public OCCUPATION getEconStatus() {
-		// TODO Auto-generated method stub
-		return this.host.getEconStatus();
-	}
-
-	@Override
-	public boolean getLogged() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void setLogged() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void setMild() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public boolean isCovidSpuriousSymptom() {
-		// TODO Auto-generated method stub
-		return true;
-	}
-
-	@Override
-	public void setSymptomatic() {
-		// TODO Auto-generated method stub
-		this.symptomatic = true;
-	}
-
-	@Override
-	public boolean isSymptomatic() {
-		// TODO Auto-generated method stub
-		return this.symptomatic;
-	}
-	
-
-	@Override
-	public boolean hasBeenTested() {
-		// TODO Auto-generated method stub
-		return this.tested;
-	}
-
-	@Override
-	public void setTested() {
-		this.tested = !this.tested;
-	}
-
+	// =============================================== Disease testing ====================================================================================
+	// filtering and setting who should be tested
 	@Override
 	public boolean isEligibleForTesting() {
 		// TODO Auto-generated method stub
@@ -377,6 +392,16 @@ public class CoronavirusSpuriousSymptom implements Infection{
 		this.eligibleForTesting = false;
 	}
 
+	@Override
+	public boolean hasBeenTested() {
+		// TODO Auto-generated method stub
+		return this.tested;
+	}
+
+	@Override
+	public void setTested() {
+		this.tested = !this.tested;
+	}
 
 	@Override
 	public void setTestedPositive() {
@@ -389,6 +414,13 @@ public class CoronavirusSpuriousSymptom implements Infection{
 		// TODO Auto-generated method stub
 		return this.testedPositive;
 	}
+	
+	@Override
+	public boolean inATestingAdminZone() {
+		String hostLocationId = this.getHost().myHousehold.getRootSuperLocation().myId;
+		boolean answer = this.getHost().myWorld.params.admin_zones_to_test_in.contains(hostLocationId);
+		return answer;
+	}
 
 	@Override
 	public boolean getTestLogged() {
@@ -400,12 +432,5 @@ public class CoronavirusSpuriousSymptom implements Infection{
 	public void confirmTestLogged() {
 		// TODO Auto-generated method stub
 		this.testLogged = true;
-	}
-
-	@Override
-	public boolean inATestingAdminZone() {
-		String hostLocationId = this.getHost().myHousehold.getRootSuperLocation().myId;
-		boolean answer = this.getHost().myWorld.params.admin_zones_to_test_in.contains(hostLocationId);
-		return answer;
 	}
 }

@@ -10,20 +10,15 @@ import swise.behaviours.BehaviourNode;
 
 public interface Infection extends Steppable {
 
-	// reporters
+	// =============================================== relevant information on the host ==============================================================
 	public Person getHost();
+	
 	public Person getSource();
+	
 	public Location infectedAt();
+	
 	public double getStartTime();
-	public String getDiseaseName();
-	// behaviours
-	public BehaviourNode getCurrentBehaviourNode();
-	public void setBehaviourNode(BehaviourNode bn);
-	public String getBehaviourName();
-	
-	// output
-	public String writeOut();
-	
+			
 	public String getCurrentAdminZone();
 	
 	public boolean isAlive();
@@ -33,69 +28,98 @@ public interface Infection extends Steppable {
 	public SEX getSex();
 	
 	public OCCUPATION getEconStatus();
+		
+	// =============================================== Disease 'behaviours'================================================================================
+	public BehaviourNode getCurrentBehaviourNode();
 	
-	public boolean getDeathLogged();
-
-	public boolean isCovidSpuriousSymptom();
+	public void setBehaviourNode(BehaviourNode bn);
 	
-	public void confirmDeathLogged();
-
-	public boolean covidLogCheck ();
+	public String getBehaviourName();
 	
+	// =============================================== Disease type classification ===========================================================================
 	public boolean isCovid();
 	
-	public boolean hasRecovered();
+	public boolean isCovidSpuriousSymptom();
 	
+	public boolean isDummyInfection();
+	
+	public String getDiseaseName();
+
+	// =============================================== Disease progression ====================================================================================
+
 	public void setAsympt();
 	
 	public boolean hasAsympt();
-	
-	public boolean getAsymptLogged();
-	
-	public void confirmAsymptLogged();
-	
-	public void setMild();
-	
-	public boolean hasMild();
-	
-	public boolean getMildLogged();
-	
-	public void confirmMildLogged();
-
-	public boolean hasSevere();
-	
-	public boolean getSevereLogged();
-	
-	public void confirmSevereLogged();
-	
-	public boolean hasCritical();
-	
-	public boolean getCriticalLogged();
-	
-	public void confirmCriticalLogged();
-	
-	public boolean getLogged();
-	
-	public void setLogged();
 	
 	public void setSymptomatic();
 	
 	public boolean isSymptomatic();
 	
+	public void setMild();
+	
+	public boolean hasMild();
+	
+	public void setSevere();
+	
+	public boolean hasSevere();
+	
+	public void setCritical();
+	
+	public boolean hasCritical();
+	
+	public void setRecovered();
+	
+	public boolean hasRecovered();
+
+	// =============================================== Disease logging ====================================================================================
+	
+	public boolean getAsymptLogged();
+	
+	public void confirmAsymptLogged();
+		
+	public boolean getMildLogged();
+	
+	public void confirmMildLogged();
+	
+	public boolean getSevereLogged();
+	
+	public void confirmSevereLogged();
+	
+	public boolean getCriticalLogged();
+	
+	public void confirmCriticalLogged();
+	
+	public boolean getDeathLogged();
+	
+	public void confirmDeathLogged();
+		
+	public boolean getLogged();
+	
+	public void confirmLogged();
+	
+	public String writeOut();
+
+	// =============================================== Disease testing ====================================================================================
+	// filtering and setting who should be tested
+	public boolean isEligibleForTesting();
+	
+	public void setEligibleForTesting();
+
+	public void removeEligibilityForTesting();
+	
 	public boolean hasBeenTested();
 	
 	public void setTested();
 	
-	// TESTING FUNCTIONS
-	// filtering and setting who should be tested
-	public boolean isEligibleForTesting();
-	public void setEligibleForTesting();
-	public void removeEligibilityForTesting();
-	// filtering and setting who has been tested
 	public void setTestedPositive();
+	
 	public boolean hasTestedPositive();
-	public boolean getTestLogged();
-	public void confirmTestLogged();
+	
 	public boolean inATestingAdminZone();
+
+	// testing logging
+	public boolean getTestLogged();
+	
+	public void confirmTestLogged();
 
 }
