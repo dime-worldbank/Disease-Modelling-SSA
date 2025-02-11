@@ -81,4 +81,21 @@ public interface Infection extends Steppable {
 	public void setSymptomatic();
 	
 	public boolean isSymptomatic();
+	
+	public boolean hasBeenTested();
+	
+	public void setTested();
+	
+	// TESTING FUNCTIONS
+	// filtering and setting who should be tested
+	public boolean isEligibleForTesting();
+	public void setEligibleForTesting();
+	public void removeEligibilityForTesting();
+	// filtering and setting who has been tested
+	public void setTestedPositive();
+	public boolean hasTestedPositive();
+	public boolean getTestLogged();
+	public void confirmTestLogged();
+	public boolean inATestingAdminZone();
+
 }

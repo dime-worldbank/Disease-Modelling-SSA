@@ -30,7 +30,6 @@ public class CovidSpuriousSymptoms implements SpuriousSymptoms {
 		try {
 		for (Person p : people_to_give_symptoms_to) {
 			p.addInfection(DISEASE.COVIDSPURIOUSSYMPTOM, new CoronavirusSpuriousSymptom(p, world, world.spuriousFramework.getStandardEntryPoint(), time));
-			p.setHasSpuriousObject();
 			world.schedule.scheduleOnce(world.schedule.getTime(), world.param_schedule_infecting, p.getInfectionSet().get(DISEASE.COVIDSPURIOUSSYMPTOM.key));
 	
 	      } 

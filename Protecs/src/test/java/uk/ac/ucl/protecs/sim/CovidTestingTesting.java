@@ -8,6 +8,8 @@ import org.junit.Test;
 
 import uk.ac.ucl.protecs.objects.Person;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusBehaviourFramework.CoronavirusBehaviourNodeTitle;
+import uk.ac.ucl.protecs.objects.diseases.Infection;
+import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 
 import java.util.List;
 import java.util.Map;
@@ -27,12 +29,20 @@ public class CovidTestingTesting {
 		helperFunctions.StopRecoveryHappening(sim);
 		helperFunctions.StopCovidFromSpreading(sim);
 		helperFunctions.runSimulation(sim, numDays);
-		List<Person> hasBeenTested = peopleWhoHaveBeenTested(sim);
+		List<Infection> hasBeenTested = infectionsTested(sim);
 		int numWithBothSpuriousAndSymptomaticCovid = 0;
-		for (Person p: hasBeenTested) {
-			if (p.hasCovidSpuriousSymptoms() & p.hasSymptomaticCovid()) {
-				numWithBothSpuriousAndSymptomaticCovid++;
+		for (Infection i: hasBeenTested) {
+			if (i.isCovid()) {
+				if (i.getHost().getInfectionSet().containsKey(DISEASE.COVIDSPURIOUSSYMPTOM.key)) {
+					if (i.getHost().getInfectionSet().get(DISEASE.COVIDSPURIOUSSYMPTOM.key).isSymptomatic()) {
+						numWithBothSpuriousAndSymptomaticCovid++;
+					}
 				}
+				
+			}
+//			if (p.hasCovidSpuriousSymptoms() & p.hasSymptomaticCovid()) {
+//				numWithBothSpuriousAndSymptomaticCovid++;
+//				}
 		}
 		Assert.assertTrue(numWithBothSpuriousAndSymptomaticCovid == 0);
 		
@@ -63,10 +73,11 @@ public class CovidTestingTesting {
 //		Assert.assertTrue(numWithoutTesting == numWithTesting);
 //
 //	}
-	public List<Person> peopleWhoHaveBeenTested(WorldBankCovid19Sim world){
-		Map<Boolean, List<Person>> propertiesChecked = (Map<Boolean,List<Person>>) world.agents.stream().collect(
+	public List<Infection> infectionsTested(WorldBankCovid19Sim world){
+		
+		Map<Boolean, List<Infection>> propertiesChecked = (Map<Boolean,List<Infection>>) world.infections.stream().collect(
 	            Collectors.groupingBy(
-	              Person::hasBeenTestedForCovid,
+	              Infection::hasBeenTested,
 	                    Collectors.toList()
 		            )
 	               );

@@ -356,10 +356,10 @@ public class Logging {
 			int dayOfSimulation = (int) (arg0.schedule.getTime() / world.params.ticks_per_day);
 			int numberOfTestsPerDay = world.params.number_of_tests_per_day.get(dayOfSimulation);
 			// create a function to group the population by sex, age and whether they gave birth
-			Map<Boolean, Map<Boolean, List<Person>>> hasTestedPositiveForCovid = (Map<Boolean, Map<Boolean,List<Person>>>) world.agents.stream().collect(
-					Collectors.groupingBy(Person::hasTestedPositiveForCovid,
+			Map<Boolean, Map<Boolean, List<Infection>>> hasTestedPositiveForCovid = (Map<Boolean, Map<Boolean,List<Infection>>>) world.infections.stream().collect(
+					Collectors.groupingBy(Infection::hasTestedPositive,
 											Collectors.groupingBy(
-														Person::getCovidTestLogged,
+														Infection::getTestLogged,
 														Collectors.toList()
 								)
 						)
@@ -387,10 +387,10 @@ public class Logging {
 			
 			
 			ImportExport.exportMe(world.covidTestingOutputFilename, covidTestingOutput, world.timer);
-			// to make sure that births aren't counted more than once, update this person's properties
-			for (Person p: world.agents) {
-				if(!p.getCovidTestLogged()) {
-					p.confirmCovidTestingLogged();
+			// to make sure that COVID tests aren't counted more than once, update this infections properties
+			for (Infection i: world.infections) {
+				if((i.isCovid() | i.isCovidSpuriousSymptom()) & !i.getTestLogged()) {
+					i.confirmTestLogged();
 					}
 				}
 		}

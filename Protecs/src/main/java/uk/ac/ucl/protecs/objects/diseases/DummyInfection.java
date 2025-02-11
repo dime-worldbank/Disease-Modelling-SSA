@@ -40,6 +40,8 @@ public class DummyInfection implements Infection {
 	public double time_recovered = 	Double.MAX_VALUE;
 	public double time_died = Double.MAX_VALUE;
 	
+	public boolean tested = false;
+	
 	/**
 	 * 
 	 * @param myHost
@@ -61,7 +63,6 @@ public class DummyInfection implements Infection {
 		// store the time when it is infected!
 		time_infected = time;		
 		infectedAtLocation = myHost.getLocation();
-		
 		currentBehaviourNode = initNode;
 		myWorld = sim;
 		myWorld.infections.add(this);
@@ -178,7 +179,7 @@ public class DummyInfection implements Infection {
 	@Override
 	public boolean isAlive() {
 		// TODO Auto-generated method stub
-		return false;
+		return this.getHost().isAlive();
 	}
 
 	@Override
@@ -339,5 +340,63 @@ public class DummyInfection implements Infection {
 		// TODO Auto-generated method stub
 		return false;
 	}
-	
+
+	@Override
+	public boolean hasBeenTested() {
+		// TODO Auto-generated method stub
+		return this.tested;
+	}
+
+	@Override
+	public void setTested() {
+		this.tested = !this.tested;
+	}
+
+	@Override
+	public boolean isEligibleForTesting() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void setEligibleForTesting() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeEligibilityForTesting() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setTestedPositive() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean hasTestedPositive() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean getTestLogged() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void confirmTestLogged() {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public boolean inATestingAdminZone() {
+		String hostLocationId = this.getHost().myHousehold.getRootSuperLocation().myId;
+		boolean answer = this.getHost().myWorld.params.admin_zones_to_test_in.contains(hostLocationId);
+		return answer;
+	}
 }

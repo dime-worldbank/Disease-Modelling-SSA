@@ -49,7 +49,10 @@ public class CoronavirusInfection implements Infection {
 	boolean isSymptomatic = false;
 	boolean hasAsympt = false;
 	boolean hasMild = false;
-	
+	boolean tested = false;
+	boolean testedPositive = false;
+	boolean testLogged = false;
+	boolean eligibleForTesting = false;
 	// loggers
 	boolean hasDeathLogged = false;
 	boolean hasCovidLogged = false;
@@ -85,7 +88,6 @@ public class CoronavirusInfection implements Infection {
 		infectedAtLocation = myHost.getLocation();
 		
 		time_died = Double.MAX_VALUE;
-
 		currentBehaviourNode = initNode;
 		myWorld = sim;
 		myWorld.infections.add(this);
@@ -389,6 +391,67 @@ public class CoronavirusInfection implements Infection {
 	public void setSymptomatic() {
 		this.isSymptomatic = !this.isSymptomatic;
 		
+	}
+
+	@Override
+	public boolean hasBeenTested() {
+		// TODO Auto-generated method stub
+		return this.tested;
+	}
+
+	@Override
+	public void setTested() {
+		this.tested = !this.tested;
+	}
+
+	@Override
+	public boolean isEligibleForTesting() {
+		// TODO Auto-generated method stub
+		return this.eligibleForTesting;
+	}
+
+	@Override
+	public void setEligibleForTesting() {
+		// TODO Auto-generated method stub
+		this.eligibleForTesting = true;
+	}
+
+	@Override
+	public void removeEligibilityForTesting() {
+		// TODO Auto-generated method stub
+		this.eligibleForTesting = false;
+	}
+
+
+	@Override
+	public void setTestedPositive() {
+		// TODO Auto-generated method stub
+		this.testedPositive = true;
+	}
+
+	@Override
+	public boolean hasTestedPositive() {
+		// TODO Auto-generated method stub
+		return this.testedPositive;
+	}
+
+	@Override
+	public boolean getTestLogged() {
+		// TODO Auto-generated method stub
+		return this.testLogged;
+	}
+
+	@Override
+	public void confirmTestLogged() {
+		// TODO Auto-generated method stub
+		this.testLogged = true;
+	}
+
+	@Override
+	public boolean inATestingAdminZone() {
+		String hostLocationId = this.getHost().myHousehold.getRootSuperLocation().myId;
+		boolean answer = this.getHost().myWorld.params.admin_zones_to_test_in.contains(hostLocationId);
+		return answer;
 	}
 
 }

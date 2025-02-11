@@ -29,7 +29,10 @@ public class CoronavirusSpuriousSymptom implements Infection{
 	
 	// track whether a person is displaying symptoms or not
 	public boolean symptomatic = false;
-	
+	public boolean tested = false;
+	public boolean eligibleForTesting = false;
+	public boolean testedPositive = false;
+	public boolean testLogged = false;
 	// behaviours
 	BehaviourNode currentBehaviourNode = null;
 	
@@ -342,5 +345,67 @@ public class CoronavirusSpuriousSymptom implements Infection{
 	public boolean isSymptomatic() {
 		// TODO Auto-generated method stub
 		return this.symptomatic;
+	}
+	
+
+	@Override
+	public boolean hasBeenTested() {
+		// TODO Auto-generated method stub
+		return this.tested;
+	}
+
+	@Override
+	public void setTested() {
+		this.tested = !this.tested;
+	}
+
+	@Override
+	public boolean isEligibleForTesting() {
+		// TODO Auto-generated method stub
+		return this.eligibleForTesting;
+	}
+
+	@Override
+	public void setEligibleForTesting() {
+		// TODO Auto-generated method stub
+		this.eligibleForTesting = true;
+	}
+
+	@Override
+	public void removeEligibilityForTesting() {
+		// TODO Auto-generated method stub
+		this.eligibleForTesting = false;
+	}
+
+
+	@Override
+	public void setTestedPositive() {
+		// TODO Auto-generated method stub
+		this.testedPositive = true;
+	}
+
+	@Override
+	public boolean hasTestedPositive() {
+		// TODO Auto-generated method stub
+		return this.testedPositive;
+	}
+
+	@Override
+	public boolean getTestLogged() {
+		// TODO Auto-generated method stub
+		return this.testLogged;
+	}
+
+	@Override
+	public void confirmTestLogged() {
+		// TODO Auto-generated method stub
+		this.testLogged = true;
+	}
+
+	@Override
+	public boolean inATestingAdminZone() {
+		String hostLocationId = this.getHost().myHousehold.getRootSuperLocation().myId;
+		boolean answer = this.getHost().myWorld.params.admin_zones_to_test_in.contains(hostLocationId);
+		return answer;
 	}
 }

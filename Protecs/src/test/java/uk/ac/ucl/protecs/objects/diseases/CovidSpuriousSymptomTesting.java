@@ -130,24 +130,11 @@ public class CovidSpuriousSymptomTesting{
 		for (Person p: sim.agents) {
 			if (sim.random.nextDouble() <= fraction) {
 			p.addInfection(DISEASE.COVIDSPURIOUSSYMPTOM, new CoronavirusSpuriousSymptom(p, sim, sim.spuriousFramework.getStandardEntryPoint(), 0));
-
-			p.setHasSpuriousObject();
 			sim.schedule.scheduleOnce(1, sim.param_schedule_infecting, p.getInfectionSet().get(DISEASE.COVIDSPURIOUSSYMPTOM.key));
 		}
 		}
 	}
 	
-	public List<Person> getPopulationWithSpuriousSymptoms(WorldBankCovid19Sim world){
-		
-		Map<Boolean, List<Person>> hasSpuriousSymptoms = (Map<Boolean, List<Person>>) world.agents.stream().collect(
-	            Collectors.groupingBy(
-	              Person::hasCovidSpuriousSymptoms, 
-	                    Collectors.toList()
-	                    )
-	                  );
-		
-		return hasSpuriousSymptoms.get(true);
-		}
 	public List<Person> getPopulationWithSpuriousSymptomsAndAsymptomaticCovid(WorldBankCovid19Sim world){
 		// get a list of spurious symptoms
 		Map<Boolean, List<Infection>> isSpuriousSymptom = (Map<Boolean, List<Infection>>) world.infections.stream().collect(

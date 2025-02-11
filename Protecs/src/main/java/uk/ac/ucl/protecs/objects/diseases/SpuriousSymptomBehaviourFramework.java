@@ -74,7 +74,6 @@ public class SpuriousSymptomBehaviourFramework extends InfectiousBehaviourFramew
 			public double next(Steppable s, double time) {
 				// regulate the flare up of symptoms here
 				CoronavirusSpuriousSymptom symptom = (CoronavirusSpuriousSymptom) s;
-				symptom.getHost().removeCovidSpuriousSymptoms();
 				// default next step of progression is no symptoms, check if they will develop symptoms this week
 				nextStep = nextStepSpurious.NO_SYMPTOMS;
 				if (myWorld.random.nextDouble() <= myWorld.params.rate_of_spurious_symptoms) {
@@ -134,7 +133,6 @@ public class SpuriousSymptomBehaviourFramework extends InfectiousBehaviourFramew
 				// can't have spurious COVID symptoms if actually have covid
 				if (symptom.host.hasSymptomaticCovid()) {
 					symptom.setBehaviourNode(setNode(SpuriousSymptomBehaviourNode.SUSCEPTIBLE));
-					symptom.getHost().removeCovidSpuriousSymptoms();
 					return 1;
 				}
 				// Use switch statement to clearly create conditional actions based on the current state of this person's symptoms 
@@ -155,13 +153,13 @@ public class SpuriousSymptomBehaviourFramework extends InfectiousBehaviourFramew
 					case SETUP:{
 						symptom.timeLastTriggered = time;
 						symptom.setSymptomatic();
-						symptom.getHost().setEligibleForCovidTesting();
+						symptom.setEligibleForTesting();
 						symptom.timeRecovered = symptom.timeLastTriggered + myWorld.params.ticks_per_week;
 						return 1;
 						}
 					case RECOVER:{
 						symptom.setAsympt();
-						symptom.getHost().removeEligibilityForCovidTesting();
+						symptom.removeEligibilityForTesting();
 						symptom.timeLastTriggered = Double.MAX_VALUE;
 						symptom.timeRecovered = Double.MAX_VALUE;
 						symptom.setBehaviourNode(setNode(SpuriousSymptomBehaviourNode.SUSCEPTIBLE));
@@ -190,7 +188,6 @@ public class SpuriousSymptomBehaviourFramework extends InfectiousBehaviourFramew
 				CoronavirusSpuriousSymptom symptom = (CoronavirusSpuriousSymptom) s;
 				// remove covid from person object
 				symptom.setAsympt();
-				symptom.getHost().removeCovidSpuriousSymptoms();								
 				return Double.MAX_VALUE; // no need to run ever again
 			}
 

@@ -4,6 +4,7 @@ package uk.ac.ucl.protecs.objects.diseases;
 
 import uk.ac.ucl.protecs.objects.*;
 import uk.ac.ucl.protecs.sim.*;
+import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import sim.engine.Steppable;
 import swise.behaviours.BehaviourFramework;
 import swise.behaviours.BehaviourNode;
@@ -260,10 +261,9 @@ public class CoronavirusBehaviourFramework extends InfectiousBehaviourFramework 
 				}
 				i.getHost().infectNeighbours();
 				i.setSymptomatic();
-				i.getHost().isEligibleForCovidTesting();
-				
-				if (i.getHost().hasCovidSpuriousSymptoms()) {
-					i.getHost().removeCovidSpuriousSymptoms();
+				i.setEligibleForTesting();
+				if (i.getHost().getInfectionSet().containsKey(DISEASE.COVIDSPURIOUSSYMPTOM.key)) {
+					i.getHost().getInfectionSet().get(DISEASE.COVIDSPURIOUSSYMPTOM.key).setAsympt();
 				}
 				
 				// if the agent is scheduled to recover, make sure that it
@@ -484,7 +484,7 @@ public class CoronavirusBehaviourFramework extends InfectiousBehaviourFramework 
 				i.time_recovered = time;
 				// update person's properties
 				i.getHost().getLocation().getRootSuperLocation().metric_new_recovered++;				
-				i.getHost().removeEligibilityForCovidTesting();
+				i.setEligibleForTesting();
 				// the Person may have stopped moving when ill - reactivate!
 				if(i.getHost().isImmobilised()){
 					// remobilise this person if they aren't being held at home by occupational constraint

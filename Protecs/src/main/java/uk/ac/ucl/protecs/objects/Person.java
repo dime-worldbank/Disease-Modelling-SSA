@@ -26,7 +26,7 @@ public class Person extends MobileAgent {
 	private final int myId;
 
 	// larger group membership
-	Household myHousehold;
+	public Household myHousehold;
 	Workplace myWorkplace;
 	// personal/demographic attributes
 	int age;
@@ -150,7 +150,7 @@ public class Person extends MobileAgent {
 	boolean isUnemployed = false;
 	
 	// copy of world
-	WorldBankCovid19Sim myWorld;
+	public WorldBankCovid19Sim myWorld;
 	
 	//
 	// Epidemic Attributes
@@ -166,18 +166,6 @@ public class Person extends MobileAgent {
 	boolean birthLogged = false;
 	Integer dayGaveBirth = Integer.MAX_VALUE;
 	Integer numberOfTimesWithCovid = 0;
-
-	
-	// Covid testing properties
-	boolean eligibleForCovidTesting = false;
-	boolean hasBeenTestedForCovid = false;
-	boolean testedPositiveForCovid = false;
-	boolean covidTestLogged = false;
-
-
-	boolean hasSpuriousSymptomsForCovid = false;
-	boolean hasSpuriousObject = false;
-	Integer timeToRemoveCovidSpuriousSymptoms = Integer.MAX_VALUE;
 
 	// bubble interaction counters
 	int number_of_interactions_at_work = Integer.MIN_VALUE;
@@ -557,56 +545,13 @@ public class Person extends MobileAgent {
 	public void confirmBirthlogged() { this.birthLogged = true; }
 	public void removeBirthLogged() { this.birthLogged = false; }
 	
-
-	// COVID TESTING FUNCTIONS
-	// filtering and setting who should be tested
-	public boolean isEligibleForCovidTesting() {return this.eligibleForCovidTesting; }
-	public void setEligibleForCovidTesting() {this.eligibleForCovidTesting = true; }
-	public void removeEligibilityForCovidTesting() {this.eligibleForCovidTesting = false; }
-	// filtering and setting who has been tested
-	public void setHasBeenTestedForCovid() {this.hasBeenTestedForCovid = true; }
-	public boolean hasBeenTestedForCovid() {return this.hasBeenTestedForCovid; }
-	public void setTestedPositiveForCovid() {this.testedPositiveForCovid = true; }
-	public boolean hasTestedPositiveForCovid() {return this.testedPositiveForCovid; }
-	public boolean getCovidTestLogged() {return this.covidTestLogged;}
-	public void confirmCovidTestingLogged() {this.covidTestLogged = true; }
-	public boolean inADistrictTesting() {
-	    boolean answer = this.myWorld.params.admin_zones_to_test_in.stream().anyMatch(x -> x.equals((this.myHousehold.getRootSuperLocation()).myId));
-	    return answer;
-	  }
 	
 	public Household getHouseholdAsType() {
 		
 		return this.myHousehold;
 	}
 
-	public void setCovidSpuriousSymptoms() {
-		this.hasSpuriousSymptomsForCovid = true;		
-	}
 
-	public void removeCovidSpuriousSymptoms() {
-		this.hasSpuriousSymptomsForCovid = false;
-	}
-	public boolean hasCovidSpuriousSymptoms() {
-		return this.hasSpuriousSymptomsForCovid;
-	}
-	public boolean hasSpuriousObject() {
-		return this.hasSpuriousObject;
-	}
-	public void setHasSpuriousObject() {
-		this.hasSpuriousObject = true;
-	}
-	
-	public void setCovidSpuriousSymptomRemovalDate(int time) {
-		this.timeToRemoveCovidSpuriousSymptoms = time;
-	}
-	public int getCovidSpuriousSymptomRemovalDate() {
-		return this.timeToRemoveCovidSpuriousSymptoms;
-	}
-	public boolean removeCovidSpuriousSymptomsToday() {
-		int time = (int)(myWorld.schedule.getTime() / myWorld.params.ticks_per_day);
-		return (this.timeToRemoveCovidSpuriousSymptoms > time);
-	}
 
 	public boolean hasSymptomaticCovid() {
 		if (this.getInfectionSet().containsKey(DISEASE.COVID.key)) {
