@@ -85,11 +85,72 @@ public class CovidTesting implements DiseaseTesting {
 			)
 			)
 			);
+		
+		Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, List<Infection>>>>>>> is_symptomatic_covid = world.infections.stream().collect(
+				Collectors.groupingBy(
+						Infection::isAlive,
+						Collectors.groupingBy(
+								Infection::isSymptomatic,
+								Collectors.groupingBy(
+										Infection::isCovid,
+								Collectors.groupingBy(
+								Infection::inATestingAdminZone,
+									Collectors.groupingBy(
+											Infection::isEligibleForTesting,
+											Collectors.groupingBy(
+													Infection::hasBeenTested,
+									Collectors.toList()
+									
+								)
+						)
+					)
+				)
+			)
+			)
+			);
+		Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, List<Infection>>>>>>> is_covid_spurious_symptom = world.infections.stream().collect(
+				Collectors.groupingBy(
+						Infection::isAlive,
+						Collectors.groupingBy(
+								Infection::isSymptomatic,
+								Collectors.groupingBy(
+										Infection::isCovidSpuriousSymptom,
+								Collectors.groupingBy(
+								Infection::inATestingAdminZone,
+									Collectors.groupingBy(
+											Infection::isEligibleForTesting,
+											Collectors.groupingBy(
+													Infection::hasBeenTested,
+									Collectors.toList()
+									
+								)
+						)
+					)
+				)
+			)
+			)
+			);
 		// We also need to only give out the correct number of tests available for the disease this day.
 		int number_of_tests_today = world.params.number_of_tests_per_day.get(time);
-		List <Infection> eligible_for_testing = Collections.emptyList();
+		List <Infection> eligible_for_testing = new ArrayList<>();
+		List <Infection> eligible_for_testing_covid = new ArrayList<>();
+		List <Infection> eligible_for_testing_covid_spurious_symptom = new ArrayList<>();
+		// add potential COVID-19 infections to be tested
 		try {
-			eligible_for_testing = is_symptomatic.get(true).get(true).get(true).get(true).get(false);
+			eligible_for_testing_covid = is_symptomatic_covid.get(true).get(true).get(true).get(true).get(true).get(false);
+			eligible_for_testing.addAll(eligible_for_testing_covid);
+		}
+		catch (NullPointerException e) {}
+		// add potential COVID-19 spurious symptoms to be tested
+
+		try {
+			eligible_for_testing_covid_spurious_symptom = is_covid_spurious_symptom.get(true).get(true).get(true).get(true).get(true).get(false);
+			eligible_for_testing.addAll(eligible_for_testing_covid_spurious_symptom);
+		}
+		catch (NullPointerException e) {}
+		// filter through the potential causes of Covid-19 symptoms and add to those eligible for testing if there are eligible persons
+		if (eligible_for_testing.size() > 0) {
+		try {
 		if (eligible_for_testing.size() < number_of_tests_today) {
 			eligible_for_testing = DiseaseTesting.pickRandom(world, eligible_for_testing, eligible_for_testing.size());
 			}
@@ -98,18 +159,7 @@ public class CovidTesting implements DiseaseTesting {
 			}
 		}
 		catch (NullPointerException e) {eligible_for_testing = Collections.emptyList();}
-//		try {
-//			eligible_for_testing = is_symptomatic_covid.get(true).get(true).get(true).get(true).get(false);
-//
-//			if (eligible_for_testing.size() < number_of_tests_today) {
-//				eligible_for_testing = DiseaseTesting.pickRandom(world, eligible_for_testing, eligible_for_testing.size());
-//				}
-//			else{ 
-//				eligible_for_testing = DiseaseTesting.pickRandom(world, eligible_for_testing, number_of_tests_today);
-//				}
-//			}
-//		catch (NullPointerException e) {eligible_for_testing = Collections.emptyList();}
-		
+		}
 		return eligible_for_testing;
 	}
 

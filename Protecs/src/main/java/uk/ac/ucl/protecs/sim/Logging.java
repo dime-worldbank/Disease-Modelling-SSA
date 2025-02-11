@@ -47,9 +47,9 @@ public class Logging {
 	}
 	
 	// get those who alive with COVID of given age and sex
-	private static Map<SEX, Map<Integer, Map<Boolean, Map<Boolean, Long>>>> age_sex_has_covid_map(
+	private static Map<SEX, Map<Integer, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>>> age_sex_has_covid_map(
 			WorldBankCovid19Sim world) {
-		Map<SEX, Map<Integer, Map<Boolean, Map<Boolean, Long>>>> age_sex_map_has_covid = world.infections.stream().collect(
+		Map<SEX, Map<Integer, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>>> age_sex_map_has_covid = world.infections.stream().collect(
 				Collectors.groupingBy(
 						Infection::getSex, 
 						Collectors.groupingBy(
@@ -57,10 +57,13 @@ public class Logging {
 								Collectors.groupingBy(
 										Infection::isCovid,
 										Collectors.groupingBy(
+												Infection::hasRecovered,
+										Collectors.groupingBy(
 												Infection::getLogged,
 												Collectors.counting()
 								)
 						)
+				)
 				)
 				)
 				);
@@ -102,7 +105,7 @@ public class Logging {
 		ArrayList <Integer> covid_by_ages = new ArrayList<Integer>();
 
 		// create a function to group the population by sex, age and whether they have covid
-		Map<SEX, Map<Integer, Map<Boolean, Map<Boolean, Long>>>> age_sex_map_has_covid = age_sex_has_covid_map(world);
+		Map<SEX, Map<Integer, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>>> age_sex_map_has_covid = age_sex_has_covid_map(world);
 				
 		//	We now iterate over the age ranges, create a variable to keep track of the iterations
 		for (Integer val: upper_age_range) {
@@ -115,7 +118,7 @@ public class Logging {
 					// try function necessary as some ages won't be present in the population
 					// use the functions created earlier to calculate the number of people of each age group who fall
 					// into the categories we are interested in (alive, died from covid, died from other)
-					covid_count += age_sex_map_has_covid.get(sex).get(age).get(true).get(false).intValue();
+					covid_count += age_sex_map_has_covid.get(sex).get(age).get(true).get(false).get(false).intValue();
 				}
 					catch (Exception e) {
 					// age wasn't present in the population, skip

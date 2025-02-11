@@ -49,6 +49,7 @@ public class CoronavirusInfection implements Infection {
 	boolean isSymptomatic = false;
 	boolean hasAsympt = false;
 	boolean hasMild = false;
+	boolean hasRecovered = false;
 	boolean tested = false;
 	boolean testedPositive = false;
 	boolean testLogged = false;
@@ -230,14 +231,14 @@ public class CoronavirusInfection implements Infection {
 	
 	@Override
 	public void setRecovered() {
-		// TODO Auto-generated method stub
+		this.hasRecovered = true;
 		
 	}
 	
 	@Override
 	public boolean hasRecovered() {
 		// TODO Auto-generated method stub
-		return this.getCurrentBehaviourNode().getTitle().equals( CoronavirusBehaviourNodeTitle.RECOVERED.key);
+		return this.hasRecovered;
 	}
 
 	// =============================================== Disease logging ====================================================================================

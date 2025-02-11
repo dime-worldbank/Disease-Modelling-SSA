@@ -501,7 +501,9 @@ public class CoronavirusBehaviourFramework extends InfectiousBehaviourFramework 
 						}
 					}
 				}
-				i.setSymptomatic();
+				// if they have had symptomatic covid, make them no longer have symptoms of covid
+				if (i.isSymptomatic) i.setSymptomatic();
+				i.setRecovered();
 				// no need to update again!
 				return Double.MAX_VALUE;
 			}
