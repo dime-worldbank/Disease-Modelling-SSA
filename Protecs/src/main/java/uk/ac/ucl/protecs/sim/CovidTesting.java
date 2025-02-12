@@ -9,8 +9,6 @@ import java.util.stream.Collectors;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 import uk.ac.ucl.protecs.objects.diseases.Infection;
-import uk.ac.ucl.protecs.objects.hosts.Person;
-import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 
 public class CovidTesting implements DiseaseTesting {
 

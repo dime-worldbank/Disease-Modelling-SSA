@@ -2,10 +2,8 @@ package uk.ac.ucl.protecs.behaviours;
 
 
 
-import uk.ac.ucl.protecs.objects.*;
 import uk.ac.ucl.protecs.objects.diseases.Infection;
 import uk.ac.ucl.protecs.sim.*;
-import sim.engine.Steppable;
 import swise.behaviours.BehaviourFramework;
 import swise.behaviours.BehaviourNode;
 

@@ -2,14 +2,12 @@ package uk.ac.ucl.protecs.behaviours;
 
 
 
-import uk.ac.ucl.protecs.objects.*;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.sim.*;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import sim.engine.Steppable;
-import swise.behaviours.BehaviourFramework;
 import swise.behaviours.BehaviourNode;
 
 public class CoronavirusBehaviourFramework extends InfectiousBehaviourFramework {

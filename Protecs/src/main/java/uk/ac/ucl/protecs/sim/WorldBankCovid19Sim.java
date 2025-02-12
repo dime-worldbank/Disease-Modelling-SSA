@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.Random;
 
 import uk.ac.ucl.protecs.behaviours.*;
-import uk.ac.ucl.protecs.objects.*;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.behaviours.DummyBehaviourFramework;
 import uk.ac.ucl.protecs.objects.diseases.DummyInfection;
