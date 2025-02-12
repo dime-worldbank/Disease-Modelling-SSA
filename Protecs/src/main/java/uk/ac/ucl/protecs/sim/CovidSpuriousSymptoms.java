@@ -6,9 +6,9 @@ import java.util.stream.Collectors;
 import java.util.Map;
 import sim.engine.SimState;
 import sim.engine.Steppable;
-import uk.ac.ucl.protecs.objects.Person;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusSpuriousSymptom;
 import uk.ac.ucl.protecs.objects.diseases.Infection;
+import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 
 public class CovidSpuriousSymptoms implements SpuriousSymptoms {

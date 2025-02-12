@@ -1,7 +1,7 @@
 package uk.ac.ucl.protecs.behaviours;
 
-import uk.ac.ucl.protecs.objects.Location;
-import uk.ac.ucl.protecs.objects.Person;
+import uk.ac.ucl.protecs.objects.hosts.Person;
+import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.sim.*;
 import sim.engine.Steppable;
 import swise.behaviours.BehaviourFramework;

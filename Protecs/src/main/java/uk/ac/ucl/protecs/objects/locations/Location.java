@@ -1,6 +1,8 @@
-package uk.ac.ucl.protecs.objects;
+package uk.ac.ucl.protecs.objects.locations;
 
 import java.util.HashSet;
+
+import uk.ac.ucl.protecs.objects.hosts.Person;
 
 
 /**
@@ -13,7 +15,7 @@ public class Location {
 	
 	public String myId;
 	Location mySuperLocation; // the Location within which this Location exists
-	HashSet <Person> personsHere;
+	public HashSet <Person> personsHere;
 	Object [] personsHere_list;
 	LocationCategory myType;
 	boolean active = false;

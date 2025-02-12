@@ -7,12 +7,12 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-import uk.ac.ucl.protecs.objects.Person;
 import uk.ac.ucl.protecs.sim.Params;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.behaviours.MovementBehaviourFramework.mobilityNodeTitle;
 import uk.ac.ucl.protecs.helperFunctions.*;
 import uk.ac.ucl.protecs.helperFunctions.helperFunctions.NodeOption;
+import uk.ac.ucl.protecs.objects.hosts.Person;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;

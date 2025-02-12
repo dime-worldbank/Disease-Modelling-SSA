@@ -1,10 +1,10 @@
 package uk.ac.ucl.protecs.sim;
 
 import uk.ac.ucl.protecs.helperFunctions.*;
-import uk.ac.ucl.protecs.objects.Household;
-import uk.ac.ucl.protecs.objects.Person;
-import uk.ac.ucl.protecs.objects.Workplace;
-import uk.ac.ucl.protecs.objects.Location.LocationCategory;
+import uk.ac.ucl.protecs.objects.hosts.Person;
+import uk.ac.ucl.protecs.objects.locations.Household;
+import uk.ac.ucl.protecs.objects.locations.Workplace;
+import uk.ac.ucl.protecs.objects.locations.Location.LocationCategory;
 
 import java.util.Arrays;
 import java.util.HashSet;

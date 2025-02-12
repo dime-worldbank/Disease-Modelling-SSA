@@ -9,7 +9,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import uk.ac.ucl.protecs.helperFunctions.*;
-import uk.ac.ucl.protecs.objects.Person;
+import uk.ac.ucl.protecs.objects.hosts.Person;
 
 //================================================ Testing =======================================================================
 //===== Here we test that the params.java is loading in information needed for the simulation, can run without certain parameter =

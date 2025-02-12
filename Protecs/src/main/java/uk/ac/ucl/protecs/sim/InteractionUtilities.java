@@ -8,7 +8,9 @@ import java.util.List;
 import java.util.Map;
 
 import uk.ac.ucl.protecs.objects.*;
-import uk.ac.ucl.protecs.objects.Person.OCCUPATION;
+import uk.ac.ucl.protecs.objects.hosts.Person;
+import uk.ac.ucl.protecs.objects.hosts.Person.OCCUPATION;
+import uk.ac.ucl.protecs.objects.locations.Location;
 
 public class InteractionUtilities {
 	

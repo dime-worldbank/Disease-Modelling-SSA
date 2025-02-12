@@ -1,4 +1,6 @@
-package uk.ac.ucl.protecs.objects;
+package uk.ac.ucl.protecs.objects.locations;
+
+import uk.ac.ucl.protecs.objects.hosts.Person;
 
 public class Workplace extends Location {
 	

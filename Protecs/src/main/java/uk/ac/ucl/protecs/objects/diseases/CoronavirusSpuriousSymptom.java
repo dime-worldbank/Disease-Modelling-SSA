@@ -1,10 +1,10 @@
 package uk.ac.ucl.protecs.objects.diseases;
 
 import sim.engine.SimState;
-import uk.ac.ucl.protecs.objects.Location;
-import uk.ac.ucl.protecs.objects.Person;
-import uk.ac.ucl.protecs.objects.Person.OCCUPATION;
-import uk.ac.ucl.protecs.objects.Person.SEX;
+import uk.ac.ucl.protecs.objects.hosts.Person;
+import uk.ac.ucl.protecs.objects.hosts.Person.OCCUPATION;
+import uk.ac.ucl.protecs.objects.hosts.Person.SEX;
+import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import swise.behaviours.BehaviourNode;

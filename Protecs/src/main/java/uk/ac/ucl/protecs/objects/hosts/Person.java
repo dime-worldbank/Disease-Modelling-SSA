@@ -1,4 +1,4 @@
-package uk.ac.ucl.protecs.objects;
+package uk.ac.ucl.protecs.objects.hosts;
 
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
@@ -11,9 +11,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import uk.ac.ucl.protecs.objects.Location.LocationCategory;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.objects.diseases.Infection;
+import uk.ac.ucl.protecs.objects.locations.Household;
+import uk.ac.ucl.protecs.objects.locations.Location;
+import uk.ac.ucl.protecs.objects.locations.Workplace;
+import uk.ac.ucl.protecs.objects.locations.Location.LocationCategory;
 
 
 public class Person extends MobileAgent {
@@ -27,7 +30,7 @@ public class Person extends MobileAgent {
 
 	// larger group membership
 	public Household myHousehold;
-	Workplace myWorkplace;
+	public Workplace myWorkplace;
 	// personal/demographic attributes
 	int age;
 	private final int birthday;

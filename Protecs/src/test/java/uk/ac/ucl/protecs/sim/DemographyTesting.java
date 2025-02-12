@@ -2,9 +2,10 @@ package uk.ac.ucl.protecs.sim;
 
 import org.junit.Assert;
 import org.junit.Test;
-import uk.ac.ucl.protecs.objects.Person;
-import uk.ac.ucl.protecs.objects.Person.SEX;
+
 import uk.ac.ucl.protecs.helperFunctions.*;
+import uk.ac.ucl.protecs.objects.hosts.Person;
+import uk.ac.ucl.protecs.objects.hosts.Person.SEX;
 
 import java.util.ArrayList;
 import java.util.Map;

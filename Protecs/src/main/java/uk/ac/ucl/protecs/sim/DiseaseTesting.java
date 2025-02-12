@@ -3,7 +3,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import sim.engine.SimState;
-import uk.ac.ucl.protecs.objects.Person;
+import uk.ac.ucl.protecs.objects.hosts.Person;
 
 public interface DiseaseTesting {
 	public static List<Person>  filterForEligibleCandidates(WorldBankCovid19Sim world, int time){return null;};
