@@ -525,6 +525,7 @@ public class CoronavirusBehaviourFramework extends InfectiousBehaviourFramework 
 				CoronavirusInfection i = (CoronavirusInfection) s;
 				// remove covid from person object
 				i.getHost().die("covid");
+				i.setAsCauseOfDeath();
 				i.time_died = time;
 								
 				return Double.MAX_VALUE; // no need to run ever again

@@ -46,10 +46,15 @@ public class CoronavirusInfection implements Infection {
 	double time_end_hospitalised;
 	
 	// infection stages
-	boolean isSymptomatic = false;
 	boolean hasAsympt = false;
 	boolean hasMild = false;
+	boolean hasSevere = false;
+	boolean hasCritical = false;
 	boolean hasRecovered = false;
+	boolean isTheCauseOfDeath = false;
+	// symptom manager
+	boolean isSymptomatic = false;
+	// test manager
 	boolean tested = false;
 	boolean testedPositive = false;
 	boolean testLogged = false;
@@ -171,13 +176,15 @@ public class CoronavirusInfection implements Infection {
 	// =============================================== Disease progression ====================================================================================
 	@Override
 	public void setAsympt() {
-		// TODO Auto-generated method stub
 		this.hasAsympt = true;
-		
+		this.hasMild = false;
+		this.hasSevere = false;
+		this.hasCritical = false;
+		this.hasRecovered = false;
 	}
 	@Override
 	public boolean hasAsympt() {
-		return this.getCurrentBehaviourNode().getTitle().equals( CoronavirusBehaviourNodeTitle.ASYMPTOMATIC.key);
+		return this.hasAsympt;
 
 	}
 	
@@ -189,48 +196,58 @@ public class CoronavirusInfection implements Infection {
 	
 	@Override
 	public boolean isSymptomatic() {
-		// TODO Auto-generated method stub
 		return this.isSymptomatic;
 	}
 	
 	@Override
 	public void setMild() {
+		this.hasAsympt = false;
 		this.hasMild = true;
-		
+		this.hasSevere = false;
+		this.hasCritical = false;
+		this.hasRecovered = false;
 	}
 	
 	@Override
 	public boolean hasMild() {
-		// TODO Auto-generated method stub
-		return this.getCurrentBehaviourNode().getTitle().equals( CoronavirusBehaviourNodeTitle.MILD.key);
+			return this.hasMild;
 	}
 	
 	@Override
 	public void setSevere() {
-		// TODO Auto-generated method stub
-		
+		this.hasAsympt = false;
+		this.hasMild = false;
+		this.hasSevere = true;
+		this.hasCritical = false;
+		this.hasRecovered = false;
+
 	}
 	
 	@Override
 	public boolean hasSevere() {
-		// TODO Auto-generated method stub
-		return this.getCurrentBehaviourNode().getTitle().equals( CoronavirusBehaviourNodeTitle.SEVERE.key);
+		return this.hasSevere;
 	}
 	
 	@Override
 	public void setCritical() {
-		// TODO Auto-generated method stub
-		
+		this.hasAsympt = false;
+		this.hasMild = false;
+		this.hasSevere = false;
+		this.hasCritical = true;
+		this.hasRecovered = false;
 	}
 	
 	@Override
 	public boolean hasCritical() {
-		// TODO Auto-generated method stub
-		return this.getCurrentBehaviourNode().getTitle().equals( CoronavirusBehaviourNodeTitle.CRITICAL.key);
+		return this.hasCritical;
 	}
 	
 	@Override
 	public void setRecovered() {
+		this.hasAsympt = false;
+		this.hasMild = false;
+		this.hasSevere = false;
+		this.hasCritical = false;
 		this.hasRecovered = true;
 		
 	}
@@ -240,6 +257,14 @@ public class CoronavirusInfection implements Infection {
 		// TODO Auto-generated method stub
 		return this.hasRecovered;
 	}
+	
+	public void setAsCauseOfDeath() {
+		this.isTheCauseOfDeath = true;
+	};
+	
+	public boolean isCauseOfDeath() {
+		return this.isTheCauseOfDeath;
+	};
 
 	// =============================================== Disease logging ====================================================================================
 

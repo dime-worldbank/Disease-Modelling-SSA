@@ -70,7 +70,10 @@ public interface Infection extends Steppable {
 	public void setRecovered();
 	
 	public boolean hasRecovered();
-
+	
+	public void setAsCauseOfDeath();
+	
+	public boolean isCauseOfDeath();
 	// =============================================== Disease logging ====================================================================================
 	
 	public boolean getAsymptLogged();

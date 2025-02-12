@@ -29,6 +29,7 @@ public class CoronavirusSpuriousSymptom implements Infection{
 	
 	// track whether a person is displaying symptoms or not
 	public boolean symptomatic = false;
+	boolean isTheCauseOfDeath = false;
 	public boolean tested = false;
 	public boolean eligibleForTesting = false;
 	public boolean testedPositive = false;
@@ -228,6 +229,12 @@ public class CoronavirusSpuriousSymptom implements Infection{
 		// TODO Auto-generated method stub
 		return false;
 	}
+	
+	public void setAsCauseOfDeath() {};
+	
+	public boolean isCauseOfDeath() {
+		return this.isTheCauseOfDeath;
+	};
 
 	// =============================================== Disease logging ====================================================================================
 	@Override

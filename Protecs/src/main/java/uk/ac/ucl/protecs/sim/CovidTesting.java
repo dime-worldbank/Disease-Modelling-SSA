@@ -33,7 +33,7 @@ public class CovidTesting implements DiseaseTesting {
 		// test each infection, check the results of the test and update the infections properties
 		for (Infection i: infections_to_test_today) {
 			double random_to_check_if_test_is_accurate = world.random.nextDouble();
-			if (random_to_check_if_test_is_accurate < testAccuracy()){
+			if ((random_to_check_if_test_is_accurate < testAccuracy()) & (i.isCovid())){
 				updatePropertiesForPositiveTest(i);
 				} 
 			else {

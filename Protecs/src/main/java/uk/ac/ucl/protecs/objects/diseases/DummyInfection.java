@@ -42,6 +42,8 @@ public class DummyInfection implements Infection {
 	
 	public boolean tested = false;
 	
+	boolean isTheCauseOfDeath = false;
+	
 	/**
 	 * 
 	 * @param myHost
@@ -220,6 +222,12 @@ public class DummyInfection implements Infection {
 		// TODO Auto-generated method stub
 		return false;
 	}
+	
+	public void setAsCauseOfDeath() {};
+	
+	public boolean isCauseOfDeath() {
+		return this.isTheCauseOfDeath;
+	};
 
 	// =============================================== Disease logging ====================================================================================
 	@Override
