@@ -1,6 +1,7 @@
-package uk.ac.ucl.protecs.objects.diseases;
+package uk.ac.ucl.protecs.behaviours;
 
 import sim.engine.Steppable;
+import uk.ac.ucl.protecs.objects.diseases.CoronavirusSpuriousSymptom;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import swise.behaviours.BehaviourFramework;
 import swise.behaviours.BehaviourNode;
@@ -80,10 +81,10 @@ public class SpuriousSymptomBehaviourFramework extends InfectiousBehaviourFramew
 					nextStep = nextStepSpurious.CAUSE_SYMPTOMS;
 				}
 				// need to check that those who died don't do anything, do this here
-				if (!symptom.host.isAlive()) {
+				if (!symptom.getHost().isAlive()) {
 					nextStep = nextStepSpurious.HAS_DIED;
 					}
-				if (symptom.host.hasSymptomaticCovid()) {
+				if (symptom.getHost().hasSymptomaticCovid()) {
 					nextStep = nextStepSpurious.NO_SYMPTOMS;
 				}
 				// based on the next step string variable, choose the next thing to do for this person's spurious symptoms.
@@ -131,7 +132,7 @@ public class SpuriousSymptomBehaviourFramework extends InfectiousBehaviourFramew
 					return Double.MAX_VALUE;
 				}
 				// can't have spurious COVID symptoms if actually have covid
-				if (symptom.host.hasSymptomaticCovid()) {
+				if (symptom.getHost().hasSymptomaticCovid()) {
 					symptom.setBehaviourNode(setNode(SpuriousSymptomBehaviourNode.SUSCEPTIBLE));
 					return 1;
 				}

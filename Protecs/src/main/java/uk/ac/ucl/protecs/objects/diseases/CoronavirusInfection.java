@@ -4,7 +4,6 @@ import uk.ac.ucl.protecs.objects.Location;
 import uk.ac.ucl.protecs.objects.Person;
 import uk.ac.ucl.protecs.objects.Person.OCCUPATION;
 import uk.ac.ucl.protecs.objects.Person.SEX;
-import uk.ac.ucl.protecs.objects.diseases.CoronavirusBehaviourFramework.CoronavirusBehaviourNodeTitle;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import sim.engine.SimState;

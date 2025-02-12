@@ -10,13 +10,11 @@ import uk.ac.ucl.protecs.objects.*;
 import uk.ac.ucl.protecs.objects.Person.OCCUPATION;
 import uk.ac.ucl.protecs.objects.Person.SEX;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
-import uk.ac.ucl.protecs.objects.diseases.CoronavirusSpuriousSymptom;
-import uk.ac.ucl.protecs.objects.diseases.DummyBehaviourFramework;
+import uk.ac.ucl.protecs.behaviours.DummyBehaviourFramework;
 import uk.ac.ucl.protecs.objects.diseases.DummyInfection;
 import uk.ac.ucl.protecs.objects.diseases.Infection;
-import uk.ac.ucl.protecs.objects.diseases.SpuriousSymptomBehaviourFramework;
-import uk.ac.ucl.protecs.objects.diseases.SpuriousSymptomBehaviourFramework.SpuriousSymptomBehaviourNode;
-import uk.ac.ucl.protecs.objects.diseases.CoronavirusBehaviourFramework;
+import uk.ac.ucl.protecs.behaviours.SpuriousSymptomBehaviourFramework;
+import uk.ac.ucl.protecs.behaviours.CoronavirusBehaviourFramework;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 

@@ -1,9 +1,9 @@
-package uk.ac.ucl.protecs.objects.diseases;
+package uk.ac.ucl.protecs.behaviours;
 
 
 
 import uk.ac.ucl.protecs.objects.*;
-import uk.ac.ucl.protecs.objects.diseases.SpuriousSymptomBehaviourFramework.nextStepSpurious;
+import uk.ac.ucl.protecs.objects.diseases.DummyInfection;
 import uk.ac.ucl.protecs.sim.*;
 import sim.engine.Steppable;
 import swise.behaviours.BehaviourFramework;
@@ -85,7 +85,7 @@ public class DummyBehaviourFramework extends InfectiousBehaviourFramework {
 				// check if this person has died
 				DummyInfection d = (DummyInfection) s;
 
-				if (!d.host.isAlive()) {
+				if (!d.getHost().isAlive()) {
 					nextStep = nextStepDummy.HAS_DIED;
 					}
 				// choose to progress the disease or not based on value of nextStep
@@ -132,7 +132,7 @@ public class DummyBehaviourFramework extends InfectiousBehaviourFramework {
 			// check if this person has died
 			DummyInfection d = (DummyInfection) s;
 			d.time_infected = time;
-			if (!d.host.isAlive()) {
+			if (!d.getHost().isAlive()) {
 				nextStep = nextStepDummy.HAS_DIED;
 				}
 			// choose to progress the disease or not based on value of nextStep

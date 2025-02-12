@@ -15,9 +15,9 @@ public class CoronavirusSpuriousSymptom implements Infection{
 	Person source;
 	Location infectedAtLocation;
 	WorldBankCovid19Sim myWorld;
-	double timeCreated = Double.MAX_VALUE;
-	double timeRecovered = Double.MAX_VALUE;
-	double timeLastTriggered = Double.MAX_VALUE;
+	public double timeCreated = Double.MAX_VALUE;
+	public double timeRecovered = Double.MAX_VALUE;
+	public double timeLastTriggered = Double.MAX_VALUE;
 	// default these to max value so it's clear when they've been reset
 	public double time_infected = Double.MAX_VALUE;
 	public double time_contagious = Double.MAX_VALUE;

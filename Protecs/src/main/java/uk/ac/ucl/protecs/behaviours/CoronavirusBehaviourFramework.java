@@ -1,8 +1,9 @@
-package uk.ac.ucl.protecs.objects.diseases;
+package uk.ac.ucl.protecs.behaviours;
 
 
 
 import uk.ac.ucl.protecs.objects.*;
+import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.sim.*;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import sim.engine.Steppable;
@@ -16,7 +17,7 @@ public class CoronavirusBehaviourFramework extends InfectiousBehaviourFramework 
 		SUSCEPTIBLE("susceptible"), EXPOSED("exposed"), PRESYMPTOMATIC("presymptomatic"), ASYMPTOMATIC("asymptomatic"), 
 		MILD("mild"), SEVERE("severe"), CRITICAL("critical"), RECOVERED("recovered"), DEAD("dead");
          
-        String key;
+        public String key;
      
         CoronavirusBehaviourNodeTitle(String key) { this.key = key; }
     
@@ -502,7 +503,7 @@ public class CoronavirusBehaviourFramework extends InfectiousBehaviourFramework 
 					}
 				}
 				// if they have had symptomatic covid, make them no longer have symptoms of covid
-				if (i.isSymptomatic) i.setSymptomatic();
+				if (i.isSymptomatic()) i.setSymptomatic();
 				i.setRecovered();
 				// no need to update again!
 				return Double.MAX_VALUE;
