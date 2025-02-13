@@ -116,22 +116,22 @@ public class CoronavirusInfection implements Infection {
 	public String getCurrentAdminZone() {return this.host.getHousehold().getRootSuperLocation().myId;}	
 	
 	@Override
-	public boolean isAlive() { return !this.host.isDead; }
+	public boolean isHostAlive() { return !this.host.isDead; }
 	
 	@Override
-	public int getAge() {
+	public int getHostAge() {
 		// TODO Auto-generated method stub
 		return this.host.getAge();
 	}
 	
 	@Override
-	public SEX getSex() {
+	public SEX getHostSex() {
 		// TODO Auto-generated method stub
 		return this.host.getSex();
 	}
 
 	@Override
-	public OCCUPATION getEconStatus() {
+	public OCCUPATION getHostEconStatus() {
 		// TODO Auto-generated method stub
 		return this.host.getEconStatus();
 	}

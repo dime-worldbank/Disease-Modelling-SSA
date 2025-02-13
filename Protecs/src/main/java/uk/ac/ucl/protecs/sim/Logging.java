@@ -51,9 +51,9 @@ public class Logging {
 			WorldBankCovid19Sim world) {
 		Map<SEX, Map<Integer, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>>> age_sex_map_has_covid = world.infections.stream().collect(
 				Collectors.groupingBy(
-						Infection::getSex, 
+						Infection::getHostSex, 
 						Collectors.groupingBy(
-								Infection::getAge, 
+								Infection::getHostAge, 
 								Collectors.groupingBy(
 										Infection::isCovid,
 										Collectors.groupingBy(
@@ -140,9 +140,9 @@ public class Logging {
 		// create a function to group the population by sex, age and whether they have covid
 		Map<SEX, Map<Integer, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>>> age_sex_map_died_from_covid = world.infections.stream().collect(
 				Collectors.groupingBy(
-						Infection::getSex, 
+						Infection::getHostSex, 
 						Collectors.groupingBy(
-								Infection::getAge, 
+								Infection::getHostAge, 
 								Collectors.groupingBy(
 										Infection::isCovid,
 										Collectors.groupingBy(
@@ -201,7 +201,7 @@ public class Logging {
 			WorldBankCovid19Sim world) {
 		Map<Boolean, Map<String, Map<Boolean, Map<Boolean, List<Infection>>>>> covidAtLocation = world.infections.stream().collect(
 				Collectors.groupingBy(
-						Infection::isAlive,
+						Infection::isHostAlive,
 						Collectors.groupingBy(
 								Infection::getCurrentAdminZone,
 								Collectors.groupingBy(
@@ -623,7 +623,7 @@ public class Logging {
 						Collectors.groupingBy(
 								Infection::getCurrentAdminZone, 
 									Collectors.groupingBy(
-											Infection::isAlive,
+											Infection::isHostAlive,
 												Collectors.groupingBy(
 														Infection::isCovid,
 														Collectors.groupingBy(
@@ -655,7 +655,7 @@ public class Logging {
 						Collectors.groupingBy(
 								Infection::getCurrentAdminZone, 
 									Collectors.groupingBy(
-											Infection::isAlive,
+											Infection::isHostAlive,
 												Collectors.groupingBy(
 														Infection::isCovid,
 															Collectors.groupingBy(
@@ -675,7 +675,7 @@ public class Logging {
 						Collectors.groupingBy(
 								Infection::getCurrentAdminZone, 
 									Collectors.groupingBy(
-											Infection::isAlive,
+											Infection::isHostAlive,
 												Collectors.groupingBy(
 														Infection::isCovid,
 															Collectors.groupingBy(
@@ -694,7 +694,7 @@ public class Logging {
 						Collectors.groupingBy(
 								Infection::getCurrentAdminZone, 
 									Collectors.groupingBy(
-											Infection::isAlive,
+											Infection::isHostAlive,
 												Collectors.groupingBy(
 														Infection::isCovid,
 															Collectors.groupingBy(
@@ -713,7 +713,7 @@ public class Logging {
 						Collectors.groupingBy(
 								Infection::getCurrentAdminZone, 
 									Collectors.groupingBy(
-											Infection::isAlive,
+											Infection::isHostAlive,
 												Collectors.groupingBy(
 														Infection::isCovid,
 															Collectors.groupingBy(
@@ -1407,9 +1407,9 @@ public class Logging {
 				Map<OCCUPATION, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>>> economic_alive_has_covid = 
 						world.infections.stream().collect(
 						Collectors.groupingBy(
-								Infection::getEconStatus, 
+								Infection::getHostEconStatus, 
 								Collectors.groupingBy(
-										Infection::isAlive,
+										Infection::isHostAlive,
 										Collectors.groupingBy(
 												Infection::isCovid,
 												Collectors.groupingBy(
@@ -1437,7 +1437,7 @@ public class Logging {
 				// create a function to group the population by sex, age and whether they died from covid
 				Map<OCCUPATION, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>> econ_died_from_covid = world.infections.stream().collect(
 						Collectors.groupingBy(
-								Infection::getEconStatus, 
+								Infection::getHostEconStatus, 
 									Collectors.groupingBy(
 											Infection::isCovid,
 											Collectors.groupingBy(
@@ -1519,7 +1519,7 @@ public class Logging {
 			public void step(SimState arg0) {
 					// to make sure deaths and cases aren't counted multiple times, update this person's properties
 					for (Infection i: world.infections) {
-						if(!i.isAlive()) {
+						if(!i.isHostAlive()) {
 							i.confirmDeathLogged();
 						}
 						if(i.hasAsympt() & !i.getAsymptLogged()) {

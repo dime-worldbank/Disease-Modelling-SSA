@@ -66,7 +66,7 @@ public class CovidTesting implements DiseaseTesting {
 		// create a function to group the population by location and count new deaths
 		Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, List<Infection>>>>>> is_symptomatic = world.infections.stream().collect(
 				Collectors.groupingBy(
-						Infection::isAlive,
+						Infection::isHostAlive,
 						Collectors.groupingBy(
 								Infection::isSymptomatic,
 								Collectors.groupingBy(
@@ -86,7 +86,7 @@ public class CovidTesting implements DiseaseTesting {
 		
 		Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, List<Infection>>>>>>> is_symptomatic_covid = world.infections.stream().collect(
 				Collectors.groupingBy(
-						Infection::isAlive,
+						Infection::isHostAlive,
 						Collectors.groupingBy(
 								Infection::isSymptomatic,
 								Collectors.groupingBy(
@@ -108,7 +108,7 @@ public class CovidTesting implements DiseaseTesting {
 			);
 		Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, List<Infection>>>>>>> is_covid_spurious_symptom = world.infections.stream().collect(
 				Collectors.groupingBy(
-						Infection::isAlive,
+						Infection::isHostAlive,
 						Collectors.groupingBy(
 								Infection::isSymptomatic,
 								Collectors.groupingBy(

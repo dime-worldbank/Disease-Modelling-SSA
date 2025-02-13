@@ -88,25 +88,25 @@ public class CoronavirusSpuriousSymptom implements Infection{
 	}
 	
 	@Override
-	public boolean isAlive() {
+	public boolean isHostAlive() {
 		// TODO Auto-generated method stub
 		return this.getHost().isAlive();
 	}
 	
 	@Override
-	public int getAge() {
+	public int getHostAge() {
 		// TODO Auto-generated method stub
 		return this.host.getAge();
 	}
 	
 	@Override
-	public SEX getSex() {
+	public SEX getHostSex() {
 		// TODO Auto-generated method stub
 		return this.host.getSex();
 	}
 	
 	@Override
-	public OCCUPATION getEconStatus() {
+	public OCCUPATION getHostEconStatus() {
 		// TODO Auto-generated method stub
 		return this.host.getEconStatus();
 	}

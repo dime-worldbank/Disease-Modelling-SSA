@@ -20,13 +20,13 @@ public interface Infection extends Steppable {
 			
 	public String getCurrentAdminZone();
 	
-	public boolean isAlive();
+	public boolean isHostAlive();
 	
-	public int getAge();
+	public int getHostAge();
 	
-	public SEX getSex();
+	public SEX getHostSex();
 	
-	public OCCUPATION getEconStatus();
+	public OCCUPATION getHostEconStatus();
 		
 	// =============================================== Disease 'behaviours'================================================================================
 	public BehaviourNode getCurrentBehaviourNode();

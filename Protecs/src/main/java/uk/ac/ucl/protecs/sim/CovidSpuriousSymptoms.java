@@ -68,7 +68,7 @@ public class CovidSpuriousSymptoms implements SpuriousSymptoms {
 			// get a list of the current symptomatic covid infections
 			Map<Boolean, Map<Boolean, Map<Boolean, List<Infection>>>> isSymptomaticCovid = (Map<Boolean, Map<Boolean, Map<Boolean,  List<Infection>>>>) world.infections.stream().collect(
 		              Collectors.groupingBy(
-		            		  Infection::isAlive, 
+		            		  Infection::isHostAlive, 
 		            		  Collectors.groupingBy(
 		            				  Infection::isCovid, 
 		            				  Collectors.groupingBy(
