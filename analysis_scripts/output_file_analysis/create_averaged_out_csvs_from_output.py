@@ -29,9 +29,9 @@ def main():
     scenarios = []
     output_filenames = []
     for file in os.listdir(folder_path):
-        if ~file.startswith('.'):
+        if ~file.startswith('.') & file.endswith('.txt'):
             scenarios.append(file.split('_')[1])
-            if (re.split(r'\d+', file)[1][1:-4] != '') & file.endswith('.txt'):
+            if (re.split(r'\d+', file)[1][1:-4] != ''):
                 output_filenames.append(re.split(r'\d+', file)[1][1:-4])
     # Only need the unique names of the scenario and output filenames for averaging and storing the results
     scenarios = np.unique(scenarios)
