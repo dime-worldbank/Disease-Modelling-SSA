@@ -553,9 +553,7 @@ public class Person extends MobileAgent {
 		
 		return this.myHousehold;
 	}
-
-
-
+	
 	public boolean hasSymptomaticCovid() {
 		if (this.getInfectionSet().containsKey(DISEASE.COVID.key)) {
 			if (!this.getInfectionSet().get(DISEASE.COVID.key).getBehaviourName().equals("asymptomatic"))
