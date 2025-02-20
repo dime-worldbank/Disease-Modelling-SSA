@@ -12,13 +12,13 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <java.version>22</java.version>
-<!--    
+<!--        <java.version>22</java.version>
+
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
+    -->
     	<maven.compiler.source>22</maven.compiler.source>
     	<maven.compiler.target>22</maven.compiler.target>
-    -->
 
   </properties>
   
