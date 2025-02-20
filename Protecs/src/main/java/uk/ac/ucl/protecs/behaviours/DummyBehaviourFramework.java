@@ -5,7 +5,7 @@ package uk.ac.ucl.protecs.behaviours;
 import uk.ac.ucl.protecs.objects.diseases.DummyInfection;
 import uk.ac.ucl.protecs.sim.*;
 import sim.engine.Steppable;
-import swise.behaviours.BehaviourNode;
+import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
 public class DummyBehaviourFramework extends InfectiousBehaviourFramework {
 	

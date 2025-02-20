@@ -7,7 +7,7 @@ import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import sim.engine.SimState;
-import swise.behaviours.BehaviourNode;
+import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
 /**
  * The object holds records of individual instances of a 'dummy' disease. It works together with the

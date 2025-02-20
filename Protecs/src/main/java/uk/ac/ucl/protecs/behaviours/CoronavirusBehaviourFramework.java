@@ -2,13 +2,13 @@ package uk.ac.ucl.protecs.behaviours;
 
 
 
+import sim.engine.Steppable;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.objects.locations.Location;
-import uk.ac.ucl.protecs.sim.*;
+import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
-import sim.engine.Steppable;
-import swise.behaviours.BehaviourNode;
+import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
 public class CoronavirusBehaviourFramework extends InfectiousBehaviourFramework {
 	
@@ -541,7 +541,6 @@ public class CoronavirusBehaviourFramework extends InfectiousBehaviourFramework 
 		
 
 		
-		entryPoint = this.exposedNode;
 	}
 	
 	public BehaviourNode setNodeForTesting(CoronavirusBehaviourNodeTitle behaviour) {
@@ -592,7 +591,7 @@ public class CoronavirusBehaviourFramework extends InfectiousBehaviourFramework 
 		return toreturn;
 	}
 	
-	public BehaviourNode getStandardEntryPoint(){ return this.susceptibleNode; }
+	public BehaviourNode getStandardEntryPoint(){ return this.exposedNode; }
 	public BehaviourNode getInfectedEntryPoint(Location l){
 				
 		if(myWorld.random.nextDouble() < .5){ // TODO make this based on real data
