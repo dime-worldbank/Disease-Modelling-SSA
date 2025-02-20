@@ -21,6 +21,7 @@ import uk.ac.ucl.protecs.objects.diseases.CoronavirusBehaviourFramework;
 import ec.util.MersenneTwisterFast;
 import sim.engine.SimState;
 import sim.engine.Steppable;
+import sim.util.Proxiable;
 
 public class WorldBankCovid19Sim extends SimState {
 
