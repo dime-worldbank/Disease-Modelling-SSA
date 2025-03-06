@@ -8,7 +8,7 @@ import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import sim.engine.Steppable;
 import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
-public interface Infection extends Steppable {
+public interface Disease extends Steppable {
 
 	// =============================================== relevant information on the host ==============================================================
 	public Person getHost();

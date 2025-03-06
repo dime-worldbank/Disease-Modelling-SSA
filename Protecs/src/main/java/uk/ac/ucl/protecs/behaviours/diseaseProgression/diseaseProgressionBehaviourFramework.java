@@ -2,7 +2,7 @@ package uk.ac.ucl.protecs.behaviours.diseaseProgression;
 
 
 
-import uk.ac.ucl.protecs.objects.diseases.Infection;
+import uk.ac.ucl.protecs.objects.diseases.Disease;
 import uk.ac.ucl.protecs.sim.*;
 import uk.ac.ucl.swise.behaviours.BehaviourFramework;
 import uk.ac.ucl.swise.behaviours.BehaviourNode;
@@ -13,7 +13,7 @@ import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
 public class diseaseProgressionBehaviourFramework implements BehaviourFramework {
 	WorldBankCovid19Sim myWorld;
-	Infection myInfection;
+	Disease myInfection;
 	BehaviourNode susceptibleNode = null, exposedNode = null, presymptomaticNode= null, asymptomaticNode = null,
 			mildNode = null, severeNode = null, criticalNode = null, recoveredNode = null, deadNode = null;
 

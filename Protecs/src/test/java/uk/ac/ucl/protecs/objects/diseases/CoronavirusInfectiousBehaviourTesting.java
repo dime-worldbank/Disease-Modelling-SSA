@@ -328,7 +328,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 
 			world.schedule.step(world);
 			if (world.schedule.getTime() % Params.ticks_per_day == 1.0) {
-			for (Infection i: world.infections) {
+			for (Disease i: world.infections) {
 				behaviourNodeBin.add(i.getBehaviourName());
 			}
 
@@ -347,7 +347,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Simulate over the time period and get the disease stages present in the simulation
 		helperFunctions.runSimulation(world, numDaysToRun);
 		
-		for (Infection i: world.infections) {
+		for (Disease i: world.infections) {
 			behaviourNodeBin.add(i.getBehaviourName());
 		}
 		

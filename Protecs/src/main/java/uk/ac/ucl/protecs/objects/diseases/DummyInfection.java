@@ -16,7 +16,7 @@ import uk.ac.ucl.swise.behaviours.BehaviourNode;
  *
  */
 
-public class DummyInfection implements Infection {
+public class DummyInfection implements Disease {
 
 	// record keeping
 	Person host;

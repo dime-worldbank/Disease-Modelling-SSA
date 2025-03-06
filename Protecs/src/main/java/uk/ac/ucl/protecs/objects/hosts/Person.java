@@ -12,7 +12,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
-import uk.ac.ucl.protecs.objects.diseases.Infection;
+import uk.ac.ucl.protecs.objects.diseases.Disease;
 import uk.ac.ucl.protecs.objects.locations.Household;
 import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.objects.locations.Workplace;
@@ -144,7 +144,7 @@ public class Person extends MobileAgent {
 	// activity
 	BehaviourNode currentActivityNode = null;
 	
-	HashMap <String, Infection> myInfectionSet = new HashMap <String, Infection>();
+	HashMap <String, Disease> myInfectionSet = new HashMap <String, Disease>();
 	
 	// behaviours
 	boolean immobilised = false;
@@ -479,10 +479,10 @@ public class Person extends MobileAgent {
 	public void setCommunityBubble(HashSet <Person> newBubble) { communityBubble = newBubble; }
 	
 	// MODULAR DISEASE MANAGEMENT
-	public void addInfection(DISEASE disease, Infection i) {
+	public void addInfection(DISEASE disease, Disease i) {
 		this.myInfectionSet.put(disease.key, i);
 	};
-	public HashMap<String, Infection> getInfectionSet() {return this.myInfectionSet; }
+	public HashMap<String, Disease> getInfectionSet() {return this.myInfectionSet; }
 
 
 	// ATTRIBUTES

@@ -7,7 +7,7 @@ import uk.ac.ucl.protecs.helperFunctions.helperFunctions.NodeOption;
 import org.junit.Test;
 
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgressionFramework.CoronavirusBehaviourNodeTitle;
-import uk.ac.ucl.protecs.objects.diseases.Infection;
+import uk.ac.ucl.protecs.objects.diseases.Disease;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 
 import java.util.List;
@@ -28,9 +28,9 @@ public class CovidTestingTesting {
 		helperFunctions.StopRecoveryHappening(sim);
 		helperFunctions.StopCovidFromSpreading(sim);
 		helperFunctions.runSimulation(sim, numDays);
-		List<Infection> hasBeenTested = infectionsTested(sim);
+		List<Disease> hasBeenTested = infectionsTested(sim);
 		int numWithBothSpuriousAndSymptomaticCovid = 0;
-		for (Infection i: hasBeenTested) {
+		for (Disease i: hasBeenTested) {
 			if (i.getDiseaseType().equals(DISEASE.COVID)) {
 				if (i.getHost().getInfectionSet().containsKey(DISEASE.COVIDSPURIOUSSYMPTOM.key)) {
 					if (i.getHost().getInfectionSet().get(DISEASE.COVIDSPURIOUSSYMPTOM.key).isSymptomatic()) {
@@ -72,11 +72,11 @@ public class CovidTestingTesting {
 //		Assert.assertTrue(numWithoutTesting == numWithTesting);
 //
 //	}
-	public List<Infection> infectionsTested(WorldBankCovid19Sim world){
+	public List<Disease> infectionsTested(WorldBankCovid19Sim world){
 		
-		Map<Boolean, List<Infection>> propertiesChecked = (Map<Boolean,List<Infection>>) world.infections.stream().collect(
+		Map<Boolean, List<Disease>> propertiesChecked = (Map<Boolean,List<Disease>>) world.infections.stream().collect(
 	            Collectors.groupingBy(
-	              Infection::hasBeenTested,
+	              Disease::hasBeenTested,
 	                    Collectors.toList()
 		            )
 	               );

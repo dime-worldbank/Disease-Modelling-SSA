@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Random;
 
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
-import uk.ac.ucl.protecs.objects.diseases.Infection;
+import uk.ac.ucl.protecs.objects.diseases.Disease;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgressionFramework.CoronavirusBehaviourNodeTitle;
 import uk.ac.ucl.protecs.sim.Params;
@@ -82,7 +82,7 @@ public class helperFunctions {
 
 			world.schedule.step(world);
 			if (world.schedule.getTime() % (int) Params.ticks_per_day == sample_regularity) {
-			for (Infection i: world.infections) {
+			for (Disease i: world.infections) {
 				behaviourNodeBin.add(i.getBehaviourName());
 				}
 			}
@@ -224,7 +224,7 @@ public class helperFunctions {
 			// create a list to store the disease nodes that occur in the simulation
 			world.schedule.step(world);
 		}
-		for (Infection i: world.infections) {
+		for (Disease i: world.infections) {
 			behaviourNodeBin.add(i.getBehaviourName());
 		}
 		
@@ -326,7 +326,7 @@ public class helperFunctions {
 	
 	public static HashSet<DISEASE> InfectionsPresentInSim(WorldBankCovid19Sim world) {
 		HashSet<DISEASE> toReturn = new HashSet<DISEASE>();
-		for (Infection i: world.infections) {
+		for (Disease i: world.infections) {
 			toReturn.add(DISEASE.getValue(i.getDiseaseName()));
 		}
 		return toReturn;

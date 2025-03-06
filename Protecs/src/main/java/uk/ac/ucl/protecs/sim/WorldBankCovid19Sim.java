@@ -9,7 +9,7 @@ import uk.ac.ucl.protecs.behaviours.*;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.DummyDiseaseProgressionFramework;
 import uk.ac.ucl.protecs.objects.diseases.DummyInfection;
-import uk.ac.ucl.protecs.objects.diseases.Infection;
+import uk.ac.ucl.protecs.objects.diseases.Disease;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.objects.hosts.Person.OCCUPATION;
 import uk.ac.ucl.protecs.objects.hosts.Person.SEX;
@@ -30,7 +30,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public ArrayList <Household> households = null;
 	public ArrayList <Workplace> workplaces = null;
 
-	public ArrayList <Infection> infections = null;
+	public ArrayList <Disease> infections = null;
 	public HashSet <OCCUPATION> occupationsInSim = null;
 	public Random random;
 	
@@ -177,7 +177,7 @@ public class WorldBankCovid19Sim extends SimState {
 		// RESET SEED
 
 		// set up the infections
-		infections = new ArrayList <Infection> ();
+		infections = new ArrayList <Disease> ();
 		// TODO expand this to include all infection types
 		for(Location l: params.lineList.keySet()){
 			

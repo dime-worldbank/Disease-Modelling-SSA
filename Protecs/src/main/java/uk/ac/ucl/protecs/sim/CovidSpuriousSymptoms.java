@@ -7,7 +7,7 @@ import java.util.Map;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusSpuriousSymptom;
-import uk.ac.ucl.protecs.objects.diseases.Infection;
+import uk.ac.ucl.protecs.objects.diseases.Disease;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 
@@ -51,9 +51,9 @@ public class CovidSpuriousSymptoms implements SpuriousSymptoms {
 					); 
 			List<Person> eligiblePersons = isAlive.get(true);
 			
-			Map<DISEASE, List<Infection>> isSpuriousSymptom = (Map<DISEASE, List<Infection>>) world.infections.stream().collect(
+			Map<DISEASE, List<Disease>> isSpuriousSymptom = (Map<DISEASE, List<Disease>>) world.infections.stream().collect(
 					Collectors.groupingBy(
-							Infection::getDiseaseType, Collectors.toList()
+							Disease::getDiseaseType, Collectors.toList()
 							)
 					);
 			// get a list of the existing spurious symptoms at this moment
@@ -62,31 +62,31 @@ public class CovidSpuriousSymptoms implements SpuriousSymptoms {
 //							Infection::isOfType
 //							)
 //					); 
-			List<Infection> spuriousSymptoms = isSpuriousSymptom.get(DISEASE.COVIDSPURIOUSSYMPTOM);
+			List<Disease> spuriousSymptoms = isSpuriousSymptom.get(DISEASE.COVIDSPURIOUSSYMPTOM);
 			// remove those with existing spurious symptoms from the potential list of people to give symptoms to
 			if (spuriousSymptoms != null) {
-			for (Infection existingSymptom: spuriousSymptoms) {
+			for (Disease existingSymptom: spuriousSymptoms) {
 				if (eligiblePersons.contains(existingSymptom.getHost())) {
 					eligiblePersons.remove(existingSymptom.getHost());
 				}
 			}
 			}
 			// get a list of the current symptomatic covid infections
-			Map<Boolean, Map<DISEASE, Map<Boolean, List<Infection>>>> isSymptomaticCovid = (Map<Boolean, Map<DISEASE, Map<Boolean,  List<Infection>>>>) world.infections.stream().collect(
+			Map<Boolean, Map<DISEASE, Map<Boolean, List<Disease>>>> isSymptomaticCovid = (Map<Boolean, Map<DISEASE, Map<Boolean,  List<Disease>>>>) world.infections.stream().collect(
 		              Collectors.groupingBy(
-		            		  Infection::isHostAlive, 
+		            		  Disease::isHostAlive, 
 		            		  Collectors.groupingBy(
-		            				  Infection::getDiseaseType, 
+		            				  Disease::getDiseaseType, 
 		            				  Collectors.groupingBy(
-		            						  Infection::isSymptomatic, 
+		            						  Disease::isSymptomatic, 
 		                      Collectors.toList()
 		                      )
 		                    )
 		                   )	                
 		              );
-			List<Infection> symptomaticCovid = isSymptomaticCovid.get(true).get(DISEASE.COVID).get(true);
+			List<Disease> symptomaticCovid = isSymptomaticCovid.get(true).get(DISEASE.COVID).get(true);
 			if (symptomaticCovid != null) {
-			for (Infection symptomaticInfs: symptomaticCovid) {
+			for (Disease symptomaticInfs: symptomaticCovid) {
 				if (eligiblePersons.contains(symptomaticInfs.getHost())) {
 					eligiblePersons.remove(symptomaticInfs.getHost());
 				}

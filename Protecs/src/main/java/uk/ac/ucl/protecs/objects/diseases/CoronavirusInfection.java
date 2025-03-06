@@ -16,7 +16,7 @@ import uk.ac.ucl.swise.behaviours.BehaviourNode;
  *
  */
 
-public class CoronavirusInfection implements Infection {
+public class CoronavirusInfection implements Disease {
 
 	// record keeping
 	Person host;

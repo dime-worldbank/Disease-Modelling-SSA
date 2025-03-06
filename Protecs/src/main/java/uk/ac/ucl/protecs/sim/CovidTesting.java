@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 
 import sim.engine.SimState;
 import sim.engine.Steppable;
-import uk.ac.ucl.protecs.objects.diseases.Infection;
+import uk.ac.ucl.protecs.objects.diseases.Disease;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 
 public class CovidTesting implements DiseaseTesting {
@@ -28,9 +28,9 @@ public class CovidTesting implements DiseaseTesting {
 		// handles the administration of the tests and directs consequences of the tests
 		int dayOfSimulation = (int) (arg0.schedule.getTime() / world.params.ticks_per_day);
 		// get a list of infections to test today
-		List <Infection> infections_to_test_today = filterForEligibleCandidates(world, dayOfSimulation);
+		List <Disease> infections_to_test_today = filterForEligibleCandidates(world, dayOfSimulation);
 		// test each infection, check the results of the test and update the infections properties
-		for (Infection i: infections_to_test_today) {
+		for (Disease i: infections_to_test_today) {
 			double random_to_check_if_test_is_accurate = world.random.nextDouble();
 			if ((random_to_check_if_test_is_accurate < testAccuracy()) & (i.getDiseaseType().equals(DISEASE.COVID))){
 				updatePropertiesForPositiveTest(i);
@@ -47,37 +47,37 @@ public class CovidTesting implements DiseaseTesting {
 		return 0.97;
 	}
 
-	public static void updatePropertiesForPositiveTest(Infection i) {
+	public static void updatePropertiesForPositiveTest(Disease i) {
 		i.setTested();
 		i.setTestedPositive();
 	}
 
 
-	public static void updatePropertiesForNegativeTest(Infection i) {
+	public static void updatePropertiesForNegativeTest(Disease i) {
 		i.setTested();
 	}
 
 
-	public static List<Infection> filterForEligibleCandidates(WorldBankCovid19Sim world, int time) {
+	public static List<Disease> filterForEligibleCandidates(WorldBankCovid19Sim world, int time) {
 		// At this stage we want to filter the population to give tests to those who are:
 		// 1) Alive
 		// 2) Have symptomatic COVID (mild, severe and critical)
 		// 3) Haven't been tested before
 		// To do this we will use streams to search over a list of objects and draw those that have these properties
 		// create a function to group the population by location and count new deaths
-		Map<Boolean, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Map<Boolean, List<Infection>>>>>>> is_symptomatic_covid_or_covid_symptom = world.infections.stream().collect(
+		Map<Boolean, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Map<Boolean, List<Disease>>>>>>> is_symptomatic_covid_or_covid_symptom = world.infections.stream().collect(
 				Collectors.groupingBy(
-						Infection::isHostAlive,
+						Disease::isHostAlive,
 						Collectors.groupingBy(
-								Infection::isSymptomatic,
+								Disease::isSymptomatic,
 								Collectors.groupingBy(
-										Infection::getDiseaseType,
+										Disease::getDiseaseType,
 								Collectors.groupingBy(
-								Infection::inATestingAdminZone,
+								Disease::inATestingAdminZone,
 									Collectors.groupingBy(
-											Infection::isEligibleForTesting,
+											Disease::isEligibleForTesting,
 											Collectors.groupingBy(
-													Infection::hasBeenTested,
+													Disease::hasBeenTested,
 									Collectors.toList()
 									
 								)
@@ -89,9 +89,9 @@ public class CovidTesting implements DiseaseTesting {
 			);
 		// We also need to only give out the correct number of tests available for the disease this day.
 		int number_of_tests_today = world.params.number_of_tests_per_day.get(time);
-		List <Infection> eligible_for_testing = new ArrayList<>();
-		List <Infection> eligible_for_testing_covid = new ArrayList<>();
-		List <Infection> eligible_for_testing_covid_spurious_symptom = new ArrayList<>();
+		List <Disease> eligible_for_testing = new ArrayList<>();
+		List <Disease> eligible_for_testing_covid = new ArrayList<>();
+		List <Disease> eligible_for_testing_covid_spurious_symptom = new ArrayList<>();
 		// add potential COVID-19 infections to be tested
 		try {
 			eligible_for_testing_covid = is_symptomatic_covid_or_covid_symptom.get(true).get(true).get(DISEASE.COVID).get(true).get(true).get(false);

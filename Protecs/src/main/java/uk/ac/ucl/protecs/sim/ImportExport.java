@@ -5,7 +5,7 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import uk.ac.ucl.protecs.objects.diseases.Infection;
+import uk.ac.ucl.protecs.objects.diseases.Disease;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 
@@ -139,7 +139,7 @@ public class ImportExport {
 		}
 	}
 	
-	public static void exportInfections(String infections_export_filename, ArrayList <Infection> infections) {
+	public static void exportInfections(String infections_export_filename, ArrayList <Disease> infections) {
 		try {
 			
 			System.out.println("Printing out INFECTIONS to " + infections_export_filename);
@@ -151,7 +151,7 @@ public class ImportExport {
 					+ "\n");
 			
 			// export infection data
-			for(Infection i: infections) {
+			for(Disease i: infections) {
 				
 				String rec = i.getHost().getID() + "\t";
 				

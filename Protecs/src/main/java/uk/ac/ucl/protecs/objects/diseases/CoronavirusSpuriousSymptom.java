@@ -9,7 +9,7 @@ import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
-public class CoronavirusSpuriousSymptom implements Infection{
+public class CoronavirusSpuriousSymptom implements Disease{
 	// record keeping
 	Person host;
 	Person source;
