@@ -137,12 +137,12 @@ public class CovidSpuriousSymptomTesting{
 	
 	public List<Person> getPopulationWithSpuriousSymptomsAndAsymptomaticCovid(WorldBankCovid19Sim world){
 		// get a list of spurious symptoms
-		Map<Boolean, List<Infection>> isSpuriousSymptom = (Map<Boolean, List<Infection>>) world.infections.stream().collect(
+		Map<DISEASE, List<Infection>> isSpuriousSymptom = (Map<DISEASE, List<Infection>>) world.infections.stream().collect(
 				Collectors.groupingBy(
-						Infection::isCovidSpuriousSymptom
+						Infection::getDiseaseType
 						)
 				);
-		List<Infection> spuriousSymptoms = isSpuriousSymptom.get(true);
+		List<Infection> spuriousSymptoms = isSpuriousSymptom.get(DISEASE.COVIDSPURIOUSSYMPTOM);
 		
 		Map<Boolean, Map<Boolean, List<Infection>>> isAsymptomaticCovid = (Map<Boolean, Map<Boolean, List<Infection>>>) world.infections.stream().collect(
 				Collectors.groupingBy(
@@ -165,9 +165,9 @@ public class CovidSpuriousSymptomTesting{
 	
 	public List<Infection> checkSpuriousSymptomAndTestingEligibilityHasBeenAssigned(WorldBankCovid19Sim world, boolean hasBeenAssigned){
 		
-		Map<Boolean, Map<Boolean, List<Infection>>> propertiesChecked = (Map<Boolean, Map<Boolean, List<Infection>>>) world.infections.stream().collect(
+		Map<DISEASE, Map<Boolean, List<Infection>>> propertiesChecked = (Map<DISEASE, Map<Boolean, List<Infection>>>) world.infections.stream().collect(
 	            Collectors.groupingBy(
-	            	Infection::isCovidSpuriousSymptom, 
+	            	Infection::getDiseaseType, 
 		            Collectors.groupingBy(
 		            		Infection::isSymptomatic,
 	                    Collectors.toList()
@@ -175,6 +175,6 @@ public class CovidSpuriousSymptomTesting{
 		            )
 	               );
 		
-		return propertiesChecked.get(hasBeenAssigned).get(hasBeenAssigned);
+		return propertiesChecked.get(DISEASE.COVIDSPURIOUSSYMPTOM).get(hasBeenAssigned);
 		}
 }

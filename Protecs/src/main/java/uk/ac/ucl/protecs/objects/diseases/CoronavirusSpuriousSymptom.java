@@ -140,21 +140,21 @@ public class CoronavirusSpuriousSymptom implements Infection{
 	}
 	
 	@Override
-	public boolean isCovidSpuriousSymptom() {
-		// TODO Auto-generated method stub
-		return true;
-	}
-	
-	@Override
-	public boolean isDummyInfection() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-	
-	@Override
 	public String getDiseaseName() {
 		// TODO Auto-generated method stub
 		return "COVID-19_SPURIOUS_SYMPTOM";
+	}
+	
+	@Override
+	public DISEASE getDiseaseType() {
+		// TODO Auto-generated method stub
+		return DISEASE.COVIDSPURIOUSSYMPTOM;
+	}
+	
+	@Override
+	public boolean isOfType(DISEASE disease) {
+		// TODO Auto-generated method stub
+		return this.getDiseaseType().equals(disease);
 	}
 	
 	// =============================================== Disease progression ====================================================================================

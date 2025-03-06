@@ -154,22 +154,23 @@ public class CoronavirusInfection implements Infection {
 	public boolean isCovid() {
 		return true;
 	}
-
-	@Override
-	public boolean isCovidSpuriousSymptom() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-	@Override
-	public boolean isDummyInfection() {
-		// TODO Auto-generated method stub
-		return false;
-	}
 	
 	@Override
 	public String getDiseaseName() {
 	
 		return "COVID-19";
+	}
+	
+	@Override
+	public DISEASE getDiseaseType() {
+		// TODO Auto-generated method stub
+		return DISEASE.COVID;
+	}
+	
+	@Override
+	public boolean isOfType(DISEASE disease) {
+		// TODO Auto-generated method stub
+		return this.getDiseaseType().equals(disease);
 	}
 		
 	// =============================================== Disease progression ====================================================================================

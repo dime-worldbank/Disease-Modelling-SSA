@@ -133,21 +133,21 @@ public class DummyInfection implements Infection {
 	}
 	
 	@Override
-	public boolean isCovidSpuriousSymptom() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean isDummyInfection() {
-		// TODO Auto-generated method stub
-		return true;
-	}
-	
-	@Override
 	public String getDiseaseName() {
 		
 		return "DUMMY";
+	}
+	
+	@Override
+	public DISEASE getDiseaseType() {
+		// TODO Auto-generated method stub
+		return DISEASE.DUMMY;
+	}
+	
+	@Override
+	public boolean isOfType(DISEASE disease) {
+		// TODO Auto-generated method stub
+		return this.getDiseaseType().equals(disease);
 	}
 
 	// =============================================== Disease progression ====================================================================================

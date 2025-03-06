@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 import uk.ac.ucl.protecs.objects.diseases.Infection;
+import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 
 public class CovidTesting implements DiseaseTesting {
 
@@ -106,13 +107,13 @@ public class CovidTesting implements DiseaseTesting {
 			)
 			)
 			);
-		Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, List<Infection>>>>>>> is_covid_spurious_symptom = world.infections.stream().collect(
+		Map<Boolean, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Map<Boolean, List<Infection>>>>>>> is_covid_spurious_symptom = world.infections.stream().collect(
 				Collectors.groupingBy(
 						Infection::isHostAlive,
 						Collectors.groupingBy(
 								Infection::isSymptomatic,
 								Collectors.groupingBy(
-										Infection::isCovidSpuriousSymptom,
+										Infection::getDiseaseType,
 								Collectors.groupingBy(
 								Infection::inATestingAdminZone,
 									Collectors.groupingBy(
@@ -142,7 +143,7 @@ public class CovidTesting implements DiseaseTesting {
 		// add potential COVID-19 spurious symptoms to be tested
 
 		try {
-			eligible_for_testing_covid_spurious_symptom = is_covid_spurious_symptom.get(true).get(true).get(true).get(true).get(true).get(false);
+			eligible_for_testing_covid_spurious_symptom = is_covid_spurious_symptom.get(true).get(true).get(DISEASE.COVIDSPURIOUSSYMPTOM).get(true).get(true).get(false);
 			eligible_for_testing.addAll(eligible_for_testing_covid_spurious_symptom);
 		}
 		catch (NullPointerException e) {}

@@ -50,13 +50,19 @@ public class CovidSpuriousSymptoms implements SpuriousSymptoms {
 							)
 					); 
 			List<Person> eligiblePersons = isAlive.get(true);
-			// get a list of the existing spurious symptoms at this moment
-			Map<Boolean, List<Infection>> isSpuriousSymptom = (Map<Boolean, List<Infection>>) world.infections.stream().collect(
+			
+			Map<DISEASE, List<Infection>> isSpuriousSymptom = (Map<DISEASE, List<Infection>>) world.infections.stream().collect(
 					Collectors.groupingBy(
-							Infection::isCovidSpuriousSymptom
+							Infection::getDiseaseType, Collectors.toList()
 							)
-					); 
-			List<Infection> spuriousSymptoms = isSpuriousSymptom.get(true);
+					);
+			// get a list of the existing spurious symptoms at this moment
+//			Map<Boolean, List<Infection>> isSpuriousSymptom = (Map<Boolean, List<Infection>>) world.infections.stream().collect(
+//					Collectors.groupingBy(
+//							Infection::isOfType
+//							)
+//					); 
+			List<Infection> spuriousSymptoms = isSpuriousSymptom.get(DISEASE.COVIDSPURIOUSSYMPTOM);
 			// remove those with existing spurious symptoms from the potential list of people to give symptoms to
 			if (spuriousSymptoms != null) {
 			for (Infection existingSymptom: spuriousSymptoms) {

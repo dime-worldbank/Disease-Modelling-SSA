@@ -12,6 +12,7 @@ import uk.ac.ucl.protecs.objects.diseases.Infection;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.objects.hosts.Person.OCCUPATION;
 import uk.ac.ucl.protecs.objects.hosts.Person.SEX;
+import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 
 public class Logging {
 	// set up commonly used variables to avoid repetition
@@ -395,7 +396,7 @@ public class Logging {
 			ImportExport.exportMe(world.covidTestingOutputFilename, covidTestingOutput, world.timer);
 			// to make sure that COVID tests aren't counted more than once, update this infections properties
 			for (Infection i: world.infections) {
-				if((i.isCovid() | i.isCovidSpuriousSymptom()) & !i.getTestLogged()) {
+				if((i.getDiseaseType().equals(DISEASE.COVID))) {
 					i.confirmTestLogged();
 					}
 				}
