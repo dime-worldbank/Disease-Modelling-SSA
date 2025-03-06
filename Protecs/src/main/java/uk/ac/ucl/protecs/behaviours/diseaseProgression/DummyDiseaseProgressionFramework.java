@@ -7,7 +7,7 @@ import uk.ac.ucl.protecs.sim.*;
 import sim.engine.Steppable;
 import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
-public class DummyBehaviourFramework extends diseaseProgressionBehaviourFramework {
+public class DummyDiseaseProgressionFramework extends diseaseProgressionBehaviourFramework {
 	
 	public enum DummyBehaviourNode{
 		SUSCEPTIBLE("susceptible"), EXPOSED("exposed"), RECOVERED("recovered"), DEAD("dead");
@@ -59,7 +59,7 @@ public class DummyBehaviourFramework extends diseaseProgressionBehaviourFramewor
 	private nextStepDummy nextStep;
 
 	@SuppressWarnings("serial")
-	public DummyBehaviourFramework(WorldBankCovid19Sim world) {
+	public DummyDiseaseProgressionFramework(WorldBankCovid19Sim world) {
 		super(world);
 		// TODO Auto-generated constructor stub
 		

@@ -10,7 +10,7 @@ import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
-public class CoronavirusBehaviourFramework extends diseaseProgressionBehaviourFramework {
+public class CoronavirusDiseaseProgressionFramework extends diseaseProgressionBehaviourFramework {
 	
 	
 	public enum CoronavirusBehaviourNodeTitle{
@@ -49,7 +49,7 @@ public class CoronavirusBehaviourFramework extends diseaseProgressionBehaviourFr
 	
 	// PARAMS to control development of disease
 	
-	public CoronavirusBehaviourFramework(WorldBankCovid19Sim myWorld){
+	public CoronavirusDiseaseProgressionFramework(WorldBankCovid19Sim myWorld){
 		super(myWorld);
 		
 		// the default status

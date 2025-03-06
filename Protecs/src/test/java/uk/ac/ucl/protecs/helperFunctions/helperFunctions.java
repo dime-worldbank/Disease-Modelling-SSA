@@ -9,7 +9,7 @@ import java.util.Random;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.objects.diseases.Infection;
 import uk.ac.ucl.protecs.objects.hosts.Person;
-import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusBehaviourFramework.CoronavirusBehaviourNodeTitle;
+import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgressionFramework.CoronavirusBehaviourNodeTitle;
 import uk.ac.ucl.protecs.sim.Params;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;

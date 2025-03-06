@@ -5,7 +5,7 @@ import uk.ac.ucl.protecs.objects.diseases.CoronavirusSpuriousSymptom;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
-public class SpuriousSymptomBehaviourFramework extends diseaseProgressionBehaviourFramework{
+public class SpuriousSymptomDiseaseProgressionFramework extends diseaseProgressionBehaviourFramework{
 
 	
 	
@@ -61,7 +61,7 @@ public class SpuriousSymptomBehaviourFramework extends diseaseProgressionBehavio
 
 	// PARAMS to control development of disease
 	
-	public SpuriousSymptomBehaviourFramework(WorldBankCovid19Sim myWorld){
+	public SpuriousSymptomDiseaseProgressionFramework(WorldBankCovid19Sim myWorld){
 		super(myWorld);
 		
 		// the default status

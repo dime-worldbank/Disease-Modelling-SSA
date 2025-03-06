@@ -6,7 +6,7 @@ import uk.ac.ucl.protecs.helperFunctions.helperFunctions.NodeOption;
 
 import org.junit.Test;
 
-import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusBehaviourFramework.CoronavirusBehaviourNodeTitle;
+import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgressionFramework.CoronavirusBehaviourNodeTitle;
 import uk.ac.ucl.protecs.objects.diseases.Infection;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 

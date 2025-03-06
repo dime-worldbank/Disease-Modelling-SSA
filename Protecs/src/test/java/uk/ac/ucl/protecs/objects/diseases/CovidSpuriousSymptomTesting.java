@@ -7,7 +7,7 @@ import uk.ac.ucl.protecs.objects.hosts.Person;
 
 import org.junit.Test;
 
-import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusBehaviourFramework.CoronavirusBehaviourNodeTitle;
+import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgressionFramework.CoronavirusBehaviourNodeTitle;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 

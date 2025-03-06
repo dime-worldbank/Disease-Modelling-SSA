@@ -7,7 +7,7 @@ import java.util.Random;
 
 import uk.ac.ucl.protecs.behaviours.*;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
-import uk.ac.ucl.protecs.behaviours.diseaseProgression.DummyBehaviourFramework;
+import uk.ac.ucl.protecs.behaviours.diseaseProgression.DummyDiseaseProgressionFramework;
 import uk.ac.ucl.protecs.objects.diseases.DummyInfection;
 import uk.ac.ucl.protecs.objects.diseases.Infection;
 import uk.ac.ucl.protecs.objects.hosts.Person;
@@ -16,8 +16,8 @@ import uk.ac.ucl.protecs.objects.hosts.Person.SEX;
 import uk.ac.ucl.protecs.objects.locations.Household;
 import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.objects.locations.Workplace;
-import uk.ac.ucl.protecs.behaviours.diseaseProgression.SpuriousSymptomBehaviourFramework;
-import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusBehaviourFramework;
+import uk.ac.ucl.protecs.behaviours.diseaseProgression.SpuriousSymptomDiseaseProgressionFramework;
+import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgressionFramework;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 
@@ -39,9 +39,9 @@ public class WorldBankCovid19Sim extends SimState {
 	HashMap <Location, ArrayList<Person>> personsToAdminBoundary = null; 
 	
 	public MovementBehaviourFramework movementFramework = null;
-	public CoronavirusBehaviourFramework infectiousFramework = null;
-	public SpuriousSymptomBehaviourFramework spuriousFramework = null;
-	public DummyBehaviourFramework dummyFramework = null;
+	public CoronavirusDiseaseProgressionFramework infectiousFramework = null;
+	public SpuriousSymptomDiseaseProgressionFramework spuriousFramework = null;
+	public DummyDiseaseProgressionFramework dummyFramework = null;
 	public Params params = null;
 	public boolean lockedDown = false;
 	// the names of file names of each output filename		
@@ -142,10 +142,10 @@ public class WorldBankCovid19Sim extends SimState {
 		
 		// set up the behavioural framework
 		movementFramework = new MovementBehaviourFramework(this);
-		infectiousFramework = new CoronavirusBehaviourFramework(this);
-		spuriousFramework = new SpuriousSymptomBehaviourFramework(this);
+		infectiousFramework = new CoronavirusDiseaseProgressionFramework(this);
+		spuriousFramework = new SpuriousSymptomDiseaseProgressionFramework(this);
 		if (developingModularity) {
-			dummyFramework = new DummyBehaviourFramework(this);
+			dummyFramework = new DummyDiseaseProgressionFramework(this);
 		}
 		// RESET SEED
 		random = new Random(this.seed());
