@@ -26,6 +26,12 @@ public class InfectiousBehaviourFramework implements BehaviourFramework {
 	@Override
 	public BehaviourNode getEntryPoint() {
 		return this.susceptibleNode;
+	}
+
+	@Override
+	public BehaviourNode getHomeNode() {
+		// TODO Auto-generated method stub
+		return null;
 	};	
 	
 }

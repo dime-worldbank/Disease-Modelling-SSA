@@ -283,4 +283,10 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 	public BehaviourNode getEntryPoint() {
 		return this.homeNode;
 	}
+
+	@Override
+	public BehaviourNode getHomeNode() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
