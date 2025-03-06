@@ -4,8 +4,8 @@ import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.sim.*;
 import sim.engine.Steppable;
-import swise.behaviours.BehaviourFramework;
-import swise.behaviours.BehaviourNode;
+import uk.ac.ucl.swise.behaviours.BehaviourFramework;
+import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
 /**
  * The MovementBehaviourFramework is an extension on the basis of the BehaviourFramework which
@@ -14,7 +14,7 @@ import swise.behaviours.BehaviourNode;
  * @author swise
  *
  */
-public class MovementBehaviourFramework extends BehaviourFramework {
+public class MovementBehaviourFramework implements BehaviourFramework {
 	
 	WorldBankCovid19Sim myWorld;
 	BehaviourNode workNode = null, communityNode = null, homeNode = null;
@@ -252,12 +252,7 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 			}
 			
 		};
-		
-		entryPoint = homeNode;
-	}
-	
-	public BehaviourNode getHomeNode(){
-		return entryPoint;
+
 	}
 	
 	public BehaviourNode setMobilityNodeForTesting(mobilityNodeTitle behaviour) {
@@ -282,5 +277,10 @@ public class MovementBehaviourFramework extends BehaviourFramework {
 		}
 			
 		return toreturn;
+	}
+
+	@Override
+	public BehaviourNode getEntryPoint() {
+		return this.homeNode;
 	}
 }

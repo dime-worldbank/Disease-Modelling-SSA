@@ -13,7 +13,7 @@ import uk.ac.ucl.protecs.behaviours.CoronavirusBehaviourFramework.CoronavirusBeh
 import uk.ac.ucl.protecs.sim.Params;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
-import swise.behaviours.BehaviourNode;
+import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
 public class helperFunctions {
 	
@@ -59,7 +59,7 @@ public class helperFunctions {
 		for (Person p: world.agents) {
 			double rand = world.random.nextDouble();
 			if (!p.getInfectionSet().containsKey(DISEASE.COVID.key) && rand <= fraction) {			
-				CoronavirusInfection inf = new CoronavirusInfection(p, null, world.infectiousFramework.getHomeNode(), world);
+				CoronavirusInfection inf = new CoronavirusInfection(p, null, world.infectiousFramework.getEntryPoint(), world);
 				inf.setBehaviourNode(Node);
 				world.infections.add(inf);
 				// kick off the infectious behaviour framework
@@ -119,7 +119,7 @@ public class helperFunctions {
 		for (Person p: world.agents) {
 			double rand = world.random.nextDouble();
 			if (!p.getInfectionSet().containsKey(DISEASE.COVID.key) && rand <= fraction) {
-				CoronavirusInfection inf = new CoronavirusInfection(p, null, world.infectiousFramework.getHomeNode(), world);
+				CoronavirusInfection inf = new CoronavirusInfection(p, null, world.infectiousFramework.getEntryPoint(), world);
 				inf.setBehaviourNode(Node);
 				// kick off the infectious behaviour framework
 				inf.step(world);

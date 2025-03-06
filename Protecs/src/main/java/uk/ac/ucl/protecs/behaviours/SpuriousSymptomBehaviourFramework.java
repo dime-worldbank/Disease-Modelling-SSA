@@ -3,7 +3,7 @@ package uk.ac.ucl.protecs.behaviours;
 import sim.engine.Steppable;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusSpuriousSymptom;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
-import swise.behaviours.BehaviourNode;
+import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
 public class SpuriousSymptomBehaviourFramework extends InfectiousBehaviourFramework{
 

@@ -11,13 +11,14 @@
 
 
   <properties>
-<!--    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <java.version>22</java.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+<!--        <java.version>22</java.version>
+
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     -->
-    	<maven.compiler.source>1.8</maven.compiler.source>
-    	<maven.compiler.target>1.8</maven.compiler.target>
+    	<maven.compiler.source>22</maven.compiler.source>
+    	<maven.compiler.target>22</maven.compiler.target>
 
   </properties>
   
@@ -69,7 +70,7 @@
 	<dependency>
 		<groupId>ucl.ac.uk</groupId>
 		<artifactId>swiselib</artifactId>
-		<version>2023</version>
+		<version>2025</version>
 	</dependency>
 	<dependency>
 		<groupId>edu.gmu.cs</groupId>

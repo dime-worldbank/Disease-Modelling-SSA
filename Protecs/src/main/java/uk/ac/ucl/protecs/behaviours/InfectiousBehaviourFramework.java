@@ -4,14 +4,14 @@ package uk.ac.ucl.protecs.behaviours;
 
 import uk.ac.ucl.protecs.objects.diseases.Infection;
 import uk.ac.ucl.protecs.sim.*;
-import swise.behaviours.BehaviourFramework;
-import swise.behaviours.BehaviourNode;
+import uk.ac.ucl.swise.behaviours.BehaviourFramework;
+import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
 // This file is intended to be the source from which we create disease states for all diseases in the model. 
 // Many infections share certain characteristics relevant to modelling, such as infection state, disease progression etc. This is an attempt
 // to begin to build a modular framework to house these qualities
 
-public class InfectiousBehaviourFramework extends BehaviourFramework {
+public class InfectiousBehaviourFramework implements BehaviourFramework {
 	WorldBankCovid19Sim myWorld;
 	Infection myInfection;
 	BehaviourNode susceptibleNode = null, exposedNode = null, presymptomaticNode= null, asymptomaticNode = null,
@@ -22,6 +22,10 @@ public class InfectiousBehaviourFramework extends BehaviourFramework {
 		myWorld = world;
 		
 		}
-	public void setStandardEntryPoint() {};	
+	
+	@Override
+	public BehaviourNode getEntryPoint() {
+		return this.susceptibleNode;
+	};	
 	
 }

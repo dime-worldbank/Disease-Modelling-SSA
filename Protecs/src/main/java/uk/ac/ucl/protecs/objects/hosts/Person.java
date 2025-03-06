@@ -3,8 +3,8 @@ package uk.ac.ucl.protecs.objects.hosts;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import sim.engine.SimState;
-import swise.agents.MobileAgent;
-import swise.behaviours.BehaviourNode;
+import uk.ac.ucl.swise.agents.MobileAgent;
+import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -343,7 +343,7 @@ public class Person extends MobileAgent {
 			double myProb = myWorld.random.nextDouble();
 			if (!otherPerson.myInfectionSet.containsKey(DISEASE.COVID.key) && myProb < myWorld.params.infection_beta) {
 				otherPerson.myInfectionSet.put(DISEASE.COVID.key, 
-						new CoronavirusInfection(otherPerson, this, myWorld.infectiousFramework.getHomeNode(), myWorld));
+						new CoronavirusInfection(otherPerson, this, myWorld.infectiousFramework.getEntryPoint(), myWorld));
 				myWorld.schedule.scheduleOnce(otherPerson.myInfectionSet.get(DISEASE.COVID.key), myWorld.param_schedule_infecting); 
 			}
 		}
@@ -422,7 +422,7 @@ public class Person extends MobileAgent {
 				
 				// check if they are already infected; if they are not, infect with with probability BETA
 				if(!p.myInfectionSet.containsKey(DISEASE.COVID.key) && myWorld.random.nextDouble() < myWorld.params.infection_beta){
-					p.myInfectionSet.put(DISEASE.COVID.key, new CoronavirusInfection(p, this, myWorld.infectiousFramework.getHomeNode(), myWorld));
+					p.myInfectionSet.put(DISEASE.COVID.key, new CoronavirusInfection(p, this, myWorld.infectiousFramework.getEntryPoint(), myWorld));
 					myWorld.schedule.scheduleOnce(p.myInfectionSet.get(DISEASE.COVID.key), myWorld.param_schedule_infecting);
 				}
 
@@ -463,7 +463,7 @@ public class Person extends MobileAgent {
 
 	public void sendHome() {
 		this.transferTo(myHousehold);
-		this.setActivityNode(myWorld.movementFramework.getHomeNode());
+		this.setActivityNode(myWorld.movementFramework.getEntryPoint());
 		this.setAtWork(false);  
 	}
 	

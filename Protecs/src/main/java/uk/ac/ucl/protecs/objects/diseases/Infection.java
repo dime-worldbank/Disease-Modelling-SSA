@@ -6,7 +6,7 @@ import uk.ac.ucl.protecs.objects.hosts.Person.SEX;
 import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import sim.engine.Steppable;
-import swise.behaviours.BehaviourNode;
+import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
 public interface Infection extends Steppable {
 

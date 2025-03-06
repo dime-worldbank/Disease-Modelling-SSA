@@ -20,6 +20,7 @@ import uk.ac.ucl.protecs.behaviours.SpuriousSymptomBehaviourFramework;
 import uk.ac.ucl.protecs.behaviours.CoronavirusBehaviourFramework;
 import sim.engine.SimState;
 import sim.engine.Steppable;
+import sim.util.Proxiable;
 
 public class WorldBankCovid19Sim extends SimState {
 	// Create a boolean for developing disease modularity
