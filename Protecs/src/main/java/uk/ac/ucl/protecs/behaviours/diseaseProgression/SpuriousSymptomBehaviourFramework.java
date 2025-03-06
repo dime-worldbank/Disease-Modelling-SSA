@@ -1,4 +1,4 @@
-package uk.ac.ucl.protecs.behaviours;
+package uk.ac.ucl.protecs.behaviours.diseaseProgression;
 
 import sim.engine.Steppable;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusSpuriousSymptom;

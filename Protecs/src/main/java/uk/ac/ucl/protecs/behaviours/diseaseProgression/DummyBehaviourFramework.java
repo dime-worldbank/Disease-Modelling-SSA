@@ -1,4 +1,4 @@
-package uk.ac.ucl.protecs.behaviours;
+package uk.ac.ucl.protecs.behaviours.diseaseProgression;
 
 
 
