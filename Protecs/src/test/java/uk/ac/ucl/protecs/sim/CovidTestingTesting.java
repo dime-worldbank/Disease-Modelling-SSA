@@ -31,7 +31,7 @@ public class CovidTestingTesting {
 		List<Infection> hasBeenTested = infectionsTested(sim);
 		int numWithBothSpuriousAndSymptomaticCovid = 0;
 		for (Infection i: hasBeenTested) {
-			if (i.isCovid()) {
+			if (i.getDiseaseType().equals(DISEASE.COVID)) {
 				if (i.getHost().getInfectionSet().containsKey(DISEASE.COVIDSPURIOUSSYMPTOM.key)) {
 					if (i.getHost().getInfectionSet().get(DISEASE.COVIDSPURIOUSSYMPTOM.key).isSymptomatic()) {
 						numWithBothSpuriousAndSymptomaticCovid++;

@@ -144,15 +144,15 @@ public class CovidSpuriousSymptomTesting{
 				);
 		List<Infection> spuriousSymptoms = isSpuriousSymptom.get(DISEASE.COVIDSPURIOUSSYMPTOM);
 		
-		Map<Boolean, Map<Boolean, List<Infection>>> isAsymptomaticCovid = (Map<Boolean, Map<Boolean, List<Infection>>>) world.infections.stream().collect(
+		Map<DISEASE, Map<Boolean, List<Infection>>> isAsymptomaticCovid = (Map<DISEASE, Map<Boolean, List<Infection>>>) world.infections.stream().collect(
 				Collectors.groupingBy(
-						Infection::isCovid,
+						Infection::getDiseaseType,
 						Collectors.groupingBy(
 								Infection::isSymptomatic
 						)
 					)
 				);
-		List<Infection> asymptomaticCovid = isAsymptomaticCovid.get(true).get(false);
+		List<Infection> asymptomaticCovid = isAsymptomaticCovid.get(DISEASE.COVID).get(false);
 		
 		ArrayList<Person> filteredPopulation = new ArrayList<Person>();
 		

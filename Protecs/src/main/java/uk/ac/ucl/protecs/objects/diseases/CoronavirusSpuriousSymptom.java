@@ -134,12 +134,6 @@ public class CoronavirusSpuriousSymptom implements Infection{
 
 	// =============================================== Disease type classification ===========================================================================
 	@Override
-	public boolean isCovid() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-	
-	@Override
 	public String getDiseaseName() {
 		// TODO Auto-generated method stub
 		return "COVID-19_SPURIOUS_SYMPTOM";

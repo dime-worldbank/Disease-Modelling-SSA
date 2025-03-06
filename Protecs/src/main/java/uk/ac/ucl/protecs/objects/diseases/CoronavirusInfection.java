@@ -151,11 +151,6 @@ public class CoronavirusInfection implements Infection {
 	
 	// =============================================== Disease type classification ===========================================================================
 	@Override
-	public boolean isCovid() {
-		return true;
-	}
-	
-	@Override
 	public String getDiseaseName() {
 	
 		return "COVID-19";

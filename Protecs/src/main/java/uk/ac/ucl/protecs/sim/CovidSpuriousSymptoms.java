@@ -72,11 +72,11 @@ public class CovidSpuriousSymptoms implements SpuriousSymptoms {
 			}
 			}
 			// get a list of the current symptomatic covid infections
-			Map<Boolean, Map<Boolean, Map<Boolean, List<Infection>>>> isSymptomaticCovid = (Map<Boolean, Map<Boolean, Map<Boolean,  List<Infection>>>>) world.infections.stream().collect(
+			Map<Boolean, Map<DISEASE, Map<Boolean, List<Infection>>>> isSymptomaticCovid = (Map<Boolean, Map<DISEASE, Map<Boolean,  List<Infection>>>>) world.infections.stream().collect(
 		              Collectors.groupingBy(
 		            		  Infection::isHostAlive, 
 		            		  Collectors.groupingBy(
-		            				  Infection::isCovid, 
+		            				  Infection::getDiseaseType, 
 		            				  Collectors.groupingBy(
 		            						  Infection::isSymptomatic, 
 		                      Collectors.toList()
@@ -84,7 +84,7 @@ public class CovidSpuriousSymptoms implements SpuriousSymptoms {
 		                    )
 		                   )	                
 		              );
-			List<Infection> symptomaticCovid = isSymptomaticCovid.get(true).get(true).get(true);
+			List<Infection> symptomaticCovid = isSymptomaticCovid.get(true).get(DISEASE.COVID).get(true);
 			if (symptomaticCovid != null) {
 			for (Infection symptomaticInfs: symptomaticCovid) {
 				if (eligiblePersons.contains(symptomaticInfs.getHost())) {

@@ -36,9 +36,7 @@ public interface Infection extends Steppable {
 	
 	public String getBehaviourName();
 	
-	// =============================================== Disease type classification ===========================================================================
-	public boolean isCovid();
-			
+	// =============================================== Disease type classification ===========================================================================			
 	public boolean isOfType(DISEASE disease);
 	
 	public DISEASE getDiseaseType();

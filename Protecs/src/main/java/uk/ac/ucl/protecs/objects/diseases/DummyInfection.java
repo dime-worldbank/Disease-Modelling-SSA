@@ -126,12 +126,7 @@ public class DummyInfection implements Infection {
 		if(this.currentBehaviourNode == null) return "";
 		return this.currentBehaviourNode.getTitle();
 	}
-	// =============================================== Disease type classification ===========================================================================
-	@Override
-	public boolean isCovid() {
-		return false;
-	}
-	
+	// =============================================== Disease type classification ===========================================================================	
 	@Override
 	public String getDiseaseName() {
 		

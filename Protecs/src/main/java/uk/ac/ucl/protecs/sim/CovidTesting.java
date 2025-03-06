@@ -32,7 +32,7 @@ public class CovidTesting implements DiseaseTesting {
 		// test each infection, check the results of the test and update the infections properties
 		for (Infection i: infections_to_test_today) {
 			double random_to_check_if_test_is_accurate = world.random.nextDouble();
-			if ((random_to_check_if_test_is_accurate < testAccuracy()) & (i.isCovid())){
+			if ((random_to_check_if_test_is_accurate < testAccuracy()) & (i.getDiseaseType().equals(DISEASE.COVID))){
 				updatePropertiesForPositiveTest(i);
 				} 
 			else {
@@ -65,49 +65,7 @@ public class CovidTesting implements DiseaseTesting {
 		// 3) Haven't been tested before
 		// To do this we will use streams to search over a list of objects and draw those that have these properties
 		// create a function to group the population by location and count new deaths
-		Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, List<Infection>>>>>> is_symptomatic = world.infections.stream().collect(
-				Collectors.groupingBy(
-						Infection::isHostAlive,
-						Collectors.groupingBy(
-								Infection::isSymptomatic,
-								Collectors.groupingBy(
-								Infection::inATestingAdminZone,
-									Collectors.groupingBy(
-											Infection::isEligibleForTesting,
-											Collectors.groupingBy(
-													Infection::hasBeenTested,
-									Collectors.toList()
-									
-								)
-						)
-				)
-			)
-			)
-			);
-		
-		Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, List<Infection>>>>>>> is_symptomatic_covid = world.infections.stream().collect(
-				Collectors.groupingBy(
-						Infection::isHostAlive,
-						Collectors.groupingBy(
-								Infection::isSymptomatic,
-								Collectors.groupingBy(
-										Infection::isCovid,
-								Collectors.groupingBy(
-								Infection::inATestingAdminZone,
-									Collectors.groupingBy(
-											Infection::isEligibleForTesting,
-											Collectors.groupingBy(
-													Infection::hasBeenTested,
-									Collectors.toList()
-									
-								)
-						)
-					)
-				)
-			)
-			)
-			);
-		Map<Boolean, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Map<Boolean, List<Infection>>>>>>> is_covid_spurious_symptom = world.infections.stream().collect(
+		Map<Boolean, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Map<Boolean, List<Infection>>>>>>> is_symptomatic_covid_or_covid_symptom = world.infections.stream().collect(
 				Collectors.groupingBy(
 						Infection::isHostAlive,
 						Collectors.groupingBy(
@@ -136,14 +94,14 @@ public class CovidTesting implements DiseaseTesting {
 		List <Infection> eligible_for_testing_covid_spurious_symptom = new ArrayList<>();
 		// add potential COVID-19 infections to be tested
 		try {
-			eligible_for_testing_covid = is_symptomatic_covid.get(true).get(true).get(true).get(true).get(true).get(false);
+			eligible_for_testing_covid = is_symptomatic_covid_or_covid_symptom.get(true).get(true).get(DISEASE.COVID).get(true).get(true).get(false);
 			eligible_for_testing.addAll(eligible_for_testing_covid);
 		}
 		catch (NullPointerException e) {}
 		// add potential COVID-19 spurious symptoms to be tested
 
 		try {
-			eligible_for_testing_covid_spurious_symptom = is_covid_spurious_symptom.get(true).get(true).get(DISEASE.COVIDSPURIOUSSYMPTOM).get(true).get(true).get(false);
+			eligible_for_testing_covid_spurious_symptom = is_symptomatic_covid_or_covid_symptom.get(true).get(true).get(DISEASE.COVIDSPURIOUSSYMPTOM).get(true).get(true).get(false);
 			eligible_for_testing.addAll(eligible_for_testing_covid_spurious_symptom);
 		}
 		catch (NullPointerException e) {}

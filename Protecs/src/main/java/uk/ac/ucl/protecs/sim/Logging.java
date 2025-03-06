@@ -48,15 +48,15 @@ public class Logging {
 	}
 	
 	// get those who alive with COVID of given age and sex
-	private static Map<SEX, Map<Integer, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>>> age_sex_has_covid_map(
+	private static Map<SEX, Map<Integer, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> age_sex_has_covid_map(
 			WorldBankCovid19Sim world) {
-		Map<SEX, Map<Integer, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>>> age_sex_map_has_covid = world.infections.stream().collect(
+		Map<SEX, Map<Integer, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> age_sex_map_has_covid = world.infections.stream().collect(
 				Collectors.groupingBy(
 						Infection::getHostSex, 
 						Collectors.groupingBy(
 								Infection::getHostAge, 
 								Collectors.groupingBy(
-										Infection::isCovid,
+										Infection::getDiseaseType,
 										Collectors.groupingBy(
 												Infection::hasRecovered,
 										Collectors.groupingBy(
@@ -106,7 +106,7 @@ public class Logging {
 		ArrayList <Integer> covid_by_ages = new ArrayList<Integer>();
 
 		// create a function to group the population by sex, age and whether they have covid
-		Map<SEX, Map<Integer, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>>> age_sex_map_has_covid = age_sex_has_covid_map(world);
+		Map<SEX, Map<Integer, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> age_sex_map_has_covid = age_sex_has_covid_map(world);
 				
 		//	We now iterate over the age ranges, create a variable to keep track of the iterations
 		for (Integer val: upper_age_range) {
@@ -119,7 +119,7 @@ public class Logging {
 					// try function necessary as some ages won't be present in the population
 					// use the functions created earlier to calculate the number of people of each age group who fall
 					// into the categories we are interested in (alive, died from covid, died from other)
-					covid_count += age_sex_map_has_covid.get(sex).get(age).get(true).get(false).get(false).intValue();
+					covid_count += age_sex_map_has_covid.get(sex).get(age).get(DISEASE.COVID).get(false).get(false).intValue();
 				}
 					catch (Exception e) {
 					// age wasn't present in the population, skip
@@ -139,13 +139,13 @@ public class Logging {
 		ArrayList <Integer> covid_death_by_ages = new ArrayList<Integer>();
 
 		// create a function to group the population by sex, age and whether they have covid
-		Map<SEX, Map<Integer, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>>> age_sex_map_died_from_covid = world.infections.stream().collect(
+		Map<SEX, Map<Integer, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> age_sex_map_died_from_covid = world.infections.stream().collect(
 				Collectors.groupingBy(
 						Infection::getHostSex, 
 						Collectors.groupingBy(
 								Infection::getHostAge, 
 								Collectors.groupingBy(
-										Infection::isCovid,
+										Infection::getDiseaseType,
 										Collectors.groupingBy(
 												Infection::isCauseOfDeath,
 												Collectors.groupingBy(
@@ -169,7 +169,7 @@ public class Logging {
 					// try function necessary as some ages won't be present in the population
 					// use the functions created earlier to calculate the number of people of each age group who fall
 					// into the categories we are interested in (alive, died from covid, died from other)
-					covid_death_count += age_sex_map_died_from_covid.get(sex).get(age).get(true).get(true).get(false).intValue();
+					covid_death_count += age_sex_map_died_from_covid.get(sex).get(age).get(DISEASE.COVID).get(true).get(false).intValue();
 				}
 					catch (Exception e) {
 					// age wasn't present in the population, skip
@@ -198,15 +198,15 @@ public class Logging {
 	}
 	
 	// get those alive with COVID at location
-	private static Map<Boolean, Map<String, Map<Boolean, Map<Boolean, List<Infection>>>>> get_covid_at_location(
+	private static Map<Boolean, Map<String, Map<DISEASE, Map<Boolean, List<Infection>>>>> get_covid_at_location(
 			WorldBankCovid19Sim world) {
-		Map<Boolean, Map<String, Map<Boolean, Map<Boolean, List<Infection>>>>> covidAtLocation = world.infections.stream().collect(
+		Map<Boolean, Map<String, Map<DISEASE, Map<Boolean, List<Infection>>>>> covidAtLocation = world.infections.stream().collect(
 				Collectors.groupingBy(
 						Infection::isHostAlive,
 						Collectors.groupingBy(
 								Infection::getCurrentAdminZone,
 								Collectors.groupingBy(
-										Infection::isCovid,
+										Infection::getDiseaseType,
 										Collectors.groupingBy(
 												Infection::hasRecovered
 								)
@@ -218,13 +218,13 @@ public class Logging {
 	}
 	
 	// get those who died of COVID at location
-	private static Map<String, Map<Boolean, Map<Boolean, Map<Boolean, List<Infection>>>>> get_dead_from_covid_at_location(
+	private static Map<String, Map<DISEASE, Map<Boolean, Map<Boolean, List<Infection>>>>> get_dead_from_covid_at_location(
 			WorldBankCovid19Sim world) {
-		Map<String, Map<Boolean, Map<Boolean, Map<Boolean, List<Infection>>>>> covidDeathsAtLocation = world.infections.stream().collect(
+		Map<String, Map<DISEASE, Map<Boolean, Map<Boolean, List<Infection>>>>> covidDeathsAtLocation = world.infections.stream().collect(
 				Collectors.groupingBy(
 						Infection::getCurrentAdminZone,
 						Collectors.groupingBy(
-								Infection::isCovid,
+								Infection::getDiseaseType,
 								Collectors.groupingBy(
 										Infection::isCauseOfDeath,
 										Collectors.groupingBy(
@@ -620,13 +620,13 @@ public class Logging {
 				ArrayList<Integer> covidNewDeathCount = new ArrayList<Integer>();
 
 				// create a function to group the population by location, whether they are alive and if they have covid and if this is a new case
-				Map<String, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>>> location_alive_hasCovid_map = world.infections.stream().collect(
+				Map<String, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> location_alive_hasCovid_map = world.infections.stream().collect(
 						Collectors.groupingBy(
 								Infection::getCurrentAdminZone, 
 									Collectors.groupingBy(
 											Infection::isHostAlive,
 												Collectors.groupingBy(
-														Infection::isCovid,
+														Infection::getDiseaseType,
 														Collectors.groupingBy(
 																Infection::hasRecovered,
 																Collectors.groupingBy(
@@ -641,24 +641,27 @@ public class Logging {
 				
 				// create a map to count the number of people who have recovered from covid in that admin zone
 				
-				Map<String, Map<Boolean, Long>> location_alive_recovered_map = world.infections.stream().collect(
+				Map<String, Map<DISEASE, Map<Boolean, Long>>> location_alive_recovered_map = world.infections.stream().collect(
 						Collectors.groupingBy(
-								Infection::getCurrentAdminZone, 
+								Infection::getCurrentAdminZone,
+								Collectors.groupingBy(
+										Infection::getDiseaseType,
 											Collectors.groupingBy(
 													Infection::hasRecovered,
 										Collectors.counting()
 										)
 								)
+							)
 						);
 
 				
-				Map<String, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>>> location_asympt_covid_map = world.infections.stream().collect(
+				Map<String, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> location_asympt_covid_map = world.infections.stream().collect(
 						Collectors.groupingBy(
 								Infection::getCurrentAdminZone, 
 									Collectors.groupingBy(
 											Infection::isHostAlive,
 												Collectors.groupingBy(
-														Infection::isCovid,
+														Infection::getDiseaseType,
 															Collectors.groupingBy(
 																	Infection::hasAsympt,
 																		Collectors.groupingBy(
@@ -672,13 +675,13 @@ public class Logging {
 						);
 
 				
-				Map<String, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>>> location_mild_covid_map = world.infections.stream().collect(
+				Map<String, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> location_mild_covid_map = world.infections.stream().collect(
 						Collectors.groupingBy(
 								Infection::getCurrentAdminZone, 
 									Collectors.groupingBy(
 											Infection::isHostAlive,
 												Collectors.groupingBy(
-														Infection::isCovid,
+														Infection::getDiseaseType,
 															Collectors.groupingBy(
 																	Infection::hasMild,
 																		Collectors.groupingBy(
@@ -691,13 +694,13 @@ public class Logging {
 						)
 						);
 
-				Map<String, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>>> location_severe_covid_map = world.infections.stream().collect(
+				Map<String, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> location_severe_covid_map = world.infections.stream().collect(
 						Collectors.groupingBy(
 								Infection::getCurrentAdminZone, 
 									Collectors.groupingBy(
 											Infection::isHostAlive,
 												Collectors.groupingBy(
-														Infection::isCovid,
+														Infection::getDiseaseType,
 															Collectors.groupingBy(
 																	Infection::hasSevere,
 																		Collectors.groupingBy(
@@ -710,13 +713,13 @@ public class Logging {
 						)
 						);
 
-				Map<String, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>>> location_critical_covid_map = world.infections.stream().collect(
+				Map<String, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> location_critical_covid_map = world.infections.stream().collect(
 						Collectors.groupingBy(
 								Infection::getCurrentAdminZone, 
 									Collectors.groupingBy(
 											Infection::isHostAlive,
 												Collectors.groupingBy(
-														Infection::isCovid,
+														Infection::getDiseaseType,
 															Collectors.groupingBy(
 																	Infection::hasCritical,
 																		Collectors.groupingBy(
@@ -729,11 +732,11 @@ public class Logging {
 						)
 						);
 				// create a function to group the population by location and count cumulative deaths
-				Map<String, Map<Boolean, Map<Boolean, Long>>> location_cumulative_died_map = world.infections.stream().collect(
+				Map<String, Map<DISEASE, Map<Boolean, Long>>> location_cumulative_died_map = world.infections.stream().collect(
 						Collectors.groupingBy(
 								Infection::getCurrentAdminZone, 
 								Collectors.groupingBy(
-										Infection::isCovid,
+										Infection::getDiseaseType,
 											Collectors.groupingBy(
 													Infection::isCauseOfDeath,
 										Collectors.counting()
@@ -742,22 +745,22 @@ public class Logging {
 							)
 						);
 				// create a function to group the population by location and count cumulative cases
-				Map<String, Map<Boolean, Long>> location_cumulative_covid_map = world.infections.stream().collect(
+				Map<String, Map<DISEASE, Long>> location_cumulative_covid_map = world.infections.stream().collect(
 						Collectors.groupingBy(
 								Infection::getCurrentAdminZone, 
 											Collectors.groupingBy(
-													Infection::isCovid,
+													Infection::getDiseaseType,
 										Collectors.counting()
 										)
 								)
 						);
 				// create a function to group the population by location and count new deaths
 
-				Map<String, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>> location_new_deaths_map = world.infections.stream().collect(
+				Map<String, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>> location_new_deaths_map = world.infections.stream().collect(
 						Collectors.groupingBy(
 								Infection::getCurrentAdminZone, 
 									Collectors.groupingBy(
-										Infection::isCovid, 
+										Infection::getDiseaseType, 
 											Collectors.groupingBy(
 													Infection::isCauseOfDeath,
 													Collectors.groupingBy(
@@ -772,7 +775,7 @@ public class Logging {
 				for (String zone: adminZoneList) {
 					// get the current number of cases in each admin zone
 					try {
-					covidCountArray.add(location_alive_hasCovid_map.get(zone).get(true).get(true).get(false).get(false).intValue());
+					covidCountArray.add(location_alive_hasCovid_map.get(zone).get(true).get(DISEASE.COVID).get(false).get(false).intValue());
 					
 
 					} catch (Exception e) {
@@ -781,56 +784,56 @@ public class Logging {
 					}
 					// get the cumulative number of covid cases in the admin zone
 					try {
-						cumCovidCountArray.add(location_cumulative_covid_map.get(zone).get(true).intValue());
+						cumCovidCountArray.add(location_cumulative_covid_map.get(zone).get(DISEASE.COVID).intValue());
 						} catch (Exception e) {
 							// No one in population met criteria
 							cumCovidCountArray.add(0);
 						}
 					// get the number of asymptomatic covid cases in the admin zone
 					try {
-												asymptCovidCountArray.add(location_asympt_covid_map.get(zone).get(true).get(true).get(true).get(false).intValue());
+												asymptCovidCountArray.add(location_asympt_covid_map.get(zone).get(true).get(DISEASE.COVID).get(true).get(false).intValue());
 						} catch (Exception e) {
 							// No one in population met criteria
 							asymptCovidCountArray.add(0);
 						}
 					// get the number of mild covid cases in the admin zone
 					try {
-						mildCovidCountArray.add(location_mild_covid_map.get(zone).get(true).get(true).get(true).get(false).intValue());
+						mildCovidCountArray.add(location_mild_covid_map.get(zone).get(true).get(DISEASE.COVID).get(true).get(false).intValue());
 						} catch (Exception e) {
 							// No one in population met criteria
 							mildCovidCountArray.add(0);
 						}
 					// get the number of severe covid cases in the admin zone
 					try {
-						severeCovidCountArray.add(location_severe_covid_map.get(zone).get(true).get(true).get(true).get(false).intValue());
+						severeCovidCountArray.add(location_severe_covid_map.get(zone).get(true).get(DISEASE.COVID).get(true).get(false).intValue());
 						} catch (Exception e) {
 							// No one in population met criteria
 							severeCovidCountArray.add(0);
 						}
 					// get the number of critical covid cases in the admin zone
 					try {
-						criticalCovidCountArray.add(location_critical_covid_map.get(zone).get(true).get(true).get(true).get(false).intValue());
+						criticalCovidCountArray.add(location_critical_covid_map.get(zone).get(true).get(DISEASE.COVID).get(true).get(false).intValue());
 						} catch (Exception e) {
 							// No one in population met criteria
 							criticalCovidCountArray.add(0);
 						}
 					// get the number of recoveries  in the admin zone
 					try {
-						recoveredCountArray.add(location_alive_recovered_map.get(zone).get(true).intValue());
+						recoveredCountArray.add(location_alive_recovered_map.get(zone).get(DISEASE.COVID).get(true).intValue());
 						} catch (Exception e) {
 							// No one in population met criteria
 							recoveredCountArray.add(0);
 						}
 					// get the cumultative number of covid deaths in the admin zone
 					try {
-						covidCumulativeDeathCount.add(location_cumulative_died_map.get(zone).get(true).get(true).intValue());
+						covidCumulativeDeathCount.add(location_cumulative_died_map.get(zone).get(DISEASE.COVID).get(true).intValue());
 						} catch (Exception e) {
 							// No one in population met criteria
 							covidCumulativeDeathCount.add(0);
 						}
 					// get the number of new covid deaths in the admin zone
 					try {
-						covidNewDeathCount.add(location_new_deaths_map.get(zone).get(true).get(true).get(false).intValue());
+						covidNewDeathCount.add(location_new_deaths_map.get(zone).get(DISEASE.COVID).get(true).get(false).intValue());
 						} catch (Exception e) {
 							// No one in population met criteria
 							covidNewDeathCount.add(0);
@@ -964,7 +967,7 @@ public class Logging {
 
 				Map<Boolean, Map<String, List<Person>>> aliveAtLocation = get_alive_at_location(world);
 				// create a function to group the population by who is alive in each admin zone and has covid
-				Map<Boolean, Map<String, Map<Boolean,  Map<Boolean, List<Infection>>>>> covidAtLocation = get_covid_at_location(world);
+				Map<Boolean, Map<String, Map<DISEASE, Map<Boolean, List<Infection>>>>> covidAtLocation = get_covid_at_location(world);
 
 				// get a list of admin zone to iterate over
 				List <String> adminZones = ((WorldBankCovid19Sim)arg0).params.adminZoneNames;
@@ -1114,8 +1117,8 @@ public class Logging {
 			@Override
 			public void step(SimState arg0) {
 				// create a function to group the population by who is alive in each admin zone and has covid
-				Map<Boolean, Map<String, Map<Boolean, Map<Boolean, List<Infection>>>>> covidAtLocation = get_covid_at_location(world);
-				Map<String, Map<Boolean, Map<Boolean, Map<Boolean, List<Infection>>>>> covidDeathsAtLocation = get_dead_from_covid_at_location(
+				Map<Boolean, Map<String, Map<DISEASE, Map<Boolean, List<Infection>>>>> covidAtLocation = get_covid_at_location(world);
+				Map<String, Map<DISEASE, Map<Boolean, Map<Boolean, List<Infection>>>>> covidDeathsAtLocation = get_dead_from_covid_at_location(
 						world);
 				// get a list of admin zone to iterate over
 				List <String> adminZones = ((WorldBankCovid19Sim)arg0).params.adminZoneNames;
@@ -1170,7 +1173,7 @@ public class Logging {
 				// create a function to group the population by who is alive in each admin zone and has covid
 				Map<Boolean, Map<String, List<Person>>> aliveAtLocation = get_alive_at_location(world);
 				// create a function to group the population by who died from covid at each admin zone
-				Map<String, Map<Boolean, Map<Boolean, Map<Boolean, List<Infection>>>>> covidDeathsAtLocation = get_dead_from_covid_at_location(
+				Map<String, Map<DISEASE, Map<Boolean, Map<Boolean, List<Infection>>>>> covidDeathsAtLocation = get_dead_from_covid_at_location(
 						world);
 				// get a list of admin zone to iterate over
 				List <String> adminZones = ((WorldBankCovid19Sim)arg0).params.adminZoneNames;
@@ -1405,14 +1408,14 @@ public class Logging {
 				// create a function to group the population by sex, age and whether they are alive
 				
 				// create a function to group the population by occupation, age and whether they have covid
-				Map<OCCUPATION, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>>> economic_alive_has_covid = 
+				Map<OCCUPATION, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> economic_alive_has_covid = 
 						world.infections.stream().collect(
 						Collectors.groupingBy(
 								Infection::getHostEconStatus, 
 								Collectors.groupingBy(
 										Infection::isHostAlive,
 										Collectors.groupingBy(
-												Infection::isCovid,
+												Infection::getDiseaseType,
 												Collectors.groupingBy(
 														Infection::hasRecovered,
 												Collectors.groupingBy(
@@ -1436,11 +1439,11 @@ public class Logging {
 						)
 						);
 				// create a function to group the population by sex, age and whether they died from covid
-				Map<OCCUPATION, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>> econ_died_from_covid = world.infections.stream().collect(
+				Map<OCCUPATION, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>> econ_died_from_covid = world.infections.stream().collect(
 						Collectors.groupingBy(
 								Infection::getHostEconStatus, 
 									Collectors.groupingBy(
-											Infection::isCovid,
+											Infection::getDiseaseType,
 											Collectors.groupingBy(
 													Infection::isCauseOfDeath,
 													Collectors.groupingBy(
@@ -1454,14 +1457,14 @@ public class Logging {
 
 				for (OCCUPATION status: world.occupationsInSim) {
 					try {
-					status_covid_counts.add(economic_alive_has_covid.get(status).get(true).get(true).get(false).get(false).intValue());
+					status_covid_counts.add(economic_alive_has_covid.get(status).get(true).get(DISEASE.COVID).get(false).get(false).intValue());
 					}
 					catch (Exception e) {
 						// no one in population met criteria, skip
 						status_covid_counts.add(0);
 					}
 					try {
-						status_covid_death_counts.add(econ_died_from_covid.get(status).get(true).get(true).get(false).intValue());
+						status_covid_death_counts.add(econ_died_from_covid.get(status).get(DISEASE.COVID).get(true).get(false).intValue());
 						}
 					catch (Exception e) {
 						// no one in population met criteria, skip
