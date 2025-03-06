@@ -7,7 +7,7 @@ import uk.ac.ucl.protecs.sim.*;
 import sim.engine.Steppable;
 import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
-public class DummyBehaviourFramework extends InfectiousBehaviourFramework {
+public class DummyBehaviourFramework extends diseaseProgressionBehaviourFramework {
 	
 	public enum DummyBehaviourNode{
 		SUSCEPTIBLE("susceptible"), EXPOSED("exposed"), RECOVERED("recovered"), DEAD("dead");

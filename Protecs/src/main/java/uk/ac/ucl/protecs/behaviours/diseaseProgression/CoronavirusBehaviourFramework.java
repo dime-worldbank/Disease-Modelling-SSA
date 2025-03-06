@@ -10,7 +10,7 @@ import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
-public class CoronavirusBehaviourFramework extends InfectiousBehaviourFramework {
+public class CoronavirusBehaviourFramework extends diseaseProgressionBehaviourFramework {
 	
 	
 	public enum CoronavirusBehaviourNodeTitle{
