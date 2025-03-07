@@ -126,7 +126,7 @@ public class DummyInfectiousDisease implements Disease{
 				double myProb = myWorld.random.nextDouble();
 				if (!otherPerson.getDiseaseSet().containsKey(DISEASE.DUMMY_INFECTIOUS.key) && myProb < myWorld.params.dummy_infectious_beta) {
 					otherPerson.getDiseaseSet().put(DISEASE.DUMMY_INFECTIOUS.key, 
-							new DummyInfectiousDisease(otherPerson, this.getHost(), myWorld.infectiousFramework.getEntryPoint(), myWorld));
+							new DummyInfectiousDisease(otherPerson, this.getHost(), myWorld.dummyInfectiousFramework.getEntryPoint(), myWorld));
 					myWorld.schedule.scheduleOnce(otherPerson.getDiseaseSet().get(DISEASE.DUMMY_INFECTIOUS.key), myWorld.param_schedule_infecting); 
 				}
 			}
@@ -196,7 +196,7 @@ public class DummyInfectiousDisease implements Disease{
 						double myProb = myWorld.random.nextDouble();
 						if (!otherPerson.getDiseaseSet().containsKey(DISEASE.DUMMY_INFECTIOUS.key) && myProb < myWorld.params.dummy_infectious_beta) {
 							otherPerson.getDiseaseSet().put(DISEASE.DUMMY_INFECTIOUS.key, 
-									new DummyInfectiousDisease(otherPerson, this.getHost(), myWorld.infectiousFramework.getEntryPoint(), myWorld));
+									new DummyInfectiousDisease(otherPerson, this.getHost(), myWorld.dummyInfectiousFramework.getEntryPoint(), myWorld));
 							myWorld.schedule.scheduleOnce(otherPerson.getDiseaseSet().get(DISEASE.DUMMY_INFECTIOUS.key), myWorld.param_schedule_infecting); 
 						}
 					}

@@ -7,16 +7,16 @@ import uk.ac.ucl.protecs.sim.*;
 import sim.engine.Steppable;
 import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
-public class DummyDiseaseProgressionFramework extends diseaseProgressionBehaviourFramework {
+public class DummyNonCommunicableDiseaseProgressionFramework extends diseaseProgressionBehaviourFramework {
 	
-	public enum DummyBehaviourNode{
+	public enum DummyNonCommunicableBehaviourNode{
 		SUSCEPTIBLE("susceptible"), EXPOSED("exposed"), RECOVERED("recovered"), DEAD("dead");
 
         String key;
      
-        DummyBehaviourNode(String key) { this.key = key; }
+        DummyNonCommunicableBehaviourNode(String key) { this.key = key; }
     
-        static DummyBehaviourNode getValue(String x) {
+        static DummyNonCommunicableBehaviourNode getValue(String x) {
         	switch (x) {
         	case "susceptible":
         		return SUSCEPTIBLE;
@@ -59,7 +59,7 @@ public class DummyDiseaseProgressionFramework extends diseaseProgressionBehaviou
 	private nextStepDummy nextStep;
 
 	@SuppressWarnings("serial")
-	public DummyDiseaseProgressionFramework(WorldBankCovid19Sim world) {
+	public DummyNonCommunicableDiseaseProgressionFramework(WorldBankCovid19Sim world) {
 		super(world);
 		// TODO Auto-generated constructor stub
 		
@@ -68,7 +68,7 @@ public class DummyDiseaseProgressionFramework extends diseaseProgressionBehaviou
 			@Override
 			public String getTitle() {
 				// TODO Auto-generated method stub
-				return DummyBehaviourNode.SUSCEPTIBLE.key;
+				return DummyNonCommunicableBehaviourNode.SUSCEPTIBLE.key;
 			}
 
 			@Override
@@ -117,7 +117,7 @@ public class DummyDiseaseProgressionFramework extends diseaseProgressionBehaviou
 		@Override
 		public String getTitle() {
 			// TODO Auto-generated method stub
-			return DummyBehaviourNode.EXPOSED.key;
+			return DummyNonCommunicableBehaviourNode.EXPOSED.key;
 		}
 
 		@Override
@@ -165,7 +165,7 @@ public class DummyDiseaseProgressionFramework extends diseaseProgressionBehaviou
 		@Override
 		public String getTitle() {
 			// TODO Auto-generated method stub
-			return DummyBehaviourNode.RECOVERED.key;
+			return DummyNonCommunicableBehaviourNode.RECOVERED.key;
 		}
 
 		@Override
@@ -193,7 +193,7 @@ public class DummyDiseaseProgressionFramework extends diseaseProgressionBehaviou
 		@Override
 		public String getTitle() {
 			// TODO Auto-generated method stub
-			return DummyBehaviourNode.DEAD.key;
+			return DummyNonCommunicableBehaviourNode.DEAD.key;
 		}
 
 		@Override

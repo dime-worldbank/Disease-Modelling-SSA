@@ -7,9 +7,10 @@ import java.util.Random;
 
 import uk.ac.ucl.protecs.behaviours.*;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
-import uk.ac.ucl.protecs.behaviours.diseaseProgression.DummyDiseaseProgressionFramework;
+import uk.ac.ucl.protecs.behaviours.diseaseProgression.DummyNonCommunicableDiseaseProgressionFramework;
 import uk.ac.ucl.protecs.objects.diseases.DummyNonCommunicableDisease;
 import uk.ac.ucl.protecs.objects.diseases.Disease;
+import uk.ac.ucl.protecs.objects.diseases.DummyInfectiousDisease;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.objects.hosts.Person.OCCUPATION;
 import uk.ac.ucl.protecs.objects.hosts.Person.SEX;
@@ -18,6 +19,7 @@ import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.objects.locations.Workplace;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.SpuriousSymptomDiseaseProgressionFramework;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgressionFramework;
+import uk.ac.ucl.protecs.behaviours.diseaseProgression.DummyInfectiousDiseaseProgressionFramework;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 
@@ -41,7 +43,8 @@ public class WorldBankCovid19Sim extends SimState {
 	public MovementBehaviourFramework movementFramework = null;
 	public CoronavirusDiseaseProgressionFramework infectiousFramework = null;
 	public SpuriousSymptomDiseaseProgressionFramework spuriousFramework = null;
-	public DummyDiseaseProgressionFramework dummyFramework = null;
+	public DummyNonCommunicableDiseaseProgressionFramework dummyNCDFramework = null;
+	public DummyInfectiousDiseaseProgressionFramework dummyInfectiousFramework = null;
 	public Params params = null;
 	public boolean lockedDown = false;
 	// the names of file names of each output filename		
@@ -147,7 +150,8 @@ public class WorldBankCovid19Sim extends SimState {
 		infectiousFramework = new CoronavirusDiseaseProgressionFramework(this);
 		spuriousFramework = new SpuriousSymptomDiseaseProgressionFramework(this);
 		if (developingModularity) {
-			dummyFramework = new DummyDiseaseProgressionFramework(this);
+			dummyNCDFramework = new DummyNonCommunicableDiseaseProgressionFramework(this);
+			dummyInfectiousFramework = new DummyInfectiousDiseaseProgressionFramework(this);
 		}
 		// RESET SEED
 		random = new Random(this.seed());
@@ -246,12 +250,22 @@ public class WorldBankCovid19Sim extends SimState {
 			
 		};
 		schedule.scheduleRepeating(0, this.param_schedule_updating_locations, updateLocationLists);
+		
 		if (developingModularity) {
 			double num_to_seed = agents.size() / 10;
 			double i = 0.0;
 			for (Person a: agents) {
 				if (i < num_to_seed) {
-				DummyNonCommunicableDisease inf = new DummyNonCommunicableDisease(a, null, dummyFramework.getStandardEntryPoint(), this, 0);
+				DummyNonCommunicableDisease inf = new DummyNonCommunicableDisease(a, null, dummyNCDFramework.getStandardEntryPoint(), this, 0);
+				schedule.scheduleOnce(1, param_schedule_infecting, inf);
+				i ++ ;
+				}
+				else break;
+			}
+			i = 0.0;
+			for (Person a: agents) {
+				if (i < num_to_seed) {
+				DummyInfectiousDisease inf = new DummyInfectiousDisease(a, null, dummyInfectiousFramework.getStandardEntryPoint(), this, 0);
 				schedule.scheduleOnce(1, param_schedule_infecting, inf);
 				i ++ ;
 				}

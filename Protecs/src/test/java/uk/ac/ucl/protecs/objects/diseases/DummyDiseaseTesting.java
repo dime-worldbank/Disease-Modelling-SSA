@@ -28,7 +28,7 @@ public class DummyDiseaseTesting{
 		// Check that the dummy disase is loaded in to the simulation
 		HashSet<DISEASE> toCheck = helperFunctions.InfectionsPresentInSim(sim);
 
-		Assert.assertTrue(toCheck.contains(DISEASE.DUMMY_NCD));
+		Assert.assertTrue((toCheck.contains(DISEASE.DUMMY_NCD)) & (toCheck.contains(DISEASE.DUMMY_INFECTIOUS)));
 	}
 	
 	@Test
@@ -42,12 +42,13 @@ public class DummyDiseaseTesting{
 		helperFunctions.runSimulation(sim, numDays);
 		// Check that the dummy disase is loaded in to the simulation
 		HashSet<DISEASE> toCheck = helperFunctions.InfectionsPresentInSim(sim);
-		boolean dummyPresent = toCheck.contains(DISEASE.DUMMY_NCD);
+		boolean dummyNCDPresent = toCheck.contains(DISEASE.DUMMY_NCD);
+		boolean dummyInfectiousPresent = toCheck.contains(DISEASE.DUMMY_INFECTIOUS);
 		boolean covidPresent = toCheck.contains(DISEASE.COVID);
 		boolean covidSymptomsPresent = toCheck.contains(DISEASE.COVIDSPURIOUSSYMPTOM);
 
 
-		Assert.assertTrue(dummyPresent & covidPresent & covidSymptomsPresent);
+		Assert.assertTrue(dummyNCDPresent & dummyInfectiousPresent & covidPresent & covidSymptomsPresent);
 	}
 	
 	
