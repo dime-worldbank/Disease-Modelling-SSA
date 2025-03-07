@@ -16,7 +16,7 @@ import uk.ac.ucl.swise.behaviours.BehaviourNode;
  *
  */
 
-public class DummyInfection implements Disease {
+public class DummyNonCommunicableDisease implements Disease {
 
 	// record keeping
 	Person host;
@@ -50,17 +50,17 @@ public class DummyInfection implements Disease {
 	 * @param mySource - null implies that they are Patient 0.
 	 * @param initNode
 	 */
-	public DummyInfection(Person myHost, Person mySource, BehaviourNode initNode, WorldBankCovid19Sim sim){
+	public DummyNonCommunicableDisease(Person myHost, Person mySource, BehaviourNode initNode, WorldBankCovid19Sim sim){
 		this(myHost, mySource, initNode, sim, (int) sim.schedule.getTime());
 	}
 
-	public DummyInfection(Person myHost, Person mySource, BehaviourNode initNode, WorldBankCovid19Sim sim, int time){
+	public DummyNonCommunicableDisease(Person myHost, Person mySource, BehaviourNode initNode, WorldBankCovid19Sim sim, int time){
 		
 		host = myHost;
 		
 		source = mySource;
 		
-		host.addInfection(DISEASE.DUMMY, this);
+		host.addDisease(DISEASE.DUMMY_NCD, this);
 			
 		// store the time when it is infected!
 		time_infected = time;		
@@ -130,13 +130,13 @@ public class DummyInfection implements Disease {
 	@Override
 	public String getDiseaseName() {
 		
-		return "DUMMY";
+		return DISEASE.DUMMY_NCD.key;
 	}
 	
 	@Override
 	public DISEASE getDiseaseType() {
 		// TODO Auto-generated method stub
-		return DISEASE.DUMMY;
+		return DISEASE.DUMMY_NCD;
 	}
 	
 	@Override
@@ -424,6 +424,24 @@ public class DummyInfection implements Disease {
 
 	@Override
 	public void confirmTestLogged() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean isInfectious() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void horizontalTransmission() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void verticalTransmission() {
 		// TODO Auto-generated method stub
 		
 	}

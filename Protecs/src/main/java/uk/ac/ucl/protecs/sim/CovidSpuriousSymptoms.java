@@ -29,8 +29,8 @@ public class CovidSpuriousSymptoms implements SpuriousSymptoms {
 		List<Person> people_to_give_symptoms_to = filterForEligiblePeople(world);
 		try {
 		for (Person p : people_to_give_symptoms_to) {
-			p.addInfection(DISEASE.COVIDSPURIOUSSYMPTOM, new CoronavirusSpuriousSymptom(p, world, world.spuriousFramework.getEntryPoint(), time));
-			world.schedule.scheduleOnce(world.schedule.getTime(), world.param_schedule_infecting, p.getInfectionSet().get(DISEASE.COVIDSPURIOUSSYMPTOM.key));
+			p.addDisease(DISEASE.COVIDSPURIOUSSYMPTOM, new CoronavirusSpuriousSymptom(p, world, world.spuriousFramework.getEntryPoint(), time));
+			world.schedule.scheduleOnce(world.schedule.getTime(), world.param_schedule_infecting, p.getDiseaseSet().get(DISEASE.COVIDSPURIOUSSYMPTOM.key));
 	
 	      } 
 		} catch (NullPointerException e) {

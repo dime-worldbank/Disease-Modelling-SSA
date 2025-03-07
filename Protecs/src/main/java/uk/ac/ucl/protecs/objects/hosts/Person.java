@@ -13,6 +13,7 @@ import java.util.Iterator;
 
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.objects.diseases.Disease;
+import uk.ac.ucl.protecs.objects.diseases.DummyInfectiousDisease;
 import uk.ac.ucl.protecs.objects.locations.Household;
 import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.objects.locations.Workplace;
@@ -144,7 +145,7 @@ public class Person extends MobileAgent {
 	// activity
 	BehaviourNode currentActivityNode = null;
 	
-	HashMap <String, Disease> myInfectionSet = new HashMap <String, Disease>();
+	HashMap <String, Disease> myDiseaseSet = new HashMap <String, Disease>();
 	
 	// behaviours
 	boolean immobilised = false;
@@ -258,7 +259,7 @@ public class Person extends MobileAgent {
 	}
 	
 	public void die(String cause){
-		if (cause == "covid") {
+		if (cause == "COVID-19") {
 			isDead = true;
 			System.out.println(this.toString() + " has DIED from " + cause + " :( ");
 		}
@@ -274,105 +275,108 @@ public class Person extends MobileAgent {
 	}
 	
 	public void infectNeighbours(){
-		// if this person is dead, do not try and interact
-		if (this.isDead) return;
-		// if not currently in the space, do not try to interact
-		else if(currentLocation == null) return;
-		// if they do not have an infection object return out 
-//		else if(myInfection == null){
+		for (Disease d: this.getDiseaseSet().values()) {
+			if (d.isInfectious()) d.horizontalTransmission();
+		}
+//		// if this person is dead, do not try and interact
+//		if (this.isDead) return;
+//		// if not currently in the space, do not try to interact
+//		else if(currentLocation == null) return;
+//		// if they do not have an infection object return out 
+////		else if(myInfection == null){
+////			System.out.println("ERROR: " + this.myId + " asked to infect others, but is not infected!");
+////			return;
+////		}
+//		else if(!myDiseaseSet.containsKey(DISEASE.COVID.key)){
 //			System.out.println("ERROR: " + this.myId + " asked to infect others, but is not infected!");
 //			return;
 //		}
-		else if(!myInfectionSet.containsKey(DISEASE.COVID.key)){
-			System.out.println("ERROR: " + this.myId + " asked to infect others, but is not infected!");
-			return;
-		}
-		// if there is no one else other than the individual at the location, save computation time and return out
-		else if(this.currentLocation.getPersonsHere().length < 2) {
-			return; 
-			} 
-		
-		if(myWorld.params.setting_perfectMixing) {
-			
-			perfectMixingInteractions(); 
-			return;
-		}
-		else {
-			structuredMixingInteractions();
-			return;
-		} 
+//		// if there is no one else other than the individual at the location, save computation time and return out
+//		else if(this.currentLocation.getPersonsHere().length < 2) {
+//			return; 
+//			} 
+//		
+//		if(myWorld.params.setting_perfectMixing) {
+//			
+//			perfectMixingInteractions(); 
+//			return;
+//		}
+//		else {
+//			structuredMixingInteractions();
+//			return;
+//		} 
 	}
 		
  
-	private void perfectMixingInteractions() {
-		Object [] peopleHere = this.currentLocation.getPersonsHere();
-		int numPeople = peopleHere.length;
-		
-		double someInteractions = myWorld.params.community_num_interaction_perTick;
-		
-		double myNumInteractions = Math.min(numPeople - 1, someInteractions);
-		
-		// this number may be probabilistic - e.g. 3.5. In this case, in 50% of ticks they should
-		// interact with 4 people, and in 50% of ticks they should interact with only 3.
-		
-		// Thus, we calculate the probability of the extra person
-		double diff = myNumInteractions - Math.floor(myNumInteractions); // number between 0 and 1
-		
-		// if the random number is less than this, we bump the number up to the higher number this tick
-		if(myWorld.random.nextDouble() < diff)
-				myNumInteractions = Math.ceil(myNumInteractions);
-		
-		// don't interact with the same person twice
-		HashSet <Person> otherPeople = new HashSet <Person> ();
-		otherPeople.add(this);  
-		
-		for(int i = 0; i < myNumInteractions; i++) {
-			Person otherPerson = (Person) peopleHere[myWorld.random.nextInt(numPeople)]; 
-			
-			// don't interact with the same person multiple times
-			if(otherPeople.contains(otherPerson)) {
-				i -= 1;
-				continue; 
-			}
-			else
-				otherPeople.add(otherPerson); 
-			
-			myWorld.testingAgeDist.add(otherPerson.age); 
-			
-			// check if they are already infected; if they are not, infect with with probability BETA
-			double myProb = myWorld.random.nextDouble();
-			if (!otherPerson.myInfectionSet.containsKey(DISEASE.COVID.key) && myProb < myWorld.params.infection_beta) {
-				otherPerson.myInfectionSet.put(DISEASE.COVID.key, 
-						new CoronavirusInfection(otherPerson, this, myWorld.infectiousFramework.getEntryPoint(), myWorld));
-				myWorld.schedule.scheduleOnce(otherPerson.myInfectionSet.get(DISEASE.COVID.key), myWorld.param_schedule_infecting); 
-			}
-		}
-	}
-	
-	private void structuredMixingInteractions() {
-		if(currentLocation instanceof Household){
-			assert (!this.atWork): "p_" + this.getID() + "at work but having interactions at home";
-			interactWithin(currentLocation.personsHere, null, currentLocation.personsHere.size());		
-		}
-		// they may be at their economic activity site!
-		else if(currentLocation instanceof Workplace){
-			int myNumInteractions;
-			if (this.number_of_interactions_at_work < 0) 
-				this.number_of_interactions_at_work = myWorld.params.getWorkplaceContactCount(this.getEconStatus(), this.myWorld.random.nextDouble());
-			
-			myNumInteractions = (int) this.number_of_interactions_at_work / 2;
-
-			if (myNumInteractions > currentLocation.personsHere.size()) myNumInteractions = currentLocation.personsHere.size();
-			// interact 
-			interactWithin(workBubble, currentLocation.personsHere, myNumInteractions);
-
-		}
-		else {
-
-			perfectMixingInteractions(); 
-		}
-	
-	}
+//	private void perfectMixingInteractions() {
+//		Object [] peopleHere = this.currentLocation.getPersonsHere();
+//		int numPeople = peopleHere.length;
+//		
+//		double someInteractions = myWorld.params.community_num_interaction_perTick;
+//		
+//		double myNumInteractions = Math.min(numPeople - 1, someInteractions);
+//		
+//		// this number may be probabilistic - e.g. 3.5. In this case, in 50% of ticks they should
+//		// interact with 4 people, and in 50% of ticks they should interact with only 3.
+//		
+//		// Thus, we calculate the probability of the extra person
+//		double diff = myNumInteractions - Math.floor(myNumInteractions); // number between 0 and 1
+//		
+//		// if the random number is less than this, we bump the number up to the higher number this tick
+//		if(myWorld.random.nextDouble() < diff)
+//				myNumInteractions = Math.ceil(myNumInteractions);
+//		
+//		// don't interact with the same person twice
+//		HashSet <Person> otherPeople = new HashSet <Person> ();
+//		otherPeople.add(this);  
+//		
+//		for(int i = 0; i < myNumInteractions; i++) {
+//			Person otherPerson = (Person) peopleHere[myWorld.random.nextInt(numPeople)]; 
+//			
+//			// don't interact with the same person multiple times
+//			if(otherPeople.contains(otherPerson)) {
+//				i -= 1;
+//				continue; 
+//			}
+//			else
+//				otherPeople.add(otherPerson); 
+//			
+//			myWorld.testingAgeDist.add(otherPerson.age); 
+//			
+//			// check if they are already infected; if they are not, infect with with probability BETA
+//			double myProb = myWorld.random.nextDouble();
+//			if (!otherPerson.myDiseaseSet.containsKey(DISEASE.COVID.key) && myProb < myWorld.params.infection_beta) {
+//				otherPerson.myDiseaseSet.put(DISEASE.COVID.key, 
+//						new CoronavirusInfection(otherPerson, this, myWorld.infectiousFramework.getEntryPoint(), myWorld));
+//				myWorld.schedule.scheduleOnce(otherPerson.myDiseaseSet.get(DISEASE.COVID.key), myWorld.param_schedule_infecting); 
+//			}
+//		}
+//	}
+//	
+//	private void structuredMixingInteractions() {
+//		if(currentLocation instanceof Household){
+//			assert (!this.atWork): "p_" + this.getID() + "at work but having interactions at home";
+//			interactWithin(currentLocation.personsHere, null, currentLocation.personsHere.size());		
+//		}
+//		// they may be at their economic activity site!
+//		else if(currentLocation instanceof Workplace){
+//			int myNumInteractions;
+//			if (this.number_of_interactions_at_work < 0) 
+//				this.number_of_interactions_at_work = myWorld.params.getWorkplaceContactCount(this.getEconStatus(), this.myWorld.random.nextDouble());
+//			
+//			myNumInteractions = (int) this.number_of_interactions_at_work / 2;
+//
+//			if (myNumInteractions > currentLocation.personsHere.size()) myNumInteractions = currentLocation.personsHere.size();
+//			// interact 
+//			interactWithin(workBubble, currentLocation.personsHere, myNumInteractions);
+//
+//		}
+//		else {
+//
+//			perfectMixingInteractions(); 
+//		}
+//	
+//	}
 	
 	/**
 	 * A helper function for infectNeighbours().
@@ -387,7 +391,7 @@ public class Person extends MobileAgent {
 	 * 		represents the Persons with whom this Person might actually interact.
 	 * @param interactNumber - the number of interactions to make
 	 */
-	void interactWithin(HashSet <Person> group, HashSet <Person> largerCommunity, int interactNumber) {
+	public void interactWithin(HashSet <Person> group, HashSet <Person> largerCommunity, int interactNumber, DISEASE inf, double beta) {
 	
 		// set up parameters
 		boolean largerCommunityContext = largerCommunity != null;
@@ -419,12 +423,27 @@ public class Person extends MobileAgent {
 				
 				// if neither of the above are true, the interaction can take place!
 				numberOfInteractions -= 1; 
-				
-				// check if they are already infected; if they are not, infect with with probability BETA
-				if(!p.myInfectionSet.containsKey(DISEASE.COVID.key) && myWorld.random.nextDouble() < myWorld.params.infection_beta){
-					p.myInfectionSet.put(DISEASE.COVID.key, new CoronavirusInfection(p, this, myWorld.infectiousFramework.getEntryPoint(), myWorld));
-					myWorld.schedule.scheduleOnce(p.myInfectionSet.get(DISEASE.COVID.key), myWorld.param_schedule_infecting);
+				switch (inf) {
+				case COVID:{
+					if(!p.myDiseaseSet.containsKey(inf.key) && myWorld.random.nextDouble() < beta){
+						p.myDiseaseSet.put(inf.key, new CoronavirusInfection(p, this, myWorld.infectiousFramework.getEntryPoint(), myWorld));
+						myWorld.schedule.scheduleOnce(p.myDiseaseSet.get(inf.key), myWorld.param_schedule_infecting);
+					}
 				}
+				case DUMMY_INFECTIOUS:{
+					if(!p.myDiseaseSet.containsKey(inf.key) && myWorld.random.nextDouble() < beta){
+						p.myDiseaseSet.put(inf.key, new DummyInfectiousDisease(p, this, myWorld.infectiousFramework.getEntryPoint(), myWorld));
+						myWorld.schedule.scheduleOnce(p.myDiseaseSet.get(inf.key), myWorld.param_schedule_infecting);
+					}
+				}
+				default:
+					break;
+				}
+				// check if they are already infected; if they are not, infect with with probability BETA
+//				if(!p.myDiseaseSet.containsKey(inf.key) && myWorld.random.nextDouble() < beta){
+//					p.myDiseaseSet.put(inf.key, new CoronavirusInfection(p, this, myWorld.infectiousFramework.getEntryPoint(), myWorld));
+//					myWorld.schedule.scheduleOnce(p.myDiseaseSet.get(inf.key), myWorld.param_schedule_infecting);
+//				}
 
 			}
 			else // just pass over it
@@ -479,10 +498,10 @@ public class Person extends MobileAgent {
 	public void setCommunityBubble(HashSet <Person> newBubble) { communityBubble = newBubble; }
 	
 	// MODULAR DISEASE MANAGEMENT
-	public void addInfection(DISEASE disease, Disease i) {
-		this.myInfectionSet.put(disease.key, i);
+	public void addDisease(DISEASE disease, Disease i) {
+		this.myDiseaseSet.put(disease.key, i);
 	};
-	public HashMap<String, Disease> getInfectionSet() {return this.myInfectionSet; }
+	public HashMap<String, Disease> getDiseaseSet() {return this.myDiseaseSet; }
 
 
 	// ATTRIBUTES
@@ -520,6 +539,9 @@ public class Person extends MobileAgent {
 	public String getCurrentAdminZone() {return this.getHousehold().getRootSuperLocation().myId;}
 	public void setUnemployed() {this.isUnemployed = true;}
 	public boolean isUnemployed() {return this.isUnemployed;}  
+	public void setNumberOfWorkplaceInteractions(int n) {this.number_of_interactions_at_work = n;}
+	public int getNumberOfWorkplaceInteractions() {return this.number_of_interactions_at_work;}
+
 	public void resetWorkplaceContacts() { this.number_of_interactions_at_work = Integer.MIN_VALUE;}
 	// UTILS
 	
@@ -555,8 +577,8 @@ public class Person extends MobileAgent {
 	}
 	
 	public boolean hasSymptomaticCovid() {
-		if (this.getInfectionSet().containsKey(DISEASE.COVID.key)) {
-			if (!this.getInfectionSet().get(DISEASE.COVID.key).getBehaviourName().equals("asymptomatic"))
+		if (this.getDiseaseSet().containsKey(DISEASE.COVID.key)) {
+			if (!this.getDiseaseSet().get(DISEASE.COVID.key).getBehaviourName().equals("asymptomatic"))
 			return true;
 		}
 		return false;

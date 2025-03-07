@@ -2,7 +2,7 @@ package uk.ac.ucl.protecs.behaviours.diseaseProgression;
 
 
 
-import uk.ac.ucl.protecs.objects.diseases.DummyInfection;
+import uk.ac.ucl.protecs.objects.diseases.DummyNonCommunicableDisease;
 import uk.ac.ucl.protecs.sim.*;
 import sim.engine.Steppable;
 import uk.ac.ucl.swise.behaviours.BehaviourNode;
@@ -81,7 +81,7 @@ public class DummyDiseaseProgressionFramework extends diseaseProgressionBehaviou
 					nextStep = nextStepDummy.CAUSE_SYMPTOMS;
 				}
 				// check if this person has died
-				DummyInfection d = (DummyInfection) s;
+				DummyNonCommunicableDisease d = (DummyNonCommunicableDisease) s;
 
 				if (!d.getHost().isAlive()) {
 					nextStep = nextStepDummy.HAS_DIED;
@@ -128,7 +128,7 @@ public class DummyDiseaseProgressionFramework extends diseaseProgressionBehaviou
 				nextStep = nextStepDummy.RECOVER;
 			}
 			// check if this person has died
-			DummyInfection d = (DummyInfection) s;
+			DummyNonCommunicableDisease d = (DummyNonCommunicableDisease) s;
 			d.time_infected = time;
 			if (!d.getHost().isAlive()) {
 				nextStep = nextStepDummy.HAS_DIED;
@@ -170,7 +170,7 @@ public class DummyDiseaseProgressionFramework extends diseaseProgressionBehaviou
 
 		@Override
 		public double next(Steppable s, double time) {
-			DummyInfection d = (DummyInfection) s;
+			DummyNonCommunicableDisease d = (DummyNonCommunicableDisease) s;
 			// store the recovery time
 			d.time_recovered = time;
 			// do nothing by refault
@@ -198,7 +198,7 @@ public class DummyDiseaseProgressionFramework extends diseaseProgressionBehaviou
 
 		@Override
 		public double next(Steppable s, double time) {
-			DummyInfection d = (DummyInfection) s;
+			DummyNonCommunicableDisease d = (DummyNonCommunicableDisease) s;
 			// Store time of death
 			d.time_died = time;
 			return Double.MAX_VALUE;

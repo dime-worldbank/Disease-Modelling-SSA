@@ -263,8 +263,8 @@ public class CoronavirusDiseaseProgressionFramework extends diseaseProgressionBe
 				i.getHost().infectNeighbours();
 				i.setSymptomatic();
 				i.setEligibleForTesting();
-				if (i.getHost().getInfectionSet().containsKey(DISEASE.COVIDSPURIOUSSYMPTOM.key)) {
-					i.getHost().getInfectionSet().get(DISEASE.COVIDSPURIOUSSYMPTOM.key).setAsympt();
+				if (i.getHost().getDiseaseSet().containsKey(DISEASE.COVIDSPURIOUSSYMPTOM.key)) {
+					i.getHost().getDiseaseSet().get(DISEASE.COVIDSPURIOUSSYMPTOM.key).setAsympt();
 				}
 				
 				// if the agent is scheduled to recover, make sure that it
@@ -525,7 +525,7 @@ public class CoronavirusDiseaseProgressionFramework extends diseaseProgressionBe
 			public double next(Steppable s, double time) {
 				CoronavirusInfection i = (CoronavirusInfection) s;
 				// remove covid from person object
-				i.getHost().die("covid");
+				i.getHost().die("COVID-19");
 				i.setAsCauseOfDeath();
 				i.time_died = time;
 								

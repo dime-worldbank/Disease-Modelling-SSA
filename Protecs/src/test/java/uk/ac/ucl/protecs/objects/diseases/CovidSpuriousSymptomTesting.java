@@ -79,7 +79,7 @@ public class CovidSpuriousSymptomTesting{
 		sim.params.infection_beta = 0.0;
 		// remove and existing infections from the population and assign half the population spurious symptoms
 		for (Person p: sim.agents) {
-			if (p.getInfectionSet().containsKey(DISEASE.COVID.key)) {
+			if (p.getDiseaseSet().containsKey(DISEASE.COVID.key)) {
 				p.die("");
 				}
 		}
@@ -99,7 +99,7 @@ public class CovidSpuriousSymptomTesting{
 		// Remove the development of new symptoms
 		sim.params.infection_beta = 0.0;
 		// remove all people with covid
-		for (Person p: sim.agents) { if (p.getInfectionSet().containsKey(DISEASE.COVID.key)) {p.die("");}}
+		for (Person p: sim.agents) { if (p.getDiseaseSet().containsKey(DISEASE.COVID.key)) {p.die("");}}
 		// create spurious symptoms
 		giveAFractionASpuriousSymptom(1, sim);
 		helperFunctions.runSimulation(sim, numDays);
@@ -129,8 +129,8 @@ public class CovidSpuriousSymptomTesting{
 	public void giveAFractionASpuriousSymptom(double fraction, WorldBankCovid19Sim sim) {
 		for (Person p: sim.agents) {
 			if (sim.random.nextDouble() <= fraction) {
-			p.addInfection(DISEASE.COVIDSPURIOUSSYMPTOM, new CoronavirusSpuriousSymptom(p, sim, sim.spuriousFramework.getStandardEntryPoint(), 0));
-			sim.schedule.scheduleOnce(1, sim.param_schedule_infecting, p.getInfectionSet().get(DISEASE.COVIDSPURIOUSSYMPTOM.key));
+			p.addDisease(DISEASE.COVIDSPURIOUSSYMPTOM, new CoronavirusSpuriousSymptom(p, sim, sim.spuriousFramework.getStandardEntryPoint(), 0));
+			sim.schedule.scheduleOnce(1, sim.param_schedule_infecting, p.getDiseaseSet().get(DISEASE.COVIDSPURIOUSSYMPTOM.key));
 		}
 		}
 	}

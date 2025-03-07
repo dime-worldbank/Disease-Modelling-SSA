@@ -45,7 +45,7 @@ public class CoronavirusSpuriousSymptom implements Disease{
 		this.timeCreated = time;
 		this.myWorld = sim;
 		this.myWorld.infections.add(this);
-		this.host.addInfection(DISEASE.COVIDSPURIOUSSYMPTOM, this);
+		this.host.addDisease(DISEASE.COVIDSPURIOUSSYMPTOM, this);
 
 
 	}
@@ -131,7 +131,9 @@ public class CoronavirusSpuriousSymptom implements Disease{
 		return this.currentBehaviourNode.getTitle();
 	}
 
-
+	public boolean isInfectious() {
+		return false;
+	}
 	// =============================================== Disease type classification ===========================================================================
 	@Override
 	public String getDiseaseName() {
@@ -433,5 +435,17 @@ public class CoronavirusSpuriousSymptom implements Disease{
 	public void confirmTestLogged() {
 		// TODO Auto-generated method stub
 		this.testLogged = true;
+	}
+
+	@Override
+	public void horizontalTransmission() {
+		// NA
+		
+	}
+
+	@Override
+	public void verticalTransmission() {
+		// NA
+		
 	}
 }

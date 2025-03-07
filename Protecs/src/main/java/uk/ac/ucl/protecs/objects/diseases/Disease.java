@@ -5,6 +5,9 @@ import uk.ac.ucl.protecs.objects.hosts.Person.OCCUPATION;
 import uk.ac.ucl.protecs.objects.hosts.Person.SEX;
 import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
+
+import java.util.HashSet;
+
 import sim.engine.Steppable;
 import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
@@ -35,6 +38,14 @@ public interface Disease extends Steppable {
 	public void setBehaviourNode(BehaviourNode bn);
 	
 	public String getBehaviourName();
+	
+	public boolean isInfectious();
+	
+	// =============================================== Disease transmission ===========================================================================
+	
+	public void horizontalTransmission();
+	
+	public void verticalTransmission();
 	
 	// =============================================== Disease type classification ===========================================================================			
 	public boolean isOfType(DISEASE disease);

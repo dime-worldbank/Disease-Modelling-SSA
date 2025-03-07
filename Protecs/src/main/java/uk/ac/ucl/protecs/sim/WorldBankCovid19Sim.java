@@ -8,7 +8,7 @@ import java.util.Random;
 import uk.ac.ucl.protecs.behaviours.*;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.DummyDiseaseProgressionFramework;
-import uk.ac.ucl.protecs.objects.diseases.DummyInfection;
+import uk.ac.ucl.protecs.objects.diseases.DummyNonCommunicableDisease;
 import uk.ac.ucl.protecs.objects.diseases.Disease;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.objects.hosts.Person.OCCUPATION;
@@ -76,7 +76,7 @@ public class WorldBankCovid19Sim extends SimState {
 	
 	// Create a enum list of diseases modelled currently, these will be used to categorise any infections a person may get over the course of the simulation.
 	public enum DISEASE{
-		DUMMY("dummy"), COVID("covid"), COVIDSPURIOUSSYMPTOM("covidspurioussymptom");
+		DUMMY_NCD("DUMMY_NCD"), DUMMY_INFECTIOUS("DUMMY_INFECTIOUS"), COVID("COVID-19"), COVIDSPURIOUSSYMPTOM("COVID-19_SPURIOUS_SYMPTOM");
 
         public String key;
      
@@ -84,8 +84,10 @@ public class WorldBankCovid19Sim extends SimState {
     
         public static DISEASE getValue(String x) {
         	switch (x) {
-        	case "DUMMY":
-        		return DUMMY;
+        	case "DUMMY_NCD":
+        		return DUMMY_NCD;
+        	case "DUMMY_INFECTIOUS":
+        		return DUMMY_INFECTIOUS;
         	case "COVID-19":
         		return COVID;
         	case "COVID-19_SPURIOUS_SYMPTOM":
@@ -249,7 +251,7 @@ public class WorldBankCovid19Sim extends SimState {
 			double i = 0.0;
 			for (Person a: agents) {
 				if (i < num_to_seed) {
-				DummyInfection inf = new DummyInfection(a, null, dummyFramework.getStandardEntryPoint(), this, 0);
+				DummyNonCommunicableDisease inf = new DummyNonCommunicableDisease(a, null, dummyFramework.getStandardEntryPoint(), this, 0);
 				schedule.scheduleOnce(1, param_schedule_infecting, inf);
 				i ++ ;
 				}

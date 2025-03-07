@@ -60,13 +60,13 @@ public class ImportExport {
 				String myStr = p.toString();
 				//myStr += ";" + p.getEconStatus() + ";" + p.getAge() + ";" + p.getInfectStatus();
 				
-				if(p.getInfectionSet().containsKey(DISEASE.COVID.key)){					
-					Person source = p.getInfectionSet().get(DISEASE.COVID.key).getSource();
+				if(p.getDiseaseSet().containsKey(DISEASE.COVID.key)){					
+					Person source = p.getDiseaseSet().get(DISEASE.COVID.key).getSource();
 					String sourceName = null;
 					if(source != null)
 						sourceName = source.toString();
 					//myStr += ";" + p.getInfection().getStartTime() + ";" + sourceName;
-					myStr = p.getInfectionSet().get(DISEASE.COVID.key).getBehaviourName();
+					myStr = p.getDiseaseSet().get(DISEASE.COVID.key).getBehaviourName();
 				}
 				else
 					//myStr += "Susceptible;;";

@@ -21,6 +21,7 @@ public class Params {
 	public boolean verbose = true;
 	
 	public double infection_beta = 0.016;
+	public double dummy_infectious_beta = 0.05;
 	public double rate_of_spurious_symptoms = 0.004;
 	public int lineListWeightingFactor = 1; // the line list contains only detected instances, which can be biased 
 											// - weight this if we suspect it's undercounting

@@ -3,9 +3,14 @@ package uk.ac.ucl.protecs.objects.diseases;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.objects.hosts.Person.OCCUPATION;
 import uk.ac.ucl.protecs.objects.hosts.Person.SEX;
+import uk.ac.ucl.protecs.objects.locations.Household;
 import uk.ac.ucl.protecs.objects.locations.Location;
+import uk.ac.ucl.protecs.objects.locations.Workplace;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
+
+import java.util.HashSet;
+
 import sim.engine.SimState;
 import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
@@ -26,9 +31,6 @@ public class CoronavirusInfection implements Disease {
 	
 	// behaviours
 	BehaviourNode currentBehaviourNode = null;
-	
-	double infection_rate;
-	int infected_symptomatic_status;
 
 	// infection timekeeping
 	// default these to max value so it's clear when they've been reset
@@ -80,7 +82,7 @@ public class CoronavirusInfection implements Disease {
 	public CoronavirusInfection(Person myHost, Person mySource, BehaviourNode initNode, WorldBankCovid19Sim sim, int time){
 		
 		host = myHost;
-		myHost.addInfection(DISEASE.COVID, this);
+		myHost.addDisease(DISEASE.COVID, this);
 		source = mySource;
 		
 		//	epidemic_state = Params.state_susceptible;
@@ -104,6 +106,140 @@ public class CoronavirusInfection implements Disease {
 		double myDelta = this.currentBehaviourNode.next(this, time);
 		world.schedule.scheduleOnce(time + myDelta, myWorld.param_schedule_infecting, this);
 	}
+	// =============================================== Disease transmission  =====================================================================
+	
+		@Override
+		public void horizontalTransmission() {
+			// if this infection's host is dead, do not try and interact
+			if (!host.isAlive()) return;
+			// if not currently in the space, do not try to interact
+			else if(host.getLocation() == null) return;
+			// if there is no one else other than the individual at the location, save computation time and return out
+			else if(host.getLocation().getPersonsHere().length < 2) {
+				return; 
+				} 
+			if(myWorld.params.setting_perfectMixing) {
+				Object [] peopleHere = host.getLocation().getPersonsHere();
+				int numPeople = peopleHere.length;
+				
+				double someInteractions = myWorld.params.community_num_interaction_perTick;
+				
+				double myNumInteractions = Math.min(numPeople - 1, someInteractions);
+				
+				// this number may be probabilistic - e.g. 3.5. In this case, in 50% of ticks they should
+				// interact with 4 people, and in 50% of ticks they should interact with only 3.
+				
+				// Thus, we calculate the probability of the extra person
+				double diff = myNumInteractions - Math.floor(myNumInteractions); // number between 0 and 1
+				
+				// if the random number is less than this, we bump the number up to the higher number this tick
+				if(myWorld.random.nextDouble() < diff)
+						myNumInteractions = Math.ceil(myNumInteractions);
+				
+				// don't interact with the same person twice
+				HashSet <Person> otherPeople = new HashSet <Person> ();
+				otherPeople.add(host);  
+				
+				for(int i = 0; i < myNumInteractions; i++) {
+					Person otherPerson = (Person) peopleHere[myWorld.random.nextInt(numPeople)]; 
+					
+					// don't interact with the same person multiple times
+					if(otherPeople.contains(otherPerson)) {
+						i -= 1;
+						continue; 
+					}
+					else
+						otherPeople.add(otherPerson); 
+									
+					// check if they are already infected; if they are not, infect with with probability BETA
+					double myProb = myWorld.random.nextDouble();
+					if (!otherPerson.getDiseaseSet().containsKey(DISEASE.COVID.key) && myProb < myWorld.params.infection_beta) {
+						otherPerson.getDiseaseSet().put(DISEASE.COVID.key, 
+								new CoronavirusInfection(otherPerson, this.getHost(), myWorld.infectiousFramework.getEntryPoint(), myWorld));
+						myWorld.schedule.scheduleOnce(otherPerson.getDiseaseSet().get(DISEASE.COVID.key), myWorld.param_schedule_infecting); 
+					}
+				}
+				return;
+			}
+			else {
+				if(this.getHost().getLocation() instanceof Household){
+					assert (!this.getHost().atWorkNow()): "p_" + this.getHost().getID() + "at work but having interactions at home";
+					this.getHost().interactWithin(this.getHost().getLocation().personsHere, null, this.getHost().getLocation().personsHere.size(), DISEASE.COVID, myWorld.params.infection_beta);		
+				}
+				// they may be at their economic activity site!
+				else if(this.getHost().getLocation() instanceof Workplace){
+					int myNumInteractions;
+					if (this.getHost().getNumberOfWorkplaceInteractions() < 0) 
+						this.getHost().setNumberOfWorkplaceInteractions(myWorld.params.getWorkplaceContactCount(this.getHost().getEconStatus(), this.myWorld.random.nextDouble()));
+					
+					myNumInteractions = (int) this.getHost().getNumberOfWorkplaceInteractions() / 2;
+
+					if (myNumInteractions > this.getHost().getLocation().personsHere.size()) myNumInteractions = this.getHost().getLocation().personsHere.size();
+					// interact 
+					this.getHost().interactWithin(this.getHost().getLocation().personsHere, null, myNumInteractions, DISEASE.COVID, myWorld.params.infection_beta);		
+
+				}
+				else {
+					// if this infection's host is dead, do not try and interact
+					if (!host.isAlive()) return;
+					// if not currently in the space, do not try to interact
+					else if(host.getLocation() == null) return;
+					// if there is no one else other than the individual at the location, save computation time and return out
+					else if(host.getLocation().getPersonsHere().length < 2) {
+						return; 
+						} 
+					if(myWorld.params.setting_perfectMixing) {
+						Object [] peopleHere = host.getLocation().getPersonsHere();
+						int numPeople = peopleHere.length;
+						
+						double someInteractions = myWorld.params.community_num_interaction_perTick;
+						
+						double myNumInteractions = Math.min(numPeople - 1, someInteractions);
+						
+						// this number may be probabilistic - e.g. 3.5. In this case, in 50% of ticks they should
+						// interact with 4 people, and in 50% of ticks they should interact with only 3.
+						
+						// Thus, we calculate the probability of the extra person
+						double diff = myNumInteractions - Math.floor(myNumInteractions); // number between 0 and 1
+						
+						// if the random number is less than this, we bump the number up to the higher number this tick
+						if(myWorld.random.nextDouble() < diff)
+								myNumInteractions = Math.ceil(myNumInteractions);
+						
+						// don't interact with the same person twice
+						HashSet <Person> otherPeople = new HashSet <Person> ();
+						otherPeople.add(host);  
+						
+						for(int i = 0; i < myNumInteractions; i++) {
+							Person otherPerson = (Person) peopleHere[myWorld.random.nextInt(numPeople)]; 
+							
+							// don't interact with the same person multiple times
+							if(otherPeople.contains(otherPerson)) {
+								i -= 1;
+								continue; 
+							}
+							else
+								otherPeople.add(otherPerson); 
+											
+							// check if they are already infected; if they are not, infect with with probability BETA
+							double myProb = myWorld.random.nextDouble();
+							if (!otherPerson.getDiseaseSet().containsKey(DISEASE.COVID.key) && myProb < myWorld.params.infection_beta) {
+								otherPerson.getDiseaseSet().put(DISEASE.COVID.key, 
+										new CoronavirusInfection(otherPerson, this.getHost(), myWorld.infectiousFramework.getEntryPoint(), myWorld));
+								myWorld.schedule.scheduleOnce(otherPerson.getDiseaseSet().get(DISEASE.COVID.key), myWorld.param_schedule_infecting); 
+							}
+						}
+						return;
+					}
+			} 
+		}
+		}
+		
+		@Override
+		public void verticalTransmission() {
+			// TODO Auto-generated method stub
+			
+		}	
 	// =============================================== relevant information on the host ==============================================================
 	public Person getHost() { return host; }
 	
@@ -148,6 +284,11 @@ public class CoronavirusInfection implements Disease {
 		if(this.currentBehaviourNode == null) return "";
 		return this.currentBehaviourNode.getTitle();
 	}
+	
+	public boolean isInfectious() {
+		return true;
+	}
+
 	
 	// =============================================== Disease type classification ===========================================================================
 	@Override
@@ -500,4 +641,5 @@ public class CoronavirusInfection implements Disease {
 		// TODO Auto-generated method stub
 		this.testLogged = true;
 	}
+
 }
