@@ -124,7 +124,7 @@ public class DummyInfectiousDisease implements Disease{
 								
 				// check if they are already infected; if they are not, infect with with probability BETA
 				double myProb = myWorld.random.nextDouble();
-				if (!otherPerson.getDiseaseSet().containsKey(DISEASE.DUMMY_INFECTIOUS.key) && myProb < myWorld.params.dummy_infectious_beta) {
+				if (!otherPerson.getDiseaseSet().containsKey(DISEASE.DUMMY_INFECTIOUS.key) && myProb < myWorld.params.dummy_infectious_beta_horizontal) {
 					otherPerson.getDiseaseSet().put(DISEASE.DUMMY_INFECTIOUS.key, 
 							new DummyInfectiousDisease(otherPerson, this.getHost(), myWorld.dummyInfectiousFramework.getEntryPoint(), myWorld));
 					myWorld.schedule.scheduleOnce(otherPerson.getDiseaseSet().get(DISEASE.DUMMY_INFECTIOUS.key), myWorld.param_schedule_infecting); 
@@ -135,7 +135,7 @@ public class DummyInfectiousDisease implements Disease{
 		else {
 			if(this.getHost().getLocation() instanceof Household){
 				assert (!this.getHost().atWorkNow()): "p_" + this.getHost().getID() + "at work but having interactions at home";
-				this.getHost().interactWithin(this.getHost().getLocation().personsHere, null, this.getHost().getLocation().personsHere.size(), DISEASE.DUMMY_INFECTIOUS, myWorld.params.dummy_infectious_beta);		
+				this.getHost().interactWithin(this.getHost().getLocation().personsHere, null, this.getHost().getLocation().personsHere.size(), DISEASE.DUMMY_INFECTIOUS, myWorld.params.dummy_infectious_beta_horizontal);		
 			}
 			// they may be at their economic activity site!
 			else if(this.getHost().getLocation() instanceof Workplace){
@@ -147,7 +147,7 @@ public class DummyInfectiousDisease implements Disease{
 
 				if (myNumInteractions > this.getHost().getLocation().personsHere.size()) myNumInteractions = this.getHost().getLocation().personsHere.size();
 				// interact 
-				this.getHost().interactWithin(this.getHost().getLocation().personsHere, null, myNumInteractions, DISEASE.DUMMY_INFECTIOUS, myWorld.params.dummy_infectious_beta);		
+				this.getHost().interactWithin(this.getHost().getLocation().personsHere, null, myNumInteractions, DISEASE.DUMMY_INFECTIOUS, myWorld.params.dummy_infectious_beta_horizontal);		
 
 			}
 			else {
@@ -194,7 +194,7 @@ public class DummyInfectiousDisease implements Disease{
 										
 						// check if they are already infected; if they are not, infect with with probability BETA
 						double myProb = myWorld.random.nextDouble();
-						if (!otherPerson.getDiseaseSet().containsKey(DISEASE.DUMMY_INFECTIOUS.key) && myProb < myWorld.params.dummy_infectious_beta) {
+						if (!otherPerson.getDiseaseSet().containsKey(DISEASE.DUMMY_INFECTIOUS.key) && myProb < myWorld.params.dummy_infectious_beta_horizontal) {
 							otherPerson.getDiseaseSet().put(DISEASE.DUMMY_INFECTIOUS.key, 
 									new DummyInfectiousDisease(otherPerson, this.getHost(), myWorld.dummyInfectiousFramework.getEntryPoint(), myWorld));
 							myWorld.schedule.scheduleOnce(otherPerson.getDiseaseSet().get(DISEASE.DUMMY_INFECTIOUS.key), myWorld.param_schedule_infecting); 
@@ -207,9 +207,13 @@ public class DummyInfectiousDisease implements Disease{
 	}
 	
 	@Override
-	public void verticalTransmission() {
-		// TODO Auto-generated method stub
-		
+	public void verticalTransmission(Person baby) {
+		double myProb = myWorld.random.nextDouble();
+		if (!baby.getDiseaseSet().containsKey(DISEASE.DUMMY_INFECTIOUS.key) && myProb < myWorld.params.dummy_infectious_beta_vertical) {
+			baby.getDiseaseSet().put(DISEASE.DUMMY_INFECTIOUS.key, 
+					new DummyInfectiousDisease(baby, this.getHost(), myWorld.dummyInfectiousFramework.getEntryPoint(), myWorld));
+			myWorld.schedule.scheduleOnce(baby.getDiseaseSet().get(DISEASE.DUMMY_INFECTIOUS.key), myWorld.param_schedule_infecting); 
+		}
 	}
 
 	// =============================================== relevant information on the host ==============================================================

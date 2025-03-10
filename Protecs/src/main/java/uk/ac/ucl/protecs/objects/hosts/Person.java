@@ -276,7 +276,7 @@ public class Person extends MobileAgent {
 	
 	public void infectNeighbours(){
 		for (Disease d: this.getDiseaseSet().values()) {
-			if (d.isInfectious()) d.horizontalTransmission();
+			d.horizontalTransmission();
 		}
 //		// if this person is dead, do not try and interact
 //		if (this.isDead) return;

@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import uk.ac.ucl.protecs.helperFunctions.*;
+import uk.ac.ucl.protecs.helperFunctions.helperFunctions.birthsOrDeaths;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.objects.hosts.Person.SEX;
 
@@ -19,10 +20,7 @@ import java.util.stream.Collectors;
 // ================================================================================================================================
 
 public class DemographyTesting {
-	enum birthsOrDeaths{
-		births,
-		deaths
-	}
+
 	private final static String paramsDir = "src/test/resources/";
 
 	@Test
@@ -31,7 +29,7 @@ public class DemographyTesting {
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
 		sim.start();
 		// turn off deaths to only focus on births.
-		turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
+		helperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
 		// Increase the birth rate to ensure births take place
 		helperFunctions.setParameterListsToValue(sim, sim.params.prob_birth_by_age, 1.0);
 		// Run the simulation for 100 days
@@ -49,7 +47,7 @@ public class DemographyTesting {
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
 		sim.start();
 		// turn off deaths to only focus on births.
-		turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
+		helperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
 		// Remove women in the simulation
 		for (Person p: sim.agents) {
 			if (p.getSex().equals(SEX.FEMALE)) {p.die("");}
@@ -82,8 +80,8 @@ public class DemographyTesting {
 	
 		sim_with_female_mortality.start();
 		// Make sure there are no births in either simulation
-		turnOffBirthsOrDeaths(sim_with_male_mortality, birthsOrDeaths.births);
-		turnOffBirthsOrDeaths(sim_with_female_mortality, birthsOrDeaths.births);
+		helperFunctions.turnOffBirthsOrDeaths(sim_with_male_mortality, birthsOrDeaths.births);
+		helperFunctions.turnOffBirthsOrDeaths(sim_with_female_mortality, birthsOrDeaths.births);
 		// Get initial counts of the number of males and females that are alive in each simulation
 		
 		int with_male_mortality_initial_male_counts = getAliveCountsBySex(sim_with_male_mortality, SEX.MALE, true);
@@ -119,8 +117,8 @@ public class DemographyTesting {
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
 		sim.start();
 		// turn off deaths births and deaths
-		turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
-		turnOffBirthsOrDeaths(sim, birthsOrDeaths.births);
+		helperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
+		helperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.births);
 		ArrayList <Integer> originalAges = new ArrayList <Integer> ();
 		for (Person p: sim.agents) {
 			originalAges.add(p.getAge());
@@ -146,21 +144,6 @@ public class DemographyTesting {
 	}
 
 	// ================================================ Helper functions =======================================================================
-
-	public void turnOffBirthsOrDeaths(WorldBankCovid19Sim world, birthsOrDeaths whatToTurnOff) {
-		switch (whatToTurnOff) {
-		case births:
-			helperFunctions.setParameterListsToValue(world, world.params.prob_birth_by_age, 0.0);
-			break;
-		case deaths:
-			helperFunctions.setParameterListsToValue(world, world.params.prob_death_by_age_male, 0.0);
-			helperFunctions.setParameterListsToValue(world, world.params.prob_death_by_age_female, 0.0);
-			break;
-		default:
-			System.out.println("No part of the demography has been turned off");
-		}
-		
-	}
 	
 	public int getAliveCountsBySex(WorldBankCovid19Sim world, SEX sex, boolean alive) {
 		Map<SEX, Map<Boolean, Long>> sex_alive_map = world.agents.stream().collect(

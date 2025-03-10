@@ -45,7 +45,7 @@ public interface Disease extends Steppable {
 	
 	public void horizontalTransmission();
 	
-	public void verticalTransmission();
+	public void verticalTransmission(Person baby);
 	
 	// =============================================== Disease type classification ===========================================================================			
 	public boolean isOfType(DISEASE disease);

@@ -5,6 +5,7 @@ import java.util.List;
 
 import sim.engine.SimState;
 import sim.engine.Steppable;
+import uk.ac.ucl.protecs.objects.diseases.Disease;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.objects.hosts.Person.OCCUPATION;
 import uk.ac.ucl.protecs.objects.hosts.Person.SEX;
@@ -234,6 +235,10 @@ public class Demography {
 			baby.transferTo(babyHousehold);
 			// This is a new birth that hasn't been recorded
 			target.removeBirthLogged();
+			// call on vertical transmission functions for any infections
+			for (Disease d: target.getDiseaseSet().values()) {
+				d.verticalTransmission(baby);
+			}
 		}
 		}
 		

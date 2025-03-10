@@ -441,7 +441,7 @@ public class DummyNonCommunicableDisease implements Disease {
 	}
 
 	@Override
-	public void verticalTransmission() {
+	public void verticalTransmission(Person baby) {
 		// TODO Auto-generated method stub
 		
 	}

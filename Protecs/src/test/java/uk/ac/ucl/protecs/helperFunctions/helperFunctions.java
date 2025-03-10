@@ -22,7 +22,10 @@ public class helperFunctions {
 		CoronavirusInfectiousBehaviour,
 		MovementBehaviour
 	}
-	
+	public enum birthsOrDeaths{
+		births,
+		deaths
+	}
 
 	public static WorldBankCovid19Sim CreateDummySim(String paramsFilename) {
 		Random rand = new Random();
@@ -330,5 +333,20 @@ public class helperFunctions {
 			toReturn.add(DISEASE.getValue(i.getDiseaseName()));
 		}
 		return toReturn;
+	}
+	
+	public static void turnOffBirthsOrDeaths(WorldBankCovid19Sim world, birthsOrDeaths whatToTurnOff) {
+		switch (whatToTurnOff) {
+		case births:
+			helperFunctions.setParameterListsToValue(world, world.params.prob_birth_by_age, 0.0);
+			break;
+		case deaths:
+			helperFunctions.setParameterListsToValue(world, world.params.prob_death_by_age_male, 0.0);
+			helperFunctions.setParameterListsToValue(world, world.params.prob_death_by_age_female, 0.0);
+			break;
+		default:
+			System.out.println("No part of the demography has been turned off");
+		}
+		
 	}
 }

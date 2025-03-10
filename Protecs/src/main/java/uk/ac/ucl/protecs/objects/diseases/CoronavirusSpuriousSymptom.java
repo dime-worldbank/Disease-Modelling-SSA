@@ -444,7 +444,7 @@ public class CoronavirusSpuriousSymptom implements Disease{
 	}
 
 	@Override
-	public void verticalTransmission() {
+	public void verticalTransmission(Person baby) {
 		// NA
 		
 	}

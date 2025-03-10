@@ -124,7 +124,7 @@ public class DummyInfectiousDiseaseProgressionFramework extends diseaseProgressi
 		public double next(Steppable s, double time) {
 			// default next step of progression is no symptoms, check if they will develop symptoms this week
 			nextStep = nextStepDummy.DO_NOTHING;
-			if (myWorld.random.nextDouble() <= 0.5) {
+			if (myWorld.random.nextDouble() <= world.params.dummy_infectious_recovery_rate) {
 				nextStep = nextStepDummy.RECOVER;
 			}
 			// check if this person has died
