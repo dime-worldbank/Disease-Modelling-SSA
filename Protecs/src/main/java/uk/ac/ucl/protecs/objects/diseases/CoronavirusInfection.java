@@ -154,9 +154,8 @@ public class CoronavirusInfection implements Disease {
 					// check if they are already infected; if they are not, infect with with probability BETA
 					double myProb = myWorld.random.nextDouble();
 					if (!otherPerson.getDiseaseSet().containsKey(DISEASE.COVID.key) && myProb < myWorld.params.infection_beta) {
-						otherPerson.getDiseaseSet().put(DISEASE.COVID.key, 
-								new CoronavirusInfection(otherPerson, this.getHost(), myWorld.infectiousFramework.getEntryPoint(), myWorld));
-						myWorld.schedule.scheduleOnce(otherPerson.getDiseaseSet().get(DISEASE.COVID.key), myWorld.param_schedule_infecting); 
+						CoronavirusInfection inf = new CoronavirusInfection(otherPerson, this.getHost(), myWorld.infectiousFramework.getEntryPoint(), myWorld);
+						myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting); 
 					}
 				}
 				return;
@@ -224,9 +223,8 @@ public class CoronavirusInfection implements Disease {
 							// check if they are already infected; if they are not, infect with with probability BETA
 							double myProb = myWorld.random.nextDouble();
 							if (!otherPerson.getDiseaseSet().containsKey(DISEASE.COVID.key) && myProb < myWorld.params.infection_beta) {
-								otherPerson.getDiseaseSet().put(DISEASE.COVID.key, 
-										new CoronavirusInfection(otherPerson, this.getHost(), myWorld.infectiousFramework.getEntryPoint(), myWorld));
-								myWorld.schedule.scheduleOnce(otherPerson.getDiseaseSet().get(DISEASE.COVID.key), myWorld.param_schedule_infecting); 
+								CoronavirusInfection inf = new CoronavirusInfection(otherPerson, this.getHost(), myWorld.infectiousFramework.getEntryPoint(), myWorld);
+								myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting); 
 							}
 						}
 						return;

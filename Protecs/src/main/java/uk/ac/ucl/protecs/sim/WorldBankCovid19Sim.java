@@ -18,6 +18,7 @@ import uk.ac.ucl.protecs.objects.locations.Household;
 import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.objects.locations.Workplace;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.SpuriousSymptomDiseaseProgressionFramework;
+import uk.ac.ucl.protecs.behaviours.diseaseSpread.dummyNCDOnset;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgressionFramework;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.DummyInfectiousDiseaseProgressionFramework;
 import sim.engine.SimState;
@@ -252,16 +253,20 @@ public class WorldBankCovid19Sim extends SimState {
 		schedule.scheduleRepeating(0, this.param_schedule_updating_locations, updateLocationLists);
 		
 		if (developingModularity) {
+			dummyNCDOnset myDummyNCD = new dummyNCDOnset();
 			double num_to_seed = agents.size() / 10;
 			double i = 0.0;
 			for (Person a: agents) {
 				if (i < num_to_seed) {
-				DummyNonCommunicableDisease inf = new DummyNonCommunicableDisease(a, null, dummyNCDFramework.getStandardEntryPoint(), this, 0);
+				DummyNonCommunicableDisease inf = new DummyNonCommunicableDisease(a, a, dummyNCDFramework.getStandardEntryPoint(), this, 0);
 				schedule.scheduleOnce(1, param_schedule_infecting, inf);
 				i ++ ;
 				}
 				else break;
 			}
+			dummyNCDOnset.causeDummyNCDs dummyNCDtrigger = myDummyNCD.new causeDummyNCDs(this);
+
+			schedule.scheduleRepeating(dummyNCDtrigger, this.param_schedule_infecting, params.ticks_per_month);
 			i = 0.0;
 			for (Person a: agents) {
 				if (i < num_to_seed) {
@@ -286,14 +291,14 @@ public class WorldBankCovid19Sim extends SimState {
 			Demography myDemography = new Demography();
 			for(Person a: agents) {
 				// Trigger the aging process for this person
-				Demography.Aging agentAging = myDemography.new Aging(a, params.ticks_per_day);
+				Demography.Aging agentAging = myDemography.new Aging(a, this);
 				schedule.scheduleOnce(a.getBirthday()*params.ticks_per_day, this.param_schedule_reporting, agentAging);
 				// Trigger the process to determine mortality each year
-				Demography.Mortality agentMortality = myDemography.new Mortality(a, params.ticks_per_day, this);
+				Demography.Mortality agentMortality = myDemography.new Mortality(a, this);
 				schedule.scheduleOnce(0, this.param_schedule_reporting, agentMortality);
 				// if biologically female, trigger checks for giving birth each year
 				if (a.getSex().equals(SEX.FEMALE)) {
-					Demography.Births agentBirths = myDemography.new Births(a, params.ticks_per_day, this);
+					Demography.Births agentBirths = myDemography.new Births(a, this);
 					schedule.scheduleOnce(0, this.param_schedule_reporting, agentBirths);
 				}
 			}

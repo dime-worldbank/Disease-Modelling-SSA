@@ -31,9 +31,9 @@ public class Demography {
 		Person target;
 		int ticksUntilNextBirthday = 365;
 		
-		public Aging(Person p, int ticksPerDay) {
+		public Aging(Person p, WorldBankCovid19Sim myWorld) {
 			this.target = p;
-			this.ticksUntilNextBirthday = 365 * ticksPerDay;
+			this.ticksUntilNextBirthday = myWorld.params.ticks_per_year;
 		}
 		
 		@Override
@@ -50,7 +50,7 @@ public class Demography {
 		int ticksUntilNextMortalityCheck = 0;
 		int tickToCauseMortality = Integer.MAX_VALUE;
 		WorldBankCovid19Sim world;
-		public Mortality( Person p, int ticksPerDay, WorldBankCovid19Sim myWorld ) {
+		public Mortality( Person p, WorldBankCovid19Sim myWorld ) {
 			this.target = p;
 			this.ticksUntilNextMortalityCheck = myWorld.params.ticks_per_year;
 			this.world = myWorld;
@@ -136,9 +136,9 @@ public class Demography {
 		int tickToCauseBirth = Integer.MAX_VALUE;
 		int daysToRescheduleNextBirth = Integer.MAX_VALUE;
 		WorldBankCovid19Sim world;
-		public Births( Person p, int ticksPerDay, WorldBankCovid19Sim myWorld ) {
+		public Births( Person p, WorldBankCovid19Sim myWorld ) {
 			this.target = p;
-			this.ticksUntilNextBirthCheck = 365 * ticksPerDay;
+			this.ticksUntilNextBirthCheck = myWorld.params.ticks_per_year;
 			this.world = myWorld;
 		} 
 		@Override

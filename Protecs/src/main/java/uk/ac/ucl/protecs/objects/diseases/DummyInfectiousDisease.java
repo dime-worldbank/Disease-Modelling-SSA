@@ -125,9 +125,8 @@ public class DummyInfectiousDisease implements Disease{
 				// check if they are already infected; if they are not, infect with with probability BETA
 				double myProb = myWorld.random.nextDouble();
 				if (!otherPerson.getDiseaseSet().containsKey(DISEASE.DUMMY_INFECTIOUS.key) && myProb < myWorld.params.dummy_infectious_beta_horizontal) {
-					otherPerson.getDiseaseSet().put(DISEASE.DUMMY_INFECTIOUS.key, 
-							new DummyInfectiousDisease(otherPerson, this.getHost(), myWorld.dummyInfectiousFramework.getEntryPoint(), myWorld));
-					myWorld.schedule.scheduleOnce(otherPerson.getDiseaseSet().get(DISEASE.DUMMY_INFECTIOUS.key), myWorld.param_schedule_infecting); 
+					DummyInfectiousDisease inf = new DummyInfectiousDisease(otherPerson, this.getHost(), myWorld.infectiousFramework.getEntryPoint(), myWorld);
+					myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting); 
 				}
 			}
 			return;
@@ -195,9 +194,8 @@ public class DummyInfectiousDisease implements Disease{
 						// check if they are already infected; if they are not, infect with with probability BETA
 						double myProb = myWorld.random.nextDouble();
 						if (!otherPerson.getDiseaseSet().containsKey(DISEASE.DUMMY_INFECTIOUS.key) && myProb < myWorld.params.dummy_infectious_beta_horizontal) {
-							otherPerson.getDiseaseSet().put(DISEASE.DUMMY_INFECTIOUS.key, 
-									new DummyInfectiousDisease(otherPerson, this.getHost(), myWorld.dummyInfectiousFramework.getEntryPoint(), myWorld));
-							myWorld.schedule.scheduleOnce(otherPerson.getDiseaseSet().get(DISEASE.DUMMY_INFECTIOUS.key), myWorld.param_schedule_infecting); 
+							DummyInfectiousDisease inf = new DummyInfectiousDisease(otherPerson, this.getHost(), myWorld.infectiousFramework.getEntryPoint(), myWorld);
+							myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting); 
 						}
 					}
 					return;
@@ -210,9 +208,8 @@ public class DummyInfectiousDisease implements Disease{
 	public void verticalTransmission(Person baby) {
 		double myProb = myWorld.random.nextDouble();
 		if (!baby.getDiseaseSet().containsKey(DISEASE.DUMMY_INFECTIOUS.key) && myProb < myWorld.params.dummy_infectious_beta_vertical) {
-			baby.getDiseaseSet().put(DISEASE.DUMMY_INFECTIOUS.key, 
-					new DummyInfectiousDisease(baby, this.getHost(), myWorld.dummyInfectiousFramework.getEntryPoint(), myWorld));
-			myWorld.schedule.scheduleOnce(baby.getDiseaseSet().get(DISEASE.DUMMY_INFECTIOUS.key), myWorld.param_schedule_infecting); 
+			DummyInfectiousDisease inf = new DummyInfectiousDisease(baby, this.getHost(), myWorld.infectiousFramework.getEntryPoint(), myWorld);
+			myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting); 
 		}
 	}
 

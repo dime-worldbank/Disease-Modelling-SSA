@@ -24,6 +24,10 @@ public class Params {
 	public double dummy_infectious_beta_horizontal = 0.05;
 	public double dummy_infectious_beta_vertical = 0.05;
 	public double dummy_infectious_recovery_rate = 0.5;
+	
+	public double dummy_ncd_base_rate = 0.2;
+	public double dummy_ncd_rr_male = 1.05;
+	public double dummy_ncd_rr_over_50 = 1.2;
 
 
 	public double rate_of_spurious_symptoms = 0.004;
@@ -151,6 +155,7 @@ public class Params {
 	public static int hours_per_tick = 4; // the number of hours each tick represents
 	public static int ticks_per_day = 24 / hours_per_tick;
 	public static int ticks_per_week = ticks_per_day * 7;
+	public static int ticks_per_month = ticks_per_day * 30;
 	public static int ticks_per_year = ticks_per_day * 365;
 	
 	public static int hour_start_day_weekday = 8 / hours_per_tick;

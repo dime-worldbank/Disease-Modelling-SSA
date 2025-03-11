@@ -116,9 +116,9 @@ public class DummyDiseaseTesting{
 	public void checkNoTransmissionOfDummyNCDHappensWithoutRateOfAcquisition() {
 		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
 		sim.developingModularity = true;
-		// Increase the birth rate to ensure births take place
-		helperFunctions.setParameterListsToValue(sim, sim.params.prob_birth_by_age, 1.0);
 		sim.start();
+		// turn off the rate of dummy NCD acquisition
+		sim.params.dummy_ncd_base_rate = 0.0;
 		// turn off deaths to only focus on births.
 		helperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
 		int numDays = 50;
@@ -135,5 +135,30 @@ public class DummyDiseaseTesting{
 		}
 
 		Assert.assertTrue(number_of_new_infections == number_of_initial_infections);
+	}
+	
+	@Test
+	public void checkThatNewPeopleDevelopTheDummyNCD() {
+		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
+		sim.developingModularity = true;
+		sim.start();
+		// increase the rate of dummy NCD acquisition
+		sim.params.dummy_ncd_base_rate = 0.5;
+		// turn off deaths to only focus on births.
+		helperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
+		int numDays = 100;
+		// get the number of initial dummy infectious diseases
+		int number_of_initial_infections = 0;
+		for (Person p: sim.agents) {
+			if (p.getDiseaseSet().containsKey(DISEASE.DUMMY_NCD.key)) number_of_initial_infections ++;
+		}
+		// run the simulation
+		helperFunctions.runSimulation(sim, numDays);
+		int number_of_new_infections = 0;
+		for (Person p: sim.agents) {
+			if (p.getDiseaseSet().containsKey(DISEASE.DUMMY_NCD.key)) number_of_new_infections ++;
+		}
+
+		Assert.assertTrue(number_of_new_infections > number_of_initial_infections);
 	}
 }
