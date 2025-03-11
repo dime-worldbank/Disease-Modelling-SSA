@@ -28,6 +28,7 @@ public class Params {
 	public double dummy_ncd_base_rate = 0.2;
 	public double dummy_ncd_rr_male = 1.05;
 	public double dummy_ncd_rr_over_50 = 1.2;
+	public double dummy_ncd_initial_fraction_with_ncd = 0.1;
 
 
 	public double rate_of_spurious_symptoms = 0.004;

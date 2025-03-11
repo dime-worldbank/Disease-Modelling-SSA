@@ -254,7 +254,7 @@ public class WorldBankCovid19Sim extends SimState {
 		
 		if (developingModularity) {
 			dummyNCDOnset myDummyNCD = new dummyNCDOnset();
-			double num_to_seed = agents.size() / 10;
+			double num_to_seed = agents.size() * this.params.dummy_ncd_initial_fraction_with_ncd;
 			double i = 0.0;
 			for (Person a: agents) {
 				if (i < num_to_seed) {
