@@ -18,35 +18,8 @@ import uk.ac.ucl.swise.behaviours.BehaviourNode;
 // with both horizontal and vertical transmission, that has a very small health burden and is asymptomatic. We implement two interfaces to 
 // combine the necessary setters and getters for the disease and the transmission from one person to another
 
-public class DummyInfectiousDisease implements Disease{
+public class DummyInfectiousDisease extends Disease{
 	
-	// record keeping
-	Person host;
-	Person source;
-	Location infectedAtLocation;
-	WorldBankCovid19Sim myWorld;
-	
-	// behaviours
-	BehaviourNode currentBehaviourNode = null;
-	
-	// infection states
-	boolean hasAsympt = false;
-	boolean hasRecovered = false;
-	// loggers
-	boolean hasAsymptLogged = false;
-	boolean hasLogged = false;
-	
-
-	// infection timekeeping
-	// default these to max value so it's clear when they've been reset
-	public double time_infected = Double.MAX_VALUE;
-	public double time_contagious = Double.MAX_VALUE;
-	public double time_start_symptomatic = Double.MAX_VALUE;
-	public double time_start_severe = Double.MAX_VALUE;
-	public double time_start_critical = Double.MAX_VALUE;
-	public double time_recovered = 	Double.MAX_VALUE;
-	public double time_died = Double.MAX_VALUE;
-		
 	public DummyInfectiousDisease(Person myHost, Person mySource, BehaviourNode initNode, WorldBankCovid19Sim sim){
 		this(myHost, mySource, initNode, sim, (int) sim.schedule.getTime());
 	}
@@ -212,72 +185,7 @@ public class DummyInfectiousDisease implements Disease{
 			myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting); 
 		}
 	}
-
-	// =============================================== relevant information on the host ==============================================================
-
 	@Override
-	public Person getHost() {
-		return host;
-	}
-
-	@Override
-	public Person getSource() {
-		return source;
-	}
-
-	@Override
-	public Location infectedAt() {
-		return infectedAtLocation;
-	}
-
-	@Override
-	public double getStartTime() {
-		return time_infected;
-	}
-
-	@Override
-	public String getCurrentAdminZone() {
-		return host.getHousehold().getRootSuperLocation().myId;
-	}
-
-	@Override
-	public boolean isHostAlive() {
-		return host.isAlive();
-	}
-
-	@Override
-	public int getHostAge() {
-		return host.getAge();
-	}
-
-	@Override
-	public SEX getHostSex() {
-		return host.getSex();
-	}
-
-	@Override
-	public OCCUPATION getHostEconStatus() {
-		return host.getEconStatus();
-	}
-
-	// =============================================== Disease behaviours  ==============================================================================			
-
-	@Override
-	public BehaviourNode getCurrentBehaviourNode() {
-		return currentBehaviourNode;
-	}
-
-	@Override
-	public void setBehaviourNode(BehaviourNode bn) {
-		this.currentBehaviourNode = bn;
-	}
-
-	@Override
-	public String getBehaviourName() {
-		if(this.currentBehaviourNode == null) return "";
-		return this.currentBehaviourNode.getTitle();
-	}
-
 	public boolean isInfectious() {
 		return true;
 	}
@@ -308,68 +216,9 @@ public class DummyInfectiousDisease implements Disease{
 	}
 
 	@Override
-	public boolean hasAsympt() {
-		// Always true
-		return this.hasAsympt;
-	}
-
-	@Override
-	public void setSymptomatic() {
-		// NA
-		
-	}
-
-	@Override
-	public boolean isSymptomatic() {
-		// NA
-		return false;
-	}
-
-	@Override
-	public void setMild() {
-		// NA
-		
-	}
-
-	@Override
-	public boolean hasMild() {
-		// NA
-		return false;
-	}
-
-	@Override
-	public void setSevere() {
-		// NA
-		
-	}
-
-	@Override
-	public boolean hasSevere() {
-		// NA
-		return false;
-	}
-
-	@Override
-	public void setCritical() {
-		// NA
-		
-	}
-
-	@Override
-	public boolean hasCritical() {
-		// NA
-		return false;
-	}
-
-	@Override
 	public void setRecovered() {
 		this.hasAsympt = false;
 		this.hasRecovered = true;
-	}
-
-	@Override
-	public boolean hasRecovered() {
-		return this.hasRecovered;
 	}
 
 	@Override
@@ -384,77 +233,6 @@ public class DummyInfectiousDisease implements Disease{
 		return false;
 	}
 	// =============================================== Disease logging ====================================================================================
-
-	@Override
-	public boolean getAsymptLogged() {
-		// NA
-		return this.hasAsymptLogged;
-	}
-
-	@Override
-	public void confirmAsymptLogged() {
-		this.hasAsymptLogged = true;
-		
-	}
-
-	@Override
-	public boolean getMildLogged() {
-		// NA
-		return false;
-	}
-
-	@Override
-	public void confirmMildLogged() {
-		// NA
-		
-	}
-
-	@Override
-	public boolean getSevereLogged() {
-		// NA
-		return false;
-	}
-
-	@Override
-	public void confirmSevereLogged() {
-		// NA
-		
-	}
-
-	@Override
-	public boolean getCriticalLogged() {
-		// NA
-		return false;
-	}
-
-	@Override
-	public void confirmCriticalLogged() {
-		// NA
-		
-	}
-
-	@Override
-	public boolean getDeathLogged() {
-		// NA
-		return false;
-	}
-
-	@Override
-	public void confirmDeathLogged() {
-		// NA
-		
-	}
-
-	@Override
-	public boolean getLogged() {
-		// TODO Auto-generated method stub
-		return this.hasLogged;
-	}
-
-	@Override
-	public void confirmLogged() {
-		this.hasLogged = true;		
-	}
 
 	@Override
 	public String writeOut() {
@@ -551,62 +329,9 @@ public class DummyInfectiousDisease implements Disease{
 	// =============================================== Disease testing ====================================================================================
 
 	@Override
-	public boolean isEligibleForTesting() {
-		// NA
-		return false;
-	}
-
-	@Override
-	public void setEligibleForTesting() {
-		// NA
-		
-	}
-
-	@Override
-	public void removeEligibilityForTesting() {
-		// NA
-		
-	}
-
-	@Override
-	public boolean hasBeenTested() {
-		// NA
-		return false;
-	}
-
-	@Override
-	public void setTested() {
-		// NA
-		
-	}
-
-	@Override
-	public void setTestedPositive() {
-		// NA
-		
-	}
-
-	@Override
-	public boolean hasTestedPositive() {
-		// NA
-		return false;
-	}
-
-	@Override
 	public boolean inATestingAdminZone() {
 		// NA
 		return false;
 	}
 
-	@Override
-	public boolean getTestLogged() {
-		// NA
-		return false;
-	}
-
-	@Override
-	public void confirmTestLogged() {
-		// NA
-		
-	}
 	}

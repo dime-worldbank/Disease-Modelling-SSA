@@ -138,11 +138,11 @@ public class SpuriousSymptomDiseaseProgressionFramework extends diseaseProgressi
 				// Use switch statement to clearly create conditional actions based on the current state of this person's symptoms 
 				SpuriousSymptomBehaviourNode action = SpuriousSymptomBehaviourNode.EXPOSED;
 				// if this is there first time then they will have a time of creation and no recovery time set
-				if (symptom.timeRecovered == Double.MAX_VALUE) {
+				if (symptom.time_recovered == Double.MAX_VALUE) {
 					action = SpuriousSymptomBehaviourNode.SETUP;
 				}
 				// If the current time is later than the time we need to remove symptoms, remove spurious symptoms
-				if (time >= symptom.timeRecovered) {
+				if (time >= symptom.time_recovered) {
 					action = SpuriousSymptomBehaviourNode.RECOVER;
 				}
 				// If the host has a symptomatic infection, remove spurious symptoms
@@ -154,14 +154,14 @@ public class SpuriousSymptomDiseaseProgressionFramework extends diseaseProgressi
 						symptom.timeLastTriggered = time;
 						symptom.setSymptomatic();
 						symptom.setEligibleForTesting();
-						symptom.timeRecovered = symptom.timeLastTriggered + myWorld.params.ticks_per_week;
+						symptom.time_recovered = symptom.timeLastTriggered + myWorld.params.ticks_per_week;
 						return 1;
 						}
 					case RECOVER:{
 						symptom.setAsympt();
 						symptom.removeEligibilityForTesting();
 						symptom.timeLastTriggered = Double.MAX_VALUE;
-						symptom.timeRecovered = Double.MAX_VALUE;
+						symptom.time_recovered = Double.MAX_VALUE;
 						symptom.setBehaviourNode(setNode(SpuriousSymptomBehaviourNode.SUSCEPTIBLE));
 						return 1;
 					}

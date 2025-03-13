@@ -1,8 +1,7 @@
 package uk.ac.ucl.protecs.objects.diseases;
 
 import uk.ac.ucl.protecs.objects.hosts.Person;
-import uk.ac.ucl.protecs.objects.hosts.Person.OCCUPATION;
-import uk.ac.ucl.protecs.objects.hosts.Person.SEX;
+
 import uk.ac.ucl.protecs.objects.locations.Household;
 import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.objects.locations.Workplace;
@@ -21,60 +20,8 @@ import uk.ac.ucl.swise.behaviours.BehaviourNode;
  *
  */
 
-public class CoronavirusInfection implements Disease {
+public class CoronavirusInfection extends Disease {
 
-	// record keeping
-	Person host;
-	Person source;
-	Location infectedAtLocation;
-	WorldBankCovid19Sim myWorld;
-	
-	// behaviours
-	BehaviourNode currentBehaviourNode = null;
-
-	// infection timekeeping
-	// default these to max value so it's clear when they've been reset
-	public double time_infected = Double.MAX_VALUE;
-	public double time_contagious = Double.MAX_VALUE;
-	public double time_start_symptomatic = Double.MAX_VALUE;
-	public double time_start_severe = Double.MAX_VALUE;
-	public double time_start_critical = Double.MAX_VALUE;
-	public double time_recovered = 	Double.MAX_VALUE;
-	public double time_died = Double.MAX_VALUE;
-	
-	// clinical care
-	double time_start_hospitalised;
-	double time_end_hospitalised;
-	
-	// infection stages
-	boolean hasAsympt = false;
-	boolean hasMild = false;
-	boolean hasSevere = false;
-	boolean hasCritical = false;
-	boolean hasRecovered = false;
-	boolean isTheCauseOfDeath = false;
-	// symptom manager
-	boolean isSymptomatic = false;
-	// test manager
-	boolean tested = false;
-	boolean testedPositive = false;
-	boolean testLogged = false;
-	boolean eligibleForTesting = false;
-	// loggers
-	boolean hasDeathLogged = false;
-	boolean hasAsymptLogged = false;
-	boolean hasMildLogged = false;
-	boolean hasSevereLogged = false;
-	boolean hasCriticalLogged = false;
-	boolean hasLogged = false;
-	// counter
-	
-	/**
-	 * 
-	 * @param myHost
-	 * @param mySource - null implies that they are Patient 0.
-	 * @param initNode
-	 */
 	public CoronavirusInfection(Person myHost, Person mySource, BehaviourNode initNode, WorldBankCovid19Sim sim){
 		this(myHost, mySource, initNode, sim, (int) sim.schedule.getTime());
 	}
@@ -100,7 +47,6 @@ public class CoronavirusInfection implements Disease {
 	}
 
 	
-	@Override
 	public void step(SimState world) {
 		double time = world.schedule.getTime(); // find the current time
 		double myDelta = this.currentBehaviourNode.next(this, time);
@@ -108,7 +54,6 @@ public class CoronavirusInfection implements Disease {
 	}
 	// =============================================== Disease transmission  =====================================================================
 	
-		@Override
 		public void horizontalTransmission() {
 			// if this infection's host is dead, do not try and interact
 			if (!host.isAlive()) return;
@@ -233,56 +178,12 @@ public class CoronavirusInfection implements Disease {
 		}
 		}
 		
-		@Override
 		public void verticalTransmission(Person baby) {
 			// TODO Auto-generated method stub
 			
-		}	
-	// =============================================== relevant information on the host ==============================================================
-	public Person getHost() { return host; }
-	
-	public Person getSource() { return source; }
-	
-	public Location infectedAt() { return infectedAtLocation; }
-	
-	public double getStartTime() { return time_infected;}
-	@Override
-	public String getCurrentAdminZone() {return this.host.getHousehold().getRootSuperLocation().myId;}	
-	
-	@Override
-	public boolean isHostAlive() { return !this.host.isDead; }
-	
-	@Override
-	public int getHostAge() {
-		// TODO Auto-generated method stub
-		return this.host.getAge();
-	}
-	
-	@Override
-	public SEX getHostSex() {
-		// TODO Auto-generated method stub
-		return this.host.getSex();
-	}
-
-	@Override
-	public OCCUPATION getHostEconStatus() {
-		// TODO Auto-generated method stub
-		return this.host.getEconStatus();
-	}
+		}		
 	
 	// =============================================== Disease 'behaviours'================================================================================
-	public BehaviourNode getCurrentBehaviourNode() { return currentBehaviourNode;}
-
-	
-	public void setBehaviourNode(BehaviourNode bn){
-		this.currentBehaviourNode = bn;
-	}
-	
-	public String getBehaviourName(){
-		if(this.currentBehaviourNode == null) return "";
-		return this.currentBehaviourNode.getTitle();
-	}
-	
 	public boolean isInfectious() {
 		return true;
 	}
@@ -294,183 +195,18 @@ public class CoronavirusInfection implements Disease {
 	
 		return "COVID-19";
 	}
-	
 	@Override
 	public DISEASE getDiseaseType() {
 		// TODO Auto-generated method stub
 		return DISEASE.COVID;
 	}
-	
 	@Override
 	public boolean isOfType(DISEASE disease) {
 		// TODO Auto-generated method stub
 		return this.getDiseaseType().equals(disease);
 	}
-		
-	// =============================================== Disease progression ====================================================================================
-	@Override
-	public void setAsympt() {
-		this.hasAsympt = true;
-		this.hasMild = false;
-		this.hasSevere = false;
-		this.hasCritical = false;
-		this.hasRecovered = false;
-	}
-	@Override
-	public boolean hasAsympt() {
-		return this.hasAsympt;
-
-	}
-	
-	@Override
-	public void setSymptomatic() {
-		this.isSymptomatic = !this.isSymptomatic;
-		
-	}
-	
-	@Override
-	public boolean isSymptomatic() {
-		return this.isSymptomatic;
-	}
-	
-	@Override
-	public void setMild() {
-		this.hasAsympt = false;
-		this.hasMild = true;
-		this.hasSevere = false;
-		this.hasCritical = false;
-		this.hasRecovered = false;
-	}
-	
-	@Override
-	public boolean hasMild() {
-			return this.hasMild;
-	}
-	
-	@Override
-	public void setSevere() {
-		this.hasAsympt = false;
-		this.hasMild = false;
-		this.hasSevere = true;
-		this.hasCritical = false;
-		this.hasRecovered = false;
-
-	}
-	
-	@Override
-	public boolean hasSevere() {
-		return this.hasSevere;
-	}
-	
-	@Override
-	public void setCritical() {
-		this.hasAsympt = false;
-		this.hasMild = false;
-		this.hasSevere = false;
-		this.hasCritical = true;
-		this.hasRecovered = false;
-	}
-	
-	@Override
-	public boolean hasCritical() {
-		return this.hasCritical;
-	}
-	
-	@Override
-	public void setRecovered() {
-		this.hasAsympt = false;
-		this.hasMild = false;
-		this.hasSevere = false;
-		this.hasCritical = false;
-		this.hasRecovered = true;
-		
-	}
-	
-	@Override
-	public boolean hasRecovered() {
-		// TODO Auto-generated method stub
-		return this.hasRecovered;
-	}
-	
-	public void setAsCauseOfDeath() {
-		this.isTheCauseOfDeath = true;
-	};
-	
-	public boolean isCauseOfDeath() {
-		return this.isTheCauseOfDeath;
-	};
 
 	// =============================================== Disease logging ====================================================================================
-
-	@Override
-	public boolean getAsymptLogged() {
-		// TODO Auto-generated method stub
-		return this.hasAsymptLogged;
-	}
-	
-	public void confirmAsymptLogged() {
-		this.hasAsymptLogged = true; 
-	}
-
-	@Override
-	public boolean getMildLogged() {
-		// TODO Auto-generated method stub
-		return this.hasMildLogged;
-	}
-
-	@Override
-	public void confirmMildLogged() {
-		this.hasMildLogged = true; 
-		
-	}
-
-	@Override
-	public boolean getSevereLogged() {
-		// TODO Auto-generated method stub
-		return this.hasSevereLogged;
-	}
-
-	@Override
-	public void confirmSevereLogged() {
-		// TODO Auto-generated method stub
-		this.hasSevereLogged = true;
-	}
-
-	@Override
-	public boolean getCriticalLogged() {
-		// TODO Auto-generated method stub
-		return this.hasCriticalLogged;
-	}
-
-	@Override
-	public void confirmCriticalLogged() {
-		// TODO Auto-generated method stub
-		this.hasCriticalLogged = true;
-	}
-
-	@Override
-	public void confirmDeathLogged() {
-		// TODO Auto-generated method stub
-		this.hasDeathLogged = true;
-	}
-
-	@Override
-	public boolean getDeathLogged() {
-		// TODO Auto-generated method stub
-		return this.hasDeathLogged ;
-	}
-
-	@Override
-	public boolean getLogged() {
-		// TODO Auto-generated method stub
-		return hasLogged;
-	}
-	
-	@Override
-	public void confirmLogged() {
-		this.hasLogged = true;
-	}
-
 	@Override
 	public String writeOut() {
 		String rec = "";
@@ -581,63 +317,10 @@ public class CoronavirusInfection implements Disease {
 	// =============================================== Disease testing ====================================================================================
 	// filtering and setting who should be tested
 	@Override
-	public boolean isEligibleForTesting() {
-		// TODO Auto-generated method stub
-		return this.eligibleForTesting;
-	}
-
-	@Override
-	public void setEligibleForTesting() {
-		// TODO Auto-generated method stub
-		this.eligibleForTesting = true;
-	}
-	
-	@Override
-	public void removeEligibilityForTesting() {
-		// TODO Auto-generated method stub
-		this.eligibleForTesting = false;
-	}
-	
-	@Override
-	public boolean hasBeenTested() {
-		// TODO Auto-generated method stub
-		return this.tested;
-	}
-
-	@Override
-	public void setTested() {
-		this.tested = !this.tested;
-	}
-
-	@Override
-	public void setTestedPositive() {
-		// TODO Auto-generated method stub
-		this.testedPositive = true;
-	}
-
-	@Override
-	public boolean hasTestedPositive() {
-		// TODO Auto-generated method stub
-		return this.testedPositive;
-	}
-
-	@Override
 	public boolean inATestingAdminZone() {
 		String hostLocationId = this.getHost().myHousehold.getRootSuperLocation().myId;
 		boolean answer = this.getHost().myWorld.params.admin_zones_to_test_in.contains(hostLocationId);
 		return answer;
-	}
-	
-	@Override
-	public boolean getTestLogged() {
-		// TODO Auto-generated method stub
-		return this.testLogged;
-	}
-
-	@Override
-	public void confirmTestLogged() {
-		// TODO Auto-generated method stub
-		this.testLogged = true;
 	}
 
 }
