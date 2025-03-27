@@ -2,12 +2,10 @@ package uk.ac.ucl.protecs.behaviours.diseaseSpread;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import sim.engine.SimState;
 import sim.engine.Steppable;
-import uk.ac.ucl.protecs.objects.diseases.Disease;
 import uk.ac.ucl.protecs.objects.diseases.DummyNonCommunicableDisease;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.objects.hosts.Person.SEX;
