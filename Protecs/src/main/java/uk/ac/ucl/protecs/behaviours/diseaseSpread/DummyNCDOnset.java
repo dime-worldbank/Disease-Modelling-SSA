@@ -40,55 +40,42 @@ public class DummyNCDOnset {
 
 	private void determineDevelopyNCD(SimState arg0, WorldBankCovid19Sim myWorld) {
 		// Create a list to account for risk factors and protective factors against developing the dummy NCD
-		List<Double> riskFactors = new ArrayList<>(myWorld.agents.size());
-		for (int i = 0; i < myWorld.agents.size(); i++) {
-			riskFactors.add(1.0); // Add the value 1.0 to the list
-		}
-		// Don't create new NCD for those who aren't alive
-		int CheckIdx = 0;
+
 		for (Person p: myWorld.agents) {
+			// create a risk factor for this individual
+			double riskFactor = 1;
+			// if they aren't alive they can't develop the NCD
 			if (!p.isAlive()) {
-				riskFactors.set(CheckIdx, 0.0);
+				riskFactor = 0;
+				continue;
 			}
+			// if they already have the NCD they can't develop the NCD
 			if (p.getDiseaseSet().containsKey(DISEASE.DUMMY_NCD.key)) {
-				riskFactors.set(CheckIdx, 0.0);
+				riskFactor = 0;
+				continue;
 			}
+			// if they are male increase the likelihood of developing the NCD 
 			if (p.getSex().equals(SEX.MALE)) {
-				riskFactors.set(CheckIdx, riskFactors.get(CheckIdx) * myWorld.params.dummy_ncd_rr_male);
+				riskFactor *= myWorld.params.dummy_ncd_rr_male;
 			}
+			// if they are over 50 increase the likelihood of developing the NCD 
 			if (p.getAge() > 50) {
-				riskFactors.set(CheckIdx, riskFactors.get(CheckIdx) * myWorld.params.dummy_ncd_rr_over_50);
+				riskFactor *= myWorld.params.dummy_ncd_rr_over_50;
 			}
-			CheckIdx++;
-		}
-
-		// get the base rate of developing this NCD for all in population and apply the relevant factors
-		riskFactors = riskFactors.stream().map(value -> value * myWorld.params.dummy_ncd_base_rate).collect(Collectors.toList());
-		// iterate over the population and create NCDs via random number generation
-		int developNCDIndex = 0;
-		ArrayList <Person> confirmedDevelopedCases = new ArrayList <Person>();
-
-		for (Person p: myWorld.agents) {
-			// determine if they will develop the NCD, do this by REMOVING those who draw a random number associated with them that's bigger
-			// than the base rate adjusted by risk factors
-			if (myWorld.random.nextDouble() < riskFactors.get(developNCDIndex)) {
-				 confirmedDevelopedCases.add(p);
+			// Check if they develop the NCD
+			if (myWorld.random.nextDouble() < riskFactor * myWorld.params.dummy_ncd_base_rate) {
+				createNCD(myWorld, p);
 			 }
-							 
-			developNCDIndex++;
-		 }
-		// create the NCDs for those who have confirmed their developed case
-		createNCD(myWorld, confirmedDevelopedCases);
-		
+		}
+	
 		
 		
 	}
 
-	private void createNCD(WorldBankCovid19Sim myWorld, ArrayList <Person> personsToDevelopNCD) {
-		for (Person target: personsToDevelopNCD) {
-		DummyNonCommunicableDisease inf = new DummyNonCommunicableDisease(target, target, myWorld.dummyNCDFramework.getStandardEntryPoint(), myWorld);
+	private void createNCD(WorldBankCovid19Sim myWorld, Person personToDevelopNCD) {
+		DummyNonCommunicableDisease inf = new DummyNonCommunicableDisease(personToDevelopNCD, personToDevelopNCD, myWorld.dummyNCDFramework.getStandardEntryPoint(), myWorld);
 		myWorld.schedule.scheduleOnce(inf);
-		}
+		
 	}	
 	
 
