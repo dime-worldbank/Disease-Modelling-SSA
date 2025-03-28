@@ -45,37 +45,23 @@ public class DummyNCDOnset {
 			riskFactors.add(1.0); // Add the value 1.0 to the list
 		}
 		// Don't create new NCD for those who aren't alive
-		int aliveCheckIdx = 0;
+		int CheckIdx = 0;
 		for (Person p: myWorld.agents) {
 			if (!p.isAlive()) {
-				riskFactors.set(aliveCheckIdx, 0.0);
+				riskFactors.set(CheckIdx, 0.0);
 			}
-			aliveCheckIdx++;
-		}
-		// Don't create new NCD for those who already have it
-		int alreadyHasDummyNCDIdx = 0;
-		for (Person p: myWorld.agents) {
 			if (p.getDiseaseSet().containsKey(DISEASE.DUMMY_NCD.key)) {
-				riskFactors.set(alreadyHasDummyNCDIdx, 0.0);
+				riskFactors.set(CheckIdx, 0.0);
 			}
-			alreadyHasDummyNCDIdx++;
-		}
-		// inflate the risk of developing this NCD if the person is male
-		int maleCheckIdx = 0;
-		for (Person p: myWorld.agents) {
 			if (p.getSex().equals(SEX.MALE)) {
-				riskFactors.set(maleCheckIdx, riskFactors.get(maleCheckIdx) * myWorld.params.dummy_ncd_rr_male);
+				riskFactors.set(CheckIdx, riskFactors.get(CheckIdx) * myWorld.params.dummy_ncd_rr_male);
 			}
-			maleCheckIdx++;
-		}
-		// inflate the risk of developing this NCD if over 50
-		int ageCheckIdx = 0;
-		for (Person p: myWorld.agents) {
 			if (p.getAge() > 50) {
-				riskFactors.set(ageCheckIdx, riskFactors.get(ageCheckIdx) * myWorld.params.dummy_ncd_rr_over_50);
+				riskFactors.set(CheckIdx, riskFactors.get(CheckIdx) * myWorld.params.dummy_ncd_rr_over_50);
 			}
-			ageCheckIdx++;
+			CheckIdx++;
 		}
+
 		// get the base rate of developing this NCD for all in population and apply the relevant factors
 		riskFactors = riskFactors.stream().map(value -> value * myWorld.params.dummy_ncd_base_rate).collect(Collectors.toList());
 		// iterate over the population and create NCDs via random number generation
