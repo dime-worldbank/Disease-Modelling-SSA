@@ -18,7 +18,7 @@ import uk.ac.ucl.protecs.objects.locations.Household;
 import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.objects.locations.Workplace;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.SpuriousSymptomDiseaseProgressionFramework;
-import uk.ac.ucl.protecs.behaviours.diseaseSpread.dummyNCDOnset;
+import uk.ac.ucl.protecs.behaviours.diseaseSpread.DummyNCDOnset;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgressionFramework;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.DummyInfectiousDiseaseProgressionFramework;
 import sim.engine.SimState;
@@ -253,7 +253,7 @@ public class WorldBankCovid19Sim extends SimState {
 		schedule.scheduleRepeating(0, this.param_schedule_updating_locations, updateLocationLists);
 		
 		if (developingModularity) {
-			dummyNCDOnset myDummyNCD = new dummyNCDOnset();
+			DummyNCDOnset myDummyNCD = new DummyNCDOnset();
 			double num_to_seed = agents.size() * this.params.dummy_ncd_initial_fraction_with_ncd;
 			double i = 0.0;
 			for (Person a: agents) {
@@ -264,7 +264,7 @@ public class WorldBankCovid19Sim extends SimState {
 				}
 				else break;
 			}
-			dummyNCDOnset.causeDummyNCDs dummyNCDtrigger = myDummyNCD.new causeDummyNCDs(this);
+			DummyNCDOnset.causeDummyNCDs dummyNCDtrigger = myDummyNCD.new causeDummyNCDs(this);
 
 			schedule.scheduleRepeating(dummyNCDtrigger, this.param_schedule_infecting, params.ticks_per_month);
 			i = 0.0;

@@ -5,7 +5,7 @@ import uk.ac.ucl.protecs.objects.diseases.CoronavirusSpuriousSymptom;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
-public class SpuriousSymptomDiseaseProgressionFramework extends diseaseProgressionBehaviourFramework{
+public class SpuriousSymptomDiseaseProgressionFramework extends DiseaseProgressionBehaviourFramework{
 
 	
 	

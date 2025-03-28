@@ -2,7 +2,7 @@ package uk.ac.ucl.protecs.objects.diseases;
 
 import org.junit.Assert;
 import uk.ac.ucl.protecs.helperFunctions.*;
-import uk.ac.ucl.protecs.helperFunctions.helperFunctions.NodeOption;
+import uk.ac.ucl.protecs.helperFunctions.HelperFunctions.NodeOption;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 
 import org.junit.Test;
@@ -23,15 +23,15 @@ public class CovidSpuriousSymptomTesting{
 	
 	@Test
 	public void CheckPeopleWithSymptomaticCovidDoNotGetSpuriousSymptoms() {
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "covid_testing_params.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "covid_testing_params.txt");
 		sim.start();
 		int numDays = 8;
 		// Give the population mild Covid and spurious symptoms to see if those with mild covid have their spurious symptoms resolved 
-		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD),
+		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD),
 				NodeOption.CoronavirusInfectiousBehaviour);
 		// make sure no one recovers or progresses from their mild covid
-		helperFunctions.StopRecoveryHappening(sim);
-		helperFunctions.HaltDiseaseProgressionAtStage(sim, CoronavirusBehaviourNodeTitle.MILD);
+		HelperFunctions.StopRecoveryHappening(sim);
+		HelperFunctions.HaltDiseaseProgressionAtStage(sim, CoronavirusBehaviourNodeTitle.MILD);
 
 		// make sure there are no new Covid infections
 		sim.params.infection_beta = 0.0;
@@ -40,7 +40,7 @@ public class CovidSpuriousSymptomTesting{
 		// create a bunch of spurious symptoms for each person
 		giveAFractionASpuriousSymptom(1, sim);
 		// run the simulation
-		helperFunctions.runSimulation(sim, numDays);
+		HelperFunctions.runSimulation(sim, numDays);
 		// In this scenario we would expect that no one has spurious symptoms
 		int numberOfPeopleWithSpuriousSymptoms = 0; 
 		
@@ -53,15 +53,15 @@ public class CovidSpuriousSymptomTesting{
 	
 	@Test
 	public void CheckPeopleCanHaveAsymptomaticCovidAndSpuriousSymptoms() {
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "covid_testing_params.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "covid_testing_params.txt");
 		sim.start();
 		int numDays = 1;
 		giveAFractionASpuriousSymptom(1, sim);
 		// Give everyone asymptomatic Covid
-		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.ASYMPTOMATIC),
+		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.ASYMPTOMATIC),
 				NodeOption.CoronavirusInfectiousBehaviour);
 		// run the simulation
-		helperFunctions.runSimulation(sim, numDays);
+		HelperFunctions.runSimulation(sim, numDays);
 		// we need people with symptoms to be alive and not have any Covid infections of any severity. Use streams to search over the population to 
 		// find get the number of people with spurious symptoms who match this criteria
 		List<Person> peopleWithSpuriousSymptomsAndAsympt = getPopulationWithSpuriousSymptomsAndAsymptomaticCovid(sim);
@@ -70,7 +70,7 @@ public class CovidSpuriousSymptomTesting{
 	
 	@Test
 	public void CheckSettingCovidSpuriousSymptomAndTestingEligibilityPropertiesAreBeingRemovedAfterAWeek() {
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "covid_testing_params.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "covid_testing_params.txt");
 		sim.start();
 		int numDays = 8;
 		// Change the rate of setting Covid spurious symptoms so we have control the number of people who get given symptoms
@@ -85,7 +85,7 @@ public class CovidSpuriousSymptomTesting{
 		}
 		giveAFractionASpuriousSymptom(0.5, sim);
 		// run the simulation
-		helperFunctions.runSimulation(sim, numDays);
+		HelperFunctions.runSimulation(sim, numDays);
 		// Check that there are no spurious symptoms remaining in the population by checking that all spurious symptoms are asymptomatic
 		List<Disease> peopleWithoutSpuriousSymptoms = checkSpuriousSymptomAndTestingEligibilityHasBeenAssigned(sim, true);
 		Assert.assertTrue(peopleWithoutSpuriousSymptoms == null);	
@@ -93,7 +93,7 @@ public class CovidSpuriousSymptomTesting{
 	
 	@Test
 	public void CheckCovidSpuriousSymptomAndTestingEligibilityPropertiesAreBeingSetWhenCreated() {
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "covid_testing_params.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "covid_testing_params.txt");
 		sim.start();
 		int numDays = 7;	
 		// Remove the development of new symptoms
@@ -102,8 +102,8 @@ public class CovidSpuriousSymptomTesting{
 		for (Person p: sim.agents) { if (p.getDiseaseSet().containsKey(DISEASE.COVID.key)) {p.die("");}}
 		// create spurious symptoms
 		giveAFractionASpuriousSymptom(1, sim);
-		helperFunctions.runSimulation(sim, numDays);
-		int sizeThatShouldHaveBeenGivenSymptoms = helperFunctions.GetNumberAlive(sim);
+		HelperFunctions.runSimulation(sim, numDays);
+		int sizeThatShouldHaveBeenGivenSymptoms = HelperFunctions.GetNumberAlive(sim);
 		// Check that there are no spurious symptoms remaining in the population
 		List<Disease> peopleWithPropertiesAssigned = checkSpuriousSymptomAndTestingEligibilityHasBeenAssigned(sim, true);		
 		Assert.assertTrue(peopleWithPropertiesAssigned.size() == sizeThatShouldHaveBeenGivenSymptoms);	
@@ -112,7 +112,7 @@ public class CovidSpuriousSymptomTesting{
 
 	@Test
 	public void CheckSpuriousObjectsAreCreated() {
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "covid_testing_params.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "covid_testing_params.txt");
 		sim.start();
 		int numDays = 8;
 		// Change the rate of setting Covid spurious symptoms so we have control the number of people who get given symptoms
@@ -120,7 +120,7 @@ public class CovidSpuriousSymptomTesting{
 		// Remove the development of new symptoms
 		sim.params.infection_beta = 0.0;
 		// run the simulation
-		helperFunctions.runSimulation(sim, numDays);
+		HelperFunctions.runSimulation(sim, numDays);
 		List<Disease> peopleWithPropertiesAssigned = checkSpuriousSymptomAndTestingEligibilityHasBeenAssigned(sim, true);
 		Assert.assertTrue((peopleWithPropertiesAssigned.size() > 0) & (peopleWithPropertiesAssigned.size() < sim.agents.size()));	
 

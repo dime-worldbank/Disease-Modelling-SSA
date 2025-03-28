@@ -15,7 +15,7 @@ import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
-public class helperFunctions {
+public class HelperFunctions {
 	
 
 	public enum NodeOption{
@@ -338,11 +338,11 @@ public class helperFunctions {
 	public static void turnOffBirthsOrDeaths(WorldBankCovid19Sim world, birthsOrDeaths whatToTurnOff) {
 		switch (whatToTurnOff) {
 		case births:
-			helperFunctions.setParameterListsToValue(world, world.params.prob_birth_by_age, 0.0);
+			HelperFunctions.setParameterListsToValue(world, world.params.prob_birth_by_age, 0.0);
 			break;
 		case deaths:
-			helperFunctions.setParameterListsToValue(world, world.params.prob_death_by_age_male, 0.0);
-			helperFunctions.setParameterListsToValue(world, world.params.prob_death_by_age_female, 0.0);
+			HelperFunctions.setParameterListsToValue(world, world.params.prob_death_by_age_male, 0.0);
+			HelperFunctions.setParameterListsToValue(world, world.params.prob_death_by_age_female, 0.0);
 			break;
 		default:
 			System.out.println("No part of the demography has been turned off");

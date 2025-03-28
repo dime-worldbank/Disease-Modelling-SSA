@@ -11,7 +11,7 @@ import uk.ac.ucl.protecs.sim.Params;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.behaviours.MovementBehaviourFramework.mobilityNodeTitle;
 import uk.ac.ucl.protecs.helperFunctions.*;
-import uk.ac.ucl.protecs.helperFunctions.helperFunctions.NodeOption;
+import uk.ac.ucl.protecs.helperFunctions.HelperFunctions.NodeOption;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 
 import org.junit.runner.RunWith;
@@ -45,16 +45,16 @@ public class MobilityTesting {
 	@Test
 	public void PeopleDoingTheCommunityNodeBehaviourSwitchToTheHomeNodeBehviourAtTheEndOfDay() {
 		// set up the simulation
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(params + ".txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(params + ".txt");
 		sim.start();
 
 		// make everyone go to the community
-		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.movementFramework.setMobilityNodeForTesting(mobilityNodeTitle.COMMUNITY), 
+		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.movementFramework.setMobilityNodeForTesting(mobilityNodeTitle.COMMUNITY), 
 				NodeOption.MovementBehaviour);
 		
 		// people will go home once the day has ended, therefore we need to run this until the end of the time they will be out in the community.
 		// There are 4 hours per tick, meaning 6 ticks per day. We check they are home after the 5th tick of the simulation.
-		List<String> uniqueNodesInRun = helperFunctions.getFinalBehaviourNodesInSim(sim, 5.01 / sim.params.ticks_per_day, NodeOption.MovementBehaviour);
+		List<String> uniqueNodesInRun = HelperFunctions.getFinalBehaviourNodesInSim(sim, 5.01 / sim.params.ticks_per_day, NodeOption.MovementBehaviour);
 		// only expect people to be at home
 		List<String> expectedNodes = Arrays.asList(mobilityNodeTitle.HOME.key);
 
@@ -64,10 +64,10 @@ public class MobilityTesting {
 	@Test
 	public void PeopleWithinTheCommunityLocationGoBackToHomeLocationAtTheEndOfDay() {
 		// set up the simulation
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(params + ".txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(params + ".txt");
 		sim.start();
 		// make everyone go to the community
-		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.movementFramework.setMobilityNodeForTesting(mobilityNodeTitle.COMMUNITY), 
+		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.movementFramework.setMobilityNodeForTesting(mobilityNodeTitle.COMMUNITY), 
 				NodeOption.MovementBehaviour);
 		// forcibly transfer people to the community location
 		for (Person p: sim.agents) {
@@ -75,7 +75,7 @@ public class MobilityTesting {
 		}
 		// people will go home once the day has ended, therefore we need to run this until the end of the time they will be out in the community.
 		// There are 4 hours per tick, meaning 6 ticks per day. We check they are home after the 5th tick of the simulation.
-		List<String> _unused = helperFunctions.getFinalBehaviourNodesInSim(sim, 5.01 / sim.params.ticks_per_day, NodeOption.MovementBehaviour);
+		List<String> _unused = HelperFunctions.getFinalBehaviourNodesInSim(sim, 5.01 / sim.params.ticks_per_day, NodeOption.MovementBehaviour);
 		// Create a hashset to store the whether everyone is at their home location
 		
 		HashSet<Boolean> allAtHome =  new HashSet<Boolean>();
@@ -88,11 +88,11 @@ public class MobilityTesting {
 	@Test
 	public void PeopleDoingTheHomeNodeSwitchToCommunityNodeBehaviourAtTheStartOfDay() {
 		// set up the simulation
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(params + ".txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(params + ".txt");
 		sim.start();
-		helperFunctions.makePeopleAlwaysLeaveHome(sim);
+		HelperFunctions.makePeopleAlwaysLeaveHome(sim);
 		// people start at home and then go to the community afterwards
-		List<String> uniqueNodesInRun = helperFunctions.getFinalBehaviourNodesInSim(sim, 2.01 / sim.params.ticks_per_day, NodeOption.MovementBehaviour);
+		List<String> uniqueNodesInRun = HelperFunctions.getFinalBehaviourNodesInSim(sim, 2.01 / sim.params.ticks_per_day, NodeOption.MovementBehaviour);
 		// only expect people to be at home
 		List<String> expectedNodes = Arrays.asList(mobilityNodeTitle.COMMUNITY.key);
 
@@ -101,11 +101,11 @@ public class MobilityTesting {
 	@Test
 	public void PeopleWithinTheHomeLocationGoToTheCommunityLocationAtTheStartOfDay() {
 		// set up the simulation
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "params_no_district_movement.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_no_district_movement.txt");
 		sim.start();
 		// people start at home and then go to the community afterwards
-		helperFunctions.makePeopleAlwaysLeaveHome(sim);
-		List<String> _unused = helperFunctions.getFinalBehaviourNodesInSim(sim, 2.01 / sim.params.ticks_per_day, NodeOption.MovementBehaviour);
+		HelperFunctions.makePeopleAlwaysLeaveHome(sim);
+		List<String> _unused = HelperFunctions.getFinalBehaviourNodesInSim(sim, 2.01 / sim.params.ticks_per_day, NodeOption.MovementBehaviour);
 		// Create a hashset to store the whether everyone is at their community location
 		
 		HashSet<Boolean> allAtCommunity =  new HashSet<Boolean>();
@@ -119,13 +119,13 @@ public class MobilityTesting {
 	@Test
 	public void MakeSureThatPeopleOnlyDoTheCommunityAndHomeNodeBehavioursWithPerfectMixing() {
 		//Arrange
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(params + ".txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(params + ".txt");
 		sim.start();
 		// ensure that perfect mixing is turned on
 		sim.params.setting_perfectMixing = true;
 		int numDays = 100; 
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
-		HashSet<String> uniqueNodesInRun = helperFunctions.getUniqueNodesOverCourseofSim(sim, numDays, NodeOption.MovementBehaviour, 0.0);
+		HashSet<String> uniqueNodesInRun = HelperFunctions.getUniqueNodesOverCourseofSim(sim, numDays, NodeOption.MovementBehaviour, 0.0);
 		// we would expect only the home and community node to appear in the simulation
 		List<String> expectedNodes = Arrays.asList(mobilityNodeTitle.HOME.key, mobilityNodeTitle.COMMUNITY.key);
 		// Make sure than no other movement behaviour nodes are reaching in the simulation
@@ -136,16 +136,16 @@ public class MobilityTesting {
 	public void MakeSureThatPeopleOnlyGoToTheCommunityAndHomeLocationsWithPerfectMixing() {
 		//Arrange
 
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(params + ".txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(params + ".txt");
 		sim.start();
 		// make everyone go to the community
 		sim.params.setting_perfectMixing = true;		
-		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.movementFramework.setMobilityNodeForTesting(mobilityNodeTitle.COMMUNITY), 
+		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.movementFramework.setMobilityNodeForTesting(mobilityNodeTitle.COMMUNITY), 
 				NodeOption.MovementBehaviour);
 		
 		// people will go home once the day has ended, therefore we need to run this until the end of the time they will be out in the community.
 		// There are 4 hours per tick, meaning 6 ticks per day. We check they are home after the 5th tick of the simulation.
-		List<String> uniqueNodesInRun = helperFunctions.getFinalBehaviourNodesInSim(sim, 5.01 / sim.params.ticks_per_day, NodeOption.MovementBehaviour);
+		List<String> uniqueNodesInRun = HelperFunctions.getFinalBehaviourNodesInSim(sim, 5.01 / sim.params.ticks_per_day, NodeOption.MovementBehaviour);
 		// only expect people to be at home
 		List<String> expectedNodes = Arrays.asList(mobilityNodeTitle.HOME.key);
 
@@ -162,12 +162,12 @@ public class MobilityTesting {
 //	
 	@Test
 	public void LockdownReducesTheNumberOfVisitsToOtherAdminZones() {
-		WorldBankCovid19Sim sim_no_lockdown = helperFunctions.CreateDummySim(params + ".txt");
+		WorldBankCovid19Sim sim_no_lockdown = HelperFunctions.CreateDummySim(params + ".txt");
 		sim_no_lockdown.start();
 		
 		int noLockdownOutboundTripCounts = outboundTripCountInSim(sim_no_lockdown, 100);
 		
-		WorldBankCovid19Sim sim_with_lockdown = helperFunctions.CreateDummySim(params + "_with_lockdown.txt");
+		WorldBankCovid19Sim sim_with_lockdown = HelperFunctions.CreateDummySim(params + "_with_lockdown.txt");
 		sim_with_lockdown.start();
 
 		int lockdownOutboundTripCounts = outboundTripCountInSim(sim_with_lockdown, 100);

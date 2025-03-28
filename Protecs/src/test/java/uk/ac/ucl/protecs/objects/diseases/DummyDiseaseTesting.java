@@ -8,7 +8,7 @@ import uk.ac.ucl.protecs.helperFunctions.*;
 import org.junit.Test;
 
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
-import uk.ac.ucl.protecs.helperFunctions.helperFunctions.birthsOrDeaths;
+import uk.ac.ucl.protecs.helperFunctions.HelperFunctions.birthsOrDeaths;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.objects.hosts.Person.SEX;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
@@ -21,30 +21,30 @@ public class DummyDiseaseTesting{
 	
 	@Test
 	public void checkPeopleGetTheDummyDiseases() {
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "params.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params.txt");
 		sim.developingModularity = true;
 		sim.start();
 		int numDays = 8;
 
 		// run the simulation
-		helperFunctions.runSimulation(sim, numDays);
+		HelperFunctions.runSimulation(sim, numDays);
 		// Check that the dummy disase is loaded in to the simulation
-		HashSet<DISEASE> toCheck = helperFunctions.InfectionsPresentInSim(sim);
+		HashSet<DISEASE> toCheck = HelperFunctions.InfectionsPresentInSim(sim);
 
 		Assert.assertTrue((toCheck.contains(DISEASE.DUMMY_NCD)) & (toCheck.contains(DISEASE.DUMMY_INFECTIOUS)));
 	}
 	
 	@Test
 	public void checkAllDiseasesAppearInWorldDiseaseList() {
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "covid_testing_params.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "covid_testing_params.txt");
 		sim.developingModularity = true;
 		sim.start();
 		int numDays = 8;
 
 		// run the simulation
-		helperFunctions.runSimulation(sim, numDays);
+		HelperFunctions.runSimulation(sim, numDays);
 		// Check that the dummy disase is loaded in to the simulation
-		HashSet<DISEASE> toCheck = helperFunctions.InfectionsPresentInSim(sim);
+		HashSet<DISEASE> toCheck = HelperFunctions.InfectionsPresentInSim(sim);
 		boolean dummyNCDPresent = toCheck.contains(DISEASE.DUMMY_NCD);
 		boolean dummyInfectiousPresent = toCheck.contains(DISEASE.DUMMY_INFECTIOUS);
 		boolean covidPresent = toCheck.contains(DISEASE.COVID);
@@ -56,13 +56,13 @@ public class DummyDiseaseTesting{
 	
 	@Test
 	public void checkVerticalTransmissionOfDummyInfectiousWorks() {
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
 		sim.developingModularity = true;
 		// Increase the birth rate to ensure births take place
-		helperFunctions.setParameterListsToValue(sim, sim.params.prob_birth_by_age, 1.0);
+		HelperFunctions.setParameterListsToValue(sim, sim.params.prob_birth_by_age, 1.0);
 		sim.start();
 		// turn off deaths to only focus on births.
-		helperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
+		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
 		// stop horizontal transmission
 		sim.params.dummy_infectious_beta_horizontal = 0.0;
 		sim.params.dummy_infectious_beta_vertical = 1.0;
@@ -74,7 +74,7 @@ public class DummyDiseaseTesting{
 			if (p.getDiseaseSet().containsKey(DISEASE.DUMMY_INFECTIOUS.key)) number_of_initial_infections ++;
 		}
 		// run the simulation
-		helperFunctions.runSimulation(sim, numDays);
+		HelperFunctions.runSimulation(sim, numDays);
 		int number_of_new_infections = 0;
 		for (Person p: sim.agents) {
 			if (p.getDiseaseSet().containsKey(DISEASE.DUMMY_INFECTIOUS.key)) number_of_new_infections ++;
@@ -86,13 +86,13 @@ public class DummyDiseaseTesting{
 	
 	@Test
 	public void checkHorizontalTransmissionOfDummyInfectiousWorks() {
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
 		sim.developingModularity = true;
 		// Increase the birth rate to ensure births take place
-		helperFunctions.setParameterListsToValue(sim, sim.params.prob_birth_by_age, 1.0);
+		HelperFunctions.setParameterListsToValue(sim, sim.params.prob_birth_by_age, 1.0);
 		sim.start();
 		// turn off deaths to only focus on births.
-		helperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
+		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
 		// stop vertical transmission
 		sim.params.dummy_infectious_beta_horizontal = 1.0;
 		sim.params.dummy_infectious_beta_vertical = 0.0;
@@ -104,7 +104,7 @@ public class DummyDiseaseTesting{
 			if (p.getDiseaseSet().containsKey(DISEASE.DUMMY_INFECTIOUS.key)) number_of_initial_infections ++;
 		}
 		// run the simulation
-		helperFunctions.runSimulation(sim, numDays);
+		HelperFunctions.runSimulation(sim, numDays);
 		int number_of_new_infections = 0;
 		for (Person p: sim.agents) {
 			if (p.getDiseaseSet().containsKey(DISEASE.DUMMY_INFECTIOUS.key)) number_of_new_infections ++;
@@ -115,13 +115,13 @@ public class DummyDiseaseTesting{
 	
 	@Test
 	public void checkNoTransmissionOfDummyNCDHappensWithoutRateOfAcquisition() {
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
 		sim.developingModularity = true;
 		sim.start();
 		// turn off the rate of dummy NCD acquisition
 		sim.params.dummy_ncd_base_rate = 0.0;
 		// turn off deaths to only focus on births.
-		helperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
+		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
 		int numDays = 50;
 		// get the number of initial dummy infectious diseases
 		int number_of_initial_infections = 0;
@@ -129,7 +129,7 @@ public class DummyDiseaseTesting{
 			if (p.getDiseaseSet().containsKey(DISEASE.DUMMY_NCD.key)) number_of_initial_infections ++;
 		}
 		// run the simulation
-		helperFunctions.runSimulation(sim, numDays);
+		HelperFunctions.runSimulation(sim, numDays);
 		int number_of_new_infections = 0;
 		for (Person p: sim.agents) {
 			if (p.getDiseaseSet().containsKey(DISEASE.DUMMY_NCD.key)) number_of_new_infections ++;
@@ -140,13 +140,13 @@ public class DummyDiseaseTesting{
 	
 	@Test
 	public void checkThatNewPeopleDevelopTheDummyNCD() {
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
 		sim.developingModularity = true;
 		sim.start();
 		// increase the rate of dummy NCD acquisition
 		sim.params.dummy_ncd_base_rate = 0.5;
 		// turn off deaths to only focus on births.
-		helperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
+		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
 		int numDays = 100;
 		// get the number of initial dummy infectious diseases
 		int number_of_initial_infections = 0;
@@ -154,7 +154,7 @@ public class DummyDiseaseTesting{
 			if (p.getDiseaseSet().containsKey(DISEASE.DUMMY_NCD.key)) number_of_initial_infections ++;
 		}
 		// run the simulation
-		helperFunctions.runSimulation(sim, numDays);
+		HelperFunctions.runSimulation(sim, numDays);
 		int number_of_infections_at_end = 0;
 		for (Person p: sim.agents) {
 			if (p.getDiseaseSet().containsKey(DISEASE.DUMMY_NCD.key)) number_of_infections_at_end ++;
@@ -165,7 +165,7 @@ public class DummyDiseaseTesting{
 	
 	@Test
 	public void checkThatMoreNewDummyNCDsOccurInMen() {
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
 		sim.developingModularity = true;
 		sim.params.dummy_ncd_initial_fraction_with_ncd = 0;
 		sim.start();
@@ -193,8 +193,8 @@ public class DummyDiseaseTesting{
 		// increase the relative risk of developing this condition if male
 		sim.params.dummy_ncd_rr_male = 2;
 		// turn off deaths to only focus on births.
-		helperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
-		helperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.births);
+		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
+		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.births);
 
 		int numDays = 100;
 		// get the number of initial dummy infectious diseases
@@ -206,7 +206,7 @@ public class DummyDiseaseTesting{
 
 		}
 		// run the simulation
-		helperFunctions.runSimulation(sim, numDays);
+		HelperFunctions.runSimulation(sim, numDays);
 		int number_of_male_infections_at_end = 0;
 		int number_of_female_infections_at_end = 0;
 
@@ -222,7 +222,7 @@ public class DummyDiseaseTesting{
 	}
 	@Test
 	public void checkThatMoreNewDummyNCDsInOver50s() {
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
 		sim.developingModularity = true;
 		sim.params.dummy_ncd_initial_fraction_with_ncd = 0;
 		sim.start();
@@ -251,8 +251,8 @@ public class DummyDiseaseTesting{
 		// increase the relative risk of developing this condition if male
 		sim.params.dummy_ncd_rr_male = 1.0;
 		// turn off deaths to only focus on births.
-		helperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
-		helperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.births);
+		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
+		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.births);
 
 		int numDays = 100;
 		// get the number of initial dummy infectious diseases
@@ -264,7 +264,7 @@ public class DummyDiseaseTesting{
 
 		}
 		// run the simulation
-		helperFunctions.runSimulation(sim, numDays);
+		HelperFunctions.runSimulation(sim, numDays);
 		int number_of_over_50_infections_at_end = 0;
 		int number_of_under_50_infections_at_end = 0;
 

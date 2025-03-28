@@ -13,7 +13,7 @@ import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 
 
-public class dummyNCDOnset {
+public class DummyNCDOnset {
 
 	
 	public class causeDummyNCDs implements Steppable{

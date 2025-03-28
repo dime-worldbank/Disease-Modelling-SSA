@@ -11,14 +11,14 @@ import uk.ac.ucl.swise.behaviours.BehaviourNode;
 // Many infections share certain characteristics relevant to modelling, such as infection state, disease progression etc. This is an attempt
 // to begin to build a modular framework to house these qualities
 
-public class diseaseProgressionBehaviourFramework implements BehaviourFramework {
+public class DiseaseProgressionBehaviourFramework implements BehaviourFramework {
 	WorldBankCovid19Sim myWorld;
 	Disease myInfection;
 	BehaviourNode susceptibleNode = null, exposedNode = null, presymptomaticNode= null, asymptomaticNode = null,
 			mildNode = null, severeNode = null, criticalNode = null, recoveredNode = null, deadNode = null;
 
 	BehaviourNode standardEntryPoint;
-	public diseaseProgressionBehaviourFramework(WorldBankCovid19Sim world){
+	public DiseaseProgressionBehaviourFramework(WorldBankCovid19Sim world){
 		myWorld = world;
 		
 		}

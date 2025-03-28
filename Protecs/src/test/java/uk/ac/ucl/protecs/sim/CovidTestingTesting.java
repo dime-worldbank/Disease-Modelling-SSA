@@ -2,7 +2,7 @@ package uk.ac.ucl.protecs.sim;
 
 import org.junit.Assert;
 import uk.ac.ucl.protecs.helperFunctions.*;
-import uk.ac.ucl.protecs.helperFunctions.helperFunctions.NodeOption;
+import uk.ac.ucl.protecs.helperFunctions.HelperFunctions.NodeOption;
 
 import org.junit.Test;
 
@@ -20,14 +20,14 @@ public class CovidTestingTesting {
 	
 	@Test
 	public void CheckTestsOnlyHappenForThoseWithSymptomsOfCovid() {
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "covid_testing_params.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "covid_testing_params.txt");
 		sim.start();
 		int numDays = 1;
-		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(0.5, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD),
+		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(0.5, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD),
 				NodeOption.CoronavirusInfectiousBehaviour);
-		helperFunctions.StopRecoveryHappening(sim);
-		helperFunctions.StopCovidFromSpreading(sim);
-		helperFunctions.runSimulation(sim, numDays);
+		HelperFunctions.StopRecoveryHappening(sim);
+		HelperFunctions.StopCovidFromSpreading(sim);
+		HelperFunctions.runSimulation(sim, numDays);
 		List<Disease> hasBeenTested = infectionsTested(sim);
 		int numWithBothSpuriousAndSymptomaticCovid = 0;
 		for (Disease i: hasBeenTested) {
