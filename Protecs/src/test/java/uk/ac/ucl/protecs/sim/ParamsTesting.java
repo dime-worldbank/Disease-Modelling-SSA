@@ -9,7 +9,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import uk.ac.ucl.protecs.helperFunctions.*;
-import uk.ac.ucl.protecs.objects.Person;
+import uk.ac.ucl.protecs.objects.hosts.Person;
 
 //================================================ Testing =======================================================================
 //===== Here we test that the params.java is loading in information needed for the simulation, can run without certain parameter =
@@ -32,11 +32,11 @@ public class ParamsTesting {
 	@Test
 	public void testOldStyleCensusStillLoads() {
 		// Create the simulation object with the older style census
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "params_old_census.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_old_census.txt");
 		// attempt to load that object in to the simulation
 		try {
 			sim.start();
-			helperFunctions.runSimulation(sim, 10);
+			HelperFunctions.runSimulation(sim, 10);
 		}
 		catch (Exception e) {
 			Assert.fail();
@@ -50,10 +50,10 @@ public class ParamsTesting {
 	@Test
 	public void testdailyTransitionWeekdayAndHomeRegionColumnOrderIsMutable() {
 		// Create the simulation object with column order 'weekday,home_region,...' in the ODMs
-		WorldBankCovid19Sim original_order_sim = helperFunctions.CreateDummySim(paramsDir + "params_testing_odm_order.txt");
+		WorldBankCovid19Sim original_order_sim = HelperFunctions.CreateDummySim(paramsDir + "params_testing_odm_order.txt");
 		original_order_sim.start();
 		// Create the simulation with column order 'home_region,weekday,...' in the ODMs
-		WorldBankCovid19Sim alternative_order_sim = helperFunctions.CreateDummySim(paramsDir + "params_testing_odm_order_alt.txt");
+		WorldBankCovid19Sim alternative_order_sim = HelperFunctions.CreateDummySim(paramsDir + "params_testing_odm_order_alt.txt");
 		alternative_order_sim.start();
 		// check that regardless of column order of the first two columns in the csv file, the ODMs are the same for both lockdown and non-lockdown 
 		boolean ld_odms_equal = original_order_sim.params.dailyTransitionLockdownProbs.equals(alternative_order_sim.params.dailyTransitionLockdownProbs);
@@ -65,7 +65,7 @@ public class ParamsTesting {
 	@Test
 	public void testSimStartsWithoutDemographyFilenames() {
 		// Create the simulation object without loading in demography related filenames
-		WorldBankCovid19Sim sim_no_demog_files = helperFunctions.CreateDummySim(paramsDir + "params_testing_no_demography.txt");
+		WorldBankCovid19Sim sim_no_demog_files = HelperFunctions.CreateDummySim(paramsDir + "params_testing_no_demography.txt");
 		// start the simulation, which triggers the loading in of parameters
 		sim_no_demog_files.start();
 		// Check that the birth_rate_filename and all_cause_mortality_filename have stayed as their default value.
@@ -75,12 +75,12 @@ public class ParamsTesting {
 	@Test
 	public void testSimRunsWithoutDemographyFilenames() {
 		// Create the simulation object without loading in demography related filenames
-		WorldBankCovid19Sim sim_no_demog_files = helperFunctions.CreateDummySim(paramsDir + "params_testing_no_demography.txt");
+		WorldBankCovid19Sim sim_no_demog_files = HelperFunctions.CreateDummySim(paramsDir + "params_testing_no_demography.txt");
 		// wrap simulation running in a try catch statement
 		try {
 			// initialise and simulation
 			sim_no_demog_files.start();
-			helperFunctions.runSimulation(sim_no_demog_files, 10);
+			HelperFunctions.runSimulation(sim_no_demog_files, 10);
 		}
 		catch (Exception e) {
 			// error has been found, update run_without_issue
@@ -92,7 +92,7 @@ public class ParamsTesting {
 	@Test
 	public void testSimStartsWithoutLockdownFilenames() {
 		// Create the simulation object without loading in lockdown triggering related filenames
-		WorldBankCovid19Sim sim_no_lockdown_trigger_files = helperFunctions.CreateDummySim(paramsDir + "params_testing_no_lockdown_filename.txt");
+		WorldBankCovid19Sim sim_no_lockdown_trigger_files = HelperFunctions.CreateDummySim(paramsDir + "params_testing_no_lockdown_filename.txt");
 		// start the simulation, which triggers the loading in of parameters
 		sim_no_lockdown_trigger_files.start();
 		
@@ -103,11 +103,11 @@ public class ParamsTesting {
 	@Test
 	public void testSimRunsWithoutLockdownFilenames() {
 		// Create the simulation object without loading in lockdown triggering related filenames
-		WorldBankCovid19Sim sim_no_lockdown_trigger_files = helperFunctions.CreateDummySim(paramsDir + "params_testing_no_lockdown_filename.txt");
+		WorldBankCovid19Sim sim_no_lockdown_trigger_files = HelperFunctions.CreateDummySim(paramsDir + "params_testing_no_lockdown_filename.txt");
 		// wrap simulation running in a try catch statement
 		try {
 			sim_no_lockdown_trigger_files.start();
-			helperFunctions.runSimulation(sim_no_lockdown_trigger_files, 10);
+			HelperFunctions.runSimulation(sim_no_lockdown_trigger_files, 10);
 		}
 		catch (Exception e) {
 			Assert.fail();
@@ -118,7 +118,7 @@ public class ParamsTesting {
 	@Test
 	public void testSimStartsWithoutCovidTestingFilenames() {
 		// Create the simulation object without loading in lockdown triggering related filenames
-		WorldBankCovid19Sim sim_no_covid_testing_files = helperFunctions.CreateDummySim(paramsDir + "params_testing_no_covid_testing_file.txt");
+		WorldBankCovid19Sim sim_no_covid_testing_files = HelperFunctions.CreateDummySim(paramsDir + "params_testing_no_covid_testing_file.txt");
 		// start the simulation, which triggers the loading in of parameters
 		sim_no_covid_testing_files.start();
 		
@@ -129,11 +129,11 @@ public class ParamsTesting {
 	@Test
 	public void testSimRunsWithoutCovidTestingFilenames() {
 		// Create the simulation object without loading in lockdown triggering related filenames
-		WorldBankCovid19Sim sim_no_covid_testing_files = helperFunctions.CreateDummySim(paramsDir + "params_testing_no_covid_testing_file.txt");
+		WorldBankCovid19Sim sim_no_covid_testing_files = HelperFunctions.CreateDummySim(paramsDir + "params_testing_no_covid_testing_file.txt");
 		// wrap simulation running in a try catch statement
 		try {
 			sim_no_covid_testing_files.start();
-			helperFunctions.runSimulation(sim_no_covid_testing_files, 10);
+			HelperFunctions.runSimulation(sim_no_covid_testing_files, 10);
 		}
 		catch (Exception e) {
 			Assert.fail();
@@ -156,9 +156,9 @@ public class ParamsTesting {
 		// wrap simulation running in a try catch statement
 		try {
 			// Create the simulation object with one faulty data
-			WorldBankCovid19Sim sim_should_raise_exception = helperFunctions.CreateDummySim(params);
+			WorldBankCovid19Sim sim_should_raise_exception = HelperFunctions.CreateDummySim(params);
 			sim_should_raise_exception.start();
-			helperFunctions.runSimulation(sim_should_raise_exception, 10);
+			HelperFunctions.runSimulation(sim_should_raise_exception, 10);
 		}
 		catch (java.lang.AssertionError e) {
 			// Assert flag raised, update run_without_issue

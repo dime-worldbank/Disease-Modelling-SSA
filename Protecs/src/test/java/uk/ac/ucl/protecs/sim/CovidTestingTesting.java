@@ -2,12 +2,13 @@ package uk.ac.ucl.protecs.sim;
 
 import org.junit.Assert;
 import uk.ac.ucl.protecs.helperFunctions.*;
-import uk.ac.ucl.protecs.helperFunctions.helperFunctions.NodeOption;
+import uk.ac.ucl.protecs.helperFunctions.HelperFunctions.NodeOption;
 
 import org.junit.Test;
 
-import uk.ac.ucl.protecs.objects.Person;
-import uk.ac.ucl.protecs.objects.diseases.CoronavirusBehaviourFramework.CoronavirusBehaviourNodeTitle;
+import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgressionFramework.CoronavirusBehaviourNodeTitle;
+import uk.ac.ucl.protecs.objects.diseases.Disease;
+import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 
 import java.util.List;
 import java.util.Map;
@@ -19,20 +20,28 @@ public class CovidTestingTesting {
 	
 	@Test
 	public void CheckTestsOnlyHappenForThoseWithSymptomsOfCovid() {
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "covid_testing_params.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "covid_testing_params.txt");
 		sim.start();
 		int numDays = 1;
-		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(0.5, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD),
+		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(0.5, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD),
 				NodeOption.CoronavirusInfectiousBehaviour);
-		helperFunctions.StopRecoveryHappening(sim);
-		helperFunctions.StopCovidFromSpreading(sim);
-		helperFunctions.runSimulation(sim, numDays);
-		List<Person> hasBeenTested = peopleWhoHaveBeenTested(sim);
+		HelperFunctions.StopRecoveryHappening(sim);
+		HelperFunctions.StopCovidFromSpreading(sim);
+		HelperFunctions.runSimulation(sim, numDays);
+		List<Disease> hasBeenTested = infectionsTested(sim);
 		int numWithBothSpuriousAndSymptomaticCovid = 0;
-		for (Person p: hasBeenTested) {
-			if (p.hasCovidSpuriousSymptoms() & p.hasSymptomaticCovid()) {
-				numWithBothSpuriousAndSymptomaticCovid++;
+		for (Disease i: hasBeenTested) {
+			if (i.getDiseaseType().equals(DISEASE.COVID)) {
+				if (i.getHost().getDiseaseSet().containsKey(DISEASE.COVIDSPURIOUSSYMPTOM.key)) {
+					if (i.getHost().getDiseaseSet().get(DISEASE.COVIDSPURIOUSSYMPTOM.key).isSymptomatic()) {
+						numWithBothSpuriousAndSymptomaticCovid++;
+					}
 				}
+				
+			}
+//			if (p.hasCovidSpuriousSymptoms() & p.hasSymptomaticCovid()) {
+//				numWithBothSpuriousAndSymptomaticCovid++;
+//				}
 		}
 		Assert.assertTrue(numWithBothSpuriousAndSymptomaticCovid == 0);
 		
@@ -63,10 +72,11 @@ public class CovidTestingTesting {
 //		Assert.assertTrue(numWithoutTesting == numWithTesting);
 //
 //	}
-	public List<Person> peopleWhoHaveBeenTested(WorldBankCovid19Sim world){
-		Map<Boolean, List<Person>> propertiesChecked = (Map<Boolean,List<Person>>) world.agents.stream().collect(
+	public List<Disease> infectionsTested(WorldBankCovid19Sim world){
+		
+		Map<Boolean, List<Disease>> propertiesChecked = (Map<Boolean,List<Disease>>) world.infections.stream().collect(
 	            Collectors.groupingBy(
-	              Person::hasBeenTestedForCovid,
+	              Disease::hasBeenTested,
 	                    Collectors.toList()
 		            )
 	               );

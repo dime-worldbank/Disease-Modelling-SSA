@@ -5,12 +5,13 @@ import java.util.List;
 
 import sim.engine.SimState;
 import sim.engine.Steppable;
-import uk.ac.ucl.protecs.objects.Household;
-import uk.ac.ucl.protecs.objects.Workplace;
-import uk.ac.ucl.protecs.objects.Location;
-import uk.ac.ucl.protecs.objects.Person;
-import uk.ac.ucl.protecs.objects.Person.OCCUPATION;
-import uk.ac.ucl.protecs.objects.Person.SEX;
+import uk.ac.ucl.protecs.objects.diseases.Disease;
+import uk.ac.ucl.protecs.objects.hosts.Person;
+import uk.ac.ucl.protecs.objects.hosts.Person.OCCUPATION;
+import uk.ac.ucl.protecs.objects.hosts.Person.SEX;
+import uk.ac.ucl.protecs.objects.locations.Household;
+import uk.ac.ucl.protecs.objects.locations.Location;
+import uk.ac.ucl.protecs.objects.locations.Workplace;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 
 public class Demography {
@@ -30,9 +31,9 @@ public class Demography {
 		Person target;
 		int ticksUntilNextBirthday = 365;
 		
-		public Aging(Person p, int ticksPerDay) {
+		public Aging(Person p, WorldBankCovid19Sim myWorld) {
 			this.target = p;
-			this.ticksUntilNextBirthday = 365 * ticksPerDay;
+			this.ticksUntilNextBirthday = myWorld.params.ticks_per_year;
 		}
 		
 		@Override
@@ -49,7 +50,7 @@ public class Demography {
 		int ticksUntilNextMortalityCheck = 0;
 		int tickToCauseMortality = Integer.MAX_VALUE;
 		WorldBankCovid19Sim world;
-		public Mortality( Person p, int ticksPerDay, WorldBankCovid19Sim myWorld ) {
+		public Mortality( Person p, WorldBankCovid19Sim myWorld ) {
 			this.target = p;
 			this.ticksUntilNextMortalityCheck = myWorld.params.ticks_per_year;
 			this.world = myWorld;
@@ -135,9 +136,9 @@ public class Demography {
 		int tickToCauseBirth = Integer.MAX_VALUE;
 		int daysToRescheduleNextBirth = Integer.MAX_VALUE;
 		WorldBankCovid19Sim world;
-		public Births( Person p, int ticksPerDay, WorldBankCovid19Sim myWorld ) {
+		public Births( Person p, WorldBankCovid19Sim myWorld ) {
 			this.target = p;
-			this.ticksUntilNextBirthCheck = 365 * ticksPerDay;
+			this.ticksUntilNextBirthCheck = myWorld.params.ticks_per_year;
 			this.world = myWorld;
 		} 
 		@Override
@@ -227,13 +228,17 @@ public class Demography {
 			babyHousehold.addPerson(baby);
 			baby.setLocation(babyAdminZone);
 			// the baby has decided to go home
-			baby.setActivityNode(world.movementFramework.getHomeNode());
+			baby.setActivityNode(world.movementFramework.getEntryPoint());
 			// store the baby in the newBirths array
 			world.agents.add(baby);
 			// Add the person to the admin zone
 			baby.transferTo(babyHousehold);
 			// This is a new birth that hasn't been recorded
 			target.removeBirthLogged();
+			// call on vertical transmission functions for any infections
+			for (Disease d: target.getDiseaseSet().values()) {
+				d.verticalTransmission(baby);
+			}
 		}
 		}
 		

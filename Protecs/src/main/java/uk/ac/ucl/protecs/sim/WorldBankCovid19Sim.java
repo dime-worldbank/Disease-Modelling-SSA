@@ -6,27 +6,35 @@ import java.util.HashSet;
 import java.util.Random;
 
 import uk.ac.ucl.protecs.behaviours.*;
-import uk.ac.ucl.protecs.objects.*;
-import uk.ac.ucl.protecs.objects.Person.OCCUPATION;
-import uk.ac.ucl.protecs.objects.Person.SEX;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
-import uk.ac.ucl.protecs.objects.diseases.CoronavirusSpuriousSymptom;
-import uk.ac.ucl.protecs.objects.diseases.Infection;
-import uk.ac.ucl.protecs.objects.diseases.SpuriousSymptomBehaviourFramework;
-import uk.ac.ucl.protecs.objects.diseases.CoronavirusBehaviourFramework;
+import uk.ac.ucl.protecs.behaviours.diseaseProgression.DummyNonCommunicableDiseaseProgressionFramework;
+import uk.ac.ucl.protecs.objects.diseases.DummyNonCommunicableDisease;
+import uk.ac.ucl.protecs.objects.diseases.Disease;
+import uk.ac.ucl.protecs.objects.diseases.DummyInfectiousDisease;
+import uk.ac.ucl.protecs.objects.hosts.Person;
+import uk.ac.ucl.protecs.objects.hosts.Person.OCCUPATION;
+import uk.ac.ucl.protecs.objects.hosts.Person.SEX;
+import uk.ac.ucl.protecs.objects.locations.Household;
+import uk.ac.ucl.protecs.objects.locations.Location;
+import uk.ac.ucl.protecs.objects.locations.Workplace;
+import uk.ac.ucl.protecs.behaviours.diseaseProgression.SpuriousSymptomDiseaseProgressionFramework;
+import uk.ac.ucl.protecs.behaviours.diseaseSpread.DummyNCDOnset;
+import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgressionFramework;
+import uk.ac.ucl.protecs.behaviours.diseaseProgression.DummyInfectiousDiseaseProgressionFramework;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 
 public class WorldBankCovid19Sim extends SimState {
+	// Create a boolean for developing disease modularity
+	public boolean developingModularity = false;
 
 	// the objects which make up the system
 	public ArrayList <Person> agents = null;
 	public ArrayList <Household> households = null;
 	public ArrayList <Workplace> workplaces = null;
 
-	public ArrayList <Infection> infections = null;
+	public ArrayList <Disease> infections = null;
 	public HashSet <OCCUPATION> occupationsInSim = null;
-	public ArrayList <CoronavirusSpuriousSymptom> CovidSpuriousSymptomsList = null;
 	public Random random;
 	
 	ArrayList <Location> adminBoundaries = null;
@@ -34,12 +42,12 @@ public class WorldBankCovid19Sim extends SimState {
 	HashMap <Location, ArrayList<Person>> personsToAdminBoundary = null; 
 	
 	public MovementBehaviourFramework movementFramework = null;
-	public CoronavirusBehaviourFramework infectiousFramework = null;
-	public SpuriousSymptomBehaviourFramework spuriousFramework = null;
+	public CoronavirusDiseaseProgressionFramework infectiousFramework = null;
+	public SpuriousSymptomDiseaseProgressionFramework spuriousFramework = null;
+	public DummyNonCommunicableDiseaseProgressionFramework dummyNCDFramework = null;
+	public DummyInfectiousDiseaseProgressionFramework dummyInfectiousFramework = null;
 	public Params params = null;
 	public boolean lockedDown = false;
-	// create a variable to determine if COVID testing will take place
-	public boolean covidTesting = false;
 	// the names of file names of each output filename		
 	public String outputFilename = null;
 	public String covidIncOutputFilename = null; 
@@ -69,6 +77,30 @@ public class WorldBankCovid19Sim extends SimState {
 	public static int param_schedule_COVID_SpuriousSymptoms = 98;
 	public static int param_schedule_COVID_Testing = 99;
 	public static int param_schedule_reporting_reset = param_schedule_reporting + 1;
+	
+	// Create a enum list of diseases modelled currently, these will be used to categorise any infections a person may get over the course of the simulation.
+	public enum DISEASE{
+		DUMMY_NCD("DUMMY_NCD"), DUMMY_INFECTIOUS("DUMMY_INFECTIOUS"), COVID("COVID-19"), COVIDSPURIOUSSYMPTOM("COVID-19_SPURIOUS_SYMPTOM");
+
+        public String key;
+     
+        DISEASE(String key) { this.key = key; }
+    
+        public static DISEASE getValue(String x) {
+        	switch (x) {
+        	case "DUMMY_NCD":
+        		return DUMMY_NCD;
+        	case "DUMMY_INFECTIOUS":
+        		return DUMMY_INFECTIOUS;
+        	case "COVID-19":
+        		return COVID;
+        	case "COVID-19_SPURIOUS_SYMPTOM":
+        		return COVIDSPURIOUSSYMPTOM;
+        	default:
+        		throw new IllegalArgumentException();
+        	}
+        }
+	}
 
 	
 	public ArrayList <Integer> testingAgeDist = new ArrayList <Integer> ();
@@ -116,8 +148,12 @@ public class WorldBankCovid19Sim extends SimState {
 		
 		// set up the behavioural framework
 		movementFramework = new MovementBehaviourFramework(this);
-		infectiousFramework = new CoronavirusBehaviourFramework(this);
-		spuriousFramework = new SpuriousSymptomBehaviourFramework(this);
+		infectiousFramework = new CoronavirusDiseaseProgressionFramework(this);
+		spuriousFramework = new SpuriousSymptomDiseaseProgressionFramework(this);
+		if (developingModularity) {
+			dummyNCDFramework = new DummyNonCommunicableDiseaseProgressionFramework(this);
+			dummyInfectiousFramework = new DummyInfectiousDiseaseProgressionFramework(this);
+		}
 		// RESET SEED
 		random = new Random(this.seed());
 
@@ -148,7 +184,8 @@ public class WorldBankCovid19Sim extends SimState {
 		// RESET SEED
 
 		// set up the infections
-		infections = new ArrayList <Infection> ();
+		infections = new ArrayList <Disease> ();
+		// TODO expand this to include all infection types
 		for(Location l: params.lineList.keySet()){
 			
 			// activate this location
@@ -191,12 +228,11 @@ public class WorldBankCovid19Sim extends SimState {
 				// update this person's properties
 				
 				// update this person's properties so we can keep track of the number of cases etc				
-				p.storeCovid();
 				if (inf.getBehaviourName().equals("asymptomatic")) {
-					p.setAsympt();
+					inf.setAsympt();
 				}
 				else {
-					p.setMild();
+					inf.setMild();
 				}
 				schedule.scheduleOnce(1, param_schedule_infecting, inf);
 			}
@@ -216,9 +252,33 @@ public class WorldBankCovid19Sim extends SimState {
 		};
 		schedule.scheduleRepeating(0, this.param_schedule_updating_locations, updateLocationLists);
 		
+		if (developingModularity) {
+			DummyNCDOnset myDummyNCD = new DummyNCDOnset();
+			double num_to_seed = agents.size() * this.params.dummy_ncd_initial_fraction_with_ncd;
+			double i = 0.0;
+			for (Person a: agents) {
+				if (i < num_to_seed) {
+				DummyNonCommunicableDisease inf = new DummyNonCommunicableDisease(a, a, dummyNCDFramework.getStandardEntryPoint(), this, 0);
+				schedule.scheduleOnce(1, param_schedule_infecting, inf);
+				i ++ ;
+				}
+				else break;
+			}
+			DummyNCDOnset.causeDummyNCDs dummyNCDtrigger = myDummyNCD.new causeDummyNCDs(this);
+
+			schedule.scheduleRepeating(dummyNCDtrigger, this.param_schedule_infecting, params.ticks_per_month);
+			i = 0.0;
+			for (Person a: agents) {
+				if (i < num_to_seed) {
+				DummyInfectiousDisease inf = new DummyInfectiousDisease(a, null, dummyInfectiousFramework.getStandardEntryPoint(), this, 0);
+				schedule.scheduleOnce(1, param_schedule_infecting, inf);
+				i ++ ;
+				}
+				else break;
+			}
+		}
 
 		if (this.params.covidTesting) {
-			CovidSpuriousSymptomsList = new ArrayList <CoronavirusSpuriousSymptom> ();
 			schedule.scheduleRepeating(CovidSpuriousSymptoms.createSymptomObject(this));
 			schedule.scheduleRepeating(CovidTesting.Testing(this), this.param_schedule_COVID_Testing, params.ticks_per_day);
 			
@@ -231,14 +291,14 @@ public class WorldBankCovid19Sim extends SimState {
 			Demography myDemography = new Demography();
 			for(Person a: agents) {
 				// Trigger the aging process for this person
-				Demography.Aging agentAging = myDemography.new Aging(a, params.ticks_per_day);
+				Demography.Aging agentAging = myDemography.new Aging(a, this);
 				schedule.scheduleOnce(a.getBirthday()*params.ticks_per_day, this.param_schedule_reporting, agentAging);
 				// Trigger the process to determine mortality each year
-				Demography.Mortality agentMortality = myDemography.new Mortality(a, params.ticks_per_day, this);
+				Demography.Mortality agentMortality = myDemography.new Mortality(a, this);
 				schedule.scheduleOnce(0, this.param_schedule_reporting, agentMortality);
 				// if biologically female, trigger checks for giving birth each year
 				if (a.getSex().equals(SEX.FEMALE)) {
-					Demography.Births agentBirths = myDemography.new Births(a, params.ticks_per_day, this);
+					Demography.Births agentBirths = myDemography.new Births(a, this);
 					schedule.scheduleOnce(0, this.param_schedule_reporting, agentBirths);
 				}
 			}
@@ -413,7 +473,7 @@ public class WorldBankCovid19Sim extends SimState {
 		mySim.timer = endTime - startTime;
 		
 		System.out.println("...run finished after " + mySim.timer + " ms");
-		
+		ImportExport.exportInfections(outputFilename + "_infections.txt", mySim.infections);
 
 	}
 

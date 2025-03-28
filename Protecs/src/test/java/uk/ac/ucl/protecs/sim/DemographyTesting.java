@@ -2,9 +2,11 @@ package uk.ac.ucl.protecs.sim;
 
 import org.junit.Assert;
 import org.junit.Test;
-import uk.ac.ucl.protecs.objects.Person;
-import uk.ac.ucl.protecs.objects.Person.SEX;
+
 import uk.ac.ucl.protecs.helperFunctions.*;
+import uk.ac.ucl.protecs.helperFunctions.HelperFunctions.birthsOrDeaths;
+import uk.ac.ucl.protecs.objects.hosts.Person;
+import uk.ac.ucl.protecs.objects.hosts.Person.SEX;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -18,26 +20,23 @@ import java.util.stream.Collectors;
 // ================================================================================================================================
 
 public class DemographyTesting {
-	enum birthsOrDeaths{
-		births,
-		deaths
-	}
+
 	private final static String paramsDir = "src/test/resources/";
 
 	@Test
 	public void testBirthsAreIncreasingPopSize() {
 		// Create the simulation object
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
 		sim.start();
 		// turn off deaths to only focus on births.
-		turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
+		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
 		// Increase the birth rate to ensure births take place
-		helperFunctions.setParameterListsToValue(sim, sim.params.prob_birth_by_age, 1.0);
+		HelperFunctions.setParameterListsToValue(sim, sim.params.prob_birth_by_age, 1.0);
 		// Run the simulation for 100 days
 		int numDays = 100; 
 		
 		int original_number_of_agents = sim.agents.size();
-		helperFunctions.runSimulation(sim, numDays);
+		HelperFunctions.runSimulation(sim, numDays);
 		int final_number_of_agents = sim.agents.size();
 		
 		Assert.assertTrue(final_number_of_agents > original_number_of_agents);
@@ -45,10 +44,10 @@ public class DemographyTesting {
 	@Test
 	public void testBirthsDoNotOccurInMen() {		
 		// Create the simulation object
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
 		sim.start();
 		// turn off deaths to only focus on births.
-		turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
+		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
 		// Remove women in the simulation
 		for (Person p: sim.agents) {
 			if (p.getSex().equals(SEX.FEMALE)) {p.die("");}
@@ -57,7 +56,7 @@ public class DemographyTesting {
 		int numDays = 100;
 				
 		int original_number_of_agents = sim.agents.size();
-		helperFunctions.runSimulation(sim, numDays);
+		HelperFunctions.runSimulation(sim, numDays);
 		int final_number_of_agents = sim.agents.size();
 		Assert.assertTrue(final_number_of_agents == original_number_of_agents);
 
@@ -67,22 +66,22 @@ public class DemographyTesting {
 		Random rand = new Random();
 		int seed = rand.nextInt(1000000000);
 		// Create the simulation objects
-		WorldBankCovid19Sim sim_with_male_mortality = helperFunctions.CreateDummySimWithSeed(seed, "src/test/resources/demography_params.txt");
+		WorldBankCovid19Sim sim_with_male_mortality = HelperFunctions.CreateDummySimWithSeed(seed, "src/test/resources/demography_params.txt");
 		sim_with_male_mortality.start();
 		// turn off female mortality in this simulation
-		helperFunctions.setParameterListsToValue(sim_with_male_mortality, sim_with_male_mortality.params.prob_death_by_age_female, 0.0);
-		helperFunctions.setParameterListsToValue(sim_with_male_mortality, sim_with_male_mortality.params.prob_death_by_age_male, 0.5);
+		HelperFunctions.setParameterListsToValue(sim_with_male_mortality, sim_with_male_mortality.params.prob_death_by_age_female, 0.0);
+		HelperFunctions.setParameterListsToValue(sim_with_male_mortality, sim_with_male_mortality.params.prob_death_by_age_male, 0.5);
 
-		WorldBankCovid19Sim sim_with_female_mortality = helperFunctions.CreateDummySimWithSeed(seed, "src/test/resources/demography_params.txt");
+		WorldBankCovid19Sim sim_with_female_mortality = HelperFunctions.CreateDummySimWithSeed(seed, "src/test/resources/demography_params.txt");
 		// turn off female mortality in this simulation
-		helperFunctions.setParameterListsToValue(sim_with_female_mortality, sim_with_female_mortality.params.prob_death_by_age_male, 0.0);
-		helperFunctions.setParameterListsToValue(sim_with_female_mortality, sim_with_female_mortality.params.prob_death_by_age_female, 0.5);
+		HelperFunctions.setParameterListsToValue(sim_with_female_mortality, sim_with_female_mortality.params.prob_death_by_age_male, 0.0);
+		HelperFunctions.setParameterListsToValue(sim_with_female_mortality, sim_with_female_mortality.params.prob_death_by_age_female, 0.5);
 
 	
 		sim_with_female_mortality.start();
 		// Make sure there are no births in either simulation
-		turnOffBirthsOrDeaths(sim_with_male_mortality, birthsOrDeaths.births);
-		turnOffBirthsOrDeaths(sim_with_female_mortality, birthsOrDeaths.births);
+		HelperFunctions.turnOffBirthsOrDeaths(sim_with_male_mortality, birthsOrDeaths.births);
+		HelperFunctions.turnOffBirthsOrDeaths(sim_with_female_mortality, birthsOrDeaths.births);
 		// Get initial counts of the number of males and females that are alive in each simulation
 		
 		int with_male_mortality_initial_male_counts = getAliveCountsBySex(sim_with_male_mortality, SEX.MALE, true);
@@ -93,8 +92,8 @@ public class DemographyTesting {
 		// Run the simulation for 100 days
 		int numDays = 100;
 						
-		helperFunctions.runSimulation(sim_with_male_mortality, numDays);
-		helperFunctions.runSimulation(sim_with_female_mortality, numDays);	
+		HelperFunctions.runSimulation(sim_with_male_mortality, numDays);
+		HelperFunctions.runSimulation(sim_with_female_mortality, numDays);	
 		// Get the counts of the number of males and females that are alive at the end of the simulation
 		int with_male_mortality_final_male_counts = getAliveCountsBySex(sim_with_male_mortality, SEX.MALE, true);
 		int with_male_mortality_final_female_counts = getAliveCountsBySex(sim_with_male_mortality, SEX.FEMALE, true);
@@ -115,11 +114,11 @@ public class DemographyTesting {
 	@Test
 	public void testUpdateAges() {		
 		// Create the simulation object
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
 		sim.start();
 		// turn off deaths births and deaths
-		turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
-		turnOffBirthsOrDeaths(sim, birthsOrDeaths.births);
+		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
+		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.births);
 		ArrayList <Integer> originalAges = new ArrayList <Integer> ();
 		for (Person p: sim.agents) {
 			originalAges.add(p.getAge());
@@ -127,7 +126,7 @@ public class DemographyTesting {
 		// run for a year so that every one has had a birthday
 		int numDays = 364;
 				
-		helperFunctions.runSimulation(sim, numDays);
+		HelperFunctions.runSimulation(sim, numDays);
 		ArrayList <Integer> finalAges = new ArrayList <Integer> ();
 		for (Person p: sim.agents) {
 			finalAges.add(p.getAge());
@@ -145,21 +144,6 @@ public class DemographyTesting {
 	}
 
 	// ================================================ Helper functions =======================================================================
-
-	public void turnOffBirthsOrDeaths(WorldBankCovid19Sim world, birthsOrDeaths whatToTurnOff) {
-		switch (whatToTurnOff) {
-		case births:
-			helperFunctions.setParameterListsToValue(world, world.params.prob_birth_by_age, 0.0);
-			break;
-		case deaths:
-			helperFunctions.setParameterListsToValue(world, world.params.prob_death_by_age_male, 0.0);
-			helperFunctions.setParameterListsToValue(world, world.params.prob_death_by_age_female, 0.0);
-			break;
-		default:
-			System.out.println("No part of the demography has been turned off");
-		}
-		
-	}
 	
 	public int getAliveCountsBySex(WorldBankCovid19Sim world, SEX sex, boolean alive) {
 		Map<SEX, Map<Boolean, Long>> sex_alive_map = world.agents.stream().collect(

@@ -1,9 +1,10 @@
 package uk.ac.ucl.protecs.sim;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.Collections;
 
-import uk.ac.ucl.protecs.objects.Person;
+import uk.ac.ucl.protecs.objects.hosts.Person;
+
+import java.util.Collections;
 
 public interface SpuriousSymptoms {
 	public static List<Person>  filterForEligiblePeople(WorldBankCovid19Sim world, int time){return null;};

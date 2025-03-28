@@ -5,8 +5,9 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import uk.ac.ucl.protecs.objects.Person;
-import uk.ac.ucl.protecs.objects.diseases.Infection;
+import uk.ac.ucl.protecs.objects.diseases.Disease;
+import uk.ac.ucl.protecs.objects.hosts.Person;
+import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 
 public class ImportExport {
 
@@ -59,13 +60,13 @@ public class ImportExport {
 				String myStr = p.toString();
 				//myStr += ";" + p.getEconStatus() + ";" + p.getAge() + ";" + p.getInfectStatus();
 				
-				if(p.getInfection() != null){
-					Person source = p.getInfection().getSource();
+				if(p.getDiseaseSet().containsKey(DISEASE.COVID.key)){					
+					Person source = p.getDiseaseSet().get(DISEASE.COVID.key).getSource();
 					String sourceName = null;
 					if(source != null)
 						sourceName = source.toString();
 					//myStr += ";" + p.getInfection().getStartTime() + ";" + sourceName;
-					myStr = p.getInfection().getBehaviourName();
+					myStr = p.getDiseaseSet().get(DISEASE.COVID.key).getBehaviourName();
 				}
 				else
 					//myStr += "Susceptible;;";
@@ -138,21 +139,23 @@ public class ImportExport {
 		}
 	}
 	
-	public static void exportInfections(String infections_export_filename, ArrayList <Infection> infections) {
+	public static void exportInfections(String infections_export_filename, ArrayList <Disease> infections) {
 		try {
 			
 			System.out.println("Printing out INFECTIONS to " + infections_export_filename);
 			
 			// shove it out
 			BufferedWriter exportFile = new BufferedWriter(new FileWriter(infections_export_filename, true));
-			exportFile.write("Host\tSource\tTime\tLocOfTransmission" + 
+			exportFile.write("Host\tInfType\tSource\tTime\tLocOfTransmission" + 
 					"\tContagiousAt\tSymptomaticAt\tSevereAt\tCriticalAt\tRecoveredAt\tDiedAt\tYLD\tYLL\tDALYs\tNTimesInfected"
 					+ "\n");
 			
 			// export infection data
-			for(Infection i: infections) {
+			for(Disease i: infections) {
 				
 				String rec = i.getHost().getID() + "\t";
+				
+				rec += i.getDiseaseName() + "\t";
 				
 				// infected by:
 				

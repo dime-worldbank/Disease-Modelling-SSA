@@ -2,14 +2,16 @@ package uk.ac.ucl.protecs.objects.diseases;
 
 import org.junit.Assert;
 import uk.ac.ucl.protecs.helperFunctions.*;
-import uk.ac.ucl.protecs.helperFunctions.helperFunctions.NodeOption;
+import uk.ac.ucl.protecs.helperFunctions.HelperFunctions.NodeOption;
+import uk.ac.ucl.protecs.objects.hosts.Person;
 
 import org.junit.Test;
 
-import uk.ac.ucl.protecs.objects.Person;
-import uk.ac.ucl.protecs.objects.diseases.CoronavirusBehaviourFramework.CoronavirusBehaviourNodeTitle;
+import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgressionFramework.CoronavirusBehaviourNodeTitle;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
+import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -21,15 +23,15 @@ public class CovidSpuriousSymptomTesting{
 	
 	@Test
 	public void CheckPeopleWithSymptomaticCovidDoNotGetSpuriousSymptoms() {
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "covid_testing_params.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "covid_testing_params.txt");
 		sim.start();
 		int numDays = 8;
 		// Give the population mild Covid and spurious symptoms to see if those with mild covid have their spurious symptoms resolved 
-		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD),
+		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD),
 				NodeOption.CoronavirusInfectiousBehaviour);
 		// make sure no one recovers or progresses from their mild covid
-		helperFunctions.StopRecoveryHappening(sim);
-		helperFunctions.HaltDiseaseProgressionAtStage(sim, CoronavirusBehaviourNodeTitle.MILD);
+		HelperFunctions.StopRecoveryHappening(sim);
+		HelperFunctions.HaltDiseaseProgressionAtStage(sim, CoronavirusBehaviourNodeTitle.MILD);
 
 		// make sure there are no new Covid infections
 		sim.params.infection_beta = 0.0;
@@ -38,7 +40,7 @@ public class CovidSpuriousSymptomTesting{
 		// create a bunch of spurious symptoms for each person
 		giveAFractionASpuriousSymptom(1, sim);
 		// run the simulation
-		helperFunctions.runSimulation(sim, numDays);
+		HelperFunctions.runSimulation(sim, numDays);
 		// In this scenario we would expect that no one has spurious symptoms
 		int numberOfPeopleWithSpuriousSymptoms = 0; 
 		
@@ -51,15 +53,15 @@ public class CovidSpuriousSymptomTesting{
 	
 	@Test
 	public void CheckPeopleCanHaveAsymptomaticCovidAndSpuriousSymptoms() {
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "covid_testing_params.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "covid_testing_params.txt");
 		sim.start();
 		int numDays = 1;
 		giveAFractionASpuriousSymptom(1, sim);
 		// Give everyone asymptomatic Covid
-		helperFunctions.SetFractionObjectsWithCertainBehaviourNode(1, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.ASYMPTOMATIC),
+		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.ASYMPTOMATIC),
 				NodeOption.CoronavirusInfectiousBehaviour);
 		// run the simulation
-		helperFunctions.runSimulation(sim, numDays);
+		HelperFunctions.runSimulation(sim, numDays);
 		// we need people with symptoms to be alive and not have any Covid infections of any severity. Use streams to search over the population to 
 		// find get the number of people with spurious symptoms who match this criteria
 		List<Person> peopleWithSpuriousSymptomsAndAsympt = getPopulationWithSpuriousSymptomsAndAsymptomaticCovid(sim);
@@ -68,7 +70,7 @@ public class CovidSpuriousSymptomTesting{
 	
 	@Test
 	public void CheckSettingCovidSpuriousSymptomAndTestingEligibilityPropertiesAreBeingRemovedAfterAWeek() {
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "covid_testing_params.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "covid_testing_params.txt");
 		sim.start();
 		int numDays = 8;
 		// Change the rate of setting Covid spurious symptoms so we have control the number of people who get given symptoms
@@ -77,40 +79,40 @@ public class CovidSpuriousSymptomTesting{
 		sim.params.infection_beta = 0.0;
 		// remove and existing infections from the population and assign half the population spurious symptoms
 		for (Person p: sim.agents) {
-			if (p.hadCovid()) {
+			if (p.getDiseaseSet().containsKey(DISEASE.COVID.key)) {
 				p.die("");
 				}
 		}
 		giveAFractionASpuriousSymptom(0.5, sim);
 		// run the simulation
-		helperFunctions.runSimulation(sim, numDays);
-		// Check that there are no spurious symptoms remaining in the population
-		List<Person> peopleWithoutSpuriousSymptoms = checkSpuriousSymptomAndTestingEligibilityHasBeenAssigned(sim, false);
-		Assert.assertTrue(peopleWithoutSpuriousSymptoms.size() == sim.agents.size());	
+		HelperFunctions.runSimulation(sim, numDays);
+		// Check that there are no spurious symptoms remaining in the population by checking that all spurious symptoms are asymptomatic
+		List<Disease> peopleWithoutSpuriousSymptoms = checkSpuriousSymptomAndTestingEligibilityHasBeenAssigned(sim, true);
+		Assert.assertTrue(peopleWithoutSpuriousSymptoms == null);	
 	}
 	
 	@Test
 	public void CheckCovidSpuriousSymptomAndTestingEligibilityPropertiesAreBeingSetWhenCreated() {
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "covid_testing_params.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "covid_testing_params.txt");
 		sim.start();
 		int numDays = 7;	
 		// Remove the development of new symptoms
 		sim.params.infection_beta = 0.0;
 		// remove all people with covid
-		for (Person p: sim.agents) { if (p.hadCovid()) {p.die("");}}
+		for (Person p: sim.agents) { if (p.getDiseaseSet().containsKey(DISEASE.COVID.key)) {p.die("");}}
 		// create spurious symptoms
 		giveAFractionASpuriousSymptom(1, sim);
-		helperFunctions.runSimulation(sim, numDays);
-		int sizeThatShouldHaveBeenGivenSymptoms = helperFunctions.GetNumberAlive(sim);
+		HelperFunctions.runSimulation(sim, numDays);
+		int sizeThatShouldHaveBeenGivenSymptoms = HelperFunctions.GetNumberAlive(sim);
 		// Check that there are no spurious symptoms remaining in the population
-		List<Person> peopleWithPropertiesAssigned = checkSpuriousSymptomAndTestingEligibilityHasBeenAssigned(sim, true);		
+		List<Disease> peopleWithPropertiesAssigned = checkSpuriousSymptomAndTestingEligibilityHasBeenAssigned(sim, true);		
 		Assert.assertTrue(peopleWithPropertiesAssigned.size() == sizeThatShouldHaveBeenGivenSymptoms);	
 	}
 	
 
 	@Test
 	public void CheckSpuriousObjectsAreCreated() {
-		WorldBankCovid19Sim sim = helperFunctions.CreateDummySim(paramsDir + "covid_testing_params.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "covid_testing_params.txt");
 		sim.start();
 		int numDays = 8;
 		// Change the rate of setting Covid spurious symptoms so we have control the number of people who get given symptoms
@@ -118,8 +120,8 @@ public class CovidSpuriousSymptomTesting{
 		// Remove the development of new symptoms
 		sim.params.infection_beta = 0.0;
 		// run the simulation
-		helperFunctions.runSimulation(sim, numDays);
-		List<Person> peopleWithPropertiesAssigned = checkSpuriousSymptomAndTestingEligibilityHasBeenAssigned(sim, true);
+		HelperFunctions.runSimulation(sim, numDays);
+		List<Disease> peopleWithPropertiesAssigned = checkSpuriousSymptomAndTestingEligibilityHasBeenAssigned(sim, true);
 		Assert.assertTrue((peopleWithPropertiesAssigned.size() > 0) & (peopleWithPropertiesAssigned.size() < sim.agents.size()));	
 
 
@@ -127,75 +129,52 @@ public class CovidSpuriousSymptomTesting{
 	public void giveAFractionASpuriousSymptom(double fraction, WorldBankCovid19Sim sim) {
 		for (Person p: sim.agents) {
 			if (sim.random.nextDouble() <= fraction) {
-			CoronavirusSpuriousSymptom CovSpuriousSymptoms = new CoronavirusSpuriousSymptom(p, sim, sim.spuriousFramework.getStandardEntryPoint(), 0);
-			p.setHasSpuriousObject();
-			sim.CovidSpuriousSymptomsList.add(CovSpuriousSymptoms);
-			sim.schedule.scheduleOnce(1, sim.param_schedule_infecting, CovSpuriousSymptoms);
+			p.addDisease(DISEASE.COVIDSPURIOUSSYMPTOM, new CoronavirusSpuriousSymptom(p, sim, sim.spuriousFramework.getStandardEntryPoint(), 0));
+			sim.schedule.scheduleOnce(1, sim.param_schedule_infecting, p.getDiseaseSet().get(DISEASE.COVIDSPURIOUSSYMPTOM.key));
 		}
 		}
 	}
 	
-	public List<Person> getPopulationWithSpuriousSymptomAssignmentCriteria(WorldBankCovid19Sim world){
-	
-	Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, List<Person>>>>>> meetsSymptomAssignmentCriteria = (Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, Map<Boolean, List<Person>>>>>>) world.agents.stream().collect(
-            Collectors.groupingBy(
-              Person::isAlive, 
-              Collectors.groupingBy(
-                Person::hasMild, 
-                Collectors.groupingBy(
-                  Person::hasSevere, 
-                  Collectors.groupingBy(
-                    Person::hasCritical, 
-                    Collectors.groupingBy(
-                            Person::hasCovidSpuriousSymptoms, 
-                    Collectors.toList()
-                    )
-                  )
-                )
-              )
-            )
-            );
-	
-	return meetsSymptomAssignmentCriteria.get(true).get(false).get(false).get(false).get(true);
-	}
-	public List<Person> getPopulationWithSpuriousSymptoms(WorldBankCovid19Sim world){
-		
-		Map<Boolean, List<Person>> hasSpuriousSymptoms = (Map<Boolean, List<Person>>) world.agents.stream().collect(
-	            Collectors.groupingBy(
-	              Person::hasCovidSpuriousSymptoms, 
-	                    Collectors.toList()
-	                    )
-	                  );
-		
-		return hasSpuriousSymptoms.get(true);
-		}
 	public List<Person> getPopulationWithSpuriousSymptomsAndAsymptomaticCovid(WorldBankCovid19Sim world){
+		// get a list of spurious symptoms
+		Map<DISEASE, List<Disease>> isSpuriousSymptom = (Map<DISEASE, List<Disease>>) world.infections.stream().collect(
+				Collectors.groupingBy(
+						Disease::getDiseaseType
+						)
+				);
+		List<Disease> spuriousSymptoms = isSpuriousSymptom.get(DISEASE.COVIDSPURIOUSSYMPTOM);
 		
-		Map<Boolean, Map<Boolean, List<Person>>> hasSpuriousSymptomsAndAsympt = (Map<Boolean, Map<Boolean, List<Person>>>) world.agents.stream().collect(
-	            Collectors.groupingBy(
-	              Person::hasCovidSpuriousSymptoms, 
-		            Collectors.groupingBy(
-		            	Person::hasAsymptCovid,
-	                    Collectors.toList()
-	                    )
-		            )
-	               );
+		Map<DISEASE, Map<Boolean, List<Disease>>> isAsymptomaticCovid = (Map<DISEASE, Map<Boolean, List<Disease>>>) world.infections.stream().collect(
+				Collectors.groupingBy(
+						Disease::getDiseaseType,
+						Collectors.groupingBy(
+								Disease::isSymptomatic
+						)
+					)
+				);
+		List<Disease> asymptomaticCovid = isAsymptomaticCovid.get(DISEASE.COVID).get(false);
 		
-		return hasSpuriousSymptomsAndAsympt.get(true).get(true);
+		ArrayList<Person> filteredPopulation = new ArrayList<Person>();
+		
+		for (Disease spuriousSympt: spuriousSymptoms) filteredPopulation.add(spuriousSympt.getHost());
+		for (Disease asymptCovid: asymptomaticCovid) filteredPopulation.add(asymptCovid.getHost());
+
+		
+		return filteredPopulation;
 		}
 	
-	public List<Person> checkSpuriousSymptomAndTestingEligibilityHasBeenAssigned(WorldBankCovid19Sim world, boolean hasBeenAssigned){
+	public List<Disease> checkSpuriousSymptomAndTestingEligibilityHasBeenAssigned(WorldBankCovid19Sim world, boolean hasBeenAssigned){
 		
-		Map<Boolean, Map<Boolean, List<Person>>> propertiesChecked = (Map<Boolean, Map<Boolean, List<Person>>>) world.agents.stream().collect(
+		Map<DISEASE, Map<Boolean, List<Disease>>> propertiesChecked = (Map<DISEASE, Map<Boolean, List<Disease>>>) world.infections.stream().collect(
 	            Collectors.groupingBy(
-	              Person::hasCovidSpuriousSymptoms, 
+	            	Disease::getDiseaseType, 
 		            Collectors.groupingBy(
-		            	Person::isEligibleForCovidTesting,
+		            		Disease::isSymptomatic,
 	                    Collectors.toList()
 	                    )
 		            )
 	               );
 		
-		return propertiesChecked.get(hasBeenAssigned).get(hasBeenAssigned);
+		return propertiesChecked.get(DISEASE.COVIDSPURIOUSSYMPTOM).get(hasBeenAssigned);
 		}
 }

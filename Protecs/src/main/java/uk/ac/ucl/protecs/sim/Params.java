@@ -11,15 +11,26 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import uk.ac.ucl.protecs.objects.*;
-import uk.ac.ucl.protecs.objects.Location.LocationCategory;
-import uk.ac.ucl.protecs.objects.Person.OCCUPATION;
+import uk.ac.ucl.protecs.objects.hosts.Person;
+import uk.ac.ucl.protecs.objects.hosts.Person.OCCUPATION;
+import uk.ac.ucl.protecs.objects.locations.Location;
+import uk.ac.ucl.protecs.objects.locations.Location.LocationCategory;
 
 public class Params {
 	
 	public boolean verbose = true;
 	
 	public double infection_beta = 0.016;
+	public double dummy_infectious_beta_horizontal = 0.05;
+	public double dummy_infectious_beta_vertical = 0.05;
+	public double dummy_infectious_recovery_rate = 0.5;
+	
+	public double dummy_ncd_base_rate = 0.2;
+	public double dummy_ncd_rr_male = 1.05;
+	public double dummy_ncd_rr_over_50 = 1.2;
+	public double dummy_ncd_initial_fraction_with_ncd = 0.1;
+
+
 	public double rate_of_spurious_symptoms = 0.004;
 	public int lineListWeightingFactor = 1; // the line list contains only detected instances, which can be biased 
 											// - weight this if we suspect it's undercounting
@@ -145,6 +156,7 @@ public class Params {
 	public static int hours_per_tick = 4; // the number of hours each tick represents
 	public static int ticks_per_day = 24 / hours_per_tick;
 	public static int ticks_per_week = ticks_per_day * 7;
+	public static int ticks_per_month = ticks_per_day * 30;
 	public static int ticks_per_year = ticks_per_day * 365;
 	
 	public static int hour_start_day_weekday = 8 / hours_per_tick;
