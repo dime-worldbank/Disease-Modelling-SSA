@@ -31,9 +31,13 @@ public class CoronavirusSpuriousSymptom extends Disease{
 		arg0.schedule.scheduleOnce(time + myDelta, myWorld.param_schedule_infecting, this);
 	}
 	// =============================================== Disease 'behaviours'================================================================================
+	@Override
 	public boolean isInfectious() {
 		return false;
 	}
+	@Override
+	public boolean isWaterborn() {return false;}
+
 	// =============================================== Disease type classification ===========================================================================
 	@Override
 	public String getDiseaseName() {

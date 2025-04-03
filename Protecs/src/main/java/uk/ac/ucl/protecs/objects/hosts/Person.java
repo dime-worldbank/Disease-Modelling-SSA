@@ -2,8 +2,9 @@ package uk.ac.ucl.protecs.objects.hosts;
 
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
+import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.HOST;
+
 import sim.engine.SimState;
-import uk.ac.ucl.swise.agents.MobileAgent;
 import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
 import java.util.Collection;
@@ -20,7 +21,7 @@ import uk.ac.ucl.protecs.objects.locations.Workplace;
 import uk.ac.ucl.protecs.objects.locations.Location.LocationCategory;
 
 
-public class Person extends MobileAgent {
+public class Person extends Host {
 	
 	//
 	// Personal Attributes
@@ -131,8 +132,6 @@ public class Person extends MobileAgent {
 	}
 	private final OCCUPATION economic_status;
 	
-	// locational attributes
-	Location currentLocation;
 	// schoolGoer is read in and never changed, ensure this is private
 	private final boolean schoolGoer; // allowed to move between districts?
 	
@@ -145,7 +144,6 @@ public class Person extends MobileAgent {
 	// activity
 	BehaviourNode currentActivityNode = null;
 	
-	HashMap <String, Disease> myDiseaseSet = new HashMap <String, Disease>();
 	
 	// behaviours
 	boolean immobilised = false;
@@ -217,8 +215,8 @@ public class Person extends MobileAgent {
 		workLocation = myWorkplace;
 		workBubble = new HashSet <Person> ();
 		communityBubble = new HashSet <Person> ();
-		
-		this.currentLocation = hh;
+		myDiseaseSet = new HashMap <String, Disease>();
+		setLocation(hh, this);
 	}
 	
 	//
@@ -249,14 +247,6 @@ public class Person extends MobileAgent {
 	 * Also updates the various Locations as appropriate (given possible nulls).
 	 * @return the amount of time spent travelling to the given location.
 	 */	
-	public double transferTo(Location l){
-		if(currentLocation != null)
-			currentLocation.removePerson(this);
-		currentLocation = l;
-		if(l != null)
-			l.addPerson(this);
-		return 1; // TODO make based on distance travelled!
-	}
 	
 	public void die(String cause){
 		if (cause == "COVID-19") {
@@ -425,15 +415,15 @@ public class Person extends MobileAgent {
 				numberOfInteractions -= 1; 
 				switch (inf) {
 				case COVID:{
-					if(!p.myDiseaseSet.containsKey(inf.key) && myWorld.random.nextDouble() < beta){
-						p.myDiseaseSet.put(inf.key, new CoronavirusInfection(p, this, myWorld.infectiousFramework.getEntryPoint(), myWorld));
-						myWorld.schedule.scheduleOnce(p.myDiseaseSet.get(inf.key), myWorld.param_schedule_infecting);
+					if(!p.getDiseaseSet().containsKey(inf.key) && myWorld.random.nextDouble() < beta){
+						p.getDiseaseSet().put(inf.key, new CoronavirusInfection(p, this, myWorld.infectiousFramework.getEntryPoint(), myWorld));
+						myWorld.schedule.scheduleOnce(p.getDiseaseSet().get(inf.key), myWorld.param_schedule_infecting);
 					}
 				}
 				case DUMMY_INFECTIOUS:{
-					if(!p.myDiseaseSet.containsKey(inf.key) && myWorld.random.nextDouble() < beta){
-						p.myDiseaseSet.put(inf.key, new DummyInfectiousDisease(p, this, myWorld.infectiousFramework.getEntryPoint(), myWorld));
-						myWorld.schedule.scheduleOnce(p.myDiseaseSet.get(inf.key), myWorld.param_schedule_infecting);
+					if(!p.getDiseaseSet().containsKey(inf.key) && myWorld.random.nextDouble() < beta){
+						p.getDiseaseSet().put(inf.key, new DummyInfectiousDisease(p, this, myWorld.infectiousFramework.getEntryPoint(), myWorld));
+						myWorld.schedule.scheduleOnce(p.getDiseaseSet().get(inf.key), myWorld.param_schedule_infecting);
 					}
 				}
 				default:
@@ -458,15 +448,6 @@ public class Person extends MobileAgent {
 	//
 
 	// LOCATIONAL 
-	
-	public void setLocation(Location l){
-		if(this.currentLocation != null)
-			currentLocation.removePerson(this);
-		this.currentLocation = l;
-		l.addPerson(this);
-	}
-	
-	public Location getLocation(){ return currentLocation;}
 	public boolean isHome(){ return currentLocation == myHousehold;}
 
 	public Location getCommunityLocation(){ return communityLocation;}
@@ -497,11 +478,6 @@ public class Person extends MobileAgent {
 	public HashSet <Person> getCommunityBubble(){ return communityBubble; }
 	public void setCommunityBubble(HashSet <Person> newBubble) { communityBubble = newBubble; }
 	
-	// MODULAR DISEASE MANAGEMENT
-	public void addDisease(DISEASE disease, Disease i) {
-		this.myDiseaseSet.put(disease.key, i);
-	};
-	public HashMap<String, Disease> getDiseaseSet() {return this.myDiseaseSet; }
 
 
 	// ATTRIBUTES
@@ -582,6 +558,11 @@ public class Person extends MobileAgent {
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public String getHostType() {
+		return HOST.PERSON.key;
 	}
 	
 }

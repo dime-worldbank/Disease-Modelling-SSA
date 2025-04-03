@@ -187,6 +187,9 @@ public class DummyInfectiousDisease extends Disease{
 		return true;
 	}
 	
+	@Override
+	public boolean isWaterborn() {return false;}
+
 	// =============================================== Disease type classification ===========================================================================			
 
 	@Override

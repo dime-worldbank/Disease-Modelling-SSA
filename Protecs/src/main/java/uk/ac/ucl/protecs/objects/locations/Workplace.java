@@ -20,9 +20,8 @@ public class Workplace extends Location {
 	 * @return whether addition was successful.
 	 */
 	public boolean addPerson(Person p){
-		boolean result = super.addPerson(p);
+		boolean result = super.addHost(p);
 		p.myWorkplace = this;
-		updatePersonsHere();
 		return result;
 	}
 

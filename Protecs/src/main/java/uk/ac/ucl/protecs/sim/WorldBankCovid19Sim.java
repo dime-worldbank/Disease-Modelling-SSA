@@ -80,7 +80,7 @@ public class WorldBankCovid19Sim extends SimState {
 	
 	// Create a enum list of diseases modelled currently, these will be used to categorise any infections a person may get over the course of the simulation.
 	public enum DISEASE{
-		DUMMY_NCD("DUMMY_NCD"), DUMMY_INFECTIOUS("DUMMY_INFECTIOUS"), COVID("COVID-19"), COVIDSPURIOUSSYMPTOM("COVID-19_SPURIOUS_SYMPTOM");
+		DUMMY_NCD("DUMMY_NCD"), DUMMY_INFECTIOUS("DUMMY_INFECTIOUS"), DUMMY_WATERBORN("DUMMY_WATERBORN"), COVID("COVID-19"), COVIDSPURIOUSSYMPTOM("COVID-19_SPURIOUS_SYMPTOM");
 
         public String key;
      
@@ -92,6 +92,8 @@ public class WorldBankCovid19Sim extends SimState {
         		return DUMMY_NCD;
         	case "DUMMY_INFECTIOUS":
         		return DUMMY_INFECTIOUS;
+        	case "DUMMY_WATERBORN":
+        		return DUMMY_WATERBORN;
         	case "COVID-19":
         		return COVID;
         	case "COVID-19_SPURIOUS_SYMPTOM":
@@ -102,7 +104,23 @@ public class WorldBankCovid19Sim extends SimState {
         }
 	}
 
-	
+	public enum HOST{
+		PERSON("PERSON"), WATER("WATER");
+		
+        public String key;
+
+        HOST(String key){this.key = key;}
+        public static HOST getValue(String x) {
+        	switch (x) {
+        	case "PERSON":
+        		return PERSON;
+        	case "WATER":
+        		return WATER;
+        	default:
+        		throw new IllegalArgumentException();
+        	}
+        }
+	}
 	public ArrayList <Integer> testingAgeDist = new ArrayList <Integer> ();
 	
 	// record-keeping
@@ -238,19 +256,6 @@ public class WorldBankCovid19Sim extends SimState {
 			}
 						
 		}
-
-		// SCHEDULE UPDATING OF LOCATIONS
-		Steppable updateLocationLists = new Steppable() {
-			
-			@Override
-			public void step(SimState arg0) {
-				for(Location l: adminBoundaries) {
-					l.updatePersonsHere();
-					}
-			}
-			
-		};
-		schedule.scheduleRepeating(0, this.param_schedule_updating_locations, updateLocationLists);
 		
 		if (developingModularity) {
 			DummyNCDOnset myDummyNCD = new DummyNCDOnset();

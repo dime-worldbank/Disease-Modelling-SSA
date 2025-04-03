@@ -184,9 +184,12 @@ public class CoronavirusInfection extends Disease {
 		}		
 	
 	// =============================================== Disease 'behaviours'================================================================================
+	@Override
 	public boolean isInfectious() {
 		return true;
 	}
+	@Override
+	public boolean isWaterborn() {return false;}
 
 	
 	// =============================================== Disease type classification ===========================================================================

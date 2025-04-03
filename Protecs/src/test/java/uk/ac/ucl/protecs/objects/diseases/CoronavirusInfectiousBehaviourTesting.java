@@ -11,6 +11,7 @@ import java.util.List;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgressionFramework.CoronavirusBehaviourNodeTitle;
 import uk.ac.ucl.protecs.sim.Params;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
+import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import uk.ac.ucl.protecs.helperFunctions.*;
 import uk.ac.ucl.protecs.helperFunctions.HelperFunctions.NodeOption;
 
@@ -298,7 +299,37 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 	}
-	
+	@Test
+	public void ensureNewCovidCasesAreCreated() {
+		// create a simulation and start
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
+		sim.start();
+		// Make beta large
+		sim.params.infection_beta = 10;
+		// Make sure that people exposed don't revert back to being susceptible
+		ForceExposedInfectionsCauseDisease(sim);
+		HelperFunctions.StopRecoveryHappening(sim);
+		// seed a number of the specific node to the run
+		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(0.2, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.EXPOSED), 
+				NodeOption.CoronavirusInfectiousBehaviour);		// Set up a duration to run the simulation
+		int numDays = 100; 
+		// Run the simulation and record the infectious behaviour nodes reached in this simulation
+		int number_of_initial_infections = 0;
+		for (Disease d: sim.infections) {
+			if (d.getDiseaseType().equals(DISEASE.COVID)) {
+				number_of_initial_infections++;
+			}
+		}
+		HelperFunctions.runSimulation(sim, numDays);
+		int final_number_of_infections = 0;
+		for (Disease d: sim.infections) {
+			if (d.getDiseaseType().equals(DISEASE.COVID)) {
+				final_number_of_infections++;
+			}
+		}
+		// Make sure than no other nodes are reaching in the simulation
+		Assert.assertTrue(final_number_of_infections > number_of_initial_infections);
+	}
     // ================================ Helper functions ==================================================
 	
 	

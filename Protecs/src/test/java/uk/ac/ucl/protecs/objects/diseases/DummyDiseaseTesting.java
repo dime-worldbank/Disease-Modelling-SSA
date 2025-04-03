@@ -88,11 +88,11 @@ public class DummyDiseaseTesting{
 	public void checkHorizontalTransmissionOfDummyInfectiousWorks() {
 		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
 		sim.developingModularity = true;
-		// Increase the birth rate to ensure births take place
-		HelperFunctions.setParameterListsToValue(sim, sim.params.prob_birth_by_age, 1.0);
 		sim.start();
-		// turn off deaths to only focus on births.
+		// turn off births and deaths.
 		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
+		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.births);
+
 		// stop vertical transmission
 		sim.params.dummy_infectious_beta_horizontal = 1.0;
 		sim.params.dummy_infectious_beta_vertical = 0.0;

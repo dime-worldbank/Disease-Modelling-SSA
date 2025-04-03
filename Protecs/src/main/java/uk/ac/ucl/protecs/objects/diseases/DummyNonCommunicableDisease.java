@@ -145,6 +145,8 @@ public class DummyNonCommunicableDisease extends Disease {
 		// TODO Auto-generated method stub
 		return false;
 	}
+	@Override
+	public boolean isWaterborn() {return false;}
 
 	@Override
 	public void horizontalTransmission() {
