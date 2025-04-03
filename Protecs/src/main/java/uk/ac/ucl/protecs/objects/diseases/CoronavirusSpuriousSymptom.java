@@ -128,7 +128,7 @@ public class CoronavirusSpuriousSymptom extends Disease{
 		else
 			rec += "\t" + (double) (yll + yld);
 		// record number of times with covid
-		rec += "\t" + host.getNumberOfTimesInfected();
+		rec += "\t" + ((Person) this.getHost()).getNumberOfTimesInfected();
 		
 		rec += "\n";
 		return rec;
@@ -140,7 +140,7 @@ public class CoronavirusSpuriousSymptom extends Disease{
 	
 	@Override
 	public boolean inATestingAdminZone() {
-		String hostLocationId = this.getHost().myHousehold.getRootSuperLocation().myId;
+		String hostLocationId = ((Person) this.getHost()).getHomeLocation().getRootSuperLocation().myId;
 		boolean answer = this.getHost().myWorld.params.admin_zones_to_test_in.contains(hostLocationId);
 		return answer;
 	}

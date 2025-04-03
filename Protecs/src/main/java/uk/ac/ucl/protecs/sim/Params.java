@@ -26,6 +26,7 @@ public class Params {
 	public double dummy_infectious_recovery_rate = 0.5;
 	
 	public double dummy_waterborn_prob_shed_into_water = 0.05;
+	public double dummy_waterborn_initial_fraction_with_inf = 0.1;
 	
 	public double dummy_ncd_base_rate = 0.2;
 	public double dummy_ncd_rr_male = 1.05;

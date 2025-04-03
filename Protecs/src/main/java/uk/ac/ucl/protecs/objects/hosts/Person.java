@@ -15,6 +15,7 @@ import java.util.Iterator;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.objects.diseases.Disease;
 import uk.ac.ucl.protecs.objects.diseases.DummyInfectiousDisease;
+
 import uk.ac.ucl.protecs.objects.locations.Household;
 import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.objects.locations.Workplace;
@@ -31,105 +32,11 @@ public class Person extends Host {
 	private final int myId;
 
 	// larger group membership
-	public Household myHousehold;
+	public Location homeLocation;
 	public Workplace myWorkplace;
-	// personal/demographic attributes
-	int age;
+	// personal/demographic attributes	
 	private final int birthday;
-	// only two options considered for biological sex, therefore use enum
-	public enum SEX {
-		MALE("male"), FEMALE("female");
-		String key;
-	     
-		SEX(String key) { this.key = key; }
-    
-        public static SEX getValue(String x) {
-        	switch (x) {
-        	case "male":
-        		return MALE;
-        	case "female":
-        		return FEMALE;
-        	default:
-        		throw new IllegalArgumentException();
-        	}
-        }
-	}
 	
-	private final SEX sex;
-
-	// economic attributes. Economic status is read in from census file and can be accessed, but not changed
-	public enum OCCUPATION{
-		OFFICE_WORKER("office workers"), UNEMPLOYED("not working, inactive, not in universe"), TEACHER("teachers"),
-		HOMEMAKER("homemakers/housework"), CURRENT_STUDENTS("current students"), SERVICE_WORKERS("service workers"), AGRICULTURE("agriculture workers"),
-		INDUSTRY("industry workers"), ARMY("in the army"), DISABLED_NOT_WORKING("disabled and not working"), SERVICE_RETAIL("service_retail"),
-		UNEMPLOYED_NOT_AG("unemployed_not_ag"), OFFICE_WORKERS("office_worker"), INACTIVE("inactive"), STUDENT("student"), 
-		INFORMAL_PETTY_TRADE("informal_petty_trade"), OTHER("other"), MANU_MINING_TRADES("manu_mining_trades"), POLICE_ARMY("police_army"),
-		HEALTHCARE_SOCIAL_WORK("healthcare_social_work"), EDUCATION("education"), RELIGIOUS("religious"), TRANSPORT_SECTOR("transport_sector"),
-		SUBSISTENCE_AG("subsistence_ag"), AG_ESTATES("ag_estates"), STUDENTS_TEACHERS("students_teachers");
-		public String key;
-	     
-		OCCUPATION(String key) { this.key = key; }
-		
-		public static OCCUPATION getValue(String x) {
-        	switch (x) {
-        	case "office workers":
-        		return OFFICE_WORKER;
-        	case "not working, inactive, not in universe":
-        		return UNEMPLOYED;
-        	case "teachers":
-        		return TEACHER;
-        	case "homemakers/housework":
-        		return HOMEMAKER;
-        	case "service workers":
-        		return SERVICE_WORKERS;
-        	case "student":
-        		return STUDENT;
-        	case "current students":
-        		return CURRENT_STUDENTS;
-        	case "agriculture workers":
-        		return AGRICULTURE;
-        	case "industry workers":
-        		return INDUSTRY;
-        	case "in the army":
-        		return ARMY;
-        	case "disabled and not working":
-        		return DISABLED_NOT_WORKING;
-        	case "service_retail":
-        		return SERVICE_RETAIL;
-        	case "unemployed_not_ag":
-        		return UNEMPLOYED_NOT_AG;
-        	case "office_worker":
-        		return OFFICE_WORKERS;
-        	case "inactive":
-        		return INACTIVE;
-        	case "informal_petty_trade":
-        		return INFORMAL_PETTY_TRADE;
-        	case "other":
-        		return OTHER;
-        	case "manu_mining_trades": 
-        		return MANU_MINING_TRADES;
-        	case "police_army":
-        		return POLICE_ARMY;
-        	case "healthcare_social_work":
-        		return HEALTHCARE_SOCIAL_WORK;
-        	case "education":
-        		return EDUCATION;
-        	case "religious":
-        		return RELIGIOUS;
-        	case "transport_sector":
-        		return TRANSPORT_SECTOR;
-        	case "subsistence_ag":
-        		return SUBSISTENCE_AG;
-        	case "ag_estates":
-        		return AG_ESTATES;
-        	case "students_teachers":
-        		return STUDENTS_TEACHERS;
-        	default:
-        		throw new IllegalArgumentException();
-        	}
-		
-		}
-	}
 	private final OCCUPATION economic_status;
 	
 	// schoolGoer is read in and never changed, ensure this is private
@@ -151,16 +58,11 @@ public class Person extends Host {
 	boolean atWork = false;
 	boolean isUnemployed = false;
 	
-	// copy of world
-	public WorldBankCovid19Sim myWorld;
-	
 	//
 	// Epidemic Attributes
 	//
 	
 	// health
-	public boolean isDead = false;
-
 
 	boolean isDeadFromOther = false;
 	boolean deathLogged = false;
@@ -171,8 +73,104 @@ public class Person extends Host {
 
 	// bubble interaction counters
 	int number_of_interactions_at_work = Integer.MIN_VALUE;
-	
-	
+	// only two options considered for biological sex, therefore use enum
+		public enum SEX {
+			MALE("male"), FEMALE("female");
+			String key;
+		     
+			SEX(String key) { this.key = key; }
+		   
+			public static SEX getValue(String x) {
+		       	switch (x) {
+		       	case "male":
+		       		return MALE;
+		       	case "female":
+	        		return FEMALE;
+	        		default:
+		        	throw new IllegalArgumentException();
+		       	}
+		       }
+		}
+		// economic attributes. Economic status is read in from census file and can be accessed, but not changed
+		public enum OCCUPATION{
+			OFFICE_WORKER("office workers"), UNEMPLOYED("not working, inactive, not in universe"), TEACHER("teachers"),
+			HOMEMAKER("homemakers/housework"), CURRENT_STUDENTS("current students"), SERVICE_WORKERS("service workers"), AGRICULTURE("agriculture workers"),
+			INDUSTRY("industry workers"), ARMY("in the army"), DISABLED_NOT_WORKING("disabled and not working"), SERVICE_RETAIL("service_retail"),
+			UNEMPLOYED_NOT_AG("unemployed_not_ag"), OFFICE_WORKERS("office_worker"), INACTIVE("inactive"), STUDENT("student"), 
+			INFORMAL_PETTY_TRADE("informal_petty_trade"), OTHER("other"), MANU_MINING_TRADES("manu_mining_trades"), POLICE_ARMY("police_army"),
+			HEALTHCARE_SOCIAL_WORK("healthcare_social_work"), EDUCATION("education"), RELIGIOUS("religious"), TRANSPORT_SECTOR("transport_sector"),
+			SUBSISTENCE_AG("subsistence_ag"), AG_ESTATES("ag_estates"), STUDENTS_TEACHERS("students_teachers");
+			public String key;
+			     
+			OCCUPATION(String key) { this.key = key; }
+				
+			public static OCCUPATION getValue(String x) {
+		       	switch (x) {
+		       	case "office workers":
+		       		return OFFICE_WORKER;
+		       	case "not working, inactive, not in universe":
+		       		return UNEMPLOYED;
+		       	case "teachers":
+		       		return TEACHER;
+		       	case "homemakers/housework":
+		       		return HOMEMAKER;
+		       	case "service workers":
+		       		return SERVICE_WORKERS;
+		       	case "student":
+		       		return STUDENT;
+		       	case "current students":
+		       		return CURRENT_STUDENTS;
+		       	case "agriculture workers":
+		       		return AGRICULTURE;
+		       	case "industry workers":
+		       		return INDUSTRY;
+		       	case "in the army":
+		       		return ARMY;
+		       	case "disabled and not working":
+		       		return DISABLED_NOT_WORKING;
+		       	case "service_retail":
+		       		return SERVICE_RETAIL;
+		       	case "unemployed_not_ag":
+		       		return UNEMPLOYED_NOT_AG;
+		       	case "office_worker":
+		       		return OFFICE_WORKERS;
+	        	case "inactive":
+	        		return INACTIVE;
+		        case "informal_petty_trade":
+		       		return INFORMAL_PETTY_TRADE;
+		       	case "other":
+		       		return OTHER;
+		       	case "manu_mining_trades": 
+		       		return MANU_MINING_TRADES;
+		       	case "police_army":
+		       		return POLICE_ARMY;
+		       	case "healthcare_social_work":
+	        		return HEALTHCARE_SOCIAL_WORK;	        	
+	        	case "education":
+		       		return EDUCATION;
+		        case "religious":
+		       		return RELIGIOUS;
+		       	case "transport_sector":
+		       		return TRANSPORT_SECTOR;
+		       	case "subsistence_ag":
+		       		return SUBSISTENCE_AG;
+		       	case "ag_estates":
+		       		return AG_ESTATES;
+		       	case "students_teachers":
+	        		return STUDENTS_TEACHERS;
+	        		default:
+		        	throw new IllegalArgumentException();
+		       	}
+			
+			}
+		}
+
+		boolean isDead;
+		
+		int age;
+		
+		SEX sex;
+			
 	/**
 	 * Constructor for Person object.
 	 * 
@@ -203,13 +201,13 @@ public class Person extends Host {
 		this.schoolGoer = schoolGoer;
 
 		// record-keeping
-		myHousehold = hh;
+		homeLocation = hh;
 		myWorkplace = w;
 		myWorld = world;
 		
 		// agents are initialised uninfected
 		
-		communityLocation = myHousehold.getRootSuperLocation();
+		communityLocation = homeLocation.getRootSuperLocation();
 		communityLocation.setLocationType(LocationCategory.COMMUNITY);
 
 		workLocation = myWorkplace;
@@ -448,21 +446,28 @@ public class Person extends Host {
 	//
 
 	// LOCATIONAL 
-	public boolean isHome(){ return currentLocation == myHousehold;}
+	public boolean isHome(){ return currentLocation == homeLocation;}
+	
+	public void setAtWork(boolean isAtWork) {
+		this.atWork = isAtWork;
+	}
+	public boolean atWorkNow() {
+		return this.atWork;
+	}
 
 	public Location getCommunityLocation(){ return communityLocation;}
+	
+	public Location getHomeLocation() {return homeLocation;}
 
 	public Location getWorkLocation() { 
 		return workLocation; 
 	}
-	public boolean atWorkNow(){ return this.atWork; }
-	public void setAtWork(boolean atWork) { this.atWork = atWork; }
 	
 	public boolean visitingNow() { return this.visiting; }
 	public void setVisiting(boolean visiting) { this.visiting = visiting; }
 
 	public void sendHome() {
-		this.transferTo(myHousehold);
+		this.transferTo(getHomeLocation());
 		this.setActivityNode(myWorld.movementFramework.getEntryPoint());
 		this.setAtWork(false);  
 	}
@@ -487,11 +492,8 @@ public class Person extends Host {
 	public void setActivityNode(BehaviourNode bn){ currentActivityNode = bn; }
 	public BehaviourNode getActivityNode(){ return currentActivityNode; }
 	
-	public int getAge(){ return age;}
 	public int getBirthday() {return birthday; }
-	public SEX getSex() {return this.sex;};
 	public OCCUPATION getEconStatus(){ return economic_status;}
-	public Location getHousehold(){ return myHousehold; }
 	public Location getWorkplace(){ return myWorkplace; }
 
 		
@@ -512,7 +514,7 @@ public class Person extends Host {
 	
 	public boolean isSchoolGoer() { return this.schoolGoer; }
 
-	public String getCurrentAdminZone() {return this.getHousehold().getRootSuperLocation().myId;}
+	public String getCurrentAdminZone() {return this.getHomeLocation().getRootSuperLocation().myId;}
 	public void setUnemployed() {this.isUnemployed = true;}
 	public boolean isUnemployed() {return this.isUnemployed;}  
 	public void setNumberOfWorkplaceInteractions(int n) {this.number_of_interactions_at_work = n;}
@@ -522,8 +524,6 @@ public class Person extends Host {
 	// UTILS
 	
 	public String toString(){ return "P_" + this.myId;}
-	public int getID(){ return this.myId; }
-
 	// for use in the HashCode!!
 	public int hashCode(){ return myId; }
 	
@@ -549,7 +549,7 @@ public class Person extends Host {
 	
 	public Household getHouseholdAsType() {
 		
-		return this.myHousehold;
+		return (Household) this.homeLocation;
 	}
 	
 	public boolean hasSymptomaticCovid() {
@@ -564,5 +564,15 @@ public class Person extends Host {
 	public String getHostType() {
 		return HOST.PERSON.key;
 	}
+
+	public SEX getSex() {
+		return sex;
+	}
+
+	public int getAge() {
+		return age;
+	}
+
+	public int getID(){ return this.myId; }
 	
 }

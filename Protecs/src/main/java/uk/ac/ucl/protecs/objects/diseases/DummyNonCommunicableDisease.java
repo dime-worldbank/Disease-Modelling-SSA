@@ -127,7 +127,7 @@ public class DummyNonCommunicableDisease extends Disease {
 		else
 			rec += "\t" + (double) (yll + yld);
 		// record number of times with covid
-		rec += "\t" + host.getNumberOfTimesInfected();
+		rec += "\t" + ((Person) this.getHost()).getNumberOfTimesInfected();
 		
 		rec += "\n";
 		return rec;

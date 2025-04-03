@@ -1,5 +1,6 @@
 package uk.ac.ucl.protecs.objects.diseases;
 
+import uk.ac.ucl.protecs.objects.hosts.Host;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 
 import uk.ac.ucl.protecs.objects.locations.Household;
@@ -56,11 +57,11 @@ public class CoronavirusInfection extends Disease {
 	
 		public void horizontalTransmission() {
 			// if this infection's host is dead, do not try and interact
-			if (!host.isAlive()) return;
+			if (!((Person) this.getHost()).isAlive()) return;
 			// if not currently in the space, do not try to interact
-			else if(host.getLocation() == null) return;
+			else if(this.getHost().getLocation() == null) return;
 			// if there is no one else other than the individual at the location, save computation time and return out
-			else if(host.getLocation().getPersonsHere().length < 2) {
+			else if(this.getHost().getLocation().getPersonsHere().length < 2) {
 				return; 
 				} 
 			if(myWorld.params.setting_perfectMixing) {
@@ -83,7 +84,7 @@ public class CoronavirusInfection extends Disease {
 				
 				// don't interact with the same person twice
 				HashSet <Person> otherPeople = new HashSet <Person> ();
-				otherPeople.add(host);  
+				otherPeople.add((Person) host);  
 				
 				for(int i = 0; i < myNumInteractions; i++) {
 					Person otherPerson = (Person) peopleHere[myWorld.random.nextInt(numPeople)]; 
@@ -99,7 +100,7 @@ public class CoronavirusInfection extends Disease {
 					// check if they are already infected; if they are not, infect with with probability BETA
 					double myProb = myWorld.random.nextDouble();
 					if (!otherPerson.getDiseaseSet().containsKey(DISEASE.COVID.key) && myProb < myWorld.params.infection_beta) {
-						CoronavirusInfection inf = new CoronavirusInfection(otherPerson, this.getHost(), myWorld.infectiousFramework.getEntryPoint(), myWorld);
+						CoronavirusInfection inf = new CoronavirusInfection(otherPerson, (Person) this.getHost(), myWorld.infectiousFramework.getEntryPoint(), myWorld);
 						myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting); 
 					}
 				}
@@ -107,33 +108,33 @@ public class CoronavirusInfection extends Disease {
 			}
 			else {
 				if(this.getHost().getLocation() instanceof Household){
-					assert (!this.getHost().atWorkNow()): "p_" + this.getHost().getID() + "at work but having interactions at home";
-					this.getHost().interactWithin(this.getHost().getLocation().personsHere, null, this.getHost().getLocation().personsHere.size(), DISEASE.COVID, myWorld.params.infection_beta);		
+					assert (!((Person) this.getHost()).atWorkNow()): "p_" + ((Person) this.getHost()).getID() + "at work but having interactions at home";
+					((Person) this.getHost()).interactWithin(this.getHost().getLocation().personsHere, null, this.getHost().getLocation().personsHere.size(), DISEASE.COVID, myWorld.params.infection_beta);		
 				}
 				// they may be at their economic activity site!
 				else if(this.getHost().getLocation() instanceof Workplace){
 					int myNumInteractions;
-					if (this.getHost().getNumberOfWorkplaceInteractions() < 0) 
-						this.getHost().setNumberOfWorkplaceInteractions(myWorld.params.getWorkplaceContactCount(this.getHost().getEconStatus(), this.myWorld.random.nextDouble()));
+					if (((Person) this.getHost()).getNumberOfWorkplaceInteractions() < 0) 
+						((Person) this.getHost()).setNumberOfWorkplaceInteractions(myWorld.params.getWorkplaceContactCount(((Person) this.getHost()).getEconStatus(), this.myWorld.random.nextDouble()));
 					
-					myNumInteractions = (int) this.getHost().getNumberOfWorkplaceInteractions() / 2;
+					myNumInteractions = (int) ((Person)this.getHost()).getNumberOfWorkplaceInteractions() / 2;
 
 					if (myNumInteractions > this.getHost().getLocation().personsHere.size()) myNumInteractions = this.getHost().getLocation().personsHere.size();
 					// interact 
-					this.getHost().interactWithin(this.getHost().getLocation().personsHere, null, myNumInteractions, DISEASE.COVID, myWorld.params.infection_beta);		
+					((Person) this.getHost()).interactWithin(this.getHost().getLocation().personsHere, null, myNumInteractions, DISEASE.COVID, myWorld.params.infection_beta);		
 
 				}
 				else {
 					// if this infection's host is dead, do not try and interact
-					if (!host.isAlive()) return;
+					if (!((Person) this.getHost()).isAlive()) return;
 					// if not currently in the space, do not try to interact
-					else if(host.getLocation() == null) return;
+					else if(((Person)this.getHost()).getLocation() == null) return;
 					// if there is no one else other than the individual at the location, save computation time and return out
-					else if(host.getLocation().getPersonsHere().length < 2) {
+					else if(((Person)this.getHost()).getLocation().getPersonsHere().length < 2) {
 						return; 
 						} 
 					if(myWorld.params.setting_perfectMixing) {
-						Object [] peopleHere = host.getLocation().getPersonsHere();
+						Object [] peopleHere = ((Person)this.getHost()).getLocation().getPersonsHere();
 						int numPeople = peopleHere.length;
 						
 						double someInteractions = myWorld.params.community_num_interaction_perTick;
@@ -152,7 +153,7 @@ public class CoronavirusInfection extends Disease {
 						
 						// don't interact with the same person twice
 						HashSet <Person> otherPeople = new HashSet <Person> ();
-						otherPeople.add(host);  
+						otherPeople.add(((Person) this.getHost()));  
 						
 						for(int i = 0; i < myNumInteractions; i++) {
 							Person otherPerson = (Person) peopleHere[myWorld.random.nextInt(numPeople)]; 
@@ -168,7 +169,7 @@ public class CoronavirusInfection extends Disease {
 							// check if they are already infected; if they are not, infect with with probability BETA
 							double myProb = myWorld.random.nextDouble();
 							if (!otherPerson.getDiseaseSet().containsKey(DISEASE.COVID.key) && myProb < myWorld.params.infection_beta) {
-								CoronavirusInfection inf = new CoronavirusInfection(otherPerson, this.getHost(), myWorld.infectiousFramework.getEntryPoint(), myWorld);
+								CoronavirusInfection inf = new CoronavirusInfection(otherPerson, (Person) this.getHost(), myWorld.infectiousFramework.getEntryPoint(), myWorld);
 								myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting); 
 							}
 						}
@@ -299,7 +300,7 @@ public class CoronavirusInfection extends Disease {
 		if(time_died == Double.MAX_VALUE)
 			rec += "\t-";
 		else {
-			yll = lifeExpectancy - host.getAge();
+			yll = lifeExpectancy - ((Person)this.getHost()).getAge();
 			// If this person's age is greater than the life expectancy of Zimbabwe, then assume there are no years of life lost
 			if (yll < 0)
 				yll = 0;
@@ -311,7 +312,7 @@ public class CoronavirusInfection extends Disease {
 		else
 			rec += "\t" + (double) (yll + yld);
 		// record number of times with covid
-		rec += "\t" + host.getNumberOfTimesInfected();
+		rec += "\t" + ((Person)this.getHost()).getNumberOfTimesInfected();
 		
 		rec += "\n";
 		return rec;
@@ -321,7 +322,7 @@ public class CoronavirusInfection extends Disease {
 	// filtering and setting who should be tested
 	@Override
 	public boolean inATestingAdminZone() {
-		String hostLocationId = this.getHost().myHousehold.getRootSuperLocation().myId;
+		String hostLocationId = ((Person) this.getHost()).getHomeLocation().getRootSuperLocation().myId;
 		boolean answer = this.getHost().myWorld.params.admin_zones_to_test_in.contains(hostLocationId);
 		return answer;
 	}

@@ -86,7 +86,7 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 				Location target;
 				target = myWorld.params.getTargetMoveAdminZone(p, day, myWorld.random.nextDouble(), myWorld.lockedDown);
 				// then check if they are supposed to leave the admin zone they are currently in. If so, then they cannot go to work.
-				boolean stayingInHomeDistrict = target.getId().equals(p.getHousehold().getRootSuperLocation().getId());
+				boolean stayingInHomeDistrict = target.getId().equals(p.getHomeLocation().getRootSuperLocation().getId());
 				// First check if they are visiting another district
 				if (!stayingInHomeDistrict) p.setVisiting(true);
 				if (p.visitingNow() & !stayingInHomeDistrict) {
@@ -94,8 +94,8 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 					p.transferTo(target);
 					p.setActivityNode(communityNode);
 					p.setAtWork(false);
-					assert ! p.getHousehold().getSuper().equals(target) : 
-						"set to travel to a different district but didn't, home/target " + p.getHousehold().getSuper().getId() + " " + target.getId();
+					assert ! p.getHomeLocation().getSuper().equals(target) : 
+						"set to travel to a different district but didn't, home/target " + p.getHomeLocation().getSuper().getId() + " " + target.getId();
 					 // stay out until time to go home!
 					return myWorld.params.hour_end_day_otherday - hour;
 				}
@@ -131,8 +131,8 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 						p.setActivityNode(communityNode);
 						p.setAtWork(false);	
 						p.setVisiting(false);
-						assert p.getHousehold().getSuper().getId().equals(target.getId()) : 
-							"set to travel to a within admin zone but didn't, home/target is " + p.getHousehold().getSuper().getId() + " " + target.getId();
+						assert p.getHomeLocation().getSuper().getId().equals(target.getId()) : 
+							"set to travel to a within admin zone but didn't, home/target is " + p.getHomeLocation().getSuper().getId() + " " + target.getId();
 						return myWorld.params.hour_end_day_otherday - hour; // stay out until time to go home!
 					}
 			}
@@ -199,7 +199,7 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 				
 				// if it's too late, go straight home
 				if(hour > myWorld.params.hour_end_day_weekday){
-					p.transferTo(p.getHousehold());
+					p.transferTo(p.getHomeLocation());
 					p.setActivityNode(homeNode);
 					p.setAtWork(false);
 					return myWorld.params.hours_sleeping;
@@ -237,10 +237,10 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 				int hour = ((int)time) % Params.ticks_per_day;
 
 				if(hour >= myWorld.params.hour_end_day_otherday) { // late! Go home!
-					p.transferTo(p.getHousehold());
+					p.transferTo(p.getHomeLocation());
 					p.setActivityNode(homeNode);
 					p.setVisiting(false);
-					assert p.getLocation().getId().equals(p.getHousehold().getId()) : "person isn't home but should be " + p.getLocation().getId();
+					assert p.getLocation().getId().equals(p.getHomeLocation().getId()) : "person isn't home but should be " + p.getLocation().getId();
 					return myWorld.params.hours_sleeping;
 				}
 				return 1; // check in again soon, but we have more time!

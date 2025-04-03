@@ -1,7 +1,10 @@
 package uk.ac.ucl.protecs.objects.hosts;
 
+import java.util.HashSet;
+
 import sim.engine.SimState;
 import uk.ac.ucl.protecs.objects.locations.Location;
+import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.HOST;
 
 public class Water extends Host {
@@ -24,6 +27,7 @@ public class Water extends Host {
 	@Override
 	public String getHostType() {	
 			return HOST.WATER.key;
-		}	
+		}
+
 
 }

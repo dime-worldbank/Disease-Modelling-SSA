@@ -156,8 +156,8 @@ public class CovidSpuriousSymptomTesting{
 		
 		ArrayList<Person> filteredPopulation = new ArrayList<Person>();
 		
-		for (Disease spuriousSympt: spuriousSymptoms) filteredPopulation.add(spuriousSympt.getHost());
-		for (Disease asymptCovid: asymptomaticCovid) filteredPopulation.add(asymptCovid.getHost());
+		for (Disease spuriousSympt: spuriousSymptoms) filteredPopulation.add((Person) spuriousSympt.getHost());
+		for (Disease asymptCovid: asymptomaticCovid) filteredPopulation.add((Person) asymptCovid.getHost());
 
 		
 		return filteredPopulation;
