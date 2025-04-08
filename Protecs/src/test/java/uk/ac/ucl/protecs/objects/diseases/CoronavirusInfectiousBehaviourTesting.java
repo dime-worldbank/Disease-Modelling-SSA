@@ -315,14 +315,14 @@ public class CoronavirusInfectiousBehaviourTesting {
 		int numDays = 100; 
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
 		int number_of_initial_infections = 0;
-		for (Disease d: sim.infections) {
+		for (Disease d: sim.human_infections) {
 			if (d.getDiseaseType().equals(DISEASE.COVID)) {
 				number_of_initial_infections++;
 			}
 		}
 		HelperFunctions.runSimulation(sim, numDays);
 		int final_number_of_infections = 0;
-		for (Disease d: sim.infections) {
+		for (Disease d: sim.human_infections) {
 			if (d.getDiseaseType().equals(DISEASE.COVID)) {
 				final_number_of_infections++;
 			}
@@ -359,7 +359,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 
 			world.schedule.step(world);
 			if (world.schedule.getTime() % Params.ticks_per_day == 1.0) {
-			for (Disease i: world.infections) {
+			for (Disease i: world.human_infections) {
 				behaviourNodeBin.add(i.getBehaviourName());
 			}
 
@@ -378,7 +378,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Simulate over the time period and get the disease stages present in the simulation
 		HelperFunctions.runSimulation(world, numDaysToRun);
 		
-		for (Disease i: world.infections) {
+		for (Disease i: world.human_infections) {
 			behaviourNodeBin.add(i.getBehaviourName());
 		}
 		

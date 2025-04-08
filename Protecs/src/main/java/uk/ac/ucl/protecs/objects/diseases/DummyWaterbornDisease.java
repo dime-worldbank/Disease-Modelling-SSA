@@ -5,6 +5,7 @@ import uk.ac.ucl.protecs.objects.hosts.Host;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
+import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.HOST;
 import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
 public class DummyWaterbornDisease extends Disease{
@@ -28,7 +29,9 @@ public class DummyWaterbornDisease extends Disease{
 		infectedAtLocation = myHost.getLocation();
 		currentBehaviourNode = initNode;
 		myWorld = sim;
-		myWorld.infections.add(this);
+		if (myHost.isOfType(HOST.PERSON)){
+		myWorld.human_infections.add(this);
+		}
 	}
 
 	@Override

@@ -44,7 +44,7 @@ public class CoronavirusInfection extends Disease {
 		time_died = Double.MAX_VALUE;
 		currentBehaviourNode = initNode;
 		myWorld = sim;
-		myWorld.infections.add(this);
+		myWorld.human_infections.add(this);
 	}
 
 	

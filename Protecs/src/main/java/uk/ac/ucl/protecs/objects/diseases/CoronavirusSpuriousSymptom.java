@@ -18,7 +18,7 @@ public class CoronavirusSpuriousSymptom extends Disease{
 		this.currentBehaviourNode = initNode;
 		this.time_infected = time;
 		this.myWorld = sim;
-		this.myWorld.infections.add(this);
+		this.myWorld.human_infections.add(this);
 		this.host.addDisease(DISEASE.COVIDSPURIOUSSYMPTOM, this);
 
 

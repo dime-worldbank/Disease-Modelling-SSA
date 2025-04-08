@@ -575,4 +575,11 @@ public class Person extends Host {
 
 	public int getID(){ return this.myId; }
 	
+	@Override
+	public boolean isOfType(HOST host) {
+		if (host.equals(HOST.PERSON)) return true;
+		
+		return false;
+	};
+
 }

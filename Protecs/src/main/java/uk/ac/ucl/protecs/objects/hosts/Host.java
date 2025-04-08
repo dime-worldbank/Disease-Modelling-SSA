@@ -1,13 +1,14 @@
 package uk.ac.ucl.protecs.objects.hosts;
 
 import java.util.HashMap;
-import java.util.HashSet;
 
 import sim.engine.Steppable;
 import uk.ac.ucl.protecs.objects.diseases.Disease;
 import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
+import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.HOST;
+
 
 public abstract class Host implements Steppable {
 	
@@ -45,4 +46,7 @@ public abstract class Host implements Steppable {
 		this.myDiseaseSet.put(disease.key, i);
 	};
 	public HashMap<String, Disease> getDiseaseSet() {return this.myDiseaseSet; }
+	
+	public abstract boolean isOfType(HOST host);
+
 }

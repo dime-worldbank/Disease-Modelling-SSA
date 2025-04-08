@@ -33,7 +33,7 @@ public class DummyNonCommunicableDisease extends Disease {
 		infectedAtLocation = myHost.getLocation();
 		currentBehaviourNode = initNode;
 		myWorld = sim;
-		myWorld.infections.add(this);
+		myWorld.human_infections.add(this);
 	}
 
 	

@@ -36,7 +36,7 @@ public class DummyInfectiousDisease extends Disease{
 		infectedAtLocation = myHost.getLocation();
 		currentBehaviourNode = initNode;
 		myWorld = sim;
-		myWorld.infections.add(this);
+		myWorld.human_infections.add(this);
 	}
 
 	@Override
