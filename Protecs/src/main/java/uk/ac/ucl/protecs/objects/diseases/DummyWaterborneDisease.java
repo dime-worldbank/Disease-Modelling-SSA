@@ -3,24 +3,25 @@ package uk.ac.ucl.protecs.objects.diseases;
 import sim.engine.SimState;
 import uk.ac.ucl.protecs.objects.hosts.Host;
 import uk.ac.ucl.protecs.objects.hosts.Person;
+import uk.ac.ucl.protecs.objects.hosts.Water;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.HOST;
 import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
-public class DummyWaterbornDisease extends Disease{
+public class DummyWaterborneDisease extends Disease{
 	
-	public DummyWaterbornDisease(Host myHost, Host mySource, BehaviourNode initNode, WorldBankCovid19Sim sim){
+	public DummyWaterborneDisease(Host myHost, Host mySource, BehaviourNode initNode, WorldBankCovid19Sim sim){
 		this(myHost, mySource, initNode, sim, (int) sim.schedule.getTime());
 	}
 
-	public DummyWaterbornDisease(Host myHost, Host mySource, BehaviourNode initNode, WorldBankCovid19Sim sim, int time){
+	public DummyWaterborneDisease(Host myHost, Host mySource, BehaviourNode initNode, WorldBankCovid19Sim sim, int time){
 		
 		host = myHost;
 		
 		source = mySource;
 		
-		host.addDisease(DISEASE.DUMMY_WATERBORN, this);
+		host.addDisease(DISEASE.DUMMY_WATERBORNE, this);
 		
 		this.hasAsympt = true;
 			
@@ -33,7 +34,7 @@ public class DummyWaterbornDisease extends Disease{
 		myWorld.human_infections.add(this);
 		}
 	}
-
+	
 	@Override
 	public void step(SimState arg0) {
 		// TODO Auto-generated method stub
@@ -45,7 +46,7 @@ public class DummyWaterbornDisease extends Disease{
 		return true;
 	}
 	@Override
-	public boolean isWaterborn() {
+	public boolean isWaterborne() {
 		return true;
 	}
 	@Override
@@ -67,13 +68,13 @@ public class DummyWaterbornDisease extends Disease{
 	@Override
 	public DISEASE getDiseaseType() {
 		// TODO Auto-generated method stub
-		return DISEASE.DUMMY_WATERBORN;
+		return DISEASE.DUMMY_WATERBORNE;
 	}
 
 	@Override
 	public String getDiseaseName() {
 		// TODO Auto-generated method stub
-		return DISEASE.DUMMY_WATERBORN.key;
+		return DISEASE.DUMMY_WATERBORNE.key;
 	}
 
 	@Override

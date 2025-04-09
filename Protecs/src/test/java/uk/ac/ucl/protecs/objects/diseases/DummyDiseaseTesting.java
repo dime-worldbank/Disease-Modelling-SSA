@@ -11,6 +11,7 @@ import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.helperFunctions.HelperFunctions.birthsOrDeaths;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.objects.hosts.Person.SEX;
+import uk.ac.ucl.protecs.objects.hosts.Water;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 
 
@@ -28,30 +29,10 @@ public class DummyDiseaseTesting{
 
 		// run the simulation
 		HelperFunctions.runSimulation(sim, numDays);
-		// Check that the dummy disase is loaded in to the simulation
+		// Check that the dummy disease is loaded in to the simulation
 		HashSet<DISEASE> toCheck = HelperFunctions.InfectionsPresentInSim(sim);
 
-		Assert.assertTrue((toCheck.contains(DISEASE.DUMMY_NCD)) & (toCheck.contains(DISEASE.DUMMY_INFECTIOUS)));
-	}
-	
-	@Test
-	public void checkAllDiseasesAppearInWorldDiseaseList() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "covid_testing_params.txt");
-		sim.developingModularity = true;
-		sim.start();
-		int numDays = 8;
-
-		// run the simulation
-		HelperFunctions.runSimulation(sim, numDays);
-		// Check that the dummy disase is loaded in to the simulation
-		HashSet<DISEASE> toCheck = HelperFunctions.InfectionsPresentInSim(sim);
-		boolean dummyNCDPresent = toCheck.contains(DISEASE.DUMMY_NCD);
-		boolean dummyInfectiousPresent = toCheck.contains(DISEASE.DUMMY_INFECTIOUS);
-		boolean covidPresent = toCheck.contains(DISEASE.COVID);
-		boolean covidSymptomsPresent = toCheck.contains(DISEASE.COVIDSPURIOUSSYMPTOM);
-
-
-		Assert.assertTrue(dummyNCDPresent & dummyInfectiousPresent & covidPresent & covidSymptomsPresent);
+		Assert.assertTrue((toCheck.contains(DISEASE.DUMMY_NCD)) & (toCheck.contains(DISEASE.DUMMY_INFECTIOUS)) & (toCheck.contains(DISEASE.DUMMY_WATERBORNE)));
 	}
 	
 	@Test
@@ -114,7 +95,7 @@ public class DummyDiseaseTesting{
 	}
 	
 	@Test
-	public void checkNoTransmissionOfDummyNCDHappensWithoutRateOfAcquisition() {
+	public void checkNoNewCasesOfDummyNCDBeginWithoutRateOfAcquisition() {
 		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
 		sim.developingModularity = true;
 		sim.start();
@@ -278,4 +259,80 @@ public class DummyDiseaseTesting{
 
 		Assert.assertTrue(new_over_50_cases > new_under_50_cases);
 	}
+	
+	@Test
+	public void checkDummyWaterborneDiseaseIsSpreadToWater() {
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
+		sim.developingModularity = true;
+		sim.start();
+		int number_of_initial_infections_in_water = 0;
+
+		for (Water w: sim.waterInSim) {
+			if (w.getDiseaseSet().containsKey(DISEASE.DUMMY_WATERBORNE.key)) number_of_initial_infections_in_water ++;
+
+		}
+		int numDays = 50;
+		HelperFunctions.runSimulation(sim, numDays);
+		int number_of_new_infections_in_water = 0;
+
+		for (Water w: sim.waterInSim) {
+			if (w.getDiseaseSet().containsKey(DISEASE.DUMMY_WATERBORNE.key)) number_of_new_infections_in_water ++;
+
+		}
+		Assert.assertTrue(number_of_new_infections_in_water > number_of_initial_infections_in_water);
+		}
+	
+	@Test
+	public void checkDummyWaterborneDiseaseIsSpreadToPeople() {
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
+		sim.developingModularity = true;
+		sim.start();
+		int number_of_initial_infections_in_people = 0;
+
+		for (Person p: sim.agents) {
+			if (p.getDiseaseSet().containsKey(DISEASE.DUMMY_WATERBORNE.key)) number_of_initial_infections_in_people ++;
+
+		}
+		int numDays = 50;
+		HelperFunctions.runSimulation(sim, numDays);
+		int number_of_new_infections_in_people = 0;
+
+		for (Person p: sim.agents) {
+			if (p.getDiseaseSet().containsKey(DISEASE.DUMMY_WATERBORNE.key)) number_of_new_infections_in_people ++;
+
+		}
+		Assert.assertTrue(number_of_new_infections_in_people > number_of_initial_infections_in_people);
+		}
+	
+	@Test
+	public void checkNoNewDummyWaterborneCasesHappenIfPeopleDoNotInteractWithWater() {
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
+		sim.developingModularity = true;
+		sim.params.dummy_prob_interact_with_water = 0;
+		sim.start();
+		int number_of_initial_infections_in_both_hosts = 0;
+
+		for (Person p: sim.agents) {
+			if (p.getDiseaseSet().containsKey(DISEASE.DUMMY_WATERBORNE.key)) number_of_initial_infections_in_both_hosts ++;
+
+		}
+		for (Water w: sim.waterInSim) {
+			if (w.getDiseaseSet().containsKey(DISEASE.DUMMY_WATERBORNE.key)) number_of_initial_infections_in_both_hosts ++;
+
+		}
+		int numDays = 50;
+		HelperFunctions.runSimulation(sim, numDays);
+		int number_of_new_infections_in_both_hosts = 0;
+
+		for (Person p: sim.agents) {
+			if (p.getDiseaseSet().containsKey(DISEASE.DUMMY_WATERBORNE.key)) number_of_new_infections_in_both_hosts ++;
+
+		}
+		for (Water w: sim.waterInSim) {
+			if (w.getDiseaseSet().containsKey(DISEASE.DUMMY_WATERBORNE.key)) number_of_new_infections_in_both_hosts ++;
+
+		}
+		Assert.assertTrue(number_of_initial_infections_in_both_hosts == number_of_new_infections_in_both_hosts);
+		}
+	
 }

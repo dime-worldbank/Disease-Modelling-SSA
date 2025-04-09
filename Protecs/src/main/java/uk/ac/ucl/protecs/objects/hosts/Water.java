@@ -11,7 +11,6 @@ import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.HOST;
 
 public class Water extends Host {
 	
-	Location currentLocation;
 	Location source;
 	public Water(Location myLocation, Location mySource){
 		currentLocation = myLocation;

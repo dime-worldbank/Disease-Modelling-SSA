@@ -2,22 +2,22 @@ package uk.ac.ucl.protecs.behaviours.diseaseProgression;
 
 
 
-import uk.ac.ucl.protecs.objects.diseases.DummyWaterbornDisease;
+import uk.ac.ucl.protecs.objects.diseases.DummyWaterborneDisease;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.sim.*;
 import sim.engine.Steppable;
 import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
-public class DummyWaterbornDiseaseProgressionFramework extends DiseaseProgressionBehaviourFramework {
+public class DummyWaterborneDiseaseProgressionFramework extends DiseaseProgressionBehaviourFramework {
 	
-	public enum WaterbornBehaviourNodeInHumans{
+	public enum WaterborneBehaviourNodeInHumans{
 		SUSCEPTIBLE("susceptible"), EXPOSED("exposed"), RECOVERED("recovered"), DEAD("dead");
 
         String key;
      
-        WaterbornBehaviourNodeInHumans(String key) { this.key = key; }
+        WaterborneBehaviourNodeInHumans(String key) { this.key = key; }
     
-        static WaterbornBehaviourNodeInHumans getValue(String x) {
+        static WaterborneBehaviourNodeInHumans getValue(String x) {
         	switch (x) {
         	case "susceptible":
         		return SUSCEPTIBLE;
@@ -33,14 +33,14 @@ public class DummyWaterbornDiseaseProgressionFramework extends DiseaseProgressio
         }
 	}
 	
-	public enum WaterbornBehaviourNodeInWater{
+	public enum WaterborneBehaviourNodeInWater{
 		CLEAN("clean"), CONTAMINATED("contaminated");
 
         String key;
      
-        WaterbornBehaviourNodeInWater(String key) { this.key = key; }
+        WaterborneBehaviourNodeInWater(String key) { this.key = key; }
     
-        static WaterbornBehaviourNodeInWater getValue(String x) {
+        static WaterborneBehaviourNodeInWater getValue(String x) {
         	switch (x) {
         	case "clean":
         		return CLEAN;
@@ -79,14 +79,14 @@ public class DummyWaterbornDiseaseProgressionFramework extends DiseaseProgressio
 	private nextStepDummy nextStep;
 
 	@SuppressWarnings("serial")
-	public DummyWaterbornDiseaseProgressionFramework(WorldBankCovid19Sim world) {
+	public DummyWaterborneDiseaseProgressionFramework(WorldBankCovid19Sim world) {
 		super(world);
 		// TODO Auto-generated constructor stub
 		
 		this.susceptibleNode = new BehaviourNode(){
 			
 			@Override
-			public String getTitle() { return WaterbornBehaviourNodeInHumans.SUSCEPTIBLE.key; }
+			public String getTitle() { return WaterborneBehaviourNodeInHumans.SUSCEPTIBLE.key; }
 
 			@Override
 			public double next(Steppable s, double time) {
@@ -105,7 +105,7 @@ public class DummyWaterbornDiseaseProgressionFramework extends DiseaseProgressio
 		@Override
 		public String getTitle() {
 			// TODO Auto-generated method stub
-			return WaterbornBehaviourNodeInHumans.EXPOSED.key;
+			return WaterborneBehaviourNodeInHumans.EXPOSED.key;
 		}
 
 		@Override
@@ -116,7 +116,7 @@ public class DummyWaterbornDiseaseProgressionFramework extends DiseaseProgressio
 				nextStep = nextStepDummy.RECOVER;
 			}
 			// check if this person has died
-			DummyWaterbornDisease d = (DummyWaterbornDisease) s;
+			DummyWaterborneDisease d = (DummyWaterborneDisease) s;
 			d.time_infected = time;
 			if (!((Person) d.getHost()).isAlive()) {
 				nextStep = nextStepDummy.HAS_DIED;
@@ -153,12 +153,12 @@ public class DummyWaterbornDiseaseProgressionFramework extends DiseaseProgressio
 		@Override
 		public String getTitle() {
 			// TODO Auto-generated method stub
-			return WaterbornBehaviourNodeInHumans.RECOVERED.key;
+			return WaterborneBehaviourNodeInHumans.RECOVERED.key;
 		}
 
 		@Override
 		public double next(Steppable s, double time) {
-			DummyWaterbornDisease d = (DummyWaterbornDisease) s;
+			DummyWaterborneDisease d = (DummyWaterborneDisease) s;
 			// store the recovery time
 			d.time_recovered = time;
 			// do nothing by refault
@@ -181,12 +181,12 @@ public class DummyWaterbornDiseaseProgressionFramework extends DiseaseProgressio
 		@Override
 		public String getTitle() {
 			// TODO Auto-generated method stub
-			return WaterbornBehaviourNodeInHumans.DEAD.key;
+			return WaterborneBehaviourNodeInHumans.DEAD.key;
 		}
 
 		@Override
 		public double next(Steppable s, double time) {
-			DummyWaterbornDisease d = (DummyWaterbornDisease) s;
+			DummyWaterborneDisease d = (DummyWaterborneDisease) s;
 			// Store time of death
 			d.time_died = time;
 			return Double.MAX_VALUE;
@@ -199,7 +199,32 @@ public class DummyWaterbornDiseaseProgressionFramework extends DiseaseProgressio
 		}
 		
 	};
+	
+	this.infectionInWater = new BehaviourNode() {
+
+		@Override
+		public String getTitle() {
+			// TODO Auto-generated method stub
+			return WaterborneBehaviourNodeInWater.CONTAMINATED.key;
+		}
+
+		@Override
+		public boolean isEndpoint() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public double next(Steppable arg0, double arg1) {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+		
+	};
 }
 	public BehaviourNode getStandardEntryPoint(){ return this.susceptibleNode; }
+	
+	public BehaviourNode getStandardEntryPointForWater(){ return this.infectionInWater; }
+
 
 }

@@ -36,7 +36,7 @@ public class CoronavirusSpuriousSymptom extends Disease{
 		return false;
 	}
 	@Override
-	public boolean isWaterborn() {return false;}
+	public boolean isWaterborne() {return false;}
 
 	// =============================================== Disease type classification ===========================================================================
 	@Override

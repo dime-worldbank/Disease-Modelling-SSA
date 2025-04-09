@@ -8,4 +8,5 @@ public class Household extends Location {
 		mySuperLocation = l;
 		setLocationType(LocationCategory.HOME);
 	}
+
 }

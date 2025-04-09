@@ -15,7 +15,7 @@ public class DiseaseProgressionBehaviourFramework implements BehaviourFramework 
 	WorldBankCovid19Sim myWorld;
 	Disease myInfection;
 	BehaviourNode susceptibleNode = null, exposedNode = null, presymptomaticNode= null, asymptomaticNode = null,
-			mildNode = null, severeNode = null, criticalNode = null, recoveredNode = null, deadNode = null;
+			mildNode = null, severeNode = null, criticalNode = null, recoveredNode = null, deadNode = null, infectionInWater = null;
 
 	BehaviourNode standardEntryPoint;
 	public DiseaseProgressionBehaviourFramework(WorldBankCovid19Sim world){

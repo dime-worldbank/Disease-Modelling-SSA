@@ -19,7 +19,8 @@ public class Location {
 	public String myId;
 	Location mySuperLocation; // the Location within which this Location exists
 	public HashSet <Person> personsHere;
-	public HashSet <Water> waterHere;
+	public HashSet <Water> allWaterHere;
+	public Water waterHere;
 	Object [] personsHere_list;
 	Object [] waterHere_list;
 
@@ -65,7 +66,8 @@ public class Location {
 		myId = id;
 		mySuperLocation = mySuper;
 		personsHere = new HashSet <Person> ();
-		waterHere = new HashSet <Water> ();
+		allWaterHere = new HashSet <Water> ();
+		waterHere = null;
 
 		
 		metric_died_count = 0; 
@@ -102,9 +104,9 @@ public class Location {
 			return personsHere.add((Person) h);
 		}
 		if (h.getHostType().equals(HOST.WATER.key)){
-			if(waterHere.contains(h))
+			if(allWaterHere.contains(h))
 				return false;
-			return waterHere.add((Water) h);
+			return allWaterHere.add((Water) h);
 		}
 		return false;
 	}
@@ -115,8 +117,8 @@ public class Location {
 				return personsHere.remove(h);
 		}
 		else if (h.getHostType().equals(HOST.WATER.key)){
-			if(waterHere.contains(h))
-				return waterHere.remove(h);
+			if(allWaterHere.contains(h))
+				return allWaterHere.remove(h);
 		}
 		return false;
 		
@@ -196,5 +198,17 @@ public class Location {
 	public void setWaterSource(boolean isWaterSource) {
 		this.isWaterSource = isWaterSource;
 	}
-
+	
+	public HashSet <Water> getWaterHere(){
+		return allWaterHere;
+	}
+	
+	public Water getWater() {
+		return waterHere;
+	}
+	
+	public void setWaterHere(Water Water) {
+		waterHere = Water;
+		
+	}
 }

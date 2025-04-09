@@ -8,10 +8,10 @@ import java.util.Random;
 
 import uk.ac.ucl.protecs.behaviours.*;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
-import uk.ac.ucl.protecs.behaviours.diseaseProgression.DummyWaterbornDiseaseProgressionFramework;
+import uk.ac.ucl.protecs.behaviours.diseaseProgression.DummyWaterborneDiseaseProgressionFramework;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.DummyNonCommunicableDiseaseProgressionFramework;
 import uk.ac.ucl.protecs.objects.diseases.DummyNonCommunicableDisease;
-import uk.ac.ucl.protecs.objects.diseases.DummyWaterbornDisease;
+import uk.ac.ucl.protecs.objects.diseases.DummyWaterborneDisease;
 import uk.ac.ucl.protecs.objects.diseases.Disease;
 import uk.ac.ucl.protecs.objects.diseases.DummyInfectiousDisease;
 import uk.ac.ucl.protecs.objects.hosts.Person;
@@ -50,7 +50,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public CoronavirusDiseaseProgressionFramework infectiousFramework = null;
 	public SpuriousSymptomDiseaseProgressionFramework spuriousFramework = null;
 	public DummyNonCommunicableDiseaseProgressionFramework dummyNCDFramework = null;
-	public DummyWaterbornDiseaseProgressionFramework dummyWaterbornFramework = null;
+	public DummyWaterborneDiseaseProgressionFramework dummyWaterborneFramework = null;
 	public DummyInfectiousDiseaseProgressionFramework dummyInfectiousFramework = null;
 	public Params params = null;
 	public boolean lockedDown = false;
@@ -86,7 +86,7 @@ public class WorldBankCovid19Sim extends SimState {
 	
 	// Create a enum list of diseases modelled currently, these will be used to categorise any infections a person may get over the course of the simulation.
 	public enum DISEASE{
-		DUMMY_NCD("DUMMY_NCD"), DUMMY_INFECTIOUS("DUMMY_INFECTIOUS"), DUMMY_WATERBORN("DUMMY_WATERBORN"), COVID("COVID-19"), COVIDSPURIOUSSYMPTOM("COVID-19_SPURIOUS_SYMPTOM");
+		DUMMY_NCD("DUMMY_NCD"), DUMMY_INFECTIOUS("DUMMY_INFECTIOUS"), DUMMY_WATERBORNE("DUMMY_WATERBORNE"), COVID("COVID-19"), COVIDSPURIOUSSYMPTOM("COVID-19_SPURIOUS_SYMPTOM");
 
         public String key;
      
@@ -98,8 +98,8 @@ public class WorldBankCovid19Sim extends SimState {
         		return DUMMY_NCD;
         	case "DUMMY_INFECTIOUS":
         		return DUMMY_INFECTIOUS;
-        	case "DUMMY_WATERBORN":
-        		return DUMMY_WATERBORN;
+        	case "DUMMY_WATERBORNE":
+        		return DUMMY_WATERBORNE;
         	case "COVID-19":
         		return COVID;
         	case "COVID-19_SPURIOUS_SYMPTOM":
@@ -177,7 +177,7 @@ public class WorldBankCovid19Sim extends SimState {
 		if (developingModularity) {
 			dummyNCDFramework = new DummyNonCommunicableDiseaseProgressionFramework(this);
 			dummyInfectiousFramework = new DummyInfectiousDiseaseProgressionFramework(this);
-			dummyWaterbornFramework = new DummyWaterbornDiseaseProgressionFramework(this);
+			dummyWaterborneFramework = new DummyWaterborneDiseaseProgressionFramework(this);
 		}
 		// RESET SEED
 		random = new Random(this.seed());
@@ -290,7 +290,7 @@ public class WorldBankCovid19Sim extends SimState {
 				}
 				else break;
 			}
-			double num_hh_to_seed = households.size() * this.params.dummy_waterborn_initial_fraction_with_inf;
+			double num_hh_to_seed = households.size() * this.params.dummy_waterborne_initial_fraction_with_inf;
 			i = 0.0;
 			for (Household h : this.households) {
 				// for purposes of development we will set every household to be a source of water
@@ -298,19 +298,20 @@ public class WorldBankCovid19Sim extends SimState {
 				// create a new water source
 				Water householdWater = new Water(h, h.getRootSuperLocation());
 				waterInSim.add(householdWater);
+				h.setWaterHere(householdWater);
 				// create a new infection in the water for some households
 				if (i < num_hh_to_seed) {
-					DummyWaterbornDisease diseaseInWater = new DummyWaterbornDisease(householdWater, null, dummyWaterbornFramework.getStandardEntryPoint(), this, 0);
+					DummyWaterborneDisease diseaseInWater = new DummyWaterborneDisease(householdWater, null, dummyWaterborneFramework.getStandardEntryPointForWater(), this, 0);
 					schedule.scheduleOnce(1, param_schedule_infecting, diseaseInWater);
 					i ++ ;
 				}
 			}
-			// shuffle the agents so that the first n people won't also get a waterborn infection
+			// shuffle the agents so that the first n people won't also get a waterborne infection
 			Collections.shuffle(agents);
 			i = 0.0;
 			for (Person a: agents) {
 				if (i < num_to_seed) {
-					DummyWaterbornDisease inf = new DummyWaterbornDisease(a, null, dummyWaterbornFramework.getStandardEntryPoint(), this, 0);
+					DummyWaterborneDisease inf = new DummyWaterborneDisease(a, null, dummyWaterborneFramework.getStandardEntryPoint(), this, 0);
 				schedule.scheduleOnce(1, param_schedule_infecting, inf);
 				i ++ ;
 				}

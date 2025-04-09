@@ -90,7 +90,7 @@ public abstract class Disease implements Steppable {
 	
 	public abstract boolean isInfectious();
 	
-	public abstract boolean isWaterborn();
+	public abstract boolean isWaterborne();
 	
 	// =============================================== Disease transmission ===========================================================================
 	

@@ -146,7 +146,7 @@ public class DummyNonCommunicableDisease extends Disease {
 		return false;
 	}
 	@Override
-	public boolean isWaterborn() {return false;}
+	public boolean isWaterborne() {return false;}
 
 	@Override
 	public void horizontalTransmission() {
