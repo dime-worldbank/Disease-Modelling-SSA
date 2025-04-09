@@ -335,4 +335,25 @@ public class DummyDiseaseTesting{
 		Assert.assertTrue(number_of_initial_infections_in_both_hosts == number_of_new_infections_in_both_hosts);
 		}
 	
+	@Test
+	public void checkThatDuplicatedInfectionTypesDoNotHappen() {
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
+		sim.developingModularity = true;
+		int numberOfDiseasesModelledBySim = DISEASE.values().length;
+		sim.start();
+
+		int numDays = 100;
+		HelperFunctions.runSimulation(sim, numDays);
+		boolean number_of_infections_per_host_is_less_than_total_modelled = true;
+		for (Person p: sim.agents) {
+			if (p.getDiseaseSet().size() > numberOfDiseasesModelledBySim) number_of_infections_per_host_is_less_than_total_modelled = false;
+		}
+		
+		for (Water w: sim.waterInSim) {
+			if (w.getDiseaseSet().size() > numberOfDiseasesModelledBySim) number_of_infections_per_host_is_less_than_total_modelled = false;
+		}
+		
+		Assert.assertTrue(number_of_infections_per_host_is_less_than_total_modelled);
+		}
+	
 }
