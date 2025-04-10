@@ -99,7 +99,7 @@ public class HelperFunctions {
 			// create a list to store the mobility nodes that occur in the simulation
 			world.schedule.step(world);
 			for (Person p: world.agents) {
-				behaviourNodeBin.add(p.getActivityNode().getTitle());
+				behaviourNodeBin.add(p.getBehaviourNode().getTitle());
 			}
 			
 		}
@@ -135,7 +135,7 @@ public class HelperFunctions {
 		for (Person p: world.agents) {
 			double rand = world.random.nextDouble();
 			if (rand <= fraction) {
-				p.setActivityNode(Node);
+				p.setBehaviourNode(Node);
 				// kick off the infectious behaviour framework
 				p.step(world);
 			}
@@ -242,7 +242,7 @@ public class HelperFunctions {
 				world.schedule.step(world);
 			}
 			for (Person p: world.agents) {
-				behaviourNodeBin.add(p.getActivityNode().getTitle());
+				behaviourNodeBin.add(p.getBehaviourNode().getTitle());
 			}
 			
 			List<String> UniqueNodes = new ArrayList<String>(behaviourNodeBin);
@@ -348,5 +348,11 @@ public class HelperFunctions {
 			System.out.println("No part of the demography has been turned off");
 		}
 		
+	}
+	
+	public static void makePeopleLeaveTheHouseEachDay(WorldBankCovid19Sim sim) {
+		for (String key : sim.params.economic_status_weekday_movement_prob.keySet()) {
+			sim.params.economic_status_weekday_movement_prob.put(key, (double) 1);         
+		}
 	}
 }

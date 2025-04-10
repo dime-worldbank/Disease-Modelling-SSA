@@ -143,7 +143,7 @@ public class Person extends MobileAgent {
 	HashSet <Person> communityBubble;
 	
 	// activity
-	BehaviourNode currentActivityNode = null;
+	BehaviourNode currentBehaviourNode = null;
 	
 	HashMap <String, Disease> myDiseaseSet = new HashMap <String, Disease>();
 	
@@ -233,7 +233,7 @@ public class Person extends MobileAgent {
 		else if(immobilised) return; // do not move while the Person is immobilised!
 		
 		double time = world.schedule.getTime(); // find the current time
-		double myDelta = this.currentActivityNode.next(this, time);
+		double myDelta = this.currentBehaviourNode.next(this, time);
 		
 		if(myDelta >= 0)
 			myWorld.schedule.scheduleOnce(time + myDelta, myWorld.param_schedule_movement, this);
@@ -482,7 +482,7 @@ public class Person extends MobileAgent {
 
 	public void sendHome() {
 		this.transferTo(myHousehold);
-		this.setActivityNode(myWorld.movementFramework.getEntryPoint());
+		this.setBehaviourNode(myWorld.movementFramework.getEntryPoint());
 		this.setAtWork(false);  
 	}
 	
@@ -508,8 +508,8 @@ public class Person extends MobileAgent {
 
 	public double getSusceptibility(){ return myWorld.params.getSuspectabilityByAge(age); } // TODO make more nuanced
 	
-	public void setActivityNode(BehaviourNode bn){ currentActivityNode = bn; }
-	public BehaviourNode getActivityNode(){ return currentActivityNode; }
+	public void setBehaviourNode(BehaviourNode bn){ currentBehaviourNode = bn; }
+	public BehaviourNode getBehaviourNode(){ return currentBehaviourNode; }
 	
 	public int getAge(){ return age;}
 	public int getBirthday() {return birthday; }
