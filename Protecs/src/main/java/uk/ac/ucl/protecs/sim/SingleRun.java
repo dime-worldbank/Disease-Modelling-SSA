@@ -17,7 +17,7 @@ public class SingleRun {
 		LocalDateTime timestamp = LocalDateTime.now();  
 		// Get location of parameter file
 
-		String paramFilename = "src/main/resources/workplace_bubbles_params.txt"; 
+		String paramFilename = "src/main/resources/single_run_params.txt"; 
 		// Create a name for the output file
 		String outputFilename = "single_run_" + timestamp.toString(); 
 		// create a name for the simulation information file
