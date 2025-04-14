@@ -460,12 +460,14 @@ public class Person extends Host {
 						myWorld.schedule.scheduleOnce(p.getDiseaseSet().get(inf.key), myWorld.param_schedule_infecting);
 					}
 				}
+				break;
 				case DUMMY_INFECTIOUS:{
 					if(!p.getDiseaseSet().containsKey(inf.key) && myWorld.random.nextDouble() < beta){
 						p.getDiseaseSet().put(inf.key, new DummyInfectiousDisease(p, this, myWorld.infectiousFramework.getEntryPoint(), myWorld));
 						myWorld.schedule.scheduleOnce(p.getDiseaseSet().get(inf.key), myWorld.param_schedule_infecting);
 					}
 				}
+				break;
 				default:
 					break;
 				}
