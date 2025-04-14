@@ -100,7 +100,7 @@ public class CoronavirusInfection extends Disease {
 					double myProb = myWorld.random.nextDouble();
 					if (!otherPerson.getDiseaseSet().containsKey(DISEASE.COVID.key) && myProb < myWorld.params.infection_beta) {
 						CoronavirusInfection inf = new CoronavirusInfection(otherPerson, this.getHost(), myWorld.infectiousFramework.getEntryPoint(), myWorld);
-						myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting); 
+						myWorld.schedule.scheduleOnce(myWorld.schedule.getTime(), myWorld.param_schedule_infecting, inf); 
 					}
 				}
 				return;
