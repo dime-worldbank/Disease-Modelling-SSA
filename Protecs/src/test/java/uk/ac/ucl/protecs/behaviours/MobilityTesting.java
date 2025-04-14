@@ -3,9 +3,7 @@ package uk.ac.ucl.protecs.behaviours;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 import org.junit.Assert;
 import org.junit.Test;
