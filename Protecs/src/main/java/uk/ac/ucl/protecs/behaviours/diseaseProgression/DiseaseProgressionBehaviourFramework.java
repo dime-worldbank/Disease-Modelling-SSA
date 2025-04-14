@@ -25,7 +25,7 @@ public class DiseaseProgressionBehaviourFramework implements BehaviourFramework 
 	
 	@Override
 	public BehaviourNode getEntryPoint() {
-		return this.exposedNode;
+		return this.susceptibleNode;
 	}
 
 	@Override
