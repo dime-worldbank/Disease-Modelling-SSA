@@ -29,6 +29,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		sim.start();
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
+		// Make sure there are no reinfections by selecting a time to recovery beyond the simulation time
+		sim.params.recoveryToSusceptible_mean = 1000;
 		// seed a number of the specific node to the run
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.SUSCEPTIBLE), 
 				NodeOption.CoronavirusInfectiousBehaviour);
@@ -54,6 +56,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		HelperFunctions.StopRecoveryHappening(sim);
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
+		// Make sure there are no reinfections by selecting a time to recovery beyond the simulation time
+		sim.params.recoveryToSusceptible_mean = 1000;
 		// seed a number of the specific node to the run
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.EXPOSED), 
 				NodeOption.CoronavirusInfectiousBehaviour);		// Set up a duration to run the simulation
@@ -75,6 +79,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		sim.start();
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
+		// Make sure there are no reinfections by selecting a time to recovery beyond the simulation time
+		sim.params.recoveryToSusceptible_mean = 1000;
 		// Make everyone have a critical infection
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.PRESYMPTOMATIC), 
 				NodeOption.CoronavirusInfectiousBehaviour);		// Make Sure no one's disease progresses beyond a Mild infection
@@ -98,6 +104,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		sim.start();
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
+		// Make sure there are no reinfections by selecting a time to recovery beyond the simulation time
+		sim.params.recoveryToSusceptible_mean = 1000;
 		// Make everyone have a critical infection
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.ASYMPTOMATIC), 
 				NodeOption.CoronavirusInfectiousBehaviour);
@@ -119,6 +127,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
+		// Make sure there are no reinfections by selecting a time to recovery beyond the simulation time
+		sim.params.recoveryToSusceptible_mean = 1000;
 		// Make everyone have a critical infection
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD), 
 				NodeOption.CoronavirusInfectiousBehaviour);		// Ensure that no one disease progression occurs beyond the severe stage
@@ -143,6 +153,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		HelperFunctions.HaltDiseaseProgressionAtStage(sim, CoronavirusBehaviourNodeTitle.SEVERE);
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
+		// Make sure there are no reinfections by selecting a time to recovery beyond the simulation time
+		sim.params.recoveryToSusceptible_mean = 1000;
 		// seed a number of the specific node to the run
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD), 
 				NodeOption.CoronavirusInfectiousBehaviour);		// Set up a duration to run the simulation
@@ -163,6 +175,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
+		// Make sure there are no reinfections by selecting a time to recovery beyond the simulation time
+		sim.params.recoveryToSusceptible_mean = 1000;
 		// Make everyone have a critical infection
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.SEVERE), 
 				NodeOption.CoronavirusInfectiousBehaviour);		// Ensure that no one disease progression occurs beyond the critical stage
@@ -188,6 +202,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		HelperFunctions.HaltDiseaseProgressionAtStage(sim, CoronavirusBehaviourNodeTitle.CRITICAL);
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
+		// Make sure there are no reinfections by selecting a time to recovery beyond the simulation time
+		sim.params.recoveryToSusceptible_mean = 1000;
 		// seed a number of the specific node to the run
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.SEVERE), 
 				NodeOption.CoronavirusInfectiousBehaviour);		// Set up a duration to run the simulation
@@ -209,6 +225,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
+		// Make sure there are no reinfections by selecting a time to recovery beyond the simulation time
+		sim.params.recoveryToSusceptible_mean = 1000;
 		// Make everyone have a critical infection
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.CRITICAL), 
 				NodeOption.CoronavirusInfectiousBehaviour);		// Set up a duration to run the simulation
@@ -231,6 +249,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		HelperFunctions.HaltDiseaseProgressionAtStage(sim, CoronavirusBehaviourNodeTitle.CRITICAL);
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
+		// Make sure there are no reinfections by selecting a time to recovery beyond the simulation time
+		sim.params.recoveryToSusceptible_mean = 1000;
 		// seed a number of the specific node to the run
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.CRITICAL), 
 				NodeOption.CoronavirusInfectiousBehaviour);		// Set up a duration to run the simulation
@@ -249,6 +269,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		sim.start();
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
+		// Make sure there are no reinfections by selecting a time to recovery beyond the simulation time
+		sim.params.recoveryToSusceptible_mean = 1000;
 		// seed a number of the specific node to the run
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.RECOVERED), 
 				NodeOption.CoronavirusInfectiousBehaviour);		// Set up a duration to run the simulation
@@ -267,6 +289,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		sim.start();
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
+		// Make sure there are no reinfections by selecting a time to recovery beyond the simulation time
+		sim.params.recoveryToSusceptible_mean = 1000;
 		// seed a number of the specific node to the run
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.DEAD), 
 				NodeOption.CoronavirusInfectiousBehaviour);		// Set up a duration to run the simulation
@@ -285,6 +309,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		sim.start();
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
+		// Make sure there are no reinfections by selecting a time to recovery beyond the simulation time
+		sim.params.recoveryToSusceptible_mean = 1000;
 		// Make sure that people exposed don't revert back to being susceptible
 		ForceExposedInfectionsCauseDisease(sim);
 		// seed a number of the specific node to the run

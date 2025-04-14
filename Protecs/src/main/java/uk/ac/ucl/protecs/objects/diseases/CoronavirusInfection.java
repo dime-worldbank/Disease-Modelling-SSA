@@ -1,5 +1,6 @@
 package uk.ac.ucl.protecs.objects.diseases;
 
+import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgressionFramework.CoronavirusBehaviourNodeTitle;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 
 import uk.ac.ucl.protecs.objects.locations.Household;
@@ -98,7 +99,16 @@ public class CoronavirusInfection extends Disease {
 									
 					// check if they are already infected; if they are not, infect with with probability BETA
 					double myProb = myWorld.random.nextDouble();
-					if (!otherPerson.getDiseaseSet().containsKey(DISEASE.COVID.key) && myProb < myWorld.params.infection_beta) {
+					// Eligibility for Covid infection: They haven't already got COVID, and if they have it they are susceptible to reinfection
+					boolean has_recovered_from_prior_covid_infection = false;
+					try {
+						has_recovered_from_prior_covid_infection = (otherPerson.getDiseaseSet().get(DISEASE.COVID.key).getBehaviourName().equals(CoronavirusBehaviourNodeTitle.SUSCEPTIBLE.key));
+						}
+					catch (Exception e) {}
+					
+					boolean eligible_for_infection = (!otherPerson.getDiseaseSet().containsKey(DISEASE.COVID.key)) | has_recovered_from_prior_covid_infection;
+					
+					if ((eligible_for_infection) && (myProb < myWorld.params.infection_beta)) {
 						CoronavirusInfection inf = new CoronavirusInfection(otherPerson, this.getHost(), myWorld.infectiousFramework.getEntryPoint(), myWorld);
 						myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting);
 					}
@@ -167,7 +177,15 @@ public class CoronavirusInfection extends Disease {
 											
 							// check if they are already infected; if they are not, infect with with probability BETA
 							double myProb = myWorld.random.nextDouble();
-							if (!otherPerson.getDiseaseSet().containsKey(DISEASE.COVID.key) && myProb < myWorld.params.infection_beta) {
+							// Eligibility for Covid infection: They haven't already got COVID, and if they have it they are susceptible to reinfection
+							boolean has_recovered_from_prior_covid_infection = false;
+							try {
+								has_recovered_from_prior_covid_infection = (otherPerson.getDiseaseSet().get(DISEASE.COVID.key).getBehaviourName().equals(CoronavirusBehaviourNodeTitle.SUSCEPTIBLE.key));
+								}
+							catch (Exception e) {}
+							
+							boolean eligible_for_infection = (!otherPerson.getDiseaseSet().containsKey(DISEASE.COVID.key)) | has_recovered_from_prior_covid_infection;
+							if ((eligible_for_infection) && (myProb < myWorld.params.infection_beta)) {
 								CoronavirusInfection inf = new CoronavirusInfection(otherPerson, this.getHost(), myWorld.infectiousFramework.getEntryPoint(), myWorld);
 								myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting);
 							}
