@@ -641,7 +641,7 @@ public class CovidTestReporter implements Steppable{
 						}
 					// get covid counts in each admin zone
 					try {
-						adminZoneCovidCounts.add(covidAtLocation.get(true).get(place).get(true).get(false).size());
+						adminZoneCovidCounts.add(covidAtLocation.get(true).get(place).get(DISEASE.COVID).get(false).size());
 						}
 					catch (Exception e) {
 						// age wasn't present in the population, skip
@@ -696,9 +696,9 @@ public class CovidTestReporter implements Steppable{
 					// get population counts in each admin zone
 					try {
 						// numerator = number of people at location who have died from covid, but have not had their deaths recorded
-						int numerator = covidDeathsAtLocation.get(place).get(true).get(true).get(false).size();
+						int numerator = covidDeathsAtLocation.get(place).get(DISEASE.COVID).get(true).get(false).size();
 						// denominator = number of people at location who currently are alive with covid plus those at location who have died from covid but not had their deaths recorded
-						int denominator = covidAtLocation.get(true).get(place).get(true).get(false).size() + numerator;
+						int denominator = covidAtLocation.get(true).get(place).get(DISEASE.COVID).get(false).size() + numerator;
 						adminZonePercentCovidCasesFatal.add((float) numerator / denominator);
 					}
 					catch (Exception e) {
@@ -749,7 +749,7 @@ public class CovidTestReporter implements Steppable{
 					// get population counts in each admin zone
 					try {
 						// numerator = number of people at location who have died from covid, but have not had their deaths recorded
-						int numerator = covidDeathsAtLocation.get(place).get(true).get(true).get(false).size();
+						int numerator = covidDeathsAtLocation.get(place).get(DISEASE.COVID).get(true).get(false).size();
 						// denominator = number of people at location who currently are alive with covid plus those at location who have died from covid but not had their deaths recorded
 						int denominator = aliveAtLocation.get(true).get(place).size() + numerator;
 						adminZonePercentCovidFatal.add((float) numerator / denominator);
@@ -961,8 +961,6 @@ public class CovidTestReporter implements Steppable{
 			@Override
 			public void step(SimState arg0) {
 				int time = (int) (arg0.schedule.getTime() / world.params.ticks_per_day);
-
-				OCCUPATION[] economic_status = OCCUPATION.values();
 
 				ArrayList <Integer> status_counts = new ArrayList<Integer>();
 				ArrayList <Integer> status_covid_counts = new ArrayList<Integer>();
