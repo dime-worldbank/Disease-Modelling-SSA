@@ -95,7 +95,7 @@ public class DummyInfectiousDisease extends Disease{
 				// check if they are already infected; if they are not, infect with with probability BETA
 				double myProb = myWorld.random.nextDouble();
 				if (!otherPerson.getDiseaseSet().containsKey(DISEASE.DUMMY_INFECTIOUS.key) && myProb < myWorld.params.dummy_infectious_beta_horizontal) {
-					DummyInfectiousDisease inf = new DummyInfectiousDisease(otherPerson, ((Person) this.getHost()), myWorld.infectiousFramework.getEntryPoint(), myWorld);
+					DummyInfectiousDisease inf = new DummyInfectiousDisease(otherPerson, ((Person) this.getHost()), myWorld.dummyInfectiousFramework.getEntryPoint(), myWorld);
 					myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting); 
 				}
 			}
@@ -164,7 +164,7 @@ public class DummyInfectiousDisease extends Disease{
 						// check if they are already infected; if they are not, infect with with probability BETA
 						double myProb = myWorld.random.nextDouble();
 						if (!otherPerson.getDiseaseSet().containsKey(DISEASE.DUMMY_INFECTIOUS.key) && myProb < myWorld.params.dummy_infectious_beta_horizontal) {
-							DummyInfectiousDisease inf = new DummyInfectiousDisease(otherPerson, ((Person) this.getHost()), myWorld.infectiousFramework.getEntryPoint(), myWorld);
+							DummyInfectiousDisease inf = new DummyInfectiousDisease(otherPerson, ((Person) this.getHost()), myWorld.dummyInfectiousFramework.getEntryPoint(), myWorld);
 							myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting); 
 						}
 					}
@@ -178,7 +178,7 @@ public class DummyInfectiousDisease extends Disease{
 	public void verticalTransmission(Person baby) {
 		double myProb = myWorld.random.nextDouble();
 		if (!baby.getDiseaseSet().containsKey(DISEASE.DUMMY_INFECTIOUS.key) && myProb < myWorld.params.dummy_infectious_beta_vertical) {
-			DummyInfectiousDisease inf = new DummyInfectiousDisease(baby, ((Person) this.getHost()), myWorld.infectiousFramework.getEntryPoint(), myWorld);
+			DummyInfectiousDisease inf = new DummyInfectiousDisease(baby, ((Person) this.getHost()), myWorld.dummyInfectiousFramework.getEntryPoint(), myWorld);
 			myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting); 
 		}
 	}
