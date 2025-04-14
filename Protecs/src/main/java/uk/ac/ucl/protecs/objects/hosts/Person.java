@@ -430,12 +430,14 @@ public class Person extends MobileAgent {
 						myWorld.schedule.scheduleOnce(p.myDiseaseSet.get(inf.key), myWorld.param_schedule_infecting);
 					}
 				}
+				break;
 				case DUMMY_INFECTIOUS:{
 					if(!p.myDiseaseSet.containsKey(inf.key) && myWorld.random.nextDouble() < beta){
-						p.myDiseaseSet.put(inf.key, new DummyInfectiousDisease(p, this, myWorld.infectiousFramework.getEntryPoint(), myWorld));
+						p.myDiseaseSet.put(inf.key, new DummyInfectiousDisease(p, this, myWorld.dummyInfectiousFramework.getEntryPoint(), myWorld));
 						myWorld.schedule.scheduleOnce(p.myDiseaseSet.get(inf.key), myWorld.param_schedule_infecting);
 					}
 				}
+				break;
 				default:
 					break;
 				}
