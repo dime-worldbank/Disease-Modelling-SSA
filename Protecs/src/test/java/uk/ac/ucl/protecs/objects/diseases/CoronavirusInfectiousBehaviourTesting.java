@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgressionFramework.CoronavirusBehaviourNodeTitle;
 import uk.ac.ucl.protecs.sim.Params;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
@@ -345,6 +347,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		for (Disease d: sim.infections) {
 			if (iterator <  (int) n_initial_covid_infections / 2) {
 				d.setBehaviourNode(sim.infectiousFramework.getEntryPoint());
+				iterator++;
 			}
 			
 		}
@@ -387,6 +390,48 @@ public class CoronavirusInfectiousBehaviourTesting {
 
 	}
 	
+	@Test
+	public void reinfectionOccurs() {
+		// create a simulation and start
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
+		sim.start();
+		// initially make everyone susceptible
+		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.SUSCEPTIBLE), 
+				NodeOption.CoronavirusInfectiousBehaviour);	
+		// get the number of infections in the simulation
+		int n_initial_covid_infections = 0;
+		for (Disease d: sim.infections) {
+			if (d.isOfType(DISEASE.COVID)) n_initial_covid_infections++;
+		}
+		
+		// now take half the population and make them exposed to COVID
+		int iterator = 0;
+		for (Disease d: sim.infections) {
+			if (iterator <  (int) n_initial_covid_infections / 2) {
+				d.setBehaviourNode(sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD));
+				iterator ++;
+			}
+			
+		}
+		int number_of_initial_susceptible_persons = n_initial_covid_infections - iterator;
+		
+		// Set up a duration to run the simulation
+		int numDays = 10; 
+		// get the initial number of infection objects
+		
+		// Run the simulation
+		HelperFunctions.runSimulation(sim, numDays);
+		
+		// get the final number of those who are susceptible
+		int final_n_susceptible = 0;
+		for (Disease d: sim.infections) {
+			if (d.getBehaviourName().equals(CoronavirusBehaviourNodeTitle.SUSCEPTIBLE.key)) final_n_susceptible++;
+		}		
+		Assert.assertTrue(final_n_susceptible < number_of_initial_susceptible_persons);
+
+	}
+	
+	
     // ================================ Helper functions ==================================================
 	
 	
@@ -416,8 +461,11 @@ public class CoronavirusInfectiousBehaviourTesting {
 
 			world.schedule.step(world);
 			if (world.schedule.getTime() % Params.ticks_per_day == 1.0) {
-			for (Disease i: world.infections) {
-				behaviourNodeBin.add(i.getBehaviourName());
+			List<String> nodeList = world.infections.stream()
+                        .map(Disease::getBehaviourName)
+                        .collect(Collectors.toList());
+			for (String nodeName: nodeList) {
+				behaviourNodeBin.add(nodeName);
 			}
 
 		}
@@ -435,8 +483,12 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Simulate over the time period and get the disease stages present in the simulation
 		HelperFunctions.runSimulation(world, numDaysToRun);
 		
-		for (Disease i: world.infections) {
-			behaviourNodeBin.add(i.getBehaviourName());
+		List<String> nodeList = world.infections.stream()
+                .map(Disease::getBehaviourName)
+                .collect(Collectors.toList());
+		
+		for (String nodeName: nodeList) {
+			behaviourNodeBin.add(nodeName);
 		}
 		
 		List<String> UniqueNodes = new ArrayList<String>(behaviourNodeBin);

@@ -60,7 +60,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 
 			@Override
 			public double next(Steppable s, double time) {
-				return Double.MAX_VALUE;
+				return 1;
 			}
 
 			@Override
