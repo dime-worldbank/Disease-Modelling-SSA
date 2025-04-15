@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgressionFramework.CoronavirusBehaviourNodeTitle;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.objects.diseases.Disease;
 import uk.ac.ucl.protecs.objects.diseases.DummyInfectiousDisease;
@@ -425,9 +426,26 @@ public class Person extends MobileAgent {
 				numberOfInteractions -= 1; 
 				switch (inf) {
 				case COVID:{
-					if(!p.myDiseaseSet.containsKey(inf.key) && myWorld.random.nextDouble() < beta){
-						p.myDiseaseSet.put(inf.key, new CoronavirusInfection(p, this, myWorld.infectiousFramework.getEntryPoint(), myWorld));
-						myWorld.schedule.scheduleOnce(p.myDiseaseSet.get(inf.key), myWorld.param_schedule_infecting);
+					// check if they are already infected; if they are not, infect with with probability BETA
+					double myProb = myWorld.random.nextDouble();
+					// Eligibility for Covid infection: They haven't already got COVID, and if they have it they are susceptible to reinfection, default prior infections to false
+					boolean has_recovered_from_prior_covid_infection = false;
+					try {
+						has_recovered_from_prior_covid_infection = (p.getDiseaseSet().get(DISEASE.COVID.key).getBehaviourName().equals(CoronavirusBehaviourNodeTitle.SUSCEPTIBLE.key));
+						}
+					catch (Exception e) {}
+					
+					boolean new_exposure = (!p.getDiseaseSet().containsKey(DISEASE.COVID.key));
+					
+
+					if (myProb < beta) {
+						if (new_exposure) {
+						CoronavirusInfection new_infection = new CoronavirusInfection(p, this, myWorld.infectiousFramework.getEntryPoint(), myWorld);
+						myWorld.schedule.scheduleOnce(new_infection, myWorld.param_schedule_infecting);
+						}
+						if (has_recovered_from_prior_covid_infection) {
+							p.getDiseaseSet().get(DISEASE.COVID.key).setBehaviourNode(myWorld.infectiousFramework.getEntryPoint());
+						}
 					}
 				}
 				break;

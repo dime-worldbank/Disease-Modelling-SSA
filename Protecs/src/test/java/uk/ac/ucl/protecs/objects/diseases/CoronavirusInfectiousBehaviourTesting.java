@@ -7,10 +7,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgressionFramework.CoronavirusBehaviourNodeTitle;
 import uk.ac.ucl.protecs.sim.Params;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
+import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import uk.ac.ucl.protecs.helperFunctions.*;
 import uk.ac.ucl.protecs.helperFunctions.HelperFunctions.NodeOption;
 
@@ -273,7 +273,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		sim.params.recoveryToSusceptible_mean = 1000;
 		// seed a number of the specific node to the run
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.RECOVERED), 
-				NodeOption.CoronavirusInfectiousBehaviour);		// Set up a duration to run the simulation
+				NodeOption.CoronavirusInfectiousBehaviour);		
+		// Set up a duration to run the simulation
 		int numDays = 100; 
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
 		HashSet<String> uniqueNodesInRun = getUniqueNodesInSim(sim, numDays);
@@ -323,6 +324,46 @@ public class CoronavirusInfectiousBehaviourTesting {
 		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.RECOVERED.key, CoronavirusBehaviourNodeTitle.DEAD.key);
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
+	}
+	
+	@Test
+	public void reinfectionDoesNotCreateMultipleDiseaseObjects() {
+		// create a simulation and start
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
+		sim.start();
+		// initially make everyone susceptible
+		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.SUSCEPTIBLE), 
+				NodeOption.CoronavirusInfectiousBehaviour);	
+		// get the number of infections in the simulation
+		int n_initial_covid_infections = 0;
+		for (Disease d: sim.infections) {
+			if (d.isOfType(DISEASE.COVID)) n_initial_covid_infections++;
+		}
+		
+		// now take half the population and make them exposed to COVID
+		int iterator = 0;
+		for (Disease d: sim.infections) {
+			if (iterator <  (int) n_initial_covid_infections / 2) {
+				d.setBehaviourNode(sim.infectiousFramework.getEntryPoint());
+			}
+			
+		}
+		
+		// Set up a duration to run the simulation
+		int numDays = 100; 
+		// get the initial number of infection objects
+		
+		// Run the simulation and record the infectious behaviour nodes reached in this simulation
+		HelperFunctions.runSimulation(sim, numDays);
+		
+		// get the initial number of infection objects
+		int final_n_covid_infections = 0;
+		for (Disease d: sim.infections) {
+			if (d.isOfType(DISEASE.COVID)) final_n_covid_infections++;
+		}		
+		
+		Assert.assertTrue(final_n_covid_infections == n_initial_covid_infections);
+
 	}
 	
     // ================================ Helper functions ==================================================
