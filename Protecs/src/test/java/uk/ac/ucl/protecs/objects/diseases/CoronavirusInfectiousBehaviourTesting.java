@@ -366,6 +366,27 @@ public class CoronavirusInfectiousBehaviourTesting {
 
 	}
 	
+	@Test
+	public void recoveredLeadsToSusceptibleIfWeAllowReinfection() {
+		// create a simulation and start
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
+		sim.start();
+		// initially make everyone susceptible
+		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.RECOVERED), 
+				NodeOption.CoronavirusInfectiousBehaviour);	
+		
+		// Set up a duration to run the simulation
+		int numDays = 100; 
+		
+		// Run the simulation and record the infectious behaviour nodes reached in this simulation
+		List<String> uniqueNodesInRun = getFinalNodesInSim(sim, numDays);
+		// We expect only susceptible infections
+		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.SUSCEPTIBLE.key);
+
+		Assert.assertTrue(uniqueNodesInRun.containsAll(expectedNodes));
+
+	}
+	
     // ================================ Helper functions ==================================================
 	
 	
