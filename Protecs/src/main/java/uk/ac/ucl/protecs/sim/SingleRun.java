@@ -32,7 +32,7 @@ public class SingleRun {
 
 		// Set how long the simulation should run for
 		mySim.targetDuration = numDays;
-		mySim.params.infection_beta = 0.16;
+		mySim.params.infection_beta = 0.16; 
 		// Begin the simulation
 		mySim.start();
 		// Update the file names of where we will import the infecitons output and the general simulation information output
