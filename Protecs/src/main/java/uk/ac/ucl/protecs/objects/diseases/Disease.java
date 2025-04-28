@@ -174,6 +174,11 @@ public abstract class Disease implements Steppable {
 	
 	public void setAsCauseOfDeath() {
 		this.isTheCauseOfDeath = true;
+		this.hasAsympt = false;
+		this.hasMild = false;
+		this.hasSevere = false;
+		this.hasCritical = false;
+		this.hasRecovered = false;
 	};
 	
 	public boolean isCauseOfDeath() {
