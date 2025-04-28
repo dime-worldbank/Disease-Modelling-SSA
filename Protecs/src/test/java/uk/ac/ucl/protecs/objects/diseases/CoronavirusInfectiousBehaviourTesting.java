@@ -40,6 +40,13 @@ public class CoronavirusInfectiousBehaviourTesting {
 		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.SUSCEPTIBLE.key);
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
+		// double check by testing the infection properties
+		for (Disease d: sim.infections) {
+			if (d.hasAsympt() | d.hasMild() | d.hasSevere() | d.hasCritical() | d.isCauseOfDeath() | d.hasRecovered()) {
+				Assert.fail();
+			}
+		}
+		
 	}
 	
 	@Test
@@ -65,6 +72,12 @@ public class CoronavirusInfectiousBehaviourTesting {
 				CoronavirusBehaviourNodeTitle.ASYMPTOMATIC.key, CoronavirusBehaviourNodeTitle.SUSCEPTIBLE.key);
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
+		
+		for (Disease d: sim.infections) {
+			if (d.hasMild() | d.hasSevere() | d.hasCritical() | d.isCauseOfDeath() | d.hasRecovered()) {
+				Assert.fail();
+			}
+		}
 	}
 	
 	@Test
@@ -89,6 +102,11 @@ public class CoronavirusInfectiousBehaviourTesting {
 		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.PRESYMPTOMATIC.key, CoronavirusBehaviourNodeTitle.MILD.key);
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
+		for (Disease d: sim.infections) {
+			if (d.hasAsympt() | d.hasSevere() | d.hasCritical() | d.isCauseOfDeath() | d.hasRecovered()) {
+				Assert.fail();
+			}
+		}
 		}
 	
 	@Test
@@ -109,6 +127,11 @@ public class CoronavirusInfectiousBehaviourTesting {
 		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.ASYMPTOMATIC.key, CoronavirusBehaviourNodeTitle.RECOVERED.key);
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
+		for (Disease d: sim.infections) {
+			if (d.hasAsympt() | d.hasMild() | d.hasSevere() | d.hasCritical() | d.isCauseOfDeath()) {
+				Assert.fail();
+			}
+		}
 		}
 	
 	@Test
@@ -132,6 +155,11 @@ public class CoronavirusInfectiousBehaviourTesting {
 				CoronavirusBehaviourNodeTitle.RECOVERED.key);
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
+		for (Disease d: sim.infections) {
+			if (d.hasAsympt() | d.hasMild() | d.hasCritical() | d.isCauseOfDeath()) {
+				Assert.fail();
+			}
+		}
 		}
 	
 	@Test
@@ -153,6 +181,11 @@ public class CoronavirusInfectiousBehaviourTesting {
 		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.RECOVERED.key);
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
+		for (Disease d: sim.infections) {
+			if (d.hasAsympt() | d.hasMild() | d.hasSevere() | d.hasCritical() | d.isCauseOfDeath()) {
+				Assert.fail();
+			}
+		}
 	}
 	
 	@Test
@@ -176,6 +209,12 @@ public class CoronavirusInfectiousBehaviourTesting {
 				CoronavirusBehaviourNodeTitle.RECOVERED.key);
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
+		
+		for (Disease d: sim.infections) {
+			if (d.hasAsympt() | d.hasMild() | d.hasSevere() | d.isCauseOfDeath()) {
+				Assert.fail();
+			}
+		}
 		}
 	
 	@Test
@@ -198,6 +237,12 @@ public class CoronavirusInfectiousBehaviourTesting {
 		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.RECOVERED.key);
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
+		
+		for (Disease d: sim.infections) {
+			if (d.hasAsympt() | d.hasMild() | d.hasSevere() | d.hasCritical() | d.isCauseOfDeath()) {
+				Assert.fail();
+			}
+		}
 	}
 	
 	@Test
@@ -220,6 +265,12 @@ public class CoronavirusInfectiousBehaviourTesting {
 				CoronavirusBehaviourNodeTitle.RECOVERED.key);
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
+		
+		for (Disease d: sim.infections) {
+			if (d.hasAsympt() | d.hasMild() | d.hasSevere() | d.hasCritical()) {
+				Assert.fail();
+			}
+		}
 		}
 	
 	@Test
@@ -241,6 +292,12 @@ public class CoronavirusInfectiousBehaviourTesting {
 		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.RECOVERED.key);
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
+		
+		for (Disease d: sim.infections) {
+			if (d.hasAsympt() | d.hasMild() | d.hasSevere() | d.hasCritical() | d.isCauseOfDeath()) {
+				Assert.fail();
+			}
+		}
 	}
 	@Test
 	public void recoveredBehaviourNodesStayRecovered() {
@@ -259,6 +316,12 @@ public class CoronavirusInfectiousBehaviourTesting {
 		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.RECOVERED.key);
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
+		
+		for (Disease d: sim.infections) {
+			if (d.hasAsympt() | d.hasMild() | d.hasSevere() | d.hasCritical() | d.isCauseOfDeath()) {
+				Assert.fail();
+			}
+		}
 	}
 	@Test
 	public void deadBehaviourNodesStayDead() {
@@ -277,6 +340,12 @@ public class CoronavirusInfectiousBehaviourTesting {
 		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.DEAD.key);
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
+		
+		for (Disease d: sim.infections) {
+			if (d.hasAsympt() | d.hasMild() | d.hasSevere() | d.hasCritical() | d.hasRecovered()) {
+				Assert.fail();
+			}
+		}
 	}
 	@Test
 	public void ifWeGiveEveryoneAnInfectionEventuallyTheyWillRecoverOrDie() {
@@ -297,6 +366,12 @@ public class CoronavirusInfectiousBehaviourTesting {
 		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.RECOVERED.key, CoronavirusBehaviourNodeTitle.DEAD.key);
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
+		
+		for (Disease d: sim.infections) {
+			if (d.hasAsympt() | d.hasMild() | d.hasSevere() | d.hasCritical()) {
+				Assert.fail();
+			}
+		}
 	}
 	
     // ================================ Helper functions ==================================================
