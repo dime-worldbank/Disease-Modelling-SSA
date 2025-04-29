@@ -65,7 +65,7 @@ public class CovidTesting implements DiseaseTesting {
 		// 3) Haven't been tested before
 		// To do this we will use streams to search over a list of objects and draw those that have these properties
 		// create a function to group the population by location and count new deaths
-		Map<Boolean, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Map<Boolean, List<Disease>>>>>>> is_symptomatic_covid_or_covid_symptom = world.infections.stream().collect(
+		Map<Boolean, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Map<Boolean, List<Disease>>>>>>> is_symptomatic_covid_or_covid_symptom = world.human_infections.stream().collect(
 				Collectors.groupingBy(
 						Disease::isHostAlive,
 						Collectors.groupingBy(

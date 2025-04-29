@@ -2,22 +2,22 @@ package uk.ac.ucl.protecs.behaviours.diseaseProgression;
 
 
 
-import uk.ac.ucl.protecs.objects.diseases.DummyNonCommunicableDisease;
+import uk.ac.ucl.protecs.objects.diseases.DummyWaterborneDisease;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.sim.*;
 import sim.engine.Steppable;
 import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
-public class DummyNonCommunicableDiseaseProgressionFramework extends DiseaseProgressionBehaviourFramework {
+public class DummyWaterborneDiseaseProgressionFramework extends DiseaseProgressionBehaviourFramework {
 	
-	public enum DummyNonCommunicableBehaviourNode{
+	public enum WaterborneBehaviourNodeInHumans{
 		SUSCEPTIBLE("susceptible"), EXPOSED("exposed"), RECOVERED("recovered"), DEAD("dead");
 
         String key;
      
-        DummyNonCommunicableBehaviourNode(String key) { this.key = key; }
+        WaterborneBehaviourNodeInHumans(String key) { this.key = key; }
     
-        static DummyNonCommunicableBehaviourNode getValue(String x) {
+        static WaterborneBehaviourNodeInHumans getValue(String x) {
         	switch (x) {
         	case "susceptible":
         		return SUSCEPTIBLE;
@@ -27,6 +27,25 @@ public class DummyNonCommunicableDiseaseProgressionFramework extends DiseaseProg
         		return RECOVERED;
         	case "dead":
         		return DEAD;
+        	default:
+        		throw new IllegalArgumentException();
+        	}
+        }
+	}
+	
+	public enum WaterborneBehaviourNodeInWater{
+		CLEAN("clean"), CONTAMINATED("contaminated");
+
+        String key;
+     
+        WaterborneBehaviourNodeInWater(String key) { this.key = key; }
+    
+        static WaterborneBehaviourNodeInWater getValue(String x) {
+        	switch (x) {
+        	case "clean":
+        		return CLEAN;
+        	case "contaminated":
+        		return CONTAMINATED;
         	default:
         		throw new IllegalArgumentException();
         	}
@@ -60,65 +79,33 @@ public class DummyNonCommunicableDiseaseProgressionFramework extends DiseaseProg
 	private nextStepDummy nextStep;
 
 	@SuppressWarnings("serial")
-	public DummyNonCommunicableDiseaseProgressionFramework(WorldBankCovid19Sim world) {
+	public DummyWaterborneDiseaseProgressionFramework(WorldBankCovid19Sim world) {
 		super(world);
 		// TODO Auto-generated constructor stub
 		
-		this.susceptibleNode = new BehaviourNode() {
-
+		this.susceptibleNode = new BehaviourNode(){
+			
 			@Override
-			public String getTitle() {
-				// TODO Auto-generated method stub
-				return DummyNonCommunicableBehaviourNode.SUSCEPTIBLE.key;
-			}
+			public String getTitle() { return WaterborneBehaviourNodeInHumans.SUSCEPTIBLE.key; }
 
 			@Override
 			public double next(Steppable s, double time) {
-				
-				
-				// default next step of progression is no symptoms, check if they will develop symptoms this week
-				nextStep = nextStepDummy.NO_SYMPTOMS;
-				if (myWorld.random.nextDouble() <= 0.5) {
-					nextStep = nextStepDummy.CAUSE_SYMPTOMS;
-				}
-				// check if this person has died
-				DummyNonCommunicableDisease d = (DummyNonCommunicableDisease) s;
-
-				if (!((Person) d.getHost()).isAlive()) {
-					nextStep = nextStepDummy.HAS_DIED;
-					}
-				// choose to progress the disease or not based on value of nextStep
-				switch (nextStep) {
-				case CAUSE_SYMPTOMS:{
-					d.setBehaviourNode(exposedNode);
-					return myWorld.params.ticks_per_week;
-				}
-				case HAS_DIED:{
-					d.setBehaviourNode(deadNode);
-					return Double.MAX_VALUE;
-				}
-				case NO_SYMPTOMS:{
-					// don't check again for a week
-					return myWorld.params.ticks_per_week;
-				}
-				default:
-					return myWorld.params.ticks_per_week;
-				}
+				return Double.MAX_VALUE;
 			}
 
 			@Override
 			public boolean isEndpoint() {
-				// TODO Auto-generated method stub
 				return false;
 			}
-	};
+			
+		};
 	
 	this.exposedNode = new BehaviourNode() {
 
 		@Override
 		public String getTitle() {
 			// TODO Auto-generated method stub
-			return DummyNonCommunicableBehaviourNode.EXPOSED.key;
+			return WaterborneBehaviourNodeInHumans.EXPOSED.key;
 		}
 
 		@Override
@@ -129,7 +116,7 @@ public class DummyNonCommunicableDiseaseProgressionFramework extends DiseaseProg
 				nextStep = nextStepDummy.RECOVER;
 			}
 			// check if this person has died
-			DummyNonCommunicableDisease d = (DummyNonCommunicableDisease) s;
+			DummyWaterborneDisease d = (DummyWaterborneDisease) s;
 			d.time_infected = time;
 			if (!((Person) d.getHost()).isAlive()) {
 				nextStep = nextStepDummy.HAS_DIED;
@@ -166,12 +153,12 @@ public class DummyNonCommunicableDiseaseProgressionFramework extends DiseaseProg
 		@Override
 		public String getTitle() {
 			// TODO Auto-generated method stub
-			return DummyNonCommunicableBehaviourNode.RECOVERED.key;
+			return WaterborneBehaviourNodeInHumans.RECOVERED.key;
 		}
 
 		@Override
 		public double next(Steppable s, double time) {
-			DummyNonCommunicableDisease d = (DummyNonCommunicableDisease) s;
+			DummyWaterborneDisease d = (DummyWaterborneDisease) s;
 			// store the recovery time
 			d.time_recovered = time;
 			// do nothing by refault
@@ -194,12 +181,12 @@ public class DummyNonCommunicableDiseaseProgressionFramework extends DiseaseProg
 		@Override
 		public String getTitle() {
 			// TODO Auto-generated method stub
-			return DummyNonCommunicableBehaviourNode.DEAD.key;
+			return WaterborneBehaviourNodeInHumans.DEAD.key;
 		}
 
 		@Override
 		public double next(Steppable s, double time) {
-			DummyNonCommunicableDisease d = (DummyNonCommunicableDisease) s;
+			DummyWaterborneDisease d = (DummyWaterborneDisease) s;
 			// Store time of death
 			d.time_died = time;
 			return Double.MAX_VALUE;
@@ -212,7 +199,32 @@ public class DummyNonCommunicableDiseaseProgressionFramework extends DiseaseProg
 		}
 		
 	};
+	
+	this.infectionInWater = new BehaviourNode() {
+
+		@Override
+		public String getTitle() {
+			// TODO Auto-generated method stub
+			return WaterborneBehaviourNodeInWater.CONTAMINATED.key;
+		}
+
+		@Override
+		public boolean isEndpoint() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public double next(Steppable arg0, double arg1) {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+		
+	};
 }
 	public BehaviourNode getStandardEntryPoint(){ return this.susceptibleNode; }
+	
+	public BehaviourNode getStandardEntryPointForWater(){ return this.infectionInWater; }
+
 
 }

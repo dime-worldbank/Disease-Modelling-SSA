@@ -74,7 +74,7 @@ public class CovidTestingTesting {
 //	}
 	public List<Disease> infectionsTested(WorldBankCovid19Sim world){
 		
-		Map<Boolean, List<Disease>> propertiesChecked = (Map<Boolean,List<Disease>>) world.infections.stream().collect(
+		Map<Boolean, List<Disease>> propertiesChecked = (Map<Boolean,List<Disease>>) world.human_infections.stream().collect(
 	            Collectors.groupingBy(
 	              Disease::hasBeenTested,
 	                    Collectors.toList()
