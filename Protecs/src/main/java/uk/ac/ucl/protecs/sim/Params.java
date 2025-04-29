@@ -68,7 +68,7 @@ public class Params {
 	// holders for locational data
 	
 	HashMap <String, Location> adminZones;
-	ArrayList <String> adminZoneNames;
+	public ArrayList <String> adminZoneNames;
 	ArrayList <Map<String, List<Double>>> dailyTransitionPrelockdownProbs;
 	ArrayList <Map<String, List<Double>>> dailyTransitionLockdownProbs;
 	

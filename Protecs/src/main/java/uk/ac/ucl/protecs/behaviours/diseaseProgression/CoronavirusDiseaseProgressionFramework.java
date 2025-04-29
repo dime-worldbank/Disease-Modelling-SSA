@@ -82,7 +82,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 			@Override
 			public double next(Steppable s, double time) {
 				CoronavirusInfection i = (CoronavirusInfection) s;
-				if (((Person) i.getHost()).isDeadFromOther()) {
+				if (((Person) i.getHost()).isDeadFromOther()) { 
 					return Double.MAX_VALUE;
 				}
 				//
@@ -262,6 +262,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				}
 				((Person) i.getHost()).infectNeighbours();
 				i.setSymptomatic();
+				i.setMild();
 				i.setEligibleForTesting();
 				if (i.getHost().getDiseaseSet().containsKey(DISEASE.COVIDSPURIOUSSYMPTOM.key)) {
 					i.getHost().getDiseaseSet().get(DISEASE.COVIDSPURIOUSSYMPTOM.key).setAsympt();
@@ -341,7 +342,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 					return Double.MAX_VALUE;
 				}
 				((Person) i.getHost()).infectNeighbours();
-
+				i.setSevere();
 				// if the agent is scheduled to recover, make sure that it
 				// does so
 				if(time >= i.time_recovered){
@@ -410,8 +411,8 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 					return Double.MAX_VALUE;
 				}
 				((Person) i.getHost()).infectNeighbours();
-
-
+				i.setCritical();
+				
 				// if the agent is scheduled to recover, make sure that it
 				// does so
 				if(time >= i.time_recovered ){

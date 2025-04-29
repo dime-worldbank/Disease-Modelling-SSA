@@ -21,6 +21,8 @@ import uk.ac.ucl.protecs.objects.hosts.Water;
 import uk.ac.ucl.protecs.objects.locations.Household;
 import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.objects.locations.Workplace;
+import uk.ac.ucl.protecs.sim.loggers.DemographyLogging;
+import uk.ac.ucl.protecs.sim.loggers.CovidLogging;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.SpuriousSymptomDiseaseProgressionFramework;
 import uk.ac.ucl.protecs.behaviours.diseaseSpread.DummyNCDOnset;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgressionFramework;
@@ -323,8 +325,8 @@ public class WorldBankCovid19Sim extends SimState {
 			schedule.scheduleRepeating(CovidSpuriousSymptoms.createSymptomObject(this));
 			schedule.scheduleRepeating(CovidTesting.Testing(this), this.param_schedule_COVID_Testing, params.ticks_per_day);
 			
-			Logging CovidTestLogger = new Logging();
-			Logging.CovidTestReporter CovidTestReporter = CovidTestLogger.new CovidTestReporter(this);
+			CovidLogging CovidTestLogger = new CovidLogging();
+			CovidLogging.CovidTestReporter CovidTestReporter = CovidTestLogger.new CovidTestReporter(this);
 			schedule.scheduleRepeating(CovidTestReporter, this.param_schedule_reporting, params.ticks_per_day);
 			}
 		// =============================== Schedule demography events if using ============================================================
@@ -343,49 +345,49 @@ public class WorldBankCovid19Sim extends SimState {
 					schedule.scheduleOnce(0, this.param_schedule_reporting, agentBirths);
 				}
 			}
-			Logging logger = new Logging();
-			Logging.BirthRateReporter birthRateLog = logger.new BirthRateReporter(this);
+			DemographyLogging logger = new DemographyLogging();
+			DemographyLogging.BirthRateReporter birthRateLog = logger.new BirthRateReporter(this);
 			// schedule the birth rate reporter (birthRateOutputFilename)
 			schedule.scheduleOnce(params.ticks_per_year, this.param_schedule_reporting, birthRateLog);
 			// schedule the 'other deaths' reporter (otherIncDeathOutputFilename)
-			schedule.scheduleRepeating(Logging.ReportOtherIncidenceOfDeath(this), this.param_schedule_reporting, params.ticks_per_day);
+			schedule.scheduleRepeating(DemographyLogging.ReportOtherIncidenceOfDeath(this), this.param_schedule_reporting, params.ticks_per_day);
 		}
 		// =============================== Schedule core logging events ==================================================================
 		// Report on the age sex breakdown of the population (populationOutputFilename)
-		schedule.scheduleRepeating(Logging.ReportPopStructure(this), this.param_schedule_reporting, params.ticks_per_day);
+		schedule.scheduleRepeating(DemographyLogging.ReportPopStructure(this), this.param_schedule_reporting, params.ticks_per_day);
 		
 		// Report on the number of cases by type and their location (casesPerAdminZoneFilename)
-		schedule.scheduleRepeating(Logging.ReportCovidCasesByTypeAndLocation(this), this.param_schedule_reporting, params.ticks_per_day);
+		schedule.scheduleRepeating(CovidLogging.ReportCovidCasesByTypeAndLocation(this), this.param_schedule_reporting, params.ticks_per_day);
 
 		// Report on the breakdown of population size by space (adminZonePopSizeOutputFilename)
-		schedule.scheduleRepeating(Logging.ReportAdminZonePopulationSize(this), this.param_schedule_reporting, params.ticks_per_day);
+		schedule.scheduleRepeating(DemographyLogging.ReportAdminZonePopulationSize(this), this.param_schedule_reporting, params.ticks_per_day);
 		
 		// Report on the percent of the population with COVID by space (adminZoneCovidPrevalenceOutputFilename)
-		schedule.scheduleRepeating(Logging.ReportPercentInAdminZoneWithCovid(this), this.param_schedule_reporting, params.ticks_per_day);
+		schedule.scheduleRepeating(CovidLogging.ReportPercentInAdminZoneWithCovid(this), this.param_schedule_reporting, params.ticks_per_day);
 				
 		// Report on the age-sex structure of each admin zone (adminZonePopBreakdownOutputFilename)
-		schedule.scheduleRepeating(Logging.ReportAdminZoneAgeSexBreakdown(this), this.param_schedule_reporting, params.ticks_per_day);
+		schedule.scheduleRepeating(DemographyLogging.ReportAdminZoneAgeSexBreakdown(this), this.param_schedule_reporting, params.ticks_per_day);
 				
 		// Report on the incidence of COVID death (covidIncDeathOutputFilename)
-		schedule.scheduleRepeating(Logging.ReportCovidIncidenceOfDeath(this), this.param_schedule_reporting, params.ticks_per_day);
+		schedule.scheduleRepeating(CovidLogging.ReportCovidIncidenceOfDeath(this), this.param_schedule_reporting, params.ticks_per_day);
 				
 		// Report on the incidence of COVID (covidIncOutputFilename)
-		schedule.scheduleRepeating(Logging.ReportIncidenceOfCovid(this), this.param_schedule_reporting, params.ticks_per_day);
+		schedule.scheduleRepeating(CovidLogging.ReportIncidenceOfCovid(this), this.param_schedule_reporting, params.ticks_per_day);
 				
 		// Report on the number of COVID counts in each area (covidCountsOutputFilename)
-		schedule.scheduleRepeating(Logging.ReportCovidCounts(this), this.param_schedule_reporting, params.ticks_per_day);
+		schedule.scheduleRepeating(CovidLogging.ReportCovidCounts(this), this.param_schedule_reporting, params.ticks_per_day);
 				
 		// Report on the number of COVID counts in each occupation (covidByEconOutputFilename)
-		schedule.scheduleRepeating(Logging.ReportCovidCountsByOccupation(this), this.param_schedule_reporting, params.ticks_per_day);
+		schedule.scheduleRepeating(CovidLogging.ReportCovidCountsByOccupation(this), this.param_schedule_reporting, params.ticks_per_day);
 				
 		// Report on the percent of COVID cases that are fatal per admin zone (adminZonePercentCovidCasesFatalOutputFilename)
-		schedule.scheduleRepeating(Logging.ReportPercentOfCovidCasesThatAreFatalPerAdminZone(this), this.param_schedule_reporting, params.ticks_per_day);
+		schedule.scheduleRepeating(CovidLogging.ReportPercentOfCovidCasesThatAreFatalPerAdminZone(this), this.param_schedule_reporting, params.ticks_per_day);
 
 		// Report on the prevalence of COVID death per admin zone (adminZonePercentDiedFromCovidOutputFilename)
-		schedule.scheduleRepeating(Logging.adminZonePercentDiedFromCovidOutputFilename(this), this.param_schedule_reporting, params.ticks_per_day);
+		schedule.scheduleRepeating(CovidLogging.adminZonePercentDiedFromCovidOutputFilename(this), this.param_schedule_reporting, params.ticks_per_day);
 				
 		// Schedule the resetting of COVID reporting properties in the agents 
-		schedule.scheduleRepeating(Logging.ResetLoggedProperties(this), this.param_schedule_reporting_reset, params.ticks_per_day);
+		schedule.scheduleRepeating(CovidLogging.ResetCovidLoggedProperties(this), this.param_schedule_reporting_reset, params.ticks_per_day);
 
 		// SCHEDULE LOCKDOWNS
 		Steppable lockdownTrigger = new Steppable() {
