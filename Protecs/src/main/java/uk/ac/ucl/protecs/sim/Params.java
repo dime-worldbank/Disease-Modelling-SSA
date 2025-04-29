@@ -117,6 +117,10 @@ public class Params {
 	public double criticalToRecovery_mean =		18.1 * ticks_per_day;
 	public double criticalToRecovery_std =		6.3 * ticks_per_day;
 	
+	// assumptions about covid recovery (initially set low for development)
+	public double recoveryToSusceptible_mean =  10 * ticks_per_day;
+	public double recoveryToSusceptible_std =  2 * ticks_per_day;
+	
 	// all cause mortality parameters, currently pulled out my arse
 	public ArrayList <Integer> all_cause_death_age_params;
 	public ArrayList <Double> prob_death_by_age_male;
