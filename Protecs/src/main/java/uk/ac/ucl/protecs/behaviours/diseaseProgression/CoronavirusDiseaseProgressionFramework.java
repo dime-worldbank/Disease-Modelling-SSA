@@ -220,7 +220,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 					return Double.MAX_VALUE;
 				}
 				i.getHost().infectNeighbours();
-
+				i.setAsympt();
 				// determine when the agent will recover - this is
 				// only a matter of time in this case
 				if(time >= i.time_recovered){
@@ -262,6 +262,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				}
 				i.getHost().infectNeighbours();
 				i.setSymptomatic();
+				i.setMild();
 				i.setEligibleForTesting();
 				if (i.getHost().getDiseaseSet().containsKey(DISEASE.COVIDSPURIOUSSYMPTOM.key)) {
 					i.getHost().getDiseaseSet().get(DISEASE.COVIDSPURIOUSSYMPTOM.key).setAsympt();
@@ -341,7 +342,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 					return Double.MAX_VALUE;
 				}
 				i.getHost().infectNeighbours();
-
+				i.setSevere();
 				// if the agent is scheduled to recover, make sure that it
 				// does so
 				if(time >= i.time_recovered){
@@ -410,8 +411,8 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 					return Double.MAX_VALUE;
 				}
 				i.getHost().infectNeighbours();
-
-
+				i.setCritical();
+				
 				// if the agent is scheduled to recover, make sure that it
 				// does so
 				if(time >= i.time_recovered ){
