@@ -73,36 +73,8 @@ public class DummyInfectiousDiseaseProgressionFramework extends DiseaseProgressi
 
 			@Override
 			public double next(Steppable s, double time) {
-				
-				
-				// default next step of progression is no symptoms, check if they will develop symptoms this week
-				nextStep = nextStepDummy.NO_SYMPTOMS;
-				if (myWorld.random.nextDouble() <= 0.5) {
-					nextStep = nextStepDummy.CAUSE_SYMPTOMS;
-				}
-				// check if this person has died
-				DummyInfectiousDisease d = (DummyInfectiousDisease) s;
-
-				if (!d.getHost().isAlive()) {
-					nextStep = nextStepDummy.HAS_DIED;
-					}
-				// choose to progress the disease or not based on value of nextStep
-				switch (nextStep) {
-				case CAUSE_SYMPTOMS:{
-					d.setBehaviourNode(exposedNode);
-					return myWorld.params.ticks_per_week;
-				}
-				case HAS_DIED:{
-					d.setBehaviourNode(deadNode);
-					return Double.MAX_VALUE;
-				}
-				case NO_SYMPTOMS:{
-					// don't check again for a week
-					return myWorld.params.ticks_per_week;
-				}
-				default:
-					return myWorld.params.ticks_per_week;
-				}
+				// do nothing
+				return Double.MAX_VALUE;
 			}
 
 			@Override
@@ -123,6 +95,7 @@ public class DummyInfectiousDiseaseProgressionFramework extends DiseaseProgressi
 		@Override
 		public double next(Steppable s, double time) {
 			// default next step of progression is no symptoms, check if they will develop symptoms this week
+			
 			nextStep = nextStepDummy.DO_NOTHING;
 			if (myWorld.random.nextDouble() <= world.params.dummy_infectious_recovery_rate) {
 				nextStep = nextStepDummy.RECOVER;
@@ -214,6 +187,6 @@ public class DummyInfectiousDiseaseProgressionFramework extends DiseaseProgressi
 		
 	};
 }
-	public BehaviourNode getStandardEntryPoint(){ return this.susceptibleNode; }
+	public BehaviourNode getStandardEntryPoint(){ return this.exposedNode; }
 
 }
