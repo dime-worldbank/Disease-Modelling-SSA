@@ -298,9 +298,12 @@ public class WorldBankCovid19Sim extends SimState {
 				// for purposes of development we will set every household to be a source of water
 				h.setWaterSource(true);
 				// create a new water source
-				Water householdWater = new Water(h, h.getRootSuperLocation());
+				Water householdWater = new Water(h, h.getRootSuperLocation(), this);
 				waterInSim.add(householdWater);
 				h.setWaterHere(householdWater);
+				// schedule the water to activate in the simulation
+				this.schedule.scheduleOnce(0, this.param_schedule_movement, householdWater);
+
 				// create a new infection in the water for some households
 				if (i < num_hh_to_seed) {
 					DummyWaterborneDisease diseaseInWater = new DummyWaterborneDisease(householdWater, null, dummyWaterborneFramework.getStandardEntryPointForWater(), this, 0);

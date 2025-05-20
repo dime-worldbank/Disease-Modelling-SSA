@@ -15,7 +15,6 @@ import java.util.Iterator;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.objects.diseases.Disease;
 import uk.ac.ucl.protecs.objects.diseases.DummyInfectiousDisease;
-import uk.ac.ucl.protecs.objects.diseases.DummyWaterborneDisease;
 import uk.ac.ucl.protecs.objects.locations.Household;
 import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.objects.locations.Workplace;
@@ -236,49 +235,9 @@ public class Person extends Host {
 		else
 			myWorld.schedule.scheduleOnce(this, myWorld.param_schedule_movement);
 		
-		// Interact with water here
-		interactWithWater();
+		
 		
 	}
-
-	private void interactWithWater() {
-		
-		if (myWorld.developingModularity) {
-			if (this.getLocation().isWaterSource()) {
-				double randomToInteractWithWater = myWorld.random.nextDouble();
-				double time = myWorld.schedule.getTime(); // find the current time
-				if (randomToInteractWithWater < myWorld.params.dummy_prob_interact_with_water) {
-					// skip over step if no infection is present in water/person
-					boolean thisPersonHasDummyWaterborne = this.myDiseaseSet.containsKey(DISEASE.DUMMY_WATERBORNE.key);
-					Water waterHere = this.getLocation().getWater();
-					boolean waterIsContaminated = (waterHere.getDiseaseSet().containsKey(DISEASE.DUMMY_WATERBORNE.key));
-					// if this person has the dummy water born infection and the location doesn't have the dummy water born infection, 
-					// potentially cause a new infection in the water
-					if (thisPersonHasDummyWaterborne & !waterIsContaminated) {
-						double randomToShedIntoWater = myWorld.random.nextDouble();
-						// check if the person interacts and sheds into water
-						if (randomToShedIntoWater < myWorld.params.dummy_waterborne_prob_shed_into_water) {
-							
-							DummyWaterborneDisease inf = new DummyWaterborneDisease(waterHere, this, myWorld.dummyWaterborneFramework.getStandardEntryPointForWater(), myWorld);
-							myWorld.schedule.scheduleOnce(time, myWorld.param_schedule_infecting, inf);
-							
-						}
-					}
-					
-					if (!thisPersonHasDummyWaterborne & waterIsContaminated) {
-						double randomToIngestInfection = myWorld.random.nextDouble();
-						// check if the person interacts and sheds into water
-						if (randomToIngestInfection < myWorld.params.dummy_prob_ingest_dummy_waterborne) {
-							DummyWaterborneDisease inf = new DummyWaterborneDisease(this, waterHere, myWorld.dummyWaterborneFramework.getStandardEntryPointForWater(), myWorld);
-							myWorld.schedule.scheduleOnce(time, myWorld.param_schedule_infecting, inf);
-							
-						}
-					}
-				}
-				
-			}
-		}
-	}	
 
 	Person myWrapper() { return this; }
 	
