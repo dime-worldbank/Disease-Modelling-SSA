@@ -27,7 +27,7 @@ public class DummyInfectiousDisease extends Disease{
 		
 		source = mySource;
 		
-		host.addDisease(DISEASE.DUMMY_INFECTIOUS, this);
+		host.addDisease(this);
 		
 		this.hasAsympt = true;
 			

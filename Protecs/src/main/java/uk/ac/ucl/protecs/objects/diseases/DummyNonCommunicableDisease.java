@@ -26,7 +26,7 @@ public class DummyNonCommunicableDisease extends Disease {
 		
 		source = mySource;
 		
-		host.addDisease(DISEASE.DUMMY_NCD, this);
+		host.addDisease(this);
 			
 		// store the time when it is infected!
 		time_infected = time;		

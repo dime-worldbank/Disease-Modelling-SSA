@@ -30,7 +30,7 @@ public class CoronavirusInfection extends Disease {
 	public CoronavirusInfection(Person myHost, Person mySource, BehaviourNode initNode, WorldBankCovid19Sim sim, int time){
 		
 		host = myHost;
-		myHost.addDisease(DISEASE.COVID, this);
+		myHost.addDisease(this);
 		source = mySource;
 		
 		//	epidemic_state = Params.state_susceptible;

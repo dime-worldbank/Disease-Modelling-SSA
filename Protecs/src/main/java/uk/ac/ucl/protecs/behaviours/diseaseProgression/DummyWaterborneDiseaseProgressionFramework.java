@@ -65,7 +65,7 @@ public class DummyWaterborneDiseaseProgressionFramework extends DiseaseProgressi
         	case "causeSymptoms":
         		return CAUSE_SYMPTOMS;
         	case "doNothing":
-        		return CAUSE_SYMPTOMS;
+        		return DO_NOTHING;
         	case "recover":
         		return RECOVER;	
         	case "hasDied":
@@ -200,7 +200,7 @@ public class DummyWaterborneDiseaseProgressionFramework extends DiseaseProgressi
 		
 	};
 	
-	this.infectionInWater = new BehaviourNode() {
+	this.contaminatedNode = new BehaviourNode() {
 
 		@Override
 		public String getTitle() {
@@ -224,7 +224,7 @@ public class DummyWaterborneDiseaseProgressionFramework extends DiseaseProgressi
 }
 	public BehaviourNode getStandardEntryPoint(){ return this.susceptibleNode; }
 	
-	public BehaviourNode getStandardEntryPointForWater(){ return this.infectionInWater; }
+	public BehaviourNode getStandardEntryPointForWater(){ return this.contaminatedNode; }
 
 
 }

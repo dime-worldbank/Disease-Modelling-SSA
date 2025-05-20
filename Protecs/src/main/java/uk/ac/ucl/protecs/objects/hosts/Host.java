@@ -42,8 +42,9 @@ public abstract class Host implements Steppable {
 	public abstract String getHostType();
 	
 	
-	public void addDisease(DISEASE disease, Disease i) {
-		this.myDiseaseSet.put(disease.key, i);
+	public void addDisease(Disease i) {
+		
+		this.myDiseaseSet.put(i.getDiseaseType().key, i);
 	};
 	public HashMap<String, Disease> getDiseaseSet() {return this.myDiseaseSet; }
 	

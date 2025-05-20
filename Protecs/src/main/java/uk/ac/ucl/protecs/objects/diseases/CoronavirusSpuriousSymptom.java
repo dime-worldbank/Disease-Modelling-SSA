@@ -19,7 +19,7 @@ public class CoronavirusSpuriousSymptom extends Disease{
 		this.time_infected = time;
 		this.myWorld = sim;
 		this.myWorld.human_infections.add(this);
-		this.host.addDisease(DISEASE.COVIDSPURIOUSSYMPTOM, this);
+		this.host.addDisease(this);
 
 
 	}
