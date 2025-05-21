@@ -78,7 +78,7 @@ public class WorkplaceTesting{
 	public void checkPeopleGoToTheirWorkplace() {
 		// check the movement of the population to their workplaces
 		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "workplace_bubbles_params.txt");
-		makePeopleLeaveTheHouseEachDay(sim);
+		HelperFunctions.makePeopleLeaveTheHouseEachDay(sim);
 		// make everyone decide to go to their workplace
 		sim.params.prob_go_to_work = 1.1d;
 		sim.start();
@@ -98,7 +98,7 @@ public class WorkplaceTesting{
 		}		
 	}
 	@Test
-	public void testWorkplaceContactsCountDataisBeingLoaded() {
+	public void testWorkplaceContactsCountDataIsBeingLoaded() {
 		// check the parameters associated with workplace contacts are being loaded
 		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "workplace_bubbles_params.txt");
 		sim.start();
@@ -142,7 +142,7 @@ public class WorkplaceTesting{
 		// check the parameters associated with workplace constraints
 		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "workplace_bubbles_with_constraints.txt");
 		// make sure that everyone leaves the house that day
-		makePeopleLeaveTheHouseEachDay(sim);
+		HelperFunctions.makePeopleLeaveTheHouseEachDay(sim);
 		sim.start();
 		// run for three ticks (people leave the house at tick 2 and leave work at tick 4)
 		int numTicks = 3;
@@ -172,11 +172,6 @@ public class WorkplaceTesting{
 	            new String[]{"src/test/resources/wp_all_community", "src/test/resources/wp_all_home"}
 	    
 	    );
-	}
-	private void makePeopleLeaveTheHouseEachDay(WorldBankCovid19Sim sim) {
-		for (String key : sim.params.economic_status_weekday_movement_prob.keySet()) {
-			sim.params.economic_status_weekday_movement_prob.put(key, (double) 1);         
-		}
 	}
 	
 }

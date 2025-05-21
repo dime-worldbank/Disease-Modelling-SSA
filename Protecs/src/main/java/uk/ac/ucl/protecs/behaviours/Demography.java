@@ -228,7 +228,7 @@ public class Demography {
 			babyHousehold.addPerson(baby);
 			baby.setLocation(babyAdminZone);
 			// the baby has decided to go home
-			baby.setActivityNode(world.movementFramework.getEntryPoint());
+			baby.setBehaviourNode(world.movementFramework.getEntryPoint());
 			// store the baby in the newBirths array
 			world.agents.add(baby);
 			// Add the person to the admin zone
