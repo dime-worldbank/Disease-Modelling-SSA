@@ -60,7 +60,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 
 			@Override
 			public double next(Steppable s, double time) {
-				return Double.MAX_VALUE;
+				return 1;
 			}
 
 			@Override
@@ -484,6 +484,10 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 					return Double.MAX_VALUE;
 				}
 				i.time_recovered = time;
+				
+				if(time >= i.time_susceptible ){
+					i.setBehaviourNode(setNodeForTesting(CoronavirusBehaviourNodeTitle.SUSCEPTIBLE));
+				}
 				// update person's properties
 				i.getHost().getLocation().getRootSuperLocation().metric_new_recovered++;				
 				i.setEligibleForTesting();
@@ -506,8 +510,14 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				// if they have had symptomatic covid, make them no longer have symptoms of covid
 				if (i.isSymptomatic()) i.setSymptomatic();
 				i.setRecovered();
-				// no need to update again!
-				return Double.MAX_VALUE;
+				// We now need to account for reinfection of covid infections, 
+				
+				double time_until_susceptible = myWorld.nextRandomLognormal(
+						myWorld.params.recoveryToSusceptible_mean, 
+						myWorld.params.recoveryToSusceptible_std);
+				
+				i.time_susceptible = time + time_until_susceptible;
+				return time_until_susceptible;
 			}
 
 			@Override
