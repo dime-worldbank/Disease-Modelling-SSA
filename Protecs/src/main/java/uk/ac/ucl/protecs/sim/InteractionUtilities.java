@@ -184,7 +184,7 @@ public class InteractionUtilities {
 		for(Person p: world.agents){
 			
 			// extract workplace location
-			Location mySuper = p.getHousehold().getRootSuperLocation(); // TODO WE ASSUME THEY WORK IN THEIR OWN ADMIN ZONE - correct???
+			Location mySuper = p.getHomeLocation().getRootSuperLocation(); // TODO WE ASSUME THEY WORK IN THEIR OWN ADMIN ZONE - correct???
 			
 			// store this for later use
 			holderForEconLocations.put(p, mySuper);
@@ -324,7 +324,7 @@ public class InteractionUtilities {
 		for(Person p: world.agents){
 
 			// extract this Person's location
-			String agentLocation = p.getHousehold().getRootSuperLocation().getId();
+			String agentLocation = p.getHomeLocation().getRootSuperLocation().getId();
 			
 			// assemble an arraylist of Persons assocaited with each admin zone 
 			if(peoplePerAdminZone.containsKey(agentLocation))
@@ -347,7 +347,7 @@ public class InteractionUtilities {
 			int bubbleSize = world.params.community_bubble_size;
 			
 			// combine these into bubble member candidates and add them to the list of friends
-			ArrayList <Person> candidateBubble = (ArrayList <Person>) peoplePerAdminZone.get(p.getHousehold().getRootSuperLocation().getId());
+			ArrayList <Person> candidateBubble = (ArrayList <Person>) peoplePerAdminZone.get(p.getHomeLocation().getRootSuperLocation().getId());
 			HashSet <Person> myBubble = new HashSet <Person> ();
 			
 			int emergencyBrake = 100; // it's dangerous to screw with for loops - take this!

@@ -27,7 +27,7 @@ public class DummyInfectiousDisease extends Disease{
 		
 		source = mySource;
 		
-		host.addDisease(DISEASE.DUMMY_INFECTIOUS, this);
+		host.addDisease(this);
 		
 		this.hasAsympt = true;
 			
@@ -36,7 +36,7 @@ public class DummyInfectiousDisease extends Disease{
 		infectedAtLocation = myHost.getLocation();
 		currentBehaviourNode = initNode;
 		myWorld = sim;
-		myWorld.infections.add(this);
+		myWorld.human_infections.add(this);
 	}
 
 	@Override
@@ -52,11 +52,11 @@ public class DummyInfectiousDisease extends Disease{
 	@Override
 	public void horizontalTransmission() {
 		// if this infection's host is dead, do not try and interact
-		if (!host.isAlive()) return;
+		if (!((Person) this.getHost()).isAlive()) return;
 		// if not currently in the space, do not try to interact
-		else if(host.getLocation() == null) return;
+		else if(((Person) this.getHost()).getLocation() == null) return;
 		// if there is no one else other than the individual at the location, save computation time and return out
-		else if(host.getLocation().getPersonsHere().length < 2) {
+		else if(((Person) this.getHost()).getLocation().getPersonsHere().length < 2) {
 			return; 
 			} 
 		if(myWorld.params.setting_perfectMixing) {
@@ -79,7 +79,7 @@ public class DummyInfectiousDisease extends Disease{
 			
 			// don't interact with the same person twice
 			HashSet <Person> otherPeople = new HashSet <Person> ();
-			otherPeople.add(host);  
+			otherPeople.add(((Person) this.getHost()));  
 			
 			for(int i = 0; i < myNumInteractions; i++) {
 				Person otherPerson = (Person) peopleHere[myWorld.random.nextInt(numPeople)]; 
@@ -95,7 +95,7 @@ public class DummyInfectiousDisease extends Disease{
 				// check if they are already infected; if they are not, infect with with probability BETA
 				double myProb = myWorld.random.nextDouble();
 				if (!otherPerson.getDiseaseSet().containsKey(DISEASE.DUMMY_INFECTIOUS.key) && myProb < myWorld.params.dummy_infectious_beta_horizontal) {
-					DummyInfectiousDisease inf = new DummyInfectiousDisease(otherPerson, this.getHost(), myWorld.dummyInfectiousFramework.getEntryPoint(), myWorld);
+					DummyInfectiousDisease inf = new DummyInfectiousDisease(otherPerson, ((Person) this.getHost()), myWorld.dummyInfectiousFramework.getEntryPoint(), myWorld);
 					myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting); 
 				}
 			}
@@ -103,29 +103,29 @@ public class DummyInfectiousDisease extends Disease{
 		}
 		else {
 			if(this.getHost().getLocation() instanceof Household){
-				assert (!this.getHost().atWorkNow()): "p_" + this.getHost().getID() + "at work but having interactions at home";
-				this.getHost().interactWithin(this.getHost().getLocation().personsHere, null, this.getHost().getLocation().personsHere.size(), DISEASE.DUMMY_INFECTIOUS, myWorld.params.dummy_infectious_beta_horizontal);		
+				assert (!((Person) this.getHost()).atWorkNow()): "p_" + ((Person) this.getHost()).getID() + "at work but having interactions at home";
+				((Person) this.getHost()).interactWithin(this.getHost().getLocation().personsHere, null, this.getHost().getLocation().personsHere.size(), DISEASE.DUMMY_INFECTIOUS, myWorld.params.dummy_infectious_beta_horizontal);		
 			}
 			// they may be at their economic activity site!
 			else if(this.getHost().getLocation() instanceof Workplace){
 				int myNumInteractions;
-				if (this.getHost().getNumberOfWorkplaceInteractions() < 0) 
-					this.getHost().setNumberOfWorkplaceInteractions(myWorld.params.getWorkplaceContactCount(this.getHost().getEconStatus(), this.myWorld.random.nextDouble()));
+				if (((Person) this.getHost()).getNumberOfWorkplaceInteractions() < 0) 
+					((Person) this.getHost()).setNumberOfWorkplaceInteractions(myWorld.params.getWorkplaceContactCount(((Person) this.getHost()).getEconStatus(), this.myWorld.random.nextDouble()));
 				
-				myNumInteractions = (int) this.getHost().getNumberOfWorkplaceInteractions() / 2;
+				myNumInteractions = (int) ((Person) this.getHost()).getNumberOfWorkplaceInteractions() / 2;
 
 				if (myNumInteractions > this.getHost().getLocation().personsHere.size()) myNumInteractions = this.getHost().getLocation().personsHere.size();
 				// interact 
-				this.getHost().interactWithin(this.getHost().getLocation().personsHere, null, myNumInteractions, DISEASE.DUMMY_INFECTIOUS, myWorld.params.dummy_infectious_beta_horizontal);		
+				((Person) this.getHost()).interactWithin(this.getHost().getLocation().personsHere, null, myNumInteractions, DISEASE.DUMMY_INFECTIOUS, myWorld.params.dummy_infectious_beta_horizontal);		
 
 			}
 			else {
 				// if this infection's host is dead, do not try and interact
-				if (!host.isAlive()) return;
+				if (!((Person) this.getHost()).isAlive()) return;
 				// if not currently in the space, do not try to interact
-				else if(host.getLocation() == null) return;
+				else if(((Person) this.getHost()).getLocation() == null) return;
 				// if there is no one else other than the individual at the location, save computation time and return out
-				else if(host.getLocation().getPersonsHere().length < 2) {
+				else if(((Person) this.getHost()).getLocation().getPersonsHere().length < 2) {
 					return; 
 					} 
 				if(myWorld.params.setting_perfectMixing) {
@@ -148,7 +148,7 @@ public class DummyInfectiousDisease extends Disease{
 					
 					// don't interact with the same person twice
 					HashSet <Person> otherPeople = new HashSet <Person> ();
-					otherPeople.add(host);  
+					otherPeople.add(((Person) this.getHost()));  
 					
 					for(int i = 0; i < myNumInteractions; i++) {
 						Person otherPerson = (Person) peopleHere[myWorld.random.nextInt(numPeople)]; 
@@ -164,7 +164,7 @@ public class DummyInfectiousDisease extends Disease{
 						// check if they are already infected; if they are not, infect with with probability BETA
 						double myProb = myWorld.random.nextDouble();
 						if (!otherPerson.getDiseaseSet().containsKey(DISEASE.DUMMY_INFECTIOUS.key) && myProb < myWorld.params.dummy_infectious_beta_horizontal) {
-							DummyInfectiousDisease inf = new DummyInfectiousDisease(otherPerson, this.getHost(), myWorld.dummyInfectiousFramework.getEntryPoint(), myWorld);
+							DummyInfectiousDisease inf = new DummyInfectiousDisease(otherPerson, ((Person) this.getHost()), myWorld.dummyInfectiousFramework.getEntryPoint(), myWorld);
 							myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting); 
 						}
 					}
@@ -178,7 +178,7 @@ public class DummyInfectiousDisease extends Disease{
 	public void verticalTransmission(Person baby) {
 		double myProb = myWorld.random.nextDouble();
 		if (!baby.getDiseaseSet().containsKey(DISEASE.DUMMY_INFECTIOUS.key) && myProb < myWorld.params.dummy_infectious_beta_vertical) {
-			DummyInfectiousDisease inf = new DummyInfectiousDisease(baby, this.getHost(), myWorld.dummyInfectiousFramework.getEntryPoint(), myWorld);
+			DummyInfectiousDisease inf = new DummyInfectiousDisease(baby, ((Person) this.getHost()), myWorld.dummyInfectiousFramework.getEntryPoint(), myWorld);
 			myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting); 
 		}
 	}
@@ -187,6 +187,9 @@ public class DummyInfectiousDisease extends Disease{
 		return true;
 	}
 	
+	@Override
+	public boolean isWaterborne() {return false;}
+
 	// =============================================== Disease type classification ===========================================================================			
 
 	@Override
@@ -305,7 +308,7 @@ public class DummyInfectiousDisease extends Disease{
 		if(time_died == Double.MAX_VALUE)
 			rec += "\t-";
 		else {
-			yll = lifeExpectancy - host.getAge();
+			yll = lifeExpectancy - ((Person) this.getHost()).getAge();
 			// If this person's age is greater than the life expectancy of Zimbabwe, then assume there are no years of life lost
 			if (yll < 0)
 				yll = 0;
@@ -317,7 +320,7 @@ public class DummyInfectiousDisease extends Disease{
 		else
 			rec += "\t" + (double) (yll + yld);
 		// record number of times with covid
-		rec += "\t" + host.getNumberOfTimesInfected();
+		rec += "\t" + ((Person) this.getHost()).getNumberOfTimesInfected();
 		
 		rec += "\n";
 		return rec;

@@ -18,8 +18,8 @@ public class CoronavirusSpuriousSymptom extends Disease{
 		this.currentBehaviourNode = initNode;
 		this.time_infected = time;
 		this.myWorld = sim;
-		this.myWorld.infections.add(this);
-		this.host.addDisease(DISEASE.COVIDSPURIOUSSYMPTOM, this);
+		this.myWorld.human_infections.add(this);
+		this.host.addDisease(this);
 
 
 	}
@@ -31,9 +31,13 @@ public class CoronavirusSpuriousSymptom extends Disease{
 		arg0.schedule.scheduleOnce(time + myDelta, myWorld.param_schedule_infecting, this);
 	}
 	// =============================================== Disease 'behaviours'================================================================================
+	@Override
 	public boolean isInfectious() {
 		return false;
 	}
+	@Override
+	public boolean isWaterborne() {return false;}
+
 	// =============================================== Disease type classification ===========================================================================
 	@Override
 	public String getDiseaseName() {
@@ -124,7 +128,7 @@ public class CoronavirusSpuriousSymptom extends Disease{
 		else
 			rec += "\t" + (double) (yll + yld);
 		// record number of times with covid
-		rec += "\t" + host.getNumberOfTimesInfected();
+		rec += "\t" + ((Person) this.getHost()).getNumberOfTimesInfected();
 		
 		rec += "\n";
 		return rec;
@@ -136,7 +140,7 @@ public class CoronavirusSpuriousSymptom extends Disease{
 	
 	@Override
 	public boolean inATestingAdminZone() {
-		String hostLocationId = this.getHost().myHousehold.getRootSuperLocation().myId;
+		String hostLocationId = ((Person) this.getHost()).getHomeLocation().getRootSuperLocation().myId;
 		boolean answer = this.getHost().myWorld.params.admin_zones_to_test_in.contains(hostLocationId);
 		return answer;
 	}

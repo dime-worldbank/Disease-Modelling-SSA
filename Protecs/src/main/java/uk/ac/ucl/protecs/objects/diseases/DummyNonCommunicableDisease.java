@@ -26,14 +26,14 @@ public class DummyNonCommunicableDisease extends Disease {
 		
 		source = mySource;
 		
-		host.addDisease(DISEASE.DUMMY_NCD, this);
+		host.addDisease(this);
 			
 		// store the time when it is infected!
 		time_infected = time;		
 		infectedAtLocation = myHost.getLocation();
 		currentBehaviourNode = initNode;
 		myWorld = sim;
-		myWorld.infections.add(this);
+		myWorld.human_infections.add(this);
 	}
 
 	
@@ -127,7 +127,7 @@ public class DummyNonCommunicableDisease extends Disease {
 		else
 			rec += "\t" + (double) (yll + yld);
 		// record number of times with covid
-		rec += "\t" + host.getNumberOfTimesInfected();
+		rec += "\t" + ((Person) this.getHost()).getNumberOfTimesInfected();
 		
 		rec += "\n";
 		return rec;
@@ -145,6 +145,8 @@ public class DummyNonCommunicableDisease extends Disease {
 		// TODO Auto-generated method stub
 		return false;
 	}
+	@Override
+	public boolean isWaterborne() {return false;}
 
 	@Override
 	public void horizontalTransmission() {

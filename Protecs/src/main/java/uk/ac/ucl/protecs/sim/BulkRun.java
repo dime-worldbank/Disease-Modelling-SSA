@@ -38,7 +38,7 @@ public class BulkRun {
 					double myTime = mySim.schedule.getTime();
 				}
 				
-				ImportExport.exportInfections(infectionsFilename + filenameSuffix, mySim.infections);
+				ImportExport.exportInfections(infectionsFilename + filenameSuffix, mySim.human_infections);
 					
 			
 			}

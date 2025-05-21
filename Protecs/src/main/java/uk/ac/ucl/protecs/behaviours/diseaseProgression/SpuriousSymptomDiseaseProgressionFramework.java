@@ -2,6 +2,7 @@ package uk.ac.ucl.protecs.behaviours.diseaseProgression;
 
 import sim.engine.Steppable;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusSpuriousSymptom;
+import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
@@ -80,10 +81,10 @@ public class SpuriousSymptomDiseaseProgressionFramework extends DiseaseProgressi
 					nextStep = nextStepSpurious.CAUSE_SYMPTOMS;
 				}
 				// need to check that those who died don't do anything, do this here
-				if (!symptom.getHost().isAlive()) {
+				if (!((Person) symptom.getHost()).isAlive()) {
 					nextStep = nextStepSpurious.HAS_DIED;
 					}
-				if (symptom.getHost().hasSymptomaticCovid()) {
+				if (((Person) symptom.getHost()).hasSymptomaticCovid()) {
 					nextStep = nextStepSpurious.NO_SYMPTOMS;
 				}
 				// based on the next step string variable, choose the next thing to do for this person's spurious symptoms.
@@ -126,12 +127,12 @@ public class SpuriousSymptomDiseaseProgressionFramework extends DiseaseProgressi
 			public double next(Steppable s, double time) {
 				CoronavirusSpuriousSymptom symptom = (CoronavirusSpuriousSymptom) s;
 				// can't have COVID symptoms if you aren't alive
-				if (!symptom.getHost().isAlive()) {
+				if (!((Person) symptom.getHost()).isAlive()) {
 					symptom.setBehaviourNode(deadNode);
 					return Double.MAX_VALUE;
 				}
 				// can't have spurious COVID symptoms if actually have covid
-				if (symptom.getHost().hasSymptomaticCovid()) {
+				if (((Person) symptom.getHost()).hasSymptomaticCovid()) {
 					symptom.setBehaviourNode(setNode(SpuriousSymptomBehaviourNode.SUSCEPTIBLE));
 					return 1;
 				}
@@ -146,7 +147,7 @@ public class SpuriousSymptomDiseaseProgressionFramework extends DiseaseProgressi
 					action = SpuriousSymptomBehaviourNode.RECOVER;
 				}
 				// If the host has a symptomatic infection, remove spurious symptoms
-				if (symptom.getHost().hasSymptomaticCovid()) {
+				if (((Person) symptom.getHost()).hasSymptomaticCovid()) {
 					action = SpuriousSymptomBehaviourNode.RECOVER;
 				}
 				switch (action) {
