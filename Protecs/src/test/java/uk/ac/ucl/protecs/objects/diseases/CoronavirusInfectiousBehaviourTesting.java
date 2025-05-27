@@ -449,6 +449,9 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// create a simulation and start
 		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
 		sim.start();
+		sim.params.recoveryToSusceptible_mean = 10;
+		sim.params.recoveryToSusceptible_std = 2;
+
 		// initially make everyone susceptible
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.RECOVERED), 
 				NodeOption.CoronavirusInfectiousBehaviour);	
@@ -470,6 +473,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// create a simulation and start
 		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
 		sim.start();
+		sim.params.recoveryToSusceptible_mean = 10;
+		sim.params.recoveryToSusceptible_std = 2;
 		// initially make everyone susceptible
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.SUSCEPTIBLE), 
 				NodeOption.CoronavirusInfectiousBehaviour);	

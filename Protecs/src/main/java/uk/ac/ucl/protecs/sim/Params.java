@@ -123,9 +123,9 @@ public class Params {
 	public double criticalToRecovery_mean =		18.1 * ticks_per_day;
 	public double criticalToRecovery_std =		6.3 * ticks_per_day;
 	
-	// assumptions about covid recovery (initially set low for development)
-	public double recoveryToSusceptible_mean =  10 * ticks_per_day;
-	public double recoveryToSusceptible_std =  2 * ticks_per_day;
+	// Built this for future use. mean time of reinfection in hospital workers was 429 days, sd was not stated, could potentially find this out from table or another source https://www.nature.com/articles/s41598-022-25908-6
+	public double recoveryToSusceptible_mean =  429 * ticks_per_day;
+	public double recoveryToSusceptible_std =  50 * ticks_per_day; // made up for now
 	
 	// all cause mortality parameters, currently pulled out my arse
 	public ArrayList <Integer> all_cause_death_age_params;
