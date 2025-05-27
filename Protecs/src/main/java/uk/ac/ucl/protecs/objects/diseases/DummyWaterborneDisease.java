@@ -3,7 +3,6 @@ package uk.ac.ucl.protecs.objects.diseases;
 import sim.engine.SimState;
 import uk.ac.ucl.protecs.objects.hosts.Host;
 import uk.ac.ucl.protecs.objects.hosts.Person;
-import uk.ac.ucl.protecs.objects.hosts.Water;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.HOST;

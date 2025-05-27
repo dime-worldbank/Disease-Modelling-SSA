@@ -88,7 +88,8 @@ public class WorldBankCovid19Sim extends SimState {
 	
 	// Create a enum list of diseases modelled currently, these will be used to categorise any infections a person may get over the course of the simulation.
 	public enum DISEASE{
-		DUMMY_NCD("DUMMY_NCD"), DUMMY_INFECTIOUS("DUMMY_INFECTIOUS"), DUMMY_WATERBORNE("DUMMY_WATERBORNE"), COVID("COVID-19"), COVIDSPURIOUSSYMPTOM("COVID-19_SPURIOUS_SYMPTOM");
+		DUMMY_NCD("DUMMY_NCD"), DUMMY_INFECTIOUS("DUMMY_INFECTIOUS"), DUMMY_WATERBORNE("DUMMY_WATERBORNE"), COVID("COVID-19"), COVIDSPURIOUSSYMPTOM("COVID-19_SPURIOUS_SYMPTOM"),
+		CHOLERA("CHOLERA");
 
         public String key;
      
@@ -106,6 +107,8 @@ public class WorldBankCovid19Sim extends SimState {
         		return COVID;
         	case "COVID-19_SPURIOUS_SYMPTOM":
         		return COVIDSPURIOUSSYMPTOM;
+        	case "CHOLERA":
+        		return CHOLERA;
         	default:
         		throw new IllegalArgumentException();
         	}
