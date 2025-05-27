@@ -190,7 +190,7 @@ public class MobilityTesting {
 				if (!sim.params.OccupationConstraintList.containsKey(p.getEconStatus()))
 					// force an assertion failure
 					Assert.assertTrue(p.getLocation() instanceof Workplace);
-					Assert.assertTrue(p.getBehaviourNode().getTitle().equals(mobilityNodeTitle.WORK.key));
+					Assert.assertTrue(p.getActivityNode().getTitle().equals(mobilityNodeTitle.WORK.key));
 				}
 		}		
 	}
@@ -217,7 +217,7 @@ public class MobilityTesting {
 				if (!sim.params.OccupationConstraintList.containsKey(p.getEconStatus()))
 					// force an assertion failure
 					Assert.assertTrue(p.getLocation() instanceof Workplace);
-					Assert.assertTrue(p.getBehaviourNode().getTitle().equals(mobilityNodeTitle.WORK.key));
+					Assert.assertTrue(p.getActivityNode().getTitle().equals(mobilityNodeTitle.WORK.key));
 					}
 			}
 			// Now rerun the simulation with the same seed making sure that people leave their workplace
@@ -231,7 +231,7 @@ public class MobilityTesting {
 			// If they are at a workplace or are doing the 'work' behaviour node, fail
 			for (Person p: sim.agents) {
 				Assert.assertTrue(!(p.getLocation() instanceof Workplace));
-				Assert.assertTrue(!(p.getBehaviourNode().getTitle().equals(mobilityNodeTitle.WORK.key)));
+				Assert.assertTrue(!(p.getActivityNode().getTitle().equals(mobilityNodeTitle.WORK.key)));
 
 			}
 	}

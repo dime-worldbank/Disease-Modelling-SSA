@@ -99,7 +99,7 @@ public class HelperFunctions {
 			// create a list to store the mobility nodes that occur in the simulation
 			world.schedule.step(world);
 			for (Person p: world.agents) {
-				behaviourNodeBin.add(p.getBehaviourNode().getTitle());
+				behaviourNodeBin.add(p.getActivityNode().getTitle());
 			}
 			
 		}
@@ -135,7 +135,7 @@ public class HelperFunctions {
 		for (Person p: world.agents) {
 			double rand = world.random.nextDouble();
 			if (rand <= fraction) {
-				p.setBehaviourNode(Node);
+				p.setActivityNode(Node);
 				// kick off the infectious behaviour framework
 				p.step(world);
 			}
@@ -242,7 +242,7 @@ public class HelperFunctions {
 				world.schedule.step(world);
 			}
 			for (Person p: world.agents) {
-				behaviourNodeBin.add(p.getBehaviourNode().getTitle());
+				behaviourNodeBin.add(p.getActivityNode().getTitle());
 			}
 			
 			List<String> UniqueNodes = new ArrayList<String>(behaviourNodeBin);

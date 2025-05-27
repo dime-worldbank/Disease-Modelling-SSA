@@ -123,7 +123,7 @@ public class LoadPopulation{
 
 				h.addHost(p);
 //				p.setLocation(myDistrict);
-				p.setBehaviourNode(sim.movementFramework.getEntryPoint());
+				p.setActivityNode(sim.movementFramework.getEntryPoint());
 				sim.agents.add(p);
 				sim.personsToAdminBoundary.get(myAdminZone).add(p);
 				//	Store the occupations that appear in this census
