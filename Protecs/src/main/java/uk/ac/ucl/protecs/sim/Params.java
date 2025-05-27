@@ -207,12 +207,12 @@ public class Params {
 			load_lockdown_changelist(dataDir +  lockdown_changeList_filename);
 		}
 		// only load in all cause mortality and birth rate files only if demography is set to true, or if these file name fields are initialised		
-		if (this.demography | (!(all_cause_mortality_filename == null) & !(birth_rate_filename == null))) {
+		if (this.demography || (!(all_cause_mortality_filename == null) & !(birth_rate_filename == null))) {
 			load_all_cause_mortality_params(dataDir + all_cause_mortality_filename);
 			load_all_birthrate_params(dataDir + birth_rate_filename);
 		}
 		// load the testing data
-		if (this.covidTesting | (!(testDataFilename == null) & !(testLocationFilename == null))) {
+		if (this.covidTesting || (!(testDataFilename == null) & !(testLocationFilename == null))) {
 			load_testing(dataDir + testDataFilename);
 			load_testing_locations(dataDir + testLocationFilename);
 		}

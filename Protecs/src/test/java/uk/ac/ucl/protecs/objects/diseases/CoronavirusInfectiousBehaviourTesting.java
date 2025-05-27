@@ -43,7 +43,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		// double check by testing the infection properties
 		for (Disease d: sim.human_infections) {
-			if (d.hasAsympt() | d.hasMild() | d.hasSevere() | d.hasCritical() | d.isCauseOfDeath() | d.hasRecovered()) {
+			if (d.hasAsympt() || d.hasMild() || d.hasSevere() || d.hasCritical() || d.isCauseOfDeath() || d.hasRecovered()) {
 				Assert.fail();
 			}
 		}
@@ -75,7 +75,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		
 		for (Disease d: sim.human_infections) {
-			if (d.hasMild() | d.hasSevere() | d.hasCritical() | d.isCauseOfDeath() | d.hasRecovered()) {
+			if (d.hasMild() || d.hasSevere() || d.hasCritical() || d.isCauseOfDeath() || d.hasRecovered()) {
 				Assert.fail();
 			}
 		}
@@ -104,7 +104,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		for (Disease d: sim.human_infections) {
-			if (d.hasAsympt() | d.hasSevere() | d.hasCritical() | d.isCauseOfDeath() | d.hasRecovered()) {
+			if (d.hasAsympt() || d.hasSevere() || d.hasCritical() || d.isCauseOfDeath() || d.hasRecovered()) {
 				Assert.fail();
 			}
 		}
@@ -129,7 +129,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		for (Disease d: sim.human_infections) {
-			if (d.hasAsympt() | d.hasMild() | d.hasSevere() | d.hasCritical() | d.isCauseOfDeath()) {
+			if (d.hasAsympt() || d.hasMild() || d.hasSevere() || d.hasCritical() || d.isCauseOfDeath()) {
 				Assert.fail();
 			}
 		}
@@ -157,7 +157,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		for (Disease d: sim.human_infections) {
-			if (d.hasAsympt() | d.hasMild() | d.hasCritical() | d.isCauseOfDeath()) {
+			if (d.hasAsympt() || d.hasMild() || d.hasCritical() || d.isCauseOfDeath()) {
 				Assert.fail();
 			}
 		}
@@ -183,7 +183,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		for (Disease d: sim.human_infections) {
-			if (d.hasAsympt() | d.hasMild() | d.hasSevere() | d.hasCritical() | d.isCauseOfDeath()) {
+			if (d.hasAsympt() || d.hasMild() || d.hasSevere() || d.hasCritical() || d.isCauseOfDeath()) {
 				Assert.fail();
 			}
 		}
@@ -212,7 +212,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		
 		for (Disease d: sim.human_infections) {
-			if (d.hasAsympt() | d.hasMild() | d.hasSevere() | d.isCauseOfDeath()) {
+			if (d.hasAsympt() || d.hasMild() || d.hasSevere() || d.isCauseOfDeath()) {
 				Assert.fail();
 			}
 		}
@@ -240,7 +240,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		
 		for (Disease d: sim.human_infections) {
-			if (d.hasAsympt() | d.hasMild() | d.hasSevere() | d.hasCritical() | d.isCauseOfDeath()) {
+			if (d.hasAsympt() || d.hasMild() || d.hasSevere() || d.hasCritical() || d.isCauseOfDeath()) {
 				Assert.fail();
 			}
 		}
@@ -268,7 +268,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		
 		for (Disease d: sim.human_infections) {
-			if (d.hasAsympt() | d.hasMild() | d.hasSevere() | d.hasCritical()) {
+			if (d.hasAsympt() || d.hasMild() || d.hasSevere() || d.hasCritical()) {
 				Assert.fail();
 			}
 		}
@@ -295,7 +295,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		
 		for (Disease d: sim.human_infections) {
-			if (d.hasAsympt() | d.hasMild() | d.hasSevere() | d.hasCritical() | d.isCauseOfDeath()) {
+			if (d.hasAsympt() || d.hasMild() || d.hasSevere() || d.hasCritical() || d.isCauseOfDeath()) {
 				Assert.fail();
 			}
 		}
@@ -319,7 +319,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		
 		for (Disease d: sim.human_infections) {
-			if (d.hasAsympt() | d.hasMild() | d.hasSevere() | d.hasCritical() | d.isCauseOfDeath()) {
+			if (d.hasAsympt() || d.hasMild() || d.hasSevere() || d.hasCritical() || d.isCauseOfDeath()) {
 				Assert.fail();
 			}
 		}
@@ -343,7 +343,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		
 		for (Disease d: sim.human_infections) {
-			if (d.hasAsympt() | d.hasMild() | d.hasSevere() | d.hasCritical() | d.hasRecovered()) {
+			if (d.hasAsympt() || d.hasMild() || d.hasSevere() || d.hasCritical() || d.hasRecovered()) {
 				Assert.fail();
 			}
 		}
@@ -369,7 +369,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		
 		for (Disease d: sim.human_infections) {
-			if (d.hasAsympt() | d.hasMild() | d.hasSevere() | d.hasCritical()) {
+			if (d.hasAsympt() || d.hasMild() || d.hasSevere() || d.hasCritical()) {
 				Assert.fail();
 			}
 		}

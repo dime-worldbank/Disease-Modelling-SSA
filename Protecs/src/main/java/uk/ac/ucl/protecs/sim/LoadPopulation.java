@@ -141,7 +141,7 @@ public class LoadPopulation{
 					}
 						
 				}
-				if (bits[economicStatusIndex].equals("inactive") | bits[economicStatusIndex].equals("unemployed_not_ag")) p.setUnemployed();
+				if (bits[economicStatusIndex].equals("inactive") || bits[economicStatusIndex].equals("unemployed_not_ag")) p.setUnemployed();
 				
 			}
 			
