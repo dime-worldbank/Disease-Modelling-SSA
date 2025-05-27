@@ -121,7 +121,7 @@ public class LoadPopulation{
 						sim
 						);
 
-				h.addPerson(p);
+				h.addHost(p);
 //				p.setLocation(myDistrict);
 				p.setBehaviourNode(sim.movementFramework.getEntryPoint());
 				sim.agents.add(p);
@@ -141,7 +141,7 @@ public class LoadPopulation{
 					}
 						
 				}
-				if (bits[economicStatusIndex].equals("inactive") | bits[economicStatusIndex].equals("unemployed_not_ag")) p.setUnemployed();
+				if (bits[economicStatusIndex].equals("inactive") || bits[economicStatusIndex].equals("unemployed_not_ag")) p.setUnemployed();
 				
 			}
 			

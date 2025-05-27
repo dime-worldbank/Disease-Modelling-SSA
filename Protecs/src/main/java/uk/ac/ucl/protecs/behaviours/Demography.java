@@ -211,7 +211,6 @@ public class Demography {
 			OCCUPATION babiesJob = OCCUPATION.UNEMPLOYED;
 			Household babyHousehold = target.getHouseholdAsType();
 			Workplace babyWorkplace = null;
-			Location babyAdminZone = target.getLocation();
 			boolean babySchooling = false;
 			int birthday = time;
 			Person baby = new Person(new_id, // ID 
@@ -225,14 +224,13 @@ public class Demography {
 					world
 					);				
 			// update the household and location to include the baby
-			babyHousehold.addPerson(baby);
-			baby.setLocation(babyAdminZone);
+			babyHousehold.addHost(baby);
 			// the baby has decided to go home
 			baby.setBehaviourNode(world.movementFramework.getEntryPoint());
 			// store the baby in the newBirths array
 			world.agents.add(baby);
 			// Add the person to the admin zone
-			baby.transferTo(babyHousehold);
+			baby.transferTo((Household) babyHousehold);
 			// This is a new birth that hasn't been recorded
 			target.removeBirthLogged();
 			// call on vertical transmission functions for any infections

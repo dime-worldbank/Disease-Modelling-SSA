@@ -59,7 +59,7 @@ public class CovidLogging {
 
 	// get those alive with COVID at location
 	private static Map<Boolean, Map<String, Map<DISEASE, Map<Boolean, List<Disease>>>>> get_covid_at_location(WorldBankCovid19Sim world) {
-		Map<Boolean, Map<String, Map<DISEASE, Map<Boolean, List<Disease>>>>> covidAtLocation = world.infections.stream().collect(
+		Map<Boolean, Map<String, Map<DISEASE, Map<Boolean, List<Disease>>>>> covidAtLocation = world.human_infections.stream().collect(
 				Collectors.groupingBy(
 						Disease::isHostAlive,
 						Collectors.groupingBy(
@@ -79,7 +79,7 @@ public class CovidLogging {
 	// get those who died of COVID at location
 	private static Map<String, Map<DISEASE, Map<Boolean, Map<Boolean, List<Disease>>>>> get_dead_from_covid_at_location(
 			WorldBankCovid19Sim world) {
-		Map<String, Map<DISEASE, Map<Boolean, Map<Boolean, List<Disease>>>>> covidDeathsAtLocation = world.infections.stream().collect(
+		Map<String, Map<DISEASE, Map<Boolean, Map<Boolean, List<Disease>>>>> covidDeathsAtLocation = world.human_infections.stream().collect(
 				Collectors.groupingBy(
 						Disease::getCurrentAdminZone,
 						Collectors.groupingBy(
@@ -102,7 +102,7 @@ public class CovidLogging {
 		ArrayList <Integer> covid_death_by_ages = new ArrayList<Integer>();
 
 		// create a function to group the population by sex, age and whether they have covid
-		Map<SEX, Map<Integer, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> age_sex_map_died_from_covid = world.infections.stream().collect(
+		Map<SEX, Map<Integer, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> age_sex_map_died_from_covid = world.human_infections.stream().collect(
 				Collectors.groupingBy(
 						Disease::getHostSex, 
 						Collectors.groupingBy(
@@ -178,7 +178,7 @@ public class CovidLogging {
 	// get those who alive with COVID of given age and sex
 	private static Map<SEX, Map<Integer, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> age_sex_has_covid_map(
 			WorldBankCovid19Sim world) {
-		Map<SEX, Map<Integer, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> age_sex_map_has_covid = world.infections.stream().collect(
+		Map<SEX, Map<Integer, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> age_sex_map_has_covid = world.human_infections.stream().collect(
 				Collectors.groupingBy(
 						Disease::getHostSex, 
 						Collectors.groupingBy(
@@ -246,7 +246,7 @@ public class CovidTestReporter implements Steppable{
 			int dayOfSimulation = (int) (arg0.schedule.getTime() / world.params.ticks_per_day);
 			int numberOfTestsPerDay = world.params.number_of_tests_per_day.get(dayOfSimulation);
 			// create a function to group the population by sex, age and whether they gave birth
-			Map<Boolean, Map<Boolean, List<Disease>>> hasTestedPositiveForCovid = (Map<Boolean, Map<Boolean,List<Disease>>>) world.infections.stream().collect(
+			Map<Boolean, Map<Boolean, List<Disease>>> hasTestedPositiveForCovid = (Map<Boolean, Map<Boolean,List<Disease>>>) world.human_infections.stream().collect(
 					Collectors.groupingBy(Disease::hasTestedPositive,
 											Collectors.groupingBy(
 														Disease::getTestLogged,
@@ -278,7 +278,7 @@ public class CovidTestReporter implements Steppable{
 			
 			ImportExport.exportMe(world.covidTestingOutputFilename, covidTestingOutput, world.timer);
 			// to make sure that COVID tests aren't counted more than once, update this infections properties
-			for (Disease i: world.infections) {
+			for (Disease i: world.human_infections) {
 				if((i.getDiseaseType().equals(DISEASE.COVID))) {
 					i.confirmTestLogged();
 					}
@@ -312,7 +312,7 @@ public class CovidTestReporter implements Steppable{
 				ArrayList<Integer> covidNewDeathCount = new ArrayList<Integer>();
 
 				// create a function to group the population by location, whether they are alive and if they have covid and if this is a new case
-				Map<String, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> location_alive_hasCovid_map = world.infections.stream().collect(
+				Map<String, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> location_alive_hasCovid_map = world.human_infections.stream().collect(
 						Collectors.groupingBy(
 								Disease::getCurrentAdminZone, 
 									Collectors.groupingBy(
@@ -333,7 +333,7 @@ public class CovidTestReporter implements Steppable{
 					
 				// create a map to count the number of people who have recovered from covid in that admin zone
 					
-				Map<String, Map<DISEASE, Map<Boolean, Long>>> location_alive_recovered_map = world.infections.stream().collect(
+				Map<String, Map<DISEASE, Map<Boolean, Long>>> location_alive_recovered_map = world.human_infections.stream().collect(
 						Collectors.groupingBy(
 								Disease::getCurrentAdminZone,
 								Collectors.groupingBy(
@@ -347,7 +347,7 @@ public class CovidTestReporter implements Steppable{
 							);
 
 					
-				Map<String, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> location_asympt_covid_map = world.infections.stream().collect(
+				Map<String, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> location_asympt_covid_map = world.human_infections.stream().collect(
 						Collectors.groupingBy(
 								Disease::getCurrentAdminZone, 
 									Collectors.groupingBy(
@@ -367,7 +367,7 @@ public class CovidTestReporter implements Steppable{
 						);
 
 					
-				Map<String, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> location_mild_covid_map = world.infections.stream().collect(
+				Map<String, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> location_mild_covid_map = world.human_infections.stream().collect(
 						Collectors.groupingBy(
 								Disease::getCurrentAdminZone, 
 									Collectors.groupingBy(
@@ -386,7 +386,7 @@ public class CovidTestReporter implements Steppable{
 									)
 						);
 
-				Map<String, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> location_severe_covid_map = world.infections.stream().collect(
+				Map<String, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> location_severe_covid_map = world.human_infections.stream().collect(
 						Collectors.groupingBy(
 								Disease::getCurrentAdminZone, 
 									Collectors.groupingBy(
@@ -405,7 +405,7 @@ public class CovidTestReporter implements Steppable{
 									)
 						);
 
-				Map<String, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> location_critical_covid_map = world.infections.stream().collect(
+				Map<String, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> location_critical_covid_map = world.human_infections.stream().collect(
 						Collectors.groupingBy(
 								Disease::getCurrentAdminZone, 
 									Collectors.groupingBy(
@@ -424,7 +424,7 @@ public class CovidTestReporter implements Steppable{
 									)
 						);
 				// create a function to group the population by location and count cumulative deaths
-				Map<String, Map<DISEASE, Map<Boolean, Long>>> location_cumulative_died_map = world.infections.stream().collect(
+				Map<String, Map<DISEASE, Map<Boolean, Long>>> location_cumulative_died_map = world.human_infections.stream().collect(
 						Collectors.groupingBy(
 								Disease::getCurrentAdminZone, 
 								Collectors.groupingBy(
@@ -437,7 +437,7 @@ public class CovidTestReporter implements Steppable{
 								)
 						);
 				// create a function to group the population by location and count cumulative cases
-				Map<String, Map<DISEASE, Long>> location_cumulative_covid_map = world.infections.stream().collect(
+				Map<String, Map<DISEASE, Long>> location_cumulative_covid_map = world.human_infections.stream().collect(
 						Collectors.groupingBy(
 								Disease::getCurrentAdminZone, 
 								Collectors.groupingBy(
@@ -448,7 +448,7 @@ public class CovidTestReporter implements Steppable{
 						);
 				// create a function to group the population by location and count new deaths
 
-				Map<String, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>> location_new_deaths_map = world.infections.stream().collect(
+				Map<String, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>> location_new_deaths_map = world.human_infections.stream().collect(
 						Collectors.groupingBy(
 								Disease::getCurrentAdminZone,
 								Collectors.groupingBy(
@@ -969,7 +969,7 @@ public class CovidTestReporter implements Steppable{
 				
 				// create a function to group the population by occupation, age and whether they have covid
 				Map<OCCUPATION, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> economic_alive_has_covid = 
-						world.infections.stream().collect(
+						world.human_infections.stream().collect(
 						Collectors.groupingBy(
 								Disease::getHostEconStatus, 
 								Collectors.groupingBy(
@@ -999,7 +999,7 @@ public class CovidTestReporter implements Steppable{
 						)
 						);
 				// create a function to group the population by sex, age and whether they died from covid
-				Map<OCCUPATION, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>> econ_died_from_covid = world.infections.stream().collect(
+				Map<OCCUPATION, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>> econ_died_from_covid = world.human_infections.stream().collect(
 						Collectors.groupingBy(
 								Disease::getHostEconStatus, 
 									Collectors.groupingBy(
@@ -1078,7 +1078,7 @@ public class CovidTestReporter implements Steppable{
 			@Override
 			public void step(SimState arg0) {
 					// to make sure deaths and cases aren't counted multiple times, update this person's properties
-					for (Disease i: world.infections) {
+					for (Disease i: world.human_infections) {
 							if (i.isOfType(DISEASE.COVID)) {
 							if(!i.isHostAlive()) {
 								i.confirmDeathLogged();
