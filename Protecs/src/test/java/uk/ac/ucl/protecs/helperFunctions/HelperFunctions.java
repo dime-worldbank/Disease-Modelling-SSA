@@ -349,4 +349,10 @@ public class HelperFunctions {
 		}
 		
 	}
+	
+	public static void makePeopleLeaveTheHouseEachDay(WorldBankCovid19Sim sim) {
+		for (String key : sim.params.economic_status_weekday_movement_prob.keySet()) {
+			sim.params.economic_status_weekday_movement_prob.put(key, (double) 1);         
+		}
+	}
 }

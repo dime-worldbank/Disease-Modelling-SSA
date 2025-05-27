@@ -3,6 +3,7 @@ package uk.ac.ucl.protecs.behaviours;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -13,6 +14,7 @@ import uk.ac.ucl.protecs.behaviours.MovementBehaviourFramework.mobilityNodeTitle
 import uk.ac.ucl.protecs.helperFunctions.*;
 import uk.ac.ucl.protecs.helperFunctions.HelperFunctions.NodeOption;
 import uk.ac.ucl.protecs.objects.hosts.Person;
+import uk.ac.ucl.protecs.objects.locations.Workplace;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -152,14 +154,7 @@ public class MobilityTesting {
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun) && uniqueNodesInRun.containsAll(expectedNodes));
 	}
 	
-	
-//	@Test
-//	public void LockdownReducesTheNumberOfVisitsToTheCommunity() {
-//		// TODO This is something that will probably have to be developed. Lockdown doesn't seem to do anything to prevent people going into the 
-//		// community at the moment
-//		Assert.assertTrue(true);
-//	}
-//	
+
 	@Test
 	public void LockdownReducesTheNumberOfVisitsToOtherAdminZones() {
 		WorldBankCovid19Sim sim_no_lockdown = HelperFunctions.CreateDummySim(params + ".txt");
@@ -175,29 +170,71 @@ public class MobilityTesting {
 	}
 	
 	// TESTS FOR IMPERFECT MIXING
+	@Test
+	public void checkPeopleGoToTheirWorkplace() {
+		// check the movement of the population to their workplaces
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "workplace_bubbles_params.txt");
+		HelperFunctions.makePeopleLeaveTheHouseEachDay(sim);
+		// make everyone decide to go to their workplace
+		sim.params.prob_go_to_work = 1.1d;
+		sim.start();
+		// run for three ticks (people leave the house at tick 2 and leave work at tick 4)
+		int numTicks = 3;
+		HelperFunctions.runSimulationForTicks(sim, numTicks);
+		// determine if everyone has travelled to their workplace
+		// some jobs are based in the community, change to match
+		for (Person p: sim.agents) {
+			// get people who aren't at work, but should be
+			if (!p.isUnemployed() && !p.visitingNow() && !(p.getLocation() instanceof Workplace)) {
+				// if they aren't forced to stay out of their workplace and aren't at work assert false
+				if (!sim.params.OccupationConstraintList.containsKey(p.getEconStatus()))
+					// force an assertion failure
+					Assert.assertTrue(p.getLocation() instanceof Workplace);
+					Assert.assertTrue(p.getActivityNode().getTitle().equals(mobilityNodeTitle.WORK.key));
+				}
+		}		
+	}
 	
-	// TODO: Develop mobility tests for going to work when that is in the model
-//	@Test
-//	public void PeopleAtWorkGoToTheCommunityOrHomeAfterwards() {
-//		// TODO
-//		Assert.assertTrue(true);
-//	}
-//	// TODO: People do not currently go to work. Redo this when workplaces are in the model
-//		@Test
-//		public void OfficeWorkerBehaviours() {
-//			//Arrange
-//			WorldBankCovid19Sim sim = helperFunctions.CreateDummySim("src/main/resources/params.txt", false);
-//			sim.start();
-//			sim.schedule.step(sim);
-//			
-//			Person sut = sim.agents.get(0);
-//			
-//			//Act
-//			sut.step(sim);
-//			
-//			//Assert
-//			Assert.assertFalse(sut.atWorkNow()); // it is morning - they should not be at work
-//		}
+	@Test
+	public void PeopleAtWorkGoToTheCommunityOrHomeAfterwards() {
+		Random rand = new Random();
+		int seed = rand.nextInt(1000000000);
+		// check the movement of the population to their workplaces
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "workplace_bubbles_params.txt");
+		HelperFunctions.makePeopleLeaveTheHouseEachDay(sim);
+		// make everyone decide to go to their workplace
+		sim.params.prob_go_to_work = 1.1d;
+		sim.start();
+		// run for three ticks (people leave the house at tick 2 and leave work at tick 4)
+		int numTicksToBeAtWork = 3;
+		HelperFunctions.runSimulationForTicks(sim, numTicksToBeAtWork);
+		// determine if everyone has travelled to their workplace
+		// some jobs are based in the community, change to match
+		for (Person p: sim.agents) {
+			// get people who aren't at work, but should be
+			if (!p.isUnemployed() && !p.visitingNow() && !(p.getLocation() instanceof Workplace)) {
+				// if they aren't forced to stay out of their workplace and aren't at work assert false
+				if (!sim.params.OccupationConstraintList.containsKey(p.getEconStatus()))
+					// force an assertion failure
+					Assert.assertTrue(p.getLocation() instanceof Workplace);
+					Assert.assertTrue(p.getActivityNode().getTitle().equals(mobilityNodeTitle.WORK.key));
+					}
+			}
+			// Now rerun the simulation with the same seed making sure that people leave their workplace
+			int numTicksForAfterWork = 4;
+			sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "workplace_bubbles_params.txt");
+			HelperFunctions.makePeopleLeaveTheHouseEachDay(sim);
+			sim.params.prob_go_to_work = 1.1d;
+			sim.start();
+			// run the simulation until the end of the workday
+			HelperFunctions.runSimulationForTicks(sim, numTicksForAfterWork);
+			// If they are at a workplace or are doing the 'work' behaviour node, fail
+			for (Person p: sim.agents) {
+				Assert.assertTrue(!(p.getLocation() instanceof Workplace));
+				Assert.assertTrue(!(p.getActivityNode().getTitle().equals(mobilityNodeTitle.WORK.key)));
+
+			}
+	}
 	
 	
 	@Parameterized.Parameters

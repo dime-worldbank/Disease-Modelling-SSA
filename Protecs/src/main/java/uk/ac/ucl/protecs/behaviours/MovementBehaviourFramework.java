@@ -22,7 +22,7 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 	public enum mobilityNodeTitle{
         HOME("home"), WORK("work"), COMMUNITY("community");
          
-        String key;
+        public String key; 
      
         mobilityNodeTitle(String key) { this.key = key; }
     
