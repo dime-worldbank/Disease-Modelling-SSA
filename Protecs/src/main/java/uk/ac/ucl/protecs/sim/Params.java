@@ -25,6 +25,12 @@ public class Params {
 	public double dummy_infectious_beta_vertical = 0.05;
 	public double dummy_infectious_recovery_rate = 0.5;
 	
+	public double dummy_waterborne_prob_shed_into_water = 0.05;
+	public double dummy_waterborne_initial_fraction_with_inf = 0.1;
+	public double dummy_prob_interact_with_water = 0.1;
+	public double dummy_prob_ingest_dummy_waterborne = 0.1;
+
+	
 	public double dummy_ncd_base_rate = 0.2;
 	public double dummy_ncd_rr_male = 1.05;
 	public double dummy_ncd_rr_over_50 = 1.2;
@@ -201,12 +207,12 @@ public class Params {
 			load_lockdown_changelist(dataDir +  lockdown_changeList_filename);
 		}
 		// only load in all cause mortality and birth rate files only if demography is set to true, or if these file name fields are initialised		
-		if (this.demography | (!(all_cause_mortality_filename == null) & !(birth_rate_filename == null))) {
+		if (this.demography || (!(all_cause_mortality_filename == null) & !(birth_rate_filename == null))) {
 			load_all_cause_mortality_params(dataDir + all_cause_mortality_filename);
 			load_all_birthrate_params(dataDir + birth_rate_filename);
 		}
 		// load the testing data
-		if (this.covidTesting | (!(testDataFilename == null) & !(testLocationFilename == null))) {
+		if (this.covidTesting || (!(testDataFilename == null) & !(testLocationFilename == null))) {
 			load_testing(dataDir + testDataFilename);
 			load_testing_locations(dataDir + testLocationFilename);
 		}
