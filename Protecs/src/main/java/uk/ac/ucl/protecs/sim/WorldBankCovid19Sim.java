@@ -217,57 +217,60 @@ public class WorldBankCovid19Sim extends SimState {
 		// set up the infections
 		human_infections = new ArrayList <Disease> ();
 		// TODO expand this to include all infection types
-		for(Location l: params.lineList.keySet()){
+		for (DISEASE d: DISEASE.values()) {
+			HashMap<Location, Integer> diseaseToSeed = params.lineList.get(d);
+			for(Location l: diseaseToSeed.keySet()){
 			
-			// activate this location
-			l.setActive(true);
+				// activate this location
+				l.setActive(true);
 			
-			// number of people to infect
-			int countInfections = params.lineList.get(l) * params.lineListWeightingFactor;
+				// number of people to infect
+				int countInfections = diseaseToSeed.get(l) * params.lineListWeightingFactor;
 			
-			// list of infected people
-			HashSet <Person> newlyInfected = new HashSet <Person> ();
+				// list of infected people
+				HashSet <Person> newlyInfected = new HashSet <Person> ();
 			
-			// number of people present
-			ArrayList <Person> peopleHere = this.personsToAdminBoundary.get(l);
-			int numPeopleHere = peopleHere.size();//l.getPeople().size();
-			if(numPeopleHere == 0){ // if there is no one there, don't continue
-				System.out.println("WARNING: attempting to initialise infection in Location " + l.getId() + " but there are no People present. Continuing without successful infection...");
-				continue;
-			}
-
-			// schedule people here
-			//for(Person p: peopleHere)
-			//	schedule.scheduleRepeating(0, p);
-			
-			int collisions = 100; // to escape while loop in case of troubles
-
-			// infect until you have met the target number of infections
-			while(newlyInfected.size() < countInfections && collisions > 0){
-				Person p = peopleHere.get(random.nextInt(numPeopleHere));
-				
-				// check for duplicates!
-				if(newlyInfected.contains(p)){
-					collisions--;
+				// number of people present
+				ArrayList <Person> peopleHere = this.personsToAdminBoundary.get(l);
+				int numPeopleHere = peopleHere.size();//l.getPeople().size();
+				if(numPeopleHere == 0){ // if there is no one there, don't continue
+					System.out.println("WARNING: attempting to initialise infection in Location " + l.getId() + " but there are no People present. Continuing without successful infection...");
 					continue;
 				}
-				else // otherwise record that we're infecting this person
-					newlyInfected.add(p);
+	
+				// schedule people here
+				//for(Person p: peopleHere)
+				//	schedule.scheduleRepeating(0, p);
 				
-				// create new person
-				CoronavirusInfection inf = new CoronavirusInfection(p, null, infectiousFramework.getInfectedEntryPoint(l), this, 0);
-				// update this person's properties
-				
-				// update this person's properties so we can keep track of the number of cases etc				
-				if (inf.getBehaviourName().equals("asymptomatic")) {
-					inf.setAsympt();
+				int collisions = 100; // to escape while loop in case of troubles
+	
+				// infect until you have met the target number of infections
+				while(newlyInfected.size() < countInfections && collisions > 0){
+					Person p = peopleHere.get(random.nextInt(numPeopleHere));
+					
+					// check for duplicates!
+					if(newlyInfected.contains(p)){
+						collisions--;
+						continue;
+					}
+					else // otherwise record that we're infecting this person
+						newlyInfected.add(p);
+					
+					// create new person
+					CoronavirusInfection inf = new CoronavirusInfection(p, null, infectiousFramework.getInfectedEntryPoint(l), this, 0);
+					// update this person's properties
+					
+					// update this person's properties so we can keep track of the number of cases etc				
+					if (inf.getBehaviourName().equals("asymptomatic")) {
+						inf.setAsympt();
+					}
+					else {
+						inf.setMild();
+					}
+					schedule.scheduleOnce(1, param_schedule_infecting, inf);
 				}
-				else {
-					inf.setMild();
-				}
-				schedule.scheduleOnce(1, param_schedule_infecting, inf);
-			}
 						
+		}
 		}
 		
 		// SCHEDULE UPDATING OF LOCATIONS

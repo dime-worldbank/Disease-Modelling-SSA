@@ -1,4 +1,4 @@
-admin_zone, count
-w_1, 5
-w_2, 5
-w_3, 5
+admin_zone, count, disease
+w_1, 5, COVID-19
+w_2, 5, COVID-19
+w_3, 5, COVID-19

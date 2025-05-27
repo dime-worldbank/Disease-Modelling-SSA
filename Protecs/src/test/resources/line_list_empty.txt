@@ -1,2 +1,2 @@
-admin_zone, count
-d_2,0
+admin_zone, count, disease
+d_2,0, COVID-19

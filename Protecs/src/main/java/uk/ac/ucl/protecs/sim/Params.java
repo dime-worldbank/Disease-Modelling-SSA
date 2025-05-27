@@ -11,10 +11,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import uk.ac.ucl.protecs.objects.diseases.Disease;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.objects.hosts.Person.OCCUPATION;
 import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.objects.locations.Location.LocationCategory;
+import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 
 public class Params {
 	
@@ -81,7 +83,7 @@ public class Params {
 	
 	// holders for epidemic-related data
 	
-	HashMap <Location, Integer> lineList;
+	HashMap <DISEASE, HashMap<Location, Integer>> lineList;
 	ArrayList <Double> lockdownChangeList = new ArrayList <Double>();
 	
 	// holders for testing data
@@ -286,18 +288,33 @@ public class Params {
 			HashMap <String, Integer> columnNames = parseHeader(header);
 			int adminZoneNameIndex = columnNames.get("admin_zone");
 			int countIndex = columnNames.get("count");
+			int diseaseKeyIndex = columnNames.get("disease");
 			
-			// set up data container
-			lineList = new HashMap <Location, Integer> ();
+			// set up data container for each disease being seeded in
+			lineList = new HashMap <DISEASE, HashMap <Location, Integer>>();
+			// iterate over all diseases in the simulation
+			for (DISEASE d: DISEASE.values()) {
+				
+				lineList.put(d, new HashMap <Location, Integer>());
+			}
+			
 			
 			// read in the raw data
 			while ((s = lineListDataFile.readLine()) != null) {
 				String [] bits = splitRawCSVString(s);
 				Location myAdminZone = adminZones.get(bits[adminZoneNameIndex]);
 				Integer myCount = Integer.parseInt(bits[countIndex]);
-				lineList.put(myAdminZone, myCount);
+				lineList.get(DISEASE.getValue(bits[diseaseKeyIndex])).put(myAdminZone, myCount);
 			}
-			assert (lineList.size() > 0): "lineList not loaded";
+			boolean aDiseaseHasBeenSeeded = false;
+			for (DISEASE d: DISEASE.values()) {
+				if (lineList.get(d).size() > 0){
+					aDiseaseHasBeenSeeded = true;
+				}
+			}
+			
+			assert aDiseaseHasBeenSeeded: "No disease has been seeded";
+			
 		} catch (Exception e) {
 			System.err.println("File input error: " + lineListFilename);
 			fail();

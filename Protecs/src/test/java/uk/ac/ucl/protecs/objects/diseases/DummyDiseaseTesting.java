@@ -266,7 +266,7 @@ public class DummyDiseaseTesting{
 		sim.developingModularity = true;
 		sim.start();
 		int number_of_initial_infections_in_water = 0;
-		sim.params.dummy_waterborne_prob_shed_into_water = 0.5;
+		sim.params.dummy_waterborne_prob_shed_into_water = 1;
 
 		for (Water w: sim.waterInSim) {
 			if (w.getDiseaseSet().containsKey(DISEASE.DUMMY_WATERBORNE.key)) number_of_initial_infections_in_water ++;
