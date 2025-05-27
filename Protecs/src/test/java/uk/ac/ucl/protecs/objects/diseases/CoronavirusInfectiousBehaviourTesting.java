@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgressionFramework.CoronavirusBehaviourNodeTitle;
 import uk.ac.ucl.protecs.sim.Params;
@@ -30,6 +31,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		sim.start();
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
+		// Make sure there are no reinfections by selecting a time to recovery beyond the simulation time
+		sim.params.recoveryToSusceptible_mean = 1000;
 		// seed a number of the specific node to the run
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.SUSCEPTIBLE), 
 				NodeOption.CoronavirusInfectiousBehaviour);
@@ -62,6 +65,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		HelperFunctions.StopRecoveryHappening(sim);
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
+		// Make sure there are no reinfections by selecting a time to recovery beyond the simulation time
+		sim.params.recoveryToSusceptible_mean = 1000;
 		// seed a number of the specific node to the run
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.EXPOSED), 
 				NodeOption.CoronavirusInfectiousBehaviour);		// Set up a duration to run the simulation
@@ -89,6 +94,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		sim.start();
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
+		// Make sure there are no reinfections by selecting a time to recovery beyond the simulation time
+		sim.params.recoveryToSusceptible_mean = 1000;
 		// Make everyone have a critical infection
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.PRESYMPTOMATIC), 
 				NodeOption.CoronavirusInfectiousBehaviour);		// Make Sure no one's disease progresses beyond a Mild infection
@@ -117,6 +124,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		sim.start();
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
+		// Make sure there are no reinfections by selecting a time to recovery beyond the simulation time
+		sim.params.recoveryToSusceptible_mean = 1000;
 		// Make everyone have a critical infection
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.ASYMPTOMATIC), 
 				NodeOption.CoronavirusInfectiousBehaviour);
@@ -143,6 +152,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
+		// Make sure there are no reinfections by selecting a time to recovery beyond the simulation time
+		sim.params.recoveryToSusceptible_mean = 1000;
 		// Make everyone have a critical infection
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD), 
 				NodeOption.CoronavirusInfectiousBehaviour);		// Ensure that no one disease progression occurs beyond the severe stage
@@ -172,6 +183,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		HelperFunctions.HaltDiseaseProgressionAtStage(sim, CoronavirusBehaviourNodeTitle.SEVERE);
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
+		// Make sure there are no reinfections by selecting a time to recovery beyond the simulation time
+		sim.params.recoveryToSusceptible_mean = 1000;
 		// seed a number of the specific node to the run
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD), 
 				NodeOption.CoronavirusInfectiousBehaviour);		// Set up a duration to run the simulation
@@ -197,6 +210,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
+		// Make sure there are no reinfections by selecting a time to recovery beyond the simulation time
+		sim.params.recoveryToSusceptible_mean = 1000;
 		// Make everyone have a critical infection
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.SEVERE), 
 				NodeOption.CoronavirusInfectiousBehaviour);		// Ensure that no one disease progression occurs beyond the critical stage
@@ -228,6 +243,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		HelperFunctions.HaltDiseaseProgressionAtStage(sim, CoronavirusBehaviourNodeTitle.CRITICAL);
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
+		// Make sure there are no reinfections by selecting a time to recovery beyond the simulation time
+		sim.params.recoveryToSusceptible_mean = 1000;
 		// seed a number of the specific node to the run
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.SEVERE), 
 				NodeOption.CoronavirusInfectiousBehaviour);		// Set up a duration to run the simulation
@@ -255,6 +272,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
+		// Make sure there are no reinfections by selecting a time to recovery beyond the simulation time
+		sim.params.recoveryToSusceptible_mean = 1000;
 		// Make everyone have a critical infection
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.CRITICAL), 
 				NodeOption.CoronavirusInfectiousBehaviour);		// Set up a duration to run the simulation
@@ -283,6 +302,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		HelperFunctions.HaltDiseaseProgressionAtStage(sim, CoronavirusBehaviourNodeTitle.CRITICAL);
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
+		// Make sure there are no reinfections by selecting a time to recovery beyond the simulation time
+		sim.params.recoveryToSusceptible_mean = 1000;
 		// seed a number of the specific node to the run
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.CRITICAL), 
 				NodeOption.CoronavirusInfectiousBehaviour);		// Set up a duration to run the simulation
@@ -307,9 +328,12 @@ public class CoronavirusInfectiousBehaviourTesting {
 		sim.start();
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
+		// Make sure there are no reinfections by selecting a time to recovery beyond the simulation time
+		sim.params.recoveryToSusceptible_mean = 1000;
 		// seed a number of the specific node to the run
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.RECOVERED), 
-				NodeOption.CoronavirusInfectiousBehaviour);		// Set up a duration to run the simulation
+				NodeOption.CoronavirusInfectiousBehaviour);		
+		// Set up a duration to run the simulation
 		int numDays = 100; 
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
 		HashSet<String> uniqueNodesInRun = getUniqueNodesInSim(sim, numDays);
@@ -331,6 +355,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		sim.start();
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
+		// Make sure there are no reinfections by selecting a time to recovery beyond the simulation time
+		sim.params.recoveryToSusceptible_mean = 1000;
 		// seed a number of the specific node to the run
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.DEAD), 
 				NodeOption.CoronavirusInfectiousBehaviour);		// Set up a duration to run the simulation
@@ -355,6 +381,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		sim.start();
 		// Make sure there are no new infections
 		sim.params.infection_beta = 0;
+		// Make sure there are no reinfections by selecting a time to recovery beyond the simulation time
+		sim.params.recoveryToSusceptible_mean = 1000;
 		// Make sure that people exposed don't revert back to being susceptible
 		ForceExposedInfectionsCauseDisease(sim);
 		// seed a number of the specific node to the run
@@ -374,37 +402,116 @@ public class CoronavirusInfectiousBehaviourTesting {
 			}
 		}
 	}
+	
 	@Test
-	public void ensureNewCovidCasesAreCreated() {
+	public void reinfectionDoesNotCreateMultipleDiseaseObjects() {
 		// create a simulation and start
 		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
 		sim.start();
-		// Make beta large
-		sim.params.infection_beta = 10;
-		// Make sure that people exposed don't revert back to being susceptible
-		ForceExposedInfectionsCauseDisease(sim);
-		HelperFunctions.StopRecoveryHappening(sim);
-		// seed a number of the specific node to the run
-		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(0.2, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.EXPOSED), 
-				NodeOption.CoronavirusInfectiousBehaviour);		// Set up a duration to run the simulation
+		// initially make everyone susceptible
+		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.SUSCEPTIBLE), 
+				NodeOption.CoronavirusInfectiousBehaviour);	
+		// get the number of infections in the simulation
+		int n_initial_covid_infections = 0;
+		for (Disease d: sim.human_infections) {
+			if (d.isOfType(DISEASE.COVID)) n_initial_covid_infections++;
+		}
+		
+		// now take half the population and make them exposed to COVID
+		int iterator = 0;
+		for (Disease d: sim.human_infections) {
+			if (iterator <  (int) n_initial_covid_infections / 2) {
+				d.setBehaviourNode(sim.infectiousFramework.getEntryPoint());
+				iterator++;
+			}
+			
+		}
+		
+		// Set up a duration to run the simulation
 		int numDays = 100; 
+		// get the initial number of infection objects
+		
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
-		int number_of_initial_infections = 0;
-		for (Disease d: sim.human_infections) {
-			if (d.getDiseaseType().equals(DISEASE.COVID)) {
-				number_of_initial_infections++;
-			}
-		}
 		HelperFunctions.runSimulation(sim, numDays);
-		int final_number_of_infections = 0;
+		
+		// get the initial number of infection objects
+		int final_n_covid_infections = 0;
 		for (Disease d: sim.human_infections) {
-			if (d.getDiseaseType().equals(DISEASE.COVID)) {
-				final_number_of_infections++;
-			}
-		}
-		// Make sure than no other nodes are reaching in the simulation
-		Assert.assertTrue(final_number_of_infections > number_of_initial_infections);
+			if (d.isOfType(DISEASE.COVID)) final_n_covid_infections++;
+		}		
+		
+		Assert.assertTrue(final_n_covid_infections == n_initial_covid_infections);
+
 	}
+	
+	@Test
+	public void recoveredLeadsToSusceptibleIfWeAllowReinfection() {
+		// create a simulation and start
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
+		sim.start();
+		sim.params.recoveryToSusceptible_mean = 10;
+		sim.params.recoveryToSusceptible_std = 2;
+
+		// initially make everyone susceptible
+		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.RECOVERED), 
+				NodeOption.CoronavirusInfectiousBehaviour);	
+		
+		// Set up a duration to run the simulation
+		int numDays = 100; 
+		
+		// Run the simulation and record the infectious behaviour nodes reached in this simulation
+		List<String> uniqueNodesInRun = getFinalNodesInSim(sim, numDays);
+		// We expect only susceptible infections
+		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.SUSCEPTIBLE.key);
+
+		Assert.assertTrue(uniqueNodesInRun.containsAll(expectedNodes));
+
+	}
+	
+	@Test
+	public void reinfectionOccurs() {
+		// create a simulation and start
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
+		sim.start();
+		sim.params.recoveryToSusceptible_mean = 10;
+		sim.params.recoveryToSusceptible_std = 2;
+		// initially make everyone susceptible
+		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.SUSCEPTIBLE), 
+				NodeOption.CoronavirusInfectiousBehaviour);	
+		// get the number of infections in the simulation
+		int n_initial_covid_infections = 0;
+		for (Disease d: sim.human_infections) {
+			if (d.isOfType(DISEASE.COVID)) n_initial_covid_infections++;
+		}
+		
+		// now take half the population and make them exposed to COVID
+		int iterator = 0;
+		for (Disease d: sim.human_infections) {
+			if (iterator <  (int) n_initial_covid_infections / 2) {
+				d.setBehaviourNode(sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD));
+				iterator ++;
+			}
+			
+		}
+		int number_of_initial_susceptible_persons = n_initial_covid_infections - iterator;
+		
+		// Set up a duration to run the simulation
+		int numDays = 10; 
+		// get the initial number of infection objects
+		
+		// Run the simulation
+		HelperFunctions.runSimulation(sim, numDays);
+		
+		// get the final number of those who are susceptible
+		int final_n_susceptible = 0;
+		for (Disease d: sim.human_infections) {
+			if (d.getBehaviourName().equals(CoronavirusBehaviourNodeTitle.SUSCEPTIBLE.key)) final_n_susceptible++;
+		}		
+		Assert.assertTrue(final_n_susceptible < number_of_initial_susceptible_persons);
+
+	}
+	
+	
     // ================================ Helper functions ==================================================
 	
 	
