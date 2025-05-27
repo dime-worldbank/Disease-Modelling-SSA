@@ -3,6 +3,7 @@ package uk.ac.ucl.protecs.behaviours.diseaseProgression;
 
 
 import uk.ac.ucl.protecs.objects.diseases.DummyNonCommunicableDisease;
+import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.sim.*;
 import sim.engine.Steppable;
 import uk.ac.ucl.swise.behaviours.BehaviourNode;
@@ -83,7 +84,7 @@ public class DummyNonCommunicableDiseaseProgressionFramework extends DiseaseProg
 				// check if this person has died
 				DummyNonCommunicableDisease d = (DummyNonCommunicableDisease) s;
 
-				if (!d.getHost().isAlive()) {
+				if (!((Person) d.getHost()).isAlive()) {
 					nextStep = nextStepDummy.HAS_DIED;
 					}
 				// choose to progress the disease or not based on value of nextStep
@@ -130,7 +131,7 @@ public class DummyNonCommunicableDiseaseProgressionFramework extends DiseaseProg
 			// check if this person has died
 			DummyNonCommunicableDisease d = (DummyNonCommunicableDisease) s;
 			d.time_infected = time;
-			if (!d.getHost().isAlive()) {
+			if (!((Person) d.getHost()).isAlive()) {
 				nextStep = nextStepDummy.HAS_DIED;
 				}
 			// choose to progress the disease or not based on value of nextStep

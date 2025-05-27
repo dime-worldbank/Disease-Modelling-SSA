@@ -64,7 +64,7 @@ public class HelperFunctions {
 			if (!p.getDiseaseSet().containsKey(DISEASE.COVID.key) && rand <= fraction) {			
 				CoronavirusInfection inf = new CoronavirusInfection(p, null, world.infectiousFramework.getEntryPoint(), world);
 				inf.setBehaviourNode(Node);
-				world.infections.add(inf);
+				world.human_infections.add(inf);
 				// kick off the infectious behaviour framework
 				inf.step(world);
 			}
@@ -85,7 +85,7 @@ public class HelperFunctions {
 
 			world.schedule.step(world);
 			if (world.schedule.getTime() % (int) Params.ticks_per_day == sample_regularity) {
-			for (Disease i: world.infections) {
+			for (Disease i: world.human_infections) {
 				behaviourNodeBin.add(i.getBehaviourName());
 				}
 			}
@@ -227,7 +227,7 @@ public class HelperFunctions {
 			// create a list to store the disease nodes that occur in the simulation
 			world.schedule.step(world);
 		}
-		for (Disease i: world.infections) {
+		for (Disease i: world.human_infections) {
 			behaviourNodeBin.add(i.getBehaviourName());
 		}
 		
@@ -329,7 +329,7 @@ public class HelperFunctions {
 	
 	public static HashSet<DISEASE> InfectionsPresentInSim(WorldBankCovid19Sim world) {
 		HashSet<DISEASE> toReturn = new HashSet<DISEASE>();
-		for (Disease i: world.infections) {
+		for (Disease i: world.human_infections) {
 			toReturn.add(DISEASE.getValue(i.getDiseaseName()));
 		}
 		return toReturn;
@@ -348,5 +348,11 @@ public class HelperFunctions {
 			System.out.println("No part of the demography has been turned off");
 		}
 		
+	}
+	
+	public static void makePeopleLeaveTheHouseEachDay(WorldBankCovid19Sim sim) {
+		for (String key : sim.params.economic_status_weekday_movement_prob.keySet()) {
+			sim.params.economic_status_weekday_movement_prob.put(key, (double) 1);         
+		}
 	}
 }

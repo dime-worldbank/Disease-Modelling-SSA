@@ -82,7 +82,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 			@Override
 			public double next(Steppable s, double time) {
 				CoronavirusInfection i = (CoronavirusInfection) s;
-				if (i.getHost().isDeadFromOther()) {
+				if (((Person) i.getHost()).isDeadFromOther()) { 
 					return Double.MAX_VALUE;
 				}
 				//
@@ -99,9 +99,9 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 
 					// moderate this based on the age of the host
 					double mySymptLikelihood = myWorld.params.getLikelihoodByAge(
-							myWorld.params.infection_p_sym_by_age, myWorld.params.infection_age_params, i.getHost().getAge());
+							myWorld.params.infection_p_sym_by_age, myWorld.params.infection_age_params, ((Person) i.getHost()).getAge());
 					assert (mySymptLikelihood >= 0.0) & (mySymptLikelihood <= 1.0) : "probability out of bounds " + mySymptLikelihood;
-					assert i.getHost() != null : "PROBLEM WITH INFECTION IN PERSON. INFECTION IS NULL " + i.getHost().getID();
+					assert i.getHost() != null : "PROBLEM WITH INFECTION IN PERSON. INFECTION IS NULL " + ((Person) i.getHost()).getID();
 					assert i.getHost().getLocation() != null : "PROBLEM WITH LOCATION, LOCATION IS NULL" + i.getHost().getLocation().getId();
 
 					// activate the next step probabilistically
@@ -127,14 +127,14 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				//
 				
 				double mySusceptLikelihood = myWorld.params.getLikelihoodByAge(
-						myWorld.params.infection_r_sus_by_age, myWorld.params.infection_age_params, i.getHost().getAge());
+						myWorld.params.infection_r_sus_by_age, myWorld.params.infection_age_params, ((Person) i.getHost()).getAge());
 				if(myWorld.random.nextDouble() < mySusceptLikelihood){
 					
 					// timekeep this
 					i.time_infected = time;
 //					---------------- mySusceptLikelihood is sometimes greater than 1, is this correct -------------------------------------
 //					assert (mySusceptLikelihood >= 0.0) & (mySusceptLikelihood <= 1.0): "probability out of bounds: " + mySusceptLikelihood;
-					assert i.getHost() != null : "PROBLEM WITH INFECTION IN PERSON. INFECTION IS NULL " + i.getHost().getID();
+					assert i.getHost() != null : "PROBLEM WITH INFECTION IN PERSON. INFECTION IS NULL " + ((Person) i.getHost()).getID();
 					assert i.getHost().getLocation() != null : "PROBLEM WITH LOCATION, LOCATION IS NULL" + i.getHost().getLocation().getId();
 					// the agent has been infected - set the time at which it will become infecTIOUS
 					double timeUntilInfectious = myWorld.nextRandomLognormal(
@@ -176,10 +176,10 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				
 				// while presympotmatic, the agent is still infectious
 				CoronavirusInfection i = (CoronavirusInfection) s;
-				if (i.getHost().isDeadFromOther()) {
+				if (((Person) i.getHost()).isDeadFromOther()) {
 					return Double.MAX_VALUE;
 				}
-				i.getHost().infectNeighbours();
+				((Person) i.getHost()).infectNeighbours();
 				// determine when the infection will proceed to symptoms - this is
 				// only a matter of time in this case
 				if(time >= i.time_start_symptomatic){
@@ -216,11 +216,11 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				
 				// although asympotmatic, the agent is still infectious
 				CoronavirusInfection i = (CoronavirusInfection) s;
-				if (i.getHost().isDeadFromOther()) {
+				if (((Person) i.getHost()).isDeadFromOther()) {
 					return Double.MAX_VALUE;
 				}
-				i.getHost().infectNeighbours();
-				i.setAsympt();
+				((Person) i.getHost()).infectNeighbours();
+
 				// determine when the agent will recover - this is
 				// only a matter of time in this case
 				if(time >= i.time_recovered){
@@ -257,10 +257,10 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				
 				// the agent is infectious
 				CoronavirusInfection i = (CoronavirusInfection) s;
-				if (i.getHost().isDeadFromOther()) {
+				if (((Person) i.getHost()).isDeadFromOther()) {
 					return Double.MAX_VALUE;
 				}
-				i.getHost().infectNeighbours();
+				((Person) i.getHost()).infectNeighbours();
 				i.setSymptomatic();
 				i.setMild();
 				i.setEligibleForTesting();
@@ -294,7 +294,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 
 					// determine if the patient will become sicker
 					double mySevereLikelihood = myWorld.params.getLikelihoodByAge(
-							myWorld.params.infection_p_sev_by_age, myWorld.params.infection_age_params, i.getHost().getAge());
+							myWorld.params.infection_p_sev_by_age, myWorld.params.infection_age_params, ((Person) i.getHost()).getAge());
 					assert (mySevereLikelihood >= 0.0) & (mySevereLikelihood <= 1.0) : "probablilty not valid: " + mySevereLikelihood;
 					if(myWorld.random.nextDouble() < mySevereLikelihood){
 						double time_until_severe = myWorld.nextRandomLognormal(
@@ -338,10 +338,10 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				
 				// the agent is infectious
 				CoronavirusInfection i = (CoronavirusInfection) s;
-				if (i.getHost().isDeadFromOther()) {
+				if (((Person) i.getHost()).isDeadFromOther()) {
 					return Double.MAX_VALUE;
 				}
-				i.getHost().infectNeighbours();
+				((Person) i.getHost()).infectNeighbours();
 				i.setSevere();
 				// if the agent is scheduled to recover, make sure that it
 				// does so
@@ -360,7 +360,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				else if(i.time_recovered == Double.MAX_VALUE && i.time_start_critical == Double.MAX_VALUE){
 
 					double myCriticalLikelihood = myWorld.params.getLikelihoodByAge(
-							myWorld.params.infection_p_cri_by_age, myWorld.params.infection_age_params, i.getHost().getAge());
+							myWorld.params.infection_p_cri_by_age, myWorld.params.infection_age_params, ((Person) i.getHost()).getAge());
 					assert (myCriticalLikelihood >= 0.0) & (myCriticalLikelihood <= 1.0) : "probablilty not valid " + myCriticalLikelihood;
 
 					// determine if the patient will become sicker
@@ -407,10 +407,10 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				
 				// the agent is infectious
 				CoronavirusInfection i = (CoronavirusInfection) s;
-				if (i.getHost().isDeadFromOther()) {
+				if (((Person) i.getHost()).isDeadFromOther()) {
 					return Double.MAX_VALUE;
 				}
-				i.getHost().infectNeighbours();
+				((Person) i.getHost()).infectNeighbours();
 				i.setCritical();
 				
 				// if the agent is scheduled to recover, make sure that it
@@ -433,7 +433,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				else if(i.time_recovered == Double.MAX_VALUE && i.time_died == Double.MAX_VALUE ){
 
 					double myDeathLikelihood = myWorld.params.getLikelihoodByAge(
-							myWorld.params.infection_p_dea_by_age, myWorld.params.infection_age_params, i.getHost().getAge());
+							myWorld.params.infection_p_dea_by_age, myWorld.params.infection_age_params, ((Person) i.getHost()).getAge());
 					
 					assert (myDeathLikelihood >= 0.0) & (myDeathLikelihood <= 1.0) : "probablilty not valid " + myDeathLikelihood;
 
@@ -480,7 +480,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 			public double next(Steppable s, double time) {
 
 				CoronavirusInfection i = (CoronavirusInfection) s;
-				if (i.getHost().isDeadFromOther()) {
+				if (((Person) i.getHost()).isDeadFromOther()) {
 					return Double.MAX_VALUE;
 				}
 				i.time_recovered = time;
@@ -492,17 +492,17 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				i.getHost().getLocation().getRootSuperLocation().metric_new_recovered++;				
 				i.setEligibleForTesting();
 				// the Person may have stopped moving when ill - reactivate!
-				if(i.getHost().isImmobilised()){
+				if(((Person) i.getHost()).isImmobilised()){
 					// remobilise this person if they aren't being held at home by occupational constraint
 					// first check if there is any constraint to this persons movement by checking their econ status
-					if (!myWorld.params.OccupationConstraintList.containsKey(i.getHost().getEconStatus())){
-						i.getHost().setMobility(true);
+					if (!myWorld.params.OccupationConstraintList.containsKey(((Person) i.getHost()).getEconStatus())){
+						((Person) i.getHost()).setMobility(true);
 						myWorld.schedule.scheduleOnce(i.getHost()); // schedule the agent to begin moving again!	
 					}
 					else {
 						// their occupation has some constraint, if it is that they stay at home, keep them at home
-						if (!myWorld.params.OccupationConstraintList.get(i.getHost().getEconStatus()).equals("Home")) {
-							i.getHost().setMobility(true);
+						if (!myWorld.params.OccupationConstraintList.get(((Person) i.getHost()).getEconStatus()).equals("Home")) {
+							((Person) i.getHost()).setMobility(true);
 							myWorld.schedule.scheduleOnce(i.getHost()); // schedule the agent to begin moving again!	
 						}
 					}
@@ -536,7 +536,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 			public double next(Steppable s, double time) {
 				CoronavirusInfection i = (CoronavirusInfection) s;
 				// remove covid from person object
-				i.getHost().die("COVID-19");
+				((Person) i.getHost()).die("COVID-19");
 				i.setAsCauseOfDeath();
 				i.time_died = time;
 								

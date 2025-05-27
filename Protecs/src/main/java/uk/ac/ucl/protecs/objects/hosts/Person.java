@@ -2,8 +2,9 @@ package uk.ac.ucl.protecs.objects.hosts;
 
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
+import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.HOST;
+
 import sim.engine.SimState;
-import uk.ac.ucl.swise.agents.MobileAgent;
 import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
 import java.util.Collection;
@@ -21,7 +22,7 @@ import uk.ac.ucl.protecs.objects.locations.Workplace;
 import uk.ac.ucl.protecs.objects.locations.Location.LocationCategory;
 
 
-public class Person extends MobileAgent {
+public class Person extends Host {
 	
 	//
 	// Personal Attributes
@@ -31,109 +32,13 @@ public class Person extends MobileAgent {
 	private final int myId;
 
 	// larger group membership
-	public Household myHousehold;
+	public Location homeLocation;
 	public Workplace myWorkplace;
-	// personal/demographic attributes
-	int age;
+	// personal/demographic attributes	
 	private final int birthday;
-	// only two options considered for biological sex, therefore use enum
-	public enum SEX {
-		MALE("male"), FEMALE("female");
-		String key;
-	     
-		SEX(String key) { this.key = key; }
-    
-        public static SEX getValue(String x) {
-        	switch (x) {
-        	case "male":
-        		return MALE;
-        	case "female":
-        		return FEMALE;
-        	default:
-        		throw new IllegalArgumentException();
-        	}
-        }
-	}
 	
-	private final SEX sex;
-
-	// economic attributes. Economic status is read in from census file and can be accessed, but not changed
-	public enum OCCUPATION{
-		OFFICE_WORKER("office workers"), UNEMPLOYED("not working, inactive, not in universe"), TEACHER("teachers"),
-		HOMEMAKER("homemakers/housework"), CURRENT_STUDENTS("current students"), SERVICE_WORKERS("service workers"), AGRICULTURE("agriculture workers"),
-		INDUSTRY("industry workers"), ARMY("in the army"), DISABLED_NOT_WORKING("disabled and not working"), SERVICE_RETAIL("service_retail"),
-		UNEMPLOYED_NOT_AG("unemployed_not_ag"), OFFICE_WORKERS("office_worker"), INACTIVE("inactive"), STUDENT("student"), 
-		INFORMAL_PETTY_TRADE("informal_petty_trade"), OTHER("other"), MANU_MINING_TRADES("manu_mining_trades"), POLICE_ARMY("police_army"),
-		HEALTHCARE_SOCIAL_WORK("healthcare_social_work"), EDUCATION("education"), RELIGIOUS("religious"), TRANSPORT_SECTOR("transport_sector"),
-		SUBSISTENCE_AG("subsistence_ag"), AG_ESTATES("ag_estates"), STUDENTS_TEACHERS("students_teachers");
-		public String key;
-	     
-		OCCUPATION(String key) { this.key = key; }
-		
-		public static OCCUPATION getValue(String x) {
-        	switch (x) {
-        	case "office workers":
-        		return OFFICE_WORKER;
-        	case "not working, inactive, not in universe":
-        		return UNEMPLOYED;
-        	case "teachers":
-        		return TEACHER;
-        	case "homemakers/housework":
-        		return HOMEMAKER;
-        	case "service workers":
-        		return SERVICE_WORKERS;
-        	case "student":
-        		return STUDENT;
-        	case "current students":
-        		return CURRENT_STUDENTS;
-        	case "agriculture workers":
-        		return AGRICULTURE;
-        	case "industry workers":
-        		return INDUSTRY;
-        	case "in the army":
-        		return ARMY;
-        	case "disabled and not working":
-        		return DISABLED_NOT_WORKING;
-        	case "service_retail":
-        		return SERVICE_RETAIL;
-        	case "unemployed_not_ag":
-        		return UNEMPLOYED_NOT_AG;
-        	case "office_worker":
-        		return OFFICE_WORKERS;
-        	case "inactive":
-        		return INACTIVE;
-        	case "informal_petty_trade":
-        		return INFORMAL_PETTY_TRADE;
-        	case "other":
-        		return OTHER;
-        	case "manu_mining_trades": 
-        		return MANU_MINING_TRADES;
-        	case "police_army":
-        		return POLICE_ARMY;
-        	case "healthcare_social_work":
-        		return HEALTHCARE_SOCIAL_WORK;
-        	case "education":
-        		return EDUCATION;
-        	case "religious":
-        		return RELIGIOUS;
-        	case "transport_sector":
-        		return TRANSPORT_SECTOR;
-        	case "subsistence_ag":
-        		return SUBSISTENCE_AG;
-        	case "ag_estates":
-        		return AG_ESTATES;
-        	case "students_teachers":
-        		return STUDENTS_TEACHERS;
-        	default:
-        		throw new IllegalArgumentException();
-        	}
-		
-		}
-	}
 	private final OCCUPATION economic_status;
 	
-	// locational attributes
-	Location currentLocation;
 	// schoolGoer is read in and never changed, ensure this is private
 	private final boolean schoolGoer; // allowed to move between districts?
 	
@@ -146,7 +51,6 @@ public class Person extends MobileAgent {
 	// activity
 	BehaviourNode currentActivityNode = null;
 	
-	HashMap <String, Disease> myDiseaseSet = new HashMap <String, Disease>();
 	
 	// behaviours
 	boolean immobilised = false;
@@ -154,16 +58,11 @@ public class Person extends MobileAgent {
 	boolean atWork = false;
 	boolean isUnemployed = false;
 	
-	// copy of world
-	public WorldBankCovid19Sim myWorld;
-	
 	//
 	// Epidemic Attributes
 	//
 	
 	// health
-	public boolean isDead = false;
-
 
 	boolean isDeadFromOther = false;
 	boolean deathLogged = false;
@@ -174,8 +73,104 @@ public class Person extends MobileAgent {
 
 	// bubble interaction counters
 	int number_of_interactions_at_work = Integer.MIN_VALUE;
-	
-	
+	// only two options considered for biological sex, therefore use enum
+		public enum SEX {
+			MALE("male"), FEMALE("female");
+			String key;
+		     
+			SEX(String key) { this.key = key; }
+		   
+			public static SEX getValue(String x) {
+		       	switch (x) {
+		       	case "male":
+		       		return MALE;
+		       	case "female":
+	        		return FEMALE;
+	        		default:
+		        	throw new IllegalArgumentException();
+		       	}
+		       }
+		}
+		// economic attributes. Economic status is read in from census file and can be accessed, but not changed
+		public enum OCCUPATION{
+			OFFICE_WORKER("office workers"), UNEMPLOYED("not working, inactive, not in universe"), TEACHER("teachers"),
+			HOMEMAKER("homemakers/housework"), CURRENT_STUDENTS("current students"), SERVICE_WORKERS("service workers"), AGRICULTURE("agriculture workers"),
+			INDUSTRY("industry workers"), ARMY("in the army"), DISABLED_NOT_WORKING("disabled and not working"), SERVICE_RETAIL("service_retail"),
+			UNEMPLOYED_NOT_AG("unemployed_not_ag"), OFFICE_WORKERS("office_worker"), INACTIVE("inactive"), STUDENT("student"), 
+			INFORMAL_PETTY_TRADE("informal_petty_trade"), OTHER("other"), MANU_MINING_TRADES("manu_mining_trades"), POLICE_ARMY("police_army"),
+			HEALTHCARE_SOCIAL_WORK("healthcare_social_work"), EDUCATION("education"), RELIGIOUS("religious"), TRANSPORT_SECTOR("transport_sector"),
+			SUBSISTENCE_AG("subsistence_ag"), AG_ESTATES("ag_estates"), STUDENTS_TEACHERS("students_teachers");
+			public String key;
+			     
+			OCCUPATION(String key) { this.key = key; }
+				
+			public static OCCUPATION getValue(String x) {
+		       	switch (x) {
+		       	case "office workers":
+		       		return OFFICE_WORKER;
+		       	case "not working, inactive, not in universe":
+		       		return UNEMPLOYED;
+		       	case "teachers":
+		       		return TEACHER;
+		       	case "homemakers/housework":
+		       		return HOMEMAKER;
+		       	case "service workers":
+		       		return SERVICE_WORKERS;
+		       	case "student":
+		       		return STUDENT;
+		       	case "current students":
+		       		return CURRENT_STUDENTS;
+		       	case "agriculture workers":
+		       		return AGRICULTURE;
+		       	case "industry workers":
+		       		return INDUSTRY;
+		       	case "in the army":
+		       		return ARMY;
+		       	case "disabled and not working":
+		       		return DISABLED_NOT_WORKING;
+		       	case "service_retail":
+		       		return SERVICE_RETAIL;
+		       	case "unemployed_not_ag":
+		       		return UNEMPLOYED_NOT_AG;
+		       	case "office_worker":
+		       		return OFFICE_WORKERS;
+	        	case "inactive":
+	        		return INACTIVE;
+		        case "informal_petty_trade":
+		       		return INFORMAL_PETTY_TRADE;
+		       	case "other":
+		       		return OTHER;
+		       	case "manu_mining_trades": 
+		       		return MANU_MINING_TRADES;
+		       	case "police_army":
+		       		return POLICE_ARMY;
+		       	case "healthcare_social_work":
+	        		return HEALTHCARE_SOCIAL_WORK;	        	
+	        	case "education":
+		       		return EDUCATION;
+		        case "religious":
+		       		return RELIGIOUS;
+		       	case "transport_sector":
+		       		return TRANSPORT_SECTOR;
+		       	case "subsistence_ag":
+		       		return SUBSISTENCE_AG;
+		       	case "ag_estates":
+		       		return AG_ESTATES;
+		       	case "students_teachers":
+	        		return STUDENTS_TEACHERS;
+	        		default:
+		        	throw new IllegalArgumentException();
+		       	}
+			
+			}
+		}
+
+		boolean isDead;
+		
+		int age;
+		
+		SEX sex;
+			
 	/**
 	 * Constructor for Person object.
 	 * 
@@ -206,20 +201,20 @@ public class Person extends MobileAgent {
 		this.schoolGoer = schoolGoer;
 
 		// record-keeping
-		myHousehold = hh;
+		homeLocation = hh;
 		myWorkplace = w;
 		myWorld = world;
 		
 		// agents are initialised uninfected
 		
-		communityLocation = myHousehold.getRootSuperLocation();
+		communityLocation = homeLocation.getRootSuperLocation();
 		communityLocation.setLocationType(LocationCategory.COMMUNITY);
 
 		workLocation = myWorkplace;
 		workBubble = new HashSet <Person> ();
 		communityBubble = new HashSet <Person> ();
-		
-		this.currentLocation = hh;
+		myDiseaseSet = new HashMap <String, Disease>();
+		setLocation(hh, this);
 	}
 	
 	//
@@ -241,7 +236,9 @@ public class Person extends MobileAgent {
 		else
 			myWorld.schedule.scheduleOnce(this, myWorld.param_schedule_movement);
 		
-	}	
+		
+		
+	}
 
 	Person myWrapper() { return this; }
 	
@@ -250,14 +247,6 @@ public class Person extends MobileAgent {
 	 * Also updates the various Locations as appropriate (given possible nulls).
 	 * @return the amount of time spent travelling to the given location.
 	 */	
-	public double transferTo(Location l){
-		if(currentLocation != null)
-			currentLocation.removePerson(this);
-		currentLocation = l;
-		if(l != null)
-			l.addPerson(this);
-		return 1; // TODO make based on distance travelled!
-	}
 	
 	public void die(String cause){
 		if (cause == "COVID-19") {
@@ -439,7 +428,7 @@ public class Person extends MobileAgent {
 					
 
 					if (myProb < beta) {
-						if (new_exposure) {
+						if (new_exposure) { 
 						CoronavirusInfection new_infection = new CoronavirusInfection(p, this, myWorld.infectiousFramework.getEntryPoint(), myWorld);
 						myWorld.schedule.scheduleOnce(new_infection, myWorld.param_schedule_infecting);
 						}
@@ -450,9 +439,9 @@ public class Person extends MobileAgent {
 				}
 				break;
 				case DUMMY_INFECTIOUS:{
-					if(!p.myDiseaseSet.containsKey(inf.key) && myWorld.random.nextDouble() < beta){
-						p.myDiseaseSet.put(inf.key, new DummyInfectiousDisease(p, this, myWorld.dummyInfectiousFramework.getEntryPoint(), myWorld));
-						myWorld.schedule.scheduleOnce(p.myDiseaseSet.get(inf.key), myWorld.param_schedule_infecting);
+					if(!p.getDiseaseSet().containsKey(inf.key) && myWorld.random.nextDouble() < beta){
+						p.getDiseaseSet().put(inf.key, new DummyInfectiousDisease(p, this, myWorld.dummyInfectiousFramework.getEntryPoint(), myWorld));
+						myWorld.schedule.scheduleOnce(p.getDiseaseSet().get(inf.key), myWorld.param_schedule_infecting);
 					}
 				}
 				break;
@@ -478,30 +467,28 @@ public class Person extends MobileAgent {
 	//
 
 	// LOCATIONAL 
+	public boolean isHome(){ return currentLocation == homeLocation;}
 	
-	public void setLocation(Location l){
-		if(this.currentLocation != null)
-			currentLocation.removePerson(this);
-		this.currentLocation = l;
-		l.addPerson(this);
+	public void setAtWork(boolean isAtWork) {
+		this.atWork = isAtWork;
 	}
-	
-	public Location getLocation(){ return currentLocation;}
-	public boolean isHome(){ return currentLocation == myHousehold;}
+	public boolean atWorkNow() {
+		return this.atWork;
+	}
 
 	public Location getCommunityLocation(){ return communityLocation;}
+	
+	public Location getHomeLocation() {return homeLocation;}
 
 	public Location getWorkLocation() { 
 		return workLocation; 
 	}
-	public boolean atWorkNow(){ return this.atWork; }
-	public void setAtWork(boolean atWork) { this.atWork = atWork; }
 	
 	public boolean visitingNow() { return this.visiting; }
 	public void setVisiting(boolean visiting) { this.visiting = visiting; }
 
 	public void sendHome() {
-		this.transferTo(myHousehold);
+		this.transferTo(getHomeLocation());
 		this.setActivityNode(myWorld.movementFramework.getEntryPoint());
 		this.setAtWork(false);  
 	}
@@ -517,11 +504,6 @@ public class Person extends MobileAgent {
 	public HashSet <Person> getCommunityBubble(){ return communityBubble; }
 	public void setCommunityBubble(HashSet <Person> newBubble) { communityBubble = newBubble; }
 	
-	// MODULAR DISEASE MANAGEMENT
-	public void addDisease(DISEASE disease, Disease i) {
-		this.myDiseaseSet.put(disease.key, i);
-	};
-	public HashMap<String, Disease> getDiseaseSet() {return this.myDiseaseSet; }
 
 
 	// ATTRIBUTES
@@ -531,11 +513,8 @@ public class Person extends MobileAgent {
 	public void setActivityNode(BehaviourNode bn){ currentActivityNode = bn; }
 	public BehaviourNode getActivityNode(){ return currentActivityNode; }
 	
-	public int getAge(){ return age;}
 	public int getBirthday() {return birthday; }
-	public SEX getSex() {return this.sex;};
 	public OCCUPATION getEconStatus(){ return economic_status;}
-	public Location getHousehold(){ return myHousehold; }
 	public Location getWorkplace(){ return myWorkplace; }
 
 		
@@ -556,7 +535,7 @@ public class Person extends MobileAgent {
 	
 	public boolean isSchoolGoer() { return this.schoolGoer; }
 
-	public String getCurrentAdminZone() {return this.getHousehold().getRootSuperLocation().myId;}
+	public String getCurrentAdminZone() {return this.getHomeLocation().getRootSuperLocation().myId;}
 	public void setUnemployed() {this.isUnemployed = true;}
 	public boolean isUnemployed() {return this.isUnemployed;}  
 	public void setNumberOfWorkplaceInteractions(int n) {this.number_of_interactions_at_work = n;}
@@ -566,8 +545,6 @@ public class Person extends MobileAgent {
 	// UTILS
 	
 	public String toString(){ return "P_" + this.myId;}
-	public int getID(){ return this.myId; }
-
 	// for use in the HashCode!!
 	public int hashCode(){ return myId; }
 	
@@ -593,7 +570,7 @@ public class Person extends MobileAgent {
 	
 	public Household getHouseholdAsType() {
 		
-		return this.myHousehold;
+		return (Household) this.homeLocation;
 	}
 	
 	public boolean hasSymptomaticCovid() {
@@ -603,5 +580,27 @@ public class Person extends MobileAgent {
 		}
 		return false;
 	}
+
+	@Override
+	public String getHostType() {
+		return HOST.PERSON.key;
+	}
+
+	public SEX getSex() {
+		return sex;
+	}
+
+	public int getAge() {
+		return age;
+	}
+
+	public int getID(){ return this.myId; }
 	
+	@Override
+	public boolean isOfType(HOST host) {
+		if (host.equals(HOST.PERSON)) return true;
+		
+		return false;
+	};
+
 }

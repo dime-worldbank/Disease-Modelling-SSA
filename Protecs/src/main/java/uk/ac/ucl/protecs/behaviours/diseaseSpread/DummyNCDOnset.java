@@ -1,8 +1,6 @@
 package uk.ac.ucl.protecs.behaviours.diseaseSpread;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 import sim.engine.SimState;
 import sim.engine.Steppable;

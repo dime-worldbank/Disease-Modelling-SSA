@@ -1,19 +1,23 @@
 package uk.ac.ucl.protecs.sim;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Random;
 
 import uk.ac.ucl.protecs.behaviours.*;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
+import uk.ac.ucl.protecs.behaviours.diseaseProgression.DummyWaterborneDiseaseProgressionFramework;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.DummyNonCommunicableDiseaseProgressionFramework;
 import uk.ac.ucl.protecs.objects.diseases.DummyNonCommunicableDisease;
+import uk.ac.ucl.protecs.objects.diseases.DummyWaterborneDisease;
 import uk.ac.ucl.protecs.objects.diseases.Disease;
 import uk.ac.ucl.protecs.objects.diseases.DummyInfectiousDisease;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.objects.hosts.Person.OCCUPATION;
 import uk.ac.ucl.protecs.objects.hosts.Person.SEX;
+import uk.ac.ucl.protecs.objects.hosts.Water;
 import uk.ac.ucl.protecs.objects.locations.Household;
 import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.objects.locations.Workplace;
@@ -32,10 +36,11 @@ public class WorldBankCovid19Sim extends SimState {
 
 	// the objects which make up the system
 	public ArrayList <Person> agents = null;
+	public ArrayList <Water> waterInSim = null;
 	public ArrayList <Household> households = null;
 	public ArrayList <Workplace> workplaces = null;
 
-	public ArrayList <Disease> infections = null;
+	public ArrayList <Disease> human_infections = null;
 	public HashSet <OCCUPATION> occupationsInSim = null;
 	public Random random;
 	
@@ -47,6 +52,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public CoronavirusDiseaseProgressionFramework infectiousFramework = null;
 	public SpuriousSymptomDiseaseProgressionFramework spuriousFramework = null;
 	public DummyNonCommunicableDiseaseProgressionFramework dummyNCDFramework = null;
+	public DummyWaterborneDiseaseProgressionFramework dummyWaterborneFramework = null;
 	public DummyInfectiousDiseaseProgressionFramework dummyInfectiousFramework = null;
 	public Params params = null;
 	public boolean lockedDown = false;
@@ -82,7 +88,7 @@ public class WorldBankCovid19Sim extends SimState {
 	
 	// Create a enum list of diseases modelled currently, these will be used to categorise any infections a person may get over the course of the simulation.
 	public enum DISEASE{
-		DUMMY_NCD("DUMMY_NCD"), DUMMY_INFECTIOUS("DUMMY_INFECTIOUS"), COVID("COVID-19"), COVIDSPURIOUSSYMPTOM("COVID-19_SPURIOUS_SYMPTOM");
+		DUMMY_NCD("DUMMY_NCD"), DUMMY_INFECTIOUS("DUMMY_INFECTIOUS"), DUMMY_WATERBORNE("DUMMY_WATERBORNE"), COVID("COVID-19"), COVIDSPURIOUSSYMPTOM("COVID-19_SPURIOUS_SYMPTOM");
 
         public String key;
      
@@ -94,6 +100,8 @@ public class WorldBankCovid19Sim extends SimState {
         		return DUMMY_NCD;
         	case "DUMMY_INFECTIOUS":
         		return DUMMY_INFECTIOUS;
+        	case "DUMMY_WATERBORNE":
+        		return DUMMY_WATERBORNE;
         	case "COVID-19":
         		return COVID;
         	case "COVID-19_SPURIOUS_SYMPTOM":
@@ -104,7 +112,23 @@ public class WorldBankCovid19Sim extends SimState {
         }
 	}
 
-	
+	public enum HOST{
+		PERSON("PERSON"), WATER("WATER");
+		
+        public String key;
+
+        HOST(String key){this.key = key;}
+        public static HOST getValue(String x) {
+        	switch (x) {
+        	case "PERSON":
+        		return PERSON;
+        	case "WATER":
+        		return WATER;
+        	default:
+        		throw new IllegalArgumentException();
+        	}
+        }
+	}
 	public ArrayList <Integer> testingAgeDist = new ArrayList <Integer> ();
 	
 	// record-keeping
@@ -155,6 +179,7 @@ public class WorldBankCovid19Sim extends SimState {
 		if (developingModularity) {
 			dummyNCDFramework = new DummyNonCommunicableDiseaseProgressionFramework(this);
 			dummyInfectiousFramework = new DummyInfectiousDiseaseProgressionFramework(this);
+			dummyWaterborneFramework = new DummyWaterborneDiseaseProgressionFramework(this);
 		}
 		// RESET SEED
 		random = new Random(this.seed());
@@ -162,6 +187,7 @@ public class WorldBankCovid19Sim extends SimState {
 		// initialise the agent storage
 		// holders for construction
 		agents = new ArrayList <Person> ();
+		waterInSim = new ArrayList<Water>();
 		households = new ArrayList <Household> ();
 		workplaces = new ArrayList <Workplace> ();
 
@@ -186,7 +212,7 @@ public class WorldBankCovid19Sim extends SimState {
 		// RESET SEED
 
 		// set up the infections
-		infections = new ArrayList <Disease> ();
+		human_infections = new ArrayList <Disease> ();
 		// TODO expand this to include all infection types
 		for(Location l: params.lineList.keySet()){
 			
@@ -240,7 +266,7 @@ public class WorldBankCovid19Sim extends SimState {
 			}
 						
 		}
-
+		
 		// SCHEDULE UPDATING OF LOCATIONS
 		Steppable updateLocationLists = new Steppable() {
 			
@@ -252,6 +278,7 @@ public class WorldBankCovid19Sim extends SimState {
 			}
 			
 		};
+		
 		schedule.scheduleRepeating(0, this.param_schedule_updating_locations, updateLocationLists);
 		
 		if (developingModularity) {
@@ -267,12 +294,43 @@ public class WorldBankCovid19Sim extends SimState {
 				else break;
 			}
 			DummyNCDOnset.causeDummyNCDs dummyNCDtrigger = myDummyNCD.new causeDummyNCDs(this);
-
+			// shuffle the agents so that the first n people won't also get an NCD
+			Collections.shuffle(agents);
 			schedule.scheduleRepeating(dummyNCDtrigger, this.param_schedule_infecting, params.ticks_per_month);
 			i = 0.0;
 			for (Person a: agents) {
 				if (i < num_to_seed) {
 				DummyInfectiousDisease inf = new DummyInfectiousDisease(a, null, dummyInfectiousFramework.getStandardEntryPoint(), this, 0);
+				schedule.scheduleOnce(1, param_schedule_infecting, inf);
+				i ++ ;
+				}
+				else break;
+			}
+			double num_hh_to_seed = households.size() * this.params.dummy_waterborne_initial_fraction_with_inf;
+			i = 0.0;
+			for (Household h : this.households) {
+				// for purposes of development we will set every household to be a source of water
+				h.setWaterSource(true);
+				// create a new water source
+				Water householdWater = new Water(h, h.getRootSuperLocation(), this);
+				waterInSim.add(householdWater);
+				h.setWaterHere(householdWater);
+				// schedule the water to activate in the simulation
+				this.schedule.scheduleOnce(0, this.param_schedule_movement, householdWater);
+
+				// create a new infection in the water for some households
+				if (i < num_hh_to_seed) {
+					DummyWaterborneDisease diseaseInWater = new DummyWaterborneDisease(householdWater, null, dummyWaterborneFramework.getStandardEntryPointForWater(), this, 0);
+					schedule.scheduleOnce(1, param_schedule_infecting, diseaseInWater);
+					i ++ ;
+				}
+			}
+			// shuffle the agents so that the first n people won't also get a waterborne infection
+			Collections.shuffle(agents);
+			i = 0.0;
+			for (Person a: agents) {
+				if (i < num_to_seed) {
+					DummyWaterborneDisease inf = new DummyWaterborneDisease(a, null, dummyWaterborneFramework.getStandardEntryPoint(), this, 0);
 				schedule.scheduleOnce(1, param_schedule_infecting, inf);
 				i ++ ;
 				}
@@ -299,7 +357,7 @@ public class WorldBankCovid19Sim extends SimState {
 				Demography.Mortality agentMortality = myDemography.new Mortality(a, this);
 				schedule.scheduleOnce(0, this.param_schedule_reporting, agentMortality);
 				// if biologically female, trigger checks for giving birth each year
-				if (a.getSex().equals(SEX.FEMALE)) {
+				if (((Person) a).getSex().equals(SEX.FEMALE)) {
 					Demography.Births agentBirths = myDemography.new Births(a, this);
 					schedule.scheduleOnce(0, this.param_schedule_reporting, agentBirths);
 				}
@@ -475,7 +533,7 @@ public class WorldBankCovid19Sim extends SimState {
 		mySim.timer = endTime - startTime;
 		
 		System.out.println("...run finished after " + mySim.timer + " ms");
-		ImportExport.exportInfections(outputFilename + "_infections.txt", mySim.infections);
+		ImportExport.exportInfections(outputFilename + "_infections.txt", mySim.human_infections);
 
 	}
 

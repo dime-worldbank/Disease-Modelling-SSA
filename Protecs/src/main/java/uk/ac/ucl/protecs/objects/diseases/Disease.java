@@ -1,5 +1,6 @@
 package uk.ac.ucl.protecs.objects.diseases;
 
+import uk.ac.ucl.protecs.objects.hosts.Host;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.objects.hosts.Person.OCCUPATION;
 import uk.ac.ucl.protecs.objects.hosts.Person.SEX;
@@ -12,8 +13,8 @@ import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
 public abstract class Disease implements Steppable {
 	
-	public Person host;
-	public Person source;
+	public Host host;
+	public Host source;
 	public Location infectedAtLocation;
 	WorldBankCovid19Sim myWorld;
 
@@ -58,23 +59,23 @@ public abstract class Disease implements Steppable {
 	
 	
 	// =============================================== relevant information on the host ==============================================================
-	public Person getHost() {return this.host;}
+	public Host getHost() {return this.host;}
 	
-	public Person getSource() {return this.source;}
+	public Host getSource() {return this.source;}
 	
 	public Location infectedAt() {return this.infectedAtLocation;}
 	
 	public double getStartTime() {return this.time_infected;}
 			
-	public String getCurrentAdminZone() {return this.host.getHousehold().getRootSuperLocation().myId;}
+	public String getCurrentAdminZone() {return ((Person) this.getHost()).getHomeLocation().getRootSuperLocation().myId;}
 	
-	public boolean isHostAlive() {return this.getHost().isAlive();}
+	public boolean isHostAlive() {return ((Person) this.getHost()).isAlive();}
 	
-	public int getHostAge() {return this.getHost().getAge();}
+	public int getHostAge() {return ((Person) this.getHost()).getAge();}
 	
-	public  SEX getHostSex() {return this.getHost().getSex();}
+	public  SEX getHostSex() {return ((Person) this.getHost()).getSex();}
 	
-	public OCCUPATION getHostEconStatus() {return this.getHost().getEconStatus();}
+	public OCCUPATION getHostEconStatus() {return ((Person) this.getHost()).getEconStatus();}
 		
 	// =============================================== Disease 'behaviours'================================================================================
 	public BehaviourNode getCurrentBehaviourNode() {return this.currentBehaviourNode;}
@@ -89,6 +90,8 @@ public abstract class Disease implements Steppable {
 	}
 	
 	public abstract boolean isInfectious();
+	
+	public abstract boolean isWaterborne();
 	
 	// =============================================== Disease transmission ===========================================================================
 	
