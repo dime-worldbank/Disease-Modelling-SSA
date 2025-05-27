@@ -61,7 +61,7 @@ public class ImportExport {
 				//myStr += ";" + p.getEconStatus() + ";" + p.getAge() + ";" + p.getInfectStatus();
 				
 				if(p.getDiseaseSet().containsKey(DISEASE.COVID.key)){					
-					Person source = p.getDiseaseSet().get(DISEASE.COVID.key).getSource();
+					Person source = (Person) p.getDiseaseSet().get(DISEASE.COVID.key).getSource();
 					String sourceName = null;
 					if(source != null)
 						sourceName = source.toString();
@@ -153,13 +153,13 @@ public class ImportExport {
 			// export infection data
 			for(Disease i: infections) {
 				
-				String rec = i.getHost().getID() + "\t";
+				String rec = ((Person) i.getHost()).getID() + "\t";
 				
 				rec += i.getDiseaseName() + "\t";
 				
 				// infected by:
 				
-				Person source = i.getSource();
+				Person source = (Person) i.getSource();
 				if(source == null)
 					rec += "null";
 				else
