@@ -124,6 +124,10 @@ public class Location {
 		
 	}
 	
+	public void updatePersonsHere() {
+		personsHere_list = personsHere.toArray();
+	}
+	
 	public Object [] getPersonsHere() {
 		return personsHere.toArray();
 	}

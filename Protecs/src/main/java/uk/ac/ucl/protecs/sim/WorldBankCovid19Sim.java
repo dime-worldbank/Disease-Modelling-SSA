@@ -267,6 +267,20 @@ public class WorldBankCovid19Sim extends SimState {
 						
 		}
 		
+		// SCHEDULE UPDATING OF LOCATIONS
+		Steppable updateLocationLists = new Steppable() {
+			
+			@Override
+			public void step(SimState arg0) {
+				for(Location l: adminBoundaries) {
+					l.updatePersonsHere();
+					}
+			}
+			
+		};
+		
+		schedule.scheduleRepeating(0, this.param_schedule_updating_locations, updateLocationLists);
+		
 		if (developingModularity) {
 			DummyNCDOnset myDummyNCD = new DummyNCDOnset();
 			double num_to_seed = agents.size() * this.params.dummy_ncd_initial_fraction_with_ncd;
