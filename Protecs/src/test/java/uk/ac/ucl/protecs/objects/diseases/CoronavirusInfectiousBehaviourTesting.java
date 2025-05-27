@@ -413,13 +413,13 @@ public class CoronavirusInfectiousBehaviourTesting {
 				NodeOption.CoronavirusInfectiousBehaviour);	
 		// get the number of infections in the simulation
 		int n_initial_covid_infections = 0;
-		for (Disease d: sim.infections) {
+		for (Disease d: sim.human_infections) {
 			if (d.isOfType(DISEASE.COVID)) n_initial_covid_infections++;
 		}
 		
 		// now take half the population and make them exposed to COVID
 		int iterator = 0;
-		for (Disease d: sim.infections) {
+		for (Disease d: sim.human_infections) {
 			if (iterator <  (int) n_initial_covid_infections / 2) {
 				d.setBehaviourNode(sim.infectiousFramework.getEntryPoint());
 				iterator++;
@@ -436,7 +436,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		
 		// get the initial number of infection objects
 		int final_n_covid_infections = 0;
-		for (Disease d: sim.infections) {
+		for (Disease d: sim.human_infections) {
 			if (d.isOfType(DISEASE.COVID)) final_n_covid_infections++;
 		}		
 		
@@ -475,13 +475,13 @@ public class CoronavirusInfectiousBehaviourTesting {
 				NodeOption.CoronavirusInfectiousBehaviour);	
 		// get the number of infections in the simulation
 		int n_initial_covid_infections = 0;
-		for (Disease d: sim.infections) {
+		for (Disease d: sim.human_infections) {
 			if (d.isOfType(DISEASE.COVID)) n_initial_covid_infections++;
 		}
 		
 		// now take half the population and make them exposed to COVID
 		int iterator = 0;
-		for (Disease d: sim.infections) {
+		for (Disease d: sim.human_infections) {
 			if (iterator <  (int) n_initial_covid_infections / 2) {
 				d.setBehaviourNode(sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD));
 				iterator ++;
@@ -499,7 +499,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		
 		// get the final number of those who are susceptible
 		int final_n_susceptible = 0;
-		for (Disease d: sim.infections) {
+		for (Disease d: sim.human_infections) {
 			if (d.getBehaviourName().equals(CoronavirusBehaviourNodeTitle.SUSCEPTIBLE.key)) final_n_susceptible++;
 		}		
 		Assert.assertTrue(final_n_susceptible < number_of_initial_susceptible_persons);
