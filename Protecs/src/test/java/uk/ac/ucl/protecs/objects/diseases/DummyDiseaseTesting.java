@@ -22,8 +22,7 @@ public class DummyDiseaseTesting{
 	
 	@Test
 	public void checkPeopleGetTheDummyDiseases() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params.txt");
-		sim.developingModularity = true;
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_dummy_disease.txt");
 		sim.start();
 		int numDays = 8;
 
@@ -37,8 +36,7 @@ public class DummyDiseaseTesting{
 	
 	@Test
 	public void checkVerticalTransmissionOfDummyInfectiousWorks() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
-		sim.developingModularity = true;
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_dummy_disease.txt");
 		// Increase the birth rate to ensure births take place
 		HelperFunctions.setParameterListsToValue(sim, sim.params.prob_birth_by_age, 1.0);
 		sim.start();
@@ -67,8 +65,7 @@ public class DummyDiseaseTesting{
 	
 	@Test
 	public void checkHorizontalTransmissionOfDummyInfectiousWorks() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
-		sim.developingModularity = true;
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_dummy_disease.txt");
 		sim.start();
 		// turn off births and deaths.
 		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
@@ -96,8 +93,7 @@ public class DummyDiseaseTesting{
 	
 	@Test
 	public void checkNoNewCasesOfDummyNCDBeginWithoutRateOfAcquisition() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
-		sim.developingModularity = true;
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_dummy_disease.txt");
 		sim.start();
 		// turn off the rate of dummy NCD acquisition
 		sim.params.dummy_ncd_base_rate = 0.0;
@@ -121,8 +117,7 @@ public class DummyDiseaseTesting{
 	
 	@Test
 	public void checkThatNewPeopleDevelopTheDummyNCD() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
-		sim.developingModularity = true;
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_dummy_disease.txt");
 		sim.start();
 		// increase the rate of dummy NCD acquisition
 		sim.params.dummy_ncd_base_rate = 0.5;
@@ -146,8 +141,7 @@ public class DummyDiseaseTesting{
 	
 	@Test
 	public void checkThatMoreNewDummyNCDsOccurInMen() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
-		sim.developingModularity = true;
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_dummy_disease.txt");
 		sim.params.dummy_ncd_initial_fraction_with_ncd = 0;
 		sim.start();
 		
@@ -203,8 +197,7 @@ public class DummyDiseaseTesting{
 	}
 	@Test
 	public void checkThatMoreNewDummyNCDsInOver50s() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
-		sim.developingModularity = true;
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_dummy_disease.txt");
 		sim.params.dummy_ncd_initial_fraction_with_ncd = 0;
 		sim.start();
 		
@@ -262,8 +255,7 @@ public class DummyDiseaseTesting{
 	
 	@Test
 	public void checkDummyWaterborneDiseaseIsSpreadToWater() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
-		sim.developingModularity = true;
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_dummy_disease.txt");
 		sim.start();
 		int number_of_initial_infections_in_water = 0;
 		sim.params.dummy_waterborne_prob_shed_into_water = 1;
@@ -285,8 +277,7 @@ public class DummyDiseaseTesting{
 	
 	@Test
 	public void checkDummyWaterborneDiseaseIsSpreadToPeople() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
-		sim.developingModularity = true;
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_dummy_disease.txt");
 		sim.start();
 		int number_of_initial_infections_in_people = 0;
 
@@ -307,8 +298,7 @@ public class DummyDiseaseTesting{
 	
 	@Test
 	public void checkNoNewDummyWaterborneCasesHappenIfPeopleDoNotInteractWithWater() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
-		sim.developingModularity = true;
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_dummy_disease.txt");
 		sim.params.dummy_prob_interact_with_water = 0;
 		sim.start();
 		int number_of_initial_infections_in_both_hosts = 0;
@@ -338,8 +328,7 @@ public class DummyDiseaseTesting{
 	
 	@Test
 	public void checkThatDuplicatedInfectionTypesDoNotHappen() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
-		sim.developingModularity = true;
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_dummy_disease.txt");
 		int numberOfDiseasesModelledBySim = DISEASE.values().length;
 		sim.start();
 

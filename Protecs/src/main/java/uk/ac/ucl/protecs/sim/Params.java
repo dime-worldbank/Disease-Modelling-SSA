@@ -83,7 +83,9 @@ public class Params {
 	
 	// holders for epidemic-related data
 	
-	HashMap <DISEASE, HashMap<Location, Integer>> lineList;
+	HashMap <DISEASE, HashMap<Location, Integer>> lineListInHumans;
+	HashMap <DISEASE, HashMap<Location, Integer>> lineListIOther;
+
 	ArrayList <Double> lockdownChangeList = new ArrayList <Double>();
 	
 	// holders for testing data
@@ -291,11 +293,11 @@ public class Params {
 			int diseaseKeyIndex = columnNames.get("disease");
 			
 			// set up data container for each disease being seeded in
-			lineList = new HashMap <DISEASE, HashMap <Location, Integer>>();
+			lineListInHumans = new HashMap <DISEASE, HashMap <Location, Integer>>();
 			// iterate over all diseases in the simulation
 			for (DISEASE d: DISEASE.values()) {
 				
-				lineList.put(d, new HashMap <Location, Integer>());
+				lineListInHumans.put(d, new HashMap <Location, Integer>());
 			}
 			
 			
@@ -304,11 +306,11 @@ public class Params {
 				String [] bits = splitRawCSVString(s);
 				Location myAdminZone = adminZones.get(bits[adminZoneNameIndex]);
 				Integer myCount = Integer.parseInt(bits[countIndex]);
-				lineList.get(DISEASE.getValue(bits[diseaseKeyIndex])).put(myAdminZone, myCount);
+				lineListInHumans.get(DISEASE.getValue(bits[diseaseKeyIndex])).put(myAdminZone, myCount);
 			}
 			boolean aDiseaseHasBeenSeeded = false;
 			for (DISEASE d: DISEASE.values()) {
-				if (lineList.get(d).size() > 0){
+				if (lineListInHumans.get(d).size() > 0){
 					aDiseaseHasBeenSeeded = true;
 				}
 			}

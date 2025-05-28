@@ -179,11 +179,7 @@ public class WorldBankCovid19Sim extends SimState {
 		movementFramework = new MovementBehaviourFramework(this);
 		infectiousFramework = new CoronavirusDiseaseProgressionFramework(this);
 		spuriousFramework = new SpuriousSymptomDiseaseProgressionFramework(this);
-		if (developingModularity) {
-			dummyNCDFramework = new DummyNonCommunicableDiseaseProgressionFramework(this);
-			dummyInfectiousFramework = new DummyInfectiousDiseaseProgressionFramework(this);
-			dummyWaterborneFramework = new DummyWaterborneDiseaseProgressionFramework(this);
-		}
+		
 		// RESET SEED
 		random = new Random(this.seed());
 
@@ -216,62 +212,10 @@ public class WorldBankCovid19Sim extends SimState {
 
 		// set up the infections
 		human_infections = new ArrayList <Disease> ();
-		// TODO expand this to include all infection types
-		for (DISEASE d: DISEASE.values()) {
-			HashMap<Location, Integer> diseaseToSeed = params.lineList.get(d);
-			for(Location l: diseaseToSeed.keySet()){
-			
-				// activate this location
-				l.setActive(true);
-			
-				// number of people to infect
-				int countInfections = diseaseToSeed.get(l) * params.lineListWeightingFactor;
-			
-				// list of infected people
-				HashSet <Person> newlyInfected = new HashSet <Person> ();
-			
-				// number of people present
-				ArrayList <Person> peopleHere = this.personsToAdminBoundary.get(l);
-				int numPeopleHere = peopleHere.size();//l.getPeople().size();
-				if(numPeopleHere == 0){ // if there is no one there, don't continue
-					System.out.println("WARNING: attempting to initialise infection in Location " + l.getId() + " but there are no People present. Continuing without successful infection...");
-					continue;
-				}
-	
-				// schedule people here
-				//for(Person p: peopleHere)
-				//	schedule.scheduleRepeating(0, p);
-				
-				int collisions = 100; // to escape while loop in case of troubles
-	
-				// infect until you have met the target number of infections
-				while(newlyInfected.size() < countInfections && collisions > 0){
-					Person p = peopleHere.get(random.nextInt(numPeopleHere));
-					
-					// check for duplicates!
-					if(newlyInfected.contains(p)){
-						collisions--;
-						continue;
-					}
-					else // otherwise record that we're infecting this person
-						newlyInfected.add(p);
-					
-					// create new person
-					CoronavirusInfection inf = new CoronavirusInfection(p, null, infectiousFramework.getInfectedEntryPoint(l), this, 0);
-					// update this person's properties
-					
-					// update this person's properties so we can keep track of the number of cases etc				
-					if (inf.getBehaviourName().equals("asymptomatic")) {
-						inf.setAsympt();
-					}
-					else {
-						inf.setMild();
-					}
-					schedule.scheduleOnce(1, param_schedule_infecting, inf);
-				}
-						
-		}
-		}
+		// load in the infections in humans
+		seed_infections_in_humans();
+		// load in the infections in the environment
+		seed_infections_in_others();
 		
 		// SCHEDULE UPDATING OF LOCATIONS
 		Steppable updateLocationLists = new Steppable() {
@@ -456,6 +400,95 @@ public class WorldBankCovid19Sim extends SimState {
 			}
 		};
 		schedule.scheduleRepeating(reporter, this.param_schedule_reporting, params.ticks_per_day);
+	}
+
+	private void seed_infections_in_others() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private void seed_infections_in_humans() {
+		for (DISEASE d: DISEASE.values()) {
+			HashMap<Location, Integer> diseaseToSeed = params.lineListInHumans.get(d);
+			for(Location l: diseaseToSeed.keySet()){
+			
+				// activate this location
+				l.setActive(true);
+			
+				// number of people to infect
+				int countInfections = diseaseToSeed.get(l) * params.lineListWeightingFactor;
+			
+				// list of infected people
+				HashSet <Person> newlyInfected = new HashSet <Person> ();
+			
+				// number of people present
+				ArrayList <Person> peopleHere = this.personsToAdminBoundary.get(l);
+				int numPeopleHere = peopleHere.size();//l.getPeople().size();
+				if(numPeopleHere == 0){ // if there is no one there, don't continue
+					System.out.println("WARNING: attempting to initialise infection in Location " + l.getId() + " but there are no People present. Continuing without successful infection...");
+					continue;
+				}
+	
+				// schedule people here
+				//for(Person p: peopleHere)
+				//	schedule.scheduleRepeating(0, p);
+				
+				int collisions = 100; // to escape while loop in case of troubles
+	
+				// infect until you have met the target number of infections
+				while(newlyInfected.size() < countInfections && collisions > 0){
+					Person p = peopleHere.get(random.nextInt(numPeopleHere));
+					
+					// check for duplicates!
+					if(newlyInfected.contains(p)){
+						collisions--;
+						continue;
+					}
+					else // otherwise record that we're infecting this person
+						newlyInfected.add(p);
+					
+					// create new infection
+					switch (d) {
+					case COVID:{
+						CoronavirusInfection inf = new CoronavirusInfection(p, null, infectiousFramework.getInfectedEntryPoint(l), this, 0);						
+						if (inf.getBehaviourName().equals("asymptomatic")) {
+							inf.setAsympt();
+						}
+						else {
+							inf.setMild();
+						}
+						schedule.scheduleOnce(1, param_schedule_infecting, inf);
+						break;
+					}
+					case DUMMY_NCD:{
+						dummyNCDFramework = new DummyNonCommunicableDiseaseProgressionFramework(this);
+						DummyNonCommunicableDisease inf = new DummyNonCommunicableDisease(p, p, dummyNCDFramework.getStandardEntryPoint(), this, 0);			
+						schedule.scheduleOnce(1, param_schedule_infecting, inf);
+						DummyNCDOnset myDummyNCD = new DummyNCDOnset();
+						DummyNCDOnset.causeDummyNCDs dummyNCDtrigger = myDummyNCD.new causeDummyNCDs(this);
+						schedule.scheduleRepeating(dummyNCDtrigger, this.param_schedule_infecting, params.ticks_per_month);
+						break;
+					}
+					case DUMMY_INFECTIOUS:{
+						dummyInfectiousFramework = new DummyInfectiousDiseaseProgressionFramework(this);
+						DummyInfectiousDisease inf = new DummyInfectiousDisease(p, null, dummyInfectiousFramework.getStandardEntryPoint(), this, 0);			
+						schedule.scheduleOnce(1, param_schedule_infecting, inf);
+						break;
+					}
+					case DUMMY_WATERBORNE:{
+						dummyWaterborneFramework = new DummyWaterborneDiseaseProgressionFramework(this);
+						DummyWaterborneDisease inf = new DummyWaterborneDisease(p, null, dummyWaterborneFramework.getStandardEntryPoint(), this, 0);			
+						schedule.scheduleOnce(1, param_schedule_infecting, inf);
+						break;
+					}
+					default:
+						break;
+					}
+					
+				}
+						
+		}
+		}
 	}
 	
 	
