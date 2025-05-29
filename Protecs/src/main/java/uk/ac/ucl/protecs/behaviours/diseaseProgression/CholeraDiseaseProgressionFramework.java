@@ -111,7 +111,8 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 	
 	this.exposedNode = new BehaviourNode() {
 		// TODO: 1) Link the likelihood of exposure developing into an infection or not to the concentration of Cholera bacteria in the water source?
-		// 2) Time stamp the next steps in the disease development beyond exposure and infectious
+		// 2) Look into other factors influencing the likelihood of developing cholera
+		// 3) Link the exposed node to the severe node, this isn't COVID so don't treat it that way.
 		@Override
 		public String getTitle() {
 			// TODO Auto-generated method stub
@@ -130,7 +131,7 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 			// default to doing nothing and the infection not taking for now.
 			nextStep = nextStepCholera.DO_NOTHING;
 			
-			// ------------------------------------ DECIDE SYMPT OR ASYMPT CODE BLOCK ------------------------------------------------------------------------------
+			// ------------------------------------ DECIDE ASYMPT, MILD OR SEVERE CODE BLOCK ------------------------------------------------------------------------------
 			// If we have scheduled action for this cholera infection i.e. progression or determined recovery check if it's time for that to happen
 			if (choleraInfection.time_contagious < Double.MAX_VALUE) {
 				
@@ -264,6 +265,62 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 			}
 		
 	};
+	this.mildNode = new BehaviourNode() {
+
+		@Override
+		public String getTitle() {
+			return CholeraBehaviourNodeInHumans.MILD.key;
+		}
+
+		@Override
+		public boolean isEndpoint() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public double next(Steppable s, double time) {
+			Cholera choleraInfection = (Cholera) s;
+			// mild cases will recover in around 4-5 days (https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(03)15328-7/fulltext)
+			// Assume this person is mildly infected and shedding
+			nextStep = nextStepCholera.DO_NOTHING;
+			// -------------------------- ACT ON SCHEDULED RECOVERY CODE BLOCK ------------------------------------------------------------------------------ 
+			if (choleraInfection.time_recovered < Double.MAX_VALUE) {
+				// don't trigger recovery too early
+				if(time < choleraInfection.time_recovered)
+					return choleraInfection.time_recovered - time;
+				else {
+					nextStep = nextStepCholera.RECOVER;
+				}
+			}
+			// -----------------------------------------------------------------------------------------------------------------------------------------------
+			// ================================= SCHEDULE RECOVERY CODE BLOCK ================================================================================
+						
+			else {
+				// If I find any detail to shedding time in mild infections I will improve
+				choleraInfection.time_recovered = time + 4.5 * Params.ticks_per_day; // with treatment this will go down to 2-3 days
+			}
+			// ================================================================================================================================================
+			// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= MAKE NEXT STEP HAPPEN -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+			switch (nextStep) {
+				case DO_NOTHING:{
+					// Tick time over until next action
+					return 1;
+					}
+				case RECOVER:{
+					// This infection did not take, so return to susceptible
+					choleraInfection.setBehaviourNode(susceptibleNode);
+					choleraInfection.time_recovered = time;
+					// For now assume no reinfection
+					return Double.MAX_VALUE;
+					}
+				default:
+					return 1;
+			}
+			// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+		}
+	};
+	
 	
 	this.recoveredNode = new BehaviourNode() {
 
@@ -275,9 +332,8 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 
 		@Override
 		public double next(Steppable s, double time) {
-			Cholera d = (Cholera) s;
-
-			return myWorld.params.ticks_per_week;
+			// for now assume there is no reinfection
+			return Double.MAX_VALUE;
 		}
 
 		@Override
