@@ -161,7 +161,7 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 					choleraInfection.time_infected = time;
 					// Schedule a time in the future where this person will start shedding the Cholera infection, mean time is 1.4 days (https://www.sciencedirect.com/science/article/pii/S0163445312003477)
 					// Standard deviation is 0.0917.
-					choleraInfection.time_contagious = myWorld.nextRandomLognormal(
+					choleraInfection.time_contagious = time + myWorld.nextRandomLognormal(
 							myWorld.params.cholera_exposed_to_infectious_mean,
 							myWorld.params.cholera_exposed_to_infectious_std);
 					// scheduled the next step to occur, do nothing until then
@@ -208,11 +208,68 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 		
 	};
 	
+	this.asymptomaticNode = new BehaviourNode() {
+		// TODO: improve stochasticity in shedding time if possible
+		@Override
+		public String getTitle() {
+
+			return CholeraBehaviourNodeInHumans.ASYMPTOMATIC.key;
+		}
+
+		@Override
+		public boolean isEndpoint() {
+			return false;
+		}
+
+		@Override
+		public double next(Steppable s, double time) {
+			Cholera choleraInfection = (Cholera) s;
+			// Asymptomatic people will shed bacteria for about a day (https://pmc.ncbi.nlm.nih.gov/articles/PMC2554681/)
+			// Assume this person is asymptomatic and shedding
+			nextStep = nextStepCholera.DO_NOTHING;
+			// -------------------------- ACT ON SCHEDULED RECOVERY CODE BLOCK ------------------------------------------------------------------------------ 
+			if (choleraInfection.time_recovered < Double.MAX_VALUE) {
+				// don't trigger recovery too early
+				if(time < choleraInfection.time_recovered)
+					return choleraInfection.time_recovered - time;
+				else {
+					nextStep = nextStepCholera.RECOVER;
+				}
+			}
+			// -----------------------------------------------------------------------------------------------------------------------------------------------
+			// ================================= SCHEDULE RECOVERY CODE BLOCK ================================================================================
+			
+			else {
+				// If I find any detail to shedding time in asymptomatic infections I will improve
+				choleraInfection.time_recovered = time + 1 * Params.ticks_per_day;
+			}
+			// ================================================================================================================================================
+			// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= MAKE NEXT STEP HAPPEN -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+			switch (nextStep) {
+			case DO_NOTHING:{
+				// Tick time over until next action
+				return 1;
+				}
+			case RECOVER:{
+				// This infection did not take, so return to susceptible
+				choleraInfection.setBehaviourNode(susceptibleNode);
+				choleraInfection.time_recovered = time;
+				// For now assume no reinfection
+				return Double.MAX_VALUE;
+			}
+			default:
+				return 1;
+			}
+			// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+			}
+		
+	};
+	
 	this.recoveredNode = new BehaviourNode() {
 
 		@Override
 		public String getTitle() {
-			// TODO Auto-generated method stub
+
 			return CholeraBehaviourNodeInHumans.RECOVERED.key;
 		}
 
