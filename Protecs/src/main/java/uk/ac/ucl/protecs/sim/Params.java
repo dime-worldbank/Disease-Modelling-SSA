@@ -40,7 +40,7 @@ public class Params {
 	public double dummy_ncd_initial_fraction_with_ncd = 0.1;
 
 
-	public double rate_of_spurious_symptoms = 0.004;
+	public double rate_of_covid_spurious_symptoms = 0.004;
 	public int lineListWeightingFactor = 1; // the line list contains only detected instances, which can be biased 
 											// - weight this if we suspect it's undercounting
 	public boolean setting_perfectMixing = true; // if TRUE: there are no work or social bubbles; individuals have
@@ -101,34 +101,43 @@ public class Params {
 	public HashMap <OCCUPATION, LocationCategory> OccupationConstraintList = new HashMap <OCCUPATION, LocationCategory> ();
 	  
 	// parameters drawn from Kerr et al 2020 - https://www.medrxiv.org/content/10.1101/2020.05.10.20097469v3.full.pdf
-	public ArrayList <Integer> infection_age_params;
-	public ArrayList <Double> infection_r_sus_by_age;
-	public ArrayList <Double> infection_p_sym_by_age;
-	public ArrayList <Double> infection_p_sev_by_age;
-	public ArrayList <Double> infection_p_cri_by_age;
-	public ArrayList <Double> infection_p_dea_by_age;
+	public ArrayList <Integer> covid_infection_age_params;
+	public ArrayList <Double> covid_infection_r_sus_by_age;
+	public ArrayList <Double> covid_infection_p_sym_by_age;
+	public ArrayList <Double> covid_infection_p_sev_by_age;
+	public ArrayList <Double> covid_infection_p_cri_by_age;
+	public ArrayList <Double> covid_infection_p_dea_by_age;
 
 	// also from Kerr et al 2020, translated from days into ticks 
-	public double exposedToInfectious_mean =	4.5 * ticks_per_day;
-	public double exposedToInfectious_std =		1.5 * ticks_per_day;
-	public double infectiousToSymptomatic_mean =1.1 * ticks_per_day;
-	public double infectiousToSymptomatic_std = 0.9 * ticks_per_day;
-	public double symptomaticToSevere_mean = 	6.6 * ticks_per_day;
-	public double symptomaticToSevere_std = 	4.9 * ticks_per_day;
-	public double severeToCritical_mean =		1.5 * ticks_per_day;
-	public double severeToCritical_std =		2.0 * ticks_per_day;
-	public double criticalToDeath_mean =		10.7 * ticks_per_day;
-	public double criticalToDeath_std =			4.8 * ticks_per_day;
-	public double asymptomaticToRecovery_mean =	8.0 * ticks_per_day;
-	public double asymptomaticToRecovery_std =	2.0 * ticks_per_day;
-	public double symptomaticToRecovery_mean =	8.0 * ticks_per_day;
-	public double symptomaticToRecovery_std =	2.0 * ticks_per_day;
-	public double severeToRecovery_mean =		18.1 * ticks_per_day;
-	public double severeToRecovery_std =		6.3 * ticks_per_day;
-	public double criticalToRecovery_mean =		18.1 * ticks_per_day;
-	public double criticalToRecovery_std =		6.3 * ticks_per_day;
+	// TODO shove these sorts of parameters somewhere else
 	
-	// all cause mortality parameters, currently pulled out my arse
+	public double covid_exposedToInfectious_mean =	4.5 * ticks_per_day;
+	public double covid_exposedToInfectious_std =		1.5 * ticks_per_day;
+	public double covid_infectiousToSymptomatic_mean =1.1 * ticks_per_day;
+	public double covid_infectiousToSymptomatic_std = 0.9 * ticks_per_day;
+	public double covid_symptomaticToSevere_mean = 	6.6 * ticks_per_day;
+	public double covid_symptomaticToSevere_std = 	4.9 * ticks_per_day;
+	public double covid_severeToCritical_mean =		1.5 * ticks_per_day;
+	public double covid_severeToCritical_std =		2.0 * ticks_per_day;
+	public double covid_criticalToDeath_mean =		10.7 * ticks_per_day;
+	public double covid_criticalToDeath_std =			4.8 * ticks_per_day;
+	public double covid_asymptomaticToRecovery_mean =	8.0 * ticks_per_day;
+	public double covid_asymptomaticToRecovery_std =	2.0 * ticks_per_day;
+	public double covid_symptomaticToRecovery_mean =	8.0 * ticks_per_day;
+	public double covid_symptomaticToRecovery_std =	2.0 * ticks_per_day;
+	public double covid_severeToRecovery_mean =		18.1 * ticks_per_day;
+	public double covid_severeToRecovery_std =		6.3 * ticks_per_day;
+	public double covid_criticalToRecovery_mean =		18.1 * ticks_per_day;
+	public double covid_criticalToRecovery_std =		6.3 * ticks_per_day;
+	
+	// -------------------- Cholera parameters ---------------------------------
+	
+	public double cholera_exposed_to_infectious_mean = 1.4 * ticks_per_day; // (https://www.sciencedirect.com/science/article/pii/S0163445312003477)
+	public double cholera_exposed_to_infectious_std = 0.0917 * ticks_per_day; // (https://www.sciencedirect.com/science/article/pii/S0163445312003477)
+	public double cholera_prob_asymptomatic = 0.75; // (https://ui.adsabs.harvard.edu/abs/2008Natur.454..877K/abstract)
+	
+	
+	// all cause mortality parameters
 	public ArrayList <Integer> all_cause_death_age_params;
 	public ArrayList <Double> prob_death_by_age_male;
 	public ArrayList <Double> prob_death_by_age_female;
@@ -618,12 +627,12 @@ public class Params {
 			HashMap <String, Integer> columnNames = parseHeader(header);
 			
 			// set up data container
-			infection_age_params = new ArrayList <Integer> ();
-			infection_r_sus_by_age = new ArrayList <Double> ();
-			infection_p_sym_by_age = new ArrayList <Double> ();
-			infection_p_sev_by_age = new ArrayList <Double> ();
-			infection_p_cri_by_age = new ArrayList <Double> ();
-			infection_p_dea_by_age = new ArrayList <Double> ();
+			covid_infection_age_params = new ArrayList <Integer> ();
+			covid_infection_r_sus_by_age = new ArrayList <Double> ();
+			covid_infection_p_sym_by_age = new ArrayList <Double> ();
+			covid_infection_p_sev_by_age = new ArrayList <Double> ();
+			covid_infection_p_cri_by_age = new ArrayList <Double> ();
+			covid_infection_p_dea_by_age = new ArrayList <Double> ();
 
 			
 			// read in the raw data
@@ -636,7 +645,7 @@ public class Params {
 				if(ageRange.length > 1){
 					maxAge = Integer.parseInt(ageRange[1]); // take the maximum
 				}
-				infection_age_params.add(maxAge);
+				covid_infection_age_params.add(maxAge);
 				
 				double r_sus  = Double.parseDouble(bits[1]),
 						p_sym = Double.parseDouble(bits[2]),
@@ -650,18 +659,18 @@ public class Params {
 				p_sev /= p_sym;
 				
 				// store the values
-				infection_r_sus_by_age.add(r_sus);
-				infection_p_sym_by_age.add(p_sym);
-				infection_p_sev_by_age.add(p_sev);
-				infection_p_cri_by_age.add(p_cri);
-				infection_p_dea_by_age.add(p_dea);
+				covid_infection_r_sus_by_age.add(r_sus);
+				covid_infection_p_sym_by_age.add(p_sym);
+				covid_infection_p_sev_by_age.add(p_sev);
+				covid_infection_p_cri_by_age.add(p_cri);
+				covid_infection_p_dea_by_age.add(p_dea);
 
 			}
-			assert (infection_r_sus_by_age.size() > 0): "infection_r_sus_by_age is negative, cannot be the case";
-			assert (infection_p_sym_by_age.size() > 0): "infection_p_sym_by_age is negative, cannot be the case";
-			assert (infection_p_sev_by_age.size() > 0): "infection_p_sev_by_age is negative, cannot be the case";
-			assert (infection_p_cri_by_age.size() > 0): "infection_p_cri_by_age is negative, cannot be the case";
-			assert (infection_p_dea_by_age.size() > 0): "infection_p_dea_by_age is negative, cannot be the case";
+			assert (covid_infection_r_sus_by_age.size() > 0): "infection_r_sus_by_age is negative, cannot be the case";
+			assert (covid_infection_p_sym_by_age.size() > 0): "infection_p_sym_by_age is negative, cannot be the case";
+			assert (covid_infection_p_sev_by_age.size() > 0): "infection_p_sev_by_age is negative, cannot be the case";
+			assert (covid_infection_p_cri_by_age.size() > 0): "infection_p_cri_by_age is negative, cannot be the case";
+			assert (covid_infection_p_dea_by_age.size() > 0): "infection_p_dea_by_age is negative, cannot be the case";
 
 			lineListDataFile.close();
 			} catch (Exception e) {
@@ -1025,7 +1034,7 @@ public class Params {
 	
 	// Epidemic data access
 	public double getSuspectabilityByAge(int age){
-		return infection_beta * getLikelihoodByAge(infection_r_sus_by_age, infection_age_params, age);
+		return infection_beta * getLikelihoodByAge(covid_infection_r_sus_by_age, covid_infection_age_params, age);
 	}
 	
 	// Mobility data access

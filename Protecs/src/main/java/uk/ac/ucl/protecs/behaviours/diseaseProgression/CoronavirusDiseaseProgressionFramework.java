@@ -99,7 +99,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 
 					// moderate this based on the age of the host
 					double mySymptLikelihood = myWorld.params.getLikelihoodByAge(
-							myWorld.params.infection_p_sym_by_age, myWorld.params.infection_age_params, ((Person) i.getHost()).getAge());
+							myWorld.params.covid_infection_p_sym_by_age, myWorld.params.covid_infection_age_params, ((Person) i.getHost()).getAge());
 					assert (mySymptLikelihood >= 0.0) & (mySymptLikelihood <= 1.0) : "probability out of bounds " + mySymptLikelihood;
 					assert i.getHost() != null : "PROBLEM WITH INFECTION IN PERSON. INFECTION IS NULL " + ((Person) i.getHost()).getID();
 					assert i.getHost().getLocation() != null : "PROBLEM WITH LOCATION, LOCATION IS NULL" + i.getHost().getLocation().getId();
@@ -127,7 +127,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				//
 				
 				double mySusceptLikelihood = myWorld.params.getLikelihoodByAge(
-						myWorld.params.infection_r_sus_by_age, myWorld.params.infection_age_params, ((Person) i.getHost()).getAge());
+						myWorld.params.covid_infection_r_sus_by_age, myWorld.params.covid_infection_age_params, ((Person) i.getHost()).getAge());
 				if(myWorld.random.nextDouble() < mySusceptLikelihood){
 					
 					// timekeep this
@@ -138,8 +138,8 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 					assert i.getHost().getLocation() != null : "PROBLEM WITH LOCATION, LOCATION IS NULL" + i.getHost().getLocation().getId();
 					// the agent has been infected - set the time at which it will become infecTIOUS
 					double timeUntilInfectious = myWorld.nextRandomLognormal(
-							myWorld.params.exposedToInfectious_mean,
-							myWorld.params.exposedToInfectious_std);
+							myWorld.params.covid_exposedToInfectious_mean,
+							myWorld.params.covid_exposedToInfectious_std);
 					assert (timeUntilInfectious > 0): "Something has gone wrong in deciding when a person will become infectious, time is not in future: " + timeUntilInfectious;
 					i.time_contagious = time + timeUntilInfectious;
 					// update the person's properties to show they have covid
@@ -187,8 +187,8 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				}
 				else if(i.time_start_symptomatic == Double.MAX_VALUE ){
 					double time_until_symptoms = myWorld.nextRandomLognormal(
-							myWorld.params.infectiousToSymptomatic_mean, 
-							myWorld.params.infectiousToSymptomatic_std);
+							myWorld.params.covid_infectiousToSymptomatic_mean, 
+							myWorld.params.covid_infectiousToSymptomatic_std);
 					assert (time_until_symptoms >= 0.0) : "sheduled time not in future: " + time_until_symptoms;
 					i.time_start_symptomatic = time + time_until_symptoms;
 				}
@@ -229,8 +229,8 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				else if(i.time_recovered == Double.MAX_VALUE){ // has not been set
 					
 					double time_until_recovered = myWorld.nextRandomLognormal(
-							myWorld.params.asymptomaticToRecovery_mean, 
-							myWorld.params.asymptomaticToRecovery_std);
+							myWorld.params.covid_asymptomaticToRecovery_mean, 
+							myWorld.params.covid_asymptomaticToRecovery_std);
 					assert (time_until_recovered > 0) : "Time until recovered is not set to the future " + time_until_recovered;
 					i.time_recovered = time + time_until_recovered;
 				}
@@ -294,12 +294,12 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 
 					// determine if the patient will become sicker
 					double mySevereLikelihood = myWorld.params.getLikelihoodByAge(
-							myWorld.params.infection_p_sev_by_age, myWorld.params.infection_age_params, ((Person) i.getHost()).getAge());
+							myWorld.params.covid_infection_p_sev_by_age, myWorld.params.covid_infection_age_params, ((Person) i.getHost()).getAge());
 					assert (mySevereLikelihood >= 0.0) & (mySevereLikelihood <= 1.0) : "probablilty not valid: " + mySevereLikelihood;
 					if(myWorld.random.nextDouble() < mySevereLikelihood){
 						double time_until_severe = myWorld.nextRandomLognormal(
-								myWorld.params.symptomaticToSevere_mean, 
-								myWorld.params.symptomaticToSevere_std);
+								myWorld.params.covid_symptomaticToSevere_mean, 
+								myWorld.params.covid_symptomaticToSevere_std);
 						assert time_until_severe > 0 : "time until disease progression not scheduled in future";
 						i.time_start_severe = time + time_until_severe;
 					}
@@ -307,8 +307,8 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 					// if not, they will recover: schedule this instead
 					else {
 						double time_until_recovered = myWorld.nextRandomLognormal(
-								myWorld.params.symptomaticToRecovery_mean, 
-								myWorld.params.symptomaticToRecovery_std);
+								myWorld.params.covid_symptomaticToRecovery_mean, 
+								myWorld.params.covid_symptomaticToRecovery_std);
 						assert time_until_recovered > 0 : "time until recovery not scheduled in future: " + time_until_recovered;
 
 						i.time_recovered = time + time_until_recovered;
@@ -360,14 +360,14 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				else if(i.time_recovered == Double.MAX_VALUE && i.time_start_critical == Double.MAX_VALUE){
 
 					double myCriticalLikelihood = myWorld.params.getLikelihoodByAge(
-							myWorld.params.infection_p_cri_by_age, myWorld.params.infection_age_params, ((Person) i.getHost()).getAge());
+							myWorld.params.covid_infection_p_cri_by_age, myWorld.params.covid_infection_age_params, ((Person) i.getHost()).getAge());
 					assert (myCriticalLikelihood >= 0.0) & (myCriticalLikelihood <= 1.0) : "probablilty not valid " + myCriticalLikelihood;
 
 					// determine if the patient will become sicker
 					if(myWorld.random.nextDouble() < myCriticalLikelihood){
 						double time_until_critical = myWorld.nextRandomLognormal(
-								myWorld.params.severeToCritical_mean, 
-								myWorld.params.severeToCritical_std);
+								myWorld.params.covid_severeToCritical_mean, 
+								myWorld.params.covid_severeToCritical_std);
 						assert time_until_critical > 0.0 : "time until critical not in future";
 
 						i.time_start_critical = time + time_until_critical;
@@ -376,8 +376,8 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 					// if not, they will recover: schedule this instead
 					else {
 						double time_until_recovered = myWorld.nextRandomLognormal(
-								myWorld.params.severeToRecovery_mean, 
-								myWorld.params.severeToRecovery_std);
+								myWorld.params.covid_severeToRecovery_mean, 
+								myWorld.params.covid_severeToRecovery_std);
 						assert time_until_recovered > 0.0 : "time until recovered not in future " + time_until_recovered;
 
 						i.time_recovered = time + time_until_recovered;
@@ -433,15 +433,15 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				else if(i.time_recovered == Double.MAX_VALUE && i.time_died == Double.MAX_VALUE ){
 
 					double myDeathLikelihood = myWorld.params.getLikelihoodByAge(
-							myWorld.params.infection_p_dea_by_age, myWorld.params.infection_age_params, ((Person) i.getHost()).getAge());
+							myWorld.params.covid_infection_p_dea_by_age, myWorld.params.covid_infection_age_params, ((Person) i.getHost()).getAge());
 					
 					assert (myDeathLikelihood >= 0.0) & (myDeathLikelihood <= 1.0) : "probablilty not valid " + myDeathLikelihood;
 
 					// determine if the patient will die
 					if(myWorld.random.nextDouble() < myDeathLikelihood){
 						double time_until_death = myWorld.nextRandomLognormal(
-								myWorld.params.criticalToDeath_mean, 
-								myWorld.params.criticalToDeath_std);
+								myWorld.params.covid_criticalToDeath_mean, 
+								myWorld.params.covid_criticalToDeath_std);
 						assert time_until_death > 0.0 : "time until died not in future " + time_until_death;
 
 						i.time_died = time + time_until_death;
@@ -450,8 +450,8 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 					// if not, they will recover: schedule this instead
 					else {
 						double time_until_recovered = myWorld.nextRandomLognormal(
-								myWorld.params.criticalToRecovery_mean, 
-								myWorld.params.criticalToRecovery_std);
+								myWorld.params.covid_criticalToRecovery_mean, 
+								myWorld.params.covid_criticalToRecovery_std);
 						assert time_until_recovered > 0.0 : "time until recovered not in future " + time_until_recovered;
 
 						i.time_recovered = time + time_until_recovered;

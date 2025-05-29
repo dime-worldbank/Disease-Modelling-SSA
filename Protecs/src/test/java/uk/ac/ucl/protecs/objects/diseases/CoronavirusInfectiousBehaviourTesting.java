@@ -441,8 +441,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 	
 	private void ForceExposedInfectionsCauseDisease(WorldBankCovid19Sim world) {
 		int idx = 0;
-		for (double val: world.params.infection_p_sym_by_age) {
-			world.params.infection_r_sus_by_age.set(idx, 1.0);
+		for (double val: world.params.covid_infection_p_sym_by_age) {
+			world.params.covid_infection_r_sus_by_age.set(idx, 1.0);
 			idx ++;
 		}
 	}

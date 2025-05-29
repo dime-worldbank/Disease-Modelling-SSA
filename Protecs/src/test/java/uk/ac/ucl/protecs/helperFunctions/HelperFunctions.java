@@ -161,36 +161,36 @@ public class HelperFunctions {
 		case "Exposed":
 			int exp_idx = 0;
 			// Make sure there are no transitions from exposed to symptomatic COVID
-			for (double val: world.params.infection_p_sym_by_age) {
-				world.params.infection_p_sym_by_age.set(exp_idx, 0.0);
+			for (double val: world.params.covid_infection_p_sym_by_age) {
+				world.params.covid_infection_p_sym_by_age.set(exp_idx, 0.0);
 				exp_idx ++;
 			}
 			break;
 		case "Presymptomatic":
-			world.params.infectiousToSymptomatic_mean = Integer.MAX_VALUE;
-			world.params.infectiousToSymptomatic_std = 0;
+			world.params.covid_infectiousToSymptomatic_mean = Integer.MAX_VALUE;
+			world.params.covid_infectiousToSymptomatic_std = 0;
 			break;
 		case "Mild":
 			int mild_idx = 0;
 			// Make sure there are no transitions from mild to severe COVID
-			for (double val: world.params.infection_p_sym_by_age) {
-				world.params.infection_p_sev_by_age.set(mild_idx, 0.0);
+			for (double val: world.params.covid_infection_p_sym_by_age) {
+				world.params.covid_infection_p_sev_by_age.set(mild_idx, 0.0);
 				mild_idx ++;
 			}
 			break;
 		case "Severe":
 			int severe_idx = 0;
 			// Make sure there are no transitions from severe to critical COVID
-			for (double val: world.params.infection_p_sym_by_age) {
-				world.params.infection_p_cri_by_age.set(severe_idx, 0.0);
+			for (double val: world.params.covid_infection_p_sym_by_age) {
+				world.params.covid_infection_p_cri_by_age.set(severe_idx, 0.0);
 				severe_idx ++;
 			}
 			break;
 		case "Critical":
 			int critical_idx = 0;
 			// Make sure there are no transitions from critical covid to death
-			for (double val: world.params.infection_p_sym_by_age) {
-				world.params.infection_p_dea_by_age.set(critical_idx, 0.0);
+			for (double val: world.params.covid_infection_p_sym_by_age) {
+				world.params.covid_infection_p_dea_by_age.set(critical_idx, 0.0);
 				critical_idx ++;
 			}
 			break;
@@ -203,14 +203,14 @@ public class HelperFunctions {
 	public static void StopRecoveryHappening(WorldBankCovid19Sim world) {
 		// This function sets the recovery time of COVID at various stages of the disease to an very high integer beyond the range
 		// of the simulation, thereby stopping recovery from COVID happening
-		world.params.asymptomaticToRecovery_mean = Integer.MAX_VALUE;
-		world.params.asymptomaticToRecovery_std = 0;
-		world.params.symptomaticToRecovery_mean = Integer.MAX_VALUE;
-		world.params.symptomaticToRecovery_std = 0;
-		world.params.severeToRecovery_mean = Integer.MAX_VALUE;
-		world.params.severeToRecovery_std = 0;
-		world.params.criticalToRecovery_mean = Integer.MAX_VALUE;
-		world.params.criticalToRecovery_std = 0;
+		world.params.covid_asymptomaticToRecovery_mean = Integer.MAX_VALUE;
+		world.params.covid_asymptomaticToRecovery_std = 0;
+		world.params.covid_symptomaticToRecovery_mean = Integer.MAX_VALUE;
+		world.params.covid_symptomaticToRecovery_std = 0;
+		world.params.covid_severeToRecovery_mean = Integer.MAX_VALUE;
+		world.params.covid_severeToRecovery_std = 0;
+		world.params.covid_criticalToRecovery_mean = Integer.MAX_VALUE;
+		world.params.covid_criticalToRecovery_std = 0;
 	}
 	public static List<String> getFinalBehaviourNodesInSim(WorldBankCovid19Sim world, double numDaysToRun, NodeOption option){
 		// This function runs the simulation for a predetermined number of days.
@@ -283,36 +283,36 @@ public class HelperFunctions {
 		case EXPOSED:
 			int exp_idx = 0;
 			// Make sure there are no transitions from exposed to symptomatic COVID
-			for (double val: world.params.infection_p_sym_by_age) {
-				world.params.infection_p_sym_by_age.set(exp_idx, 0.0);
+			for (double val: world.params.covid_infection_p_sym_by_age) {
+				world.params.covid_infection_p_sym_by_age.set(exp_idx, 0.0);
 				exp_idx ++;
 			}
 			break;
 		case PRESYMPTOMATIC:
-			world.params.infectiousToSymptomatic_mean = Integer.MAX_VALUE;
-			world.params.infectiousToSymptomatic_std = 0;
+			world.params.covid_infectiousToSymptomatic_mean = Integer.MAX_VALUE;
+			world.params.covid_infectiousToSymptomatic_std = 0;
 			break;
 		case MILD:
 			int mild_idx = 0;
 			// Make sure there are no transitions from exposed to symptomatic COVID
-			for (double val: world.params.infection_p_sym_by_age) {
-				world.params.infection_p_sev_by_age.set(mild_idx, 0.0);
+			for (double val: world.params.covid_infection_p_sym_by_age) {
+				world.params.covid_infection_p_sev_by_age.set(mild_idx, 0.0);
 				mild_idx ++;
 			}
 			break;
 		case SEVERE:
 			int severe_idx = 0;
 			// Make sure there are no transitions from exposed to symptomatic COVID
-			for (double val: world.params.infection_p_sym_by_age) {
-				world.params.infection_p_cri_by_age.set(severe_idx, 0.0);
+			for (double val: world.params.covid_infection_p_sym_by_age) {
+				world.params.covid_infection_p_cri_by_age.set(severe_idx, 0.0);
 				severe_idx ++;
 			}
 			break;
 		case CRITICAL:
 			int critical_idx = 0;
 			// Make sure there are no transitions from exposed to symptomatic COVID
-			for (double val: world.params.infection_p_sym_by_age) {
-				world.params.infection_p_dea_by_age.set(critical_idx, 0.0);
+			for (double val: world.params.covid_infection_p_sym_by_age) {
+				world.params.covid_infection_p_dea_by_age.set(critical_idx, 0.0);
 				critical_idx ++;
 			}
 			break;
