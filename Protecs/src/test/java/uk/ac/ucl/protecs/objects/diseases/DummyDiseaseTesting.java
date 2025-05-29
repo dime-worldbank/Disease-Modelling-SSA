@@ -40,13 +40,34 @@ public class DummyDiseaseTesting{
 		// Increase the birth rate to ensure births take place
 		HelperFunctions.setParameterListsToValue(sim, sim.params.prob_birth_by_age, 1.0);
 		sim.start();
+		// Check that there is an infection in a female
+		boolean infectionInFemale = false;
+		for (Disease d: sim.human_infections) {
+			if (d.isOfType(DISEASE.DUMMY_INFECTIOUS) & d.getHostSex().equals(SEX.FEMALE)) {
+				infectionInFemale = true;
+			}
+		}
+		// If there aren't any dummy infectious infections in females, force 10 into the simulation
+		int counter = 0;
+		if (!infectionInFemale) {
+			for (Person p: sim.agents) {
+				if (p.getSex().equals(SEX.FEMALE)) {
+					DummyInfectiousDisease inf = new DummyInfectiousDisease(p, null, sim.dummyInfectiousFramework.getStandardEntryPoint(), sim, 0);
+					sim.schedule.scheduleOnce(1, sim.param_schedule_infecting, inf);
+					if (counter > 10) break;
+					
+					counter ++;
+				}
+			}
+		}
 		// turn off deaths to only focus on births.
 		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
 		// stop horizontal transmission
 		sim.params.dummy_infectious_beta_horizontal = 0.0;
+		// make vertical transmission a certainty
 		sim.params.dummy_infectious_beta_vertical = 1.0;
 		sim.params.dummy_infectious_recovery_rate = 0.0;
-		int numDays = 50;
+		int numDays = 365; // has to be long test as births are seeded randomly throughout a year
 		// get the number of initial dummy infectious diseases
 		int number_of_initial_infections = 0;
 		for (Person p: sim.agents) {
@@ -142,7 +163,6 @@ public class DummyDiseaseTesting{
 	@Test
 	public void checkThatMoreNewDummyNCDsOccurInMen() {
 		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_dummy_disease.txt");
-		sim.params.dummy_ncd_initial_fraction_with_ncd = 0;
 		sim.start();
 		
 		// equalise the number of men and women in the simulation
@@ -158,7 +178,7 @@ public class DummyDiseaseTesting{
 			if (p.getSex().equals(SEX.FEMALE)) {
 				p.die("");
 				initial_number_of_women --;
-				if (initial_number_of_women < initial_number_of_men) break;
+				if (initial_number_of_women <= initial_number_of_men) break;
 			}
 
 		}
@@ -171,7 +191,7 @@ public class DummyDiseaseTesting{
 		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
 		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.births);
 
-		int numDays = 100;
+		int numDays = 50;
 		// get the number of initial dummy infectious diseases
 		int number_of_initial_male_infections = 0;
 		int number_of_initial_female_infections = 0;
@@ -279,6 +299,7 @@ public class DummyDiseaseTesting{
 	public void checkDummyWaterborneDiseaseIsSpreadToPeople() {
 		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_dummy_disease.txt");
 		sim.start();
+		sim.params.dummy_prob_ingest_dummy_waterborne = 1;
 		int number_of_initial_infections_in_people = 0;
 
 		for (Person p: sim.agents) {

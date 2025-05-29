@@ -27,7 +27,7 @@ public class CovidSpuriousSymptomTesting{
 		sim.start();
 		int numDays = 8;
 		// Give the population mild Covid and spurious symptoms to see if those with mild covid have their spurious symptoms resolved 
-		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD),
+		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.covidInfectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD),
 				NodeOption.CoronavirusInfectiousBehaviour);
 		// make sure no one recovers or progresses from their mild covid
 		HelperFunctions.StopRecoveryHappening(sim);
@@ -58,7 +58,7 @@ public class CovidSpuriousSymptomTesting{
 		int numDays = 1;
 		giveAFractionASpuriousSymptom(1, sim);
 		// Give everyone asymptomatic Covid
-		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.ASYMPTOMATIC),
+		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1, sim, sim.covidInfectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.ASYMPTOMATIC),
 				NodeOption.CoronavirusInfectiousBehaviour);
 		// run the simulation
 		HelperFunctions.runSimulation(sim, numDays);

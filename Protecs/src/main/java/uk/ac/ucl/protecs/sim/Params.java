@@ -17,6 +17,7 @@ import uk.ac.ucl.protecs.objects.hosts.Person.OCCUPATION;
 import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.objects.locations.Location.LocationCategory;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
+import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.HOST;
 
 public class Params {
 	
@@ -83,8 +84,8 @@ public class Params {
 	
 	// holders for epidemic-related data
 	
-	HashMap <DISEASE, HashMap<Location, Integer>> lineListInHumans;
-	HashMap <DISEASE, HashMap<Location, Integer>> lineListIOther;
+	HashMap <DISEASE, HashMap<Location, Integer>> lineList;
+	HashMap <DISEASE, HashMap<Location, Integer>> lineListInOther;
 
 	ArrayList <Double> lockdownChangeList = new ArrayList <Double>();
 	
@@ -291,27 +292,49 @@ public class Params {
 			int adminZoneNameIndex = columnNames.get("admin_zone");
 			int countIndex = columnNames.get("count");
 			int diseaseKeyIndex = columnNames.get("disease");
+			int hostKeyIndex = columnNames.get("host");
 			
-			// set up data container for each disease being seeded in
-			lineListInHumans = new HashMap <DISEASE, HashMap <Location, Integer>>();
-			// iterate over all diseases in the simulation
+			// set up data container for each disease being seeded in, one container for people and one for other hosts
+			lineList = new HashMap <DISEASE, HashMap <Location, Integer>>();
+			lineListInOther = new HashMap <DISEASE, HashMap<Location, Integer>>();
+			// iterate over all diseases in the simulation to map disease to a hash map of places to be seeded with n cases
 			for (DISEASE d: DISEASE.values()) {
-				
-				lineListInHumans.put(d, new HashMap <Location, Integer>());
+				lineList.put(d, new HashMap <Location, Integer>());
+				lineListInOther.put(d, new HashMap <Location, Integer>());
 			}
-			
-			
 			// read in the raw data
 			while ((s = lineListDataFile.readLine()) != null) {
+				// split the string between commas
 				String [] bits = splitRawCSVString(s);
+				// get the admin zone to seed in cases
 				Location myAdminZone = adminZones.get(bits[adminZoneNameIndex]);
+				// get the number of cases to seed
 				Integer myCount = Integer.parseInt(bits[countIndex]);
-				lineListInHumans.get(DISEASE.getValue(bits[diseaseKeyIndex])).put(myAdminZone, myCount);
+				// get the type of host to seed in
+				HOST myHost = HOST.getValue(bits[hostKeyIndex]);
+				// do a switch based on the type of host, assuming most cases are intended to be seeded into people
+				switch (myHost) {
+				// cases to be seeded into water
+				case WATER:{
+					lineListInOther.get(DISEASE.getValue(bits[diseaseKeyIndex])).put(myAdminZone, myCount);
+					break;
+					}
+				// default cases to be seeded into humans
+				default: {
+					lineList.get(DISEASE.getValue(bits[diseaseKeyIndex])).put(myAdminZone, myCount);
+					break;
+				}
+				}
 			}
+			// check that some disease has been seeded in to the agents
 			boolean aDiseaseHasBeenSeeded = false;
 			for (DISEASE d: DISEASE.values()) {
-				if (lineListInHumans.get(d).size() > 0){
+				if (lineList.get(d).size() > 0){
 					aDiseaseHasBeenSeeded = true;
+				}
+				if (lineListInOther.get(d).size() > 0) {
+					aDiseaseHasBeenSeeded = true;
+
 				}
 			}
 			

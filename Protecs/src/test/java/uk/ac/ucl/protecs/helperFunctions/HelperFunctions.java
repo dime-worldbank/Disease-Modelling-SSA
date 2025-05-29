@@ -62,7 +62,7 @@ public class HelperFunctions {
 		for (Person p: world.agents) {
 			double rand = world.random.nextDouble();
 			if (!p.getDiseaseSet().containsKey(DISEASE.COVID.key) && rand <= fraction) {			
-				CoronavirusInfection inf = new CoronavirusInfection(p, null, world.infectiousFramework.getEntryPoint(), world);
+				CoronavirusInfection inf = new CoronavirusInfection(p, null, world.covidInfectiousFramework.getEntryPoint(), world);
 				inf.setBehaviourNode(Node);
 				world.human_infections.add(inf);
 				// kick off the infectious behaviour framework
@@ -122,7 +122,7 @@ public class HelperFunctions {
 		for (Person p: world.agents) {
 			double rand = world.random.nextDouble();
 			if (!p.getDiseaseSet().containsKey(DISEASE.COVID.key) && rand <= fraction) {
-				CoronavirusInfection inf = new CoronavirusInfection(p, null, world.infectiousFramework.getEntryPoint(), world);
+				CoronavirusInfection inf = new CoronavirusInfection(p, null, world.covidInfectiousFramework.getEntryPoint(), world);
 				inf.setBehaviourNode(Node);
 				// kick off the infectious behaviour framework
 				inf.step(world);

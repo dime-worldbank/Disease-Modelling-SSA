@@ -1,2 +1,2 @@
-admin_zone, count, disease
-d_2,0, COVID-19
+admin_zone, count, disease, host
+d_2,0, COVID-19, PERSON

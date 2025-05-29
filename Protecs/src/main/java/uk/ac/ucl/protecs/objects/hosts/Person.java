@@ -415,7 +415,7 @@ public class Person extends Host {
 				switch (inf) {
 				case COVID:{
 					if(!p.getDiseaseSet().containsKey(inf.key) && myWorld.random.nextDouble() < beta){
-						p.getDiseaseSet().put(inf.key, new CoronavirusInfection(p, this, myWorld.infectiousFramework.getEntryPoint(), myWorld));
+						p.getDiseaseSet().put(inf.key, new CoronavirusInfection(p, this, myWorld.covidInfectiousFramework.getEntryPoint(), myWorld));
 						myWorld.schedule.scheduleOnce(p.getDiseaseSet().get(inf.key), myWorld.param_schedule_infecting);
 					}
 				}
