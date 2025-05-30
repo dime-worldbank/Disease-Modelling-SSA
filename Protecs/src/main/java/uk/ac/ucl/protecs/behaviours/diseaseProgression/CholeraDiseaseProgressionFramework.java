@@ -61,7 +61,8 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 	}
 	
 	public enum nextStepCholera{
-		DO_NOTHING("doNothing"), ASYMPTOMATIC("asymptomatic"), MILD("mild"), RECOVER("recover"), HAS_DIED("hasDied");
+		DO_NOTHING("doNothing"), ASYMPTOMATIC("asymptomatic"), MILD("mild"), SEVERE("severe"), TREATMENT("treatment"), CRITICAL("critical"),
+		RECOVER("recover"), HAS_DIED("hasDied");
 		public String key;
 	     
 		nextStepCholera(String key) { this.key = key; }
@@ -72,8 +73,14 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
         		return DO_NOTHING;
         	case "asymptomatic":
         		return ASYMPTOMATIC;
-        	case "symptomatic":
+        	case "mild":
         		return MILD;
+        	case "severe":
+        		return SEVERE;
+        	case "treatment":
+        		return TREATMENT;
+        	case "critical":
+        		return CRITICAL;
         	case "recover":
         		return RECOVER;	
         	case "hasDied":
@@ -98,8 +105,8 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 
 			@Override
 			public double next(Steppable s, double time) {
-				// Initially assume no reinfection, so when a person reaches this state, don't do anything
-				return Double.MAX_VALUE;
+				// Allow for reinfection, keep this ticking over
+				return 1;
 			}
 
 			@Override
@@ -112,7 +119,6 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 	this.exposedNode = new BehaviourNode() {
 		// TODO: 1) Link the likelihood of exposure developing into an infection or not to the concentration of Cholera bacteria in the water source?
 		// 2) Look into other factors influencing the likelihood of developing cholera
-		// 3) Link the exposed node to the severe node, this isn't COVID so don't treat it that way.
 		@Override
 		public String getTitle() {
 			// TODO Auto-generated method stub
@@ -147,14 +153,25 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 					nextStep = nextStepCholera.ASYMPTOMATIC;
 				}
 				else {
-					nextStep = nextStepCholera.MILD;
+					// Here we need to develop a means to assign the severity of the initial infection depending on the amount of bacteria this person 
+					// ingests, if a high dose is ingested (10^8 bacteria) then this will cause a severe infection in an adult. For now just use a probability 
+					// to simulate
+					
+					double rand_for_ingesting_large_dose = myWorld.random.nextDouble();
+					// assume that 3% of exposed infections that take will result in a severe infection
+					if (rand_for_ingesting_large_dose < 0.03) {
+						nextStep = nextStepCholera.SEVERE;
+					}
+					else {
+						nextStep = nextStepCholera.MILD;
+					}
 				}
 			
 			}
 			// ------------------------------------------------------------------------------------------------------------------------------------------------------------
 			// ================================== DECIDE SUCCESSFULL INFECTION OR NOT WITH SCHEDULING CODE BLOCK ==========================================================
 			else {
-				// Temporarily have a made up whether sufficient number of bacteria was ingested
+				// Temporarily have a made up whether sufficient number of bacteria was ingested for any infection to take hold
 				double randToRepresentSufficientIngestion = myWorld.random.nextDouble();
 
 				if (randToRepresentSufficientIngestion < 0.95) {
@@ -188,12 +205,14 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 					choleraInfection.setBehaviourNode(mildNode);
 					return 1;
 				}
+				case SEVERE:{
+					choleraInfection.setBehaviourNode(severeNode);
+					return 1;
+				}
 				case RECOVER:{
 					// This infection did not take, so return to susceptible
 					choleraInfection.setBehaviourNode(susceptibleNode);
-					choleraInfection.time_recovered = time;
-					// For now assume no reinfection
-					return Double.MAX_VALUE;
+					return 1;
 				}
 				default:
 					return 1;
@@ -253,10 +272,8 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 				}
 			case RECOVER:{
 				// This infection did not take, so return to susceptible
-				choleraInfection.setBehaviourNode(susceptibleNode);
-				choleraInfection.time_recovered = time;
-				// For now assume no reinfection
-				return Double.MAX_VALUE;
+				choleraInfection.setBehaviourNode(recoveredNode);
+				return 1;
 			}
 			default:
 				return 1;
@@ -308,11 +325,9 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 					return 1;
 					}
 				case RECOVER:{
-					// This infection did not take, so return to susceptible
-					choleraInfection.setBehaviourNode(susceptibleNode);
-					choleraInfection.time_recovered = time;
-					// For now assume no reinfection
-					return Double.MAX_VALUE;
+					// This infection did not take, so return to recovered
+					choleraInfection.setBehaviourNode(recoveredNode);
+					return 1;
 					}
 				default:
 					return 1;
@@ -321,6 +336,106 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 		}
 	};
 	
+	this.severeNode = new BehaviourNode() {
+		// TODO: Make the distinction between seeking treatment and not seeking treatment based off something
+		@Override
+		public String getTitle() {
+			return CholeraBehaviourNodeInHumans.SEVERE.key;
+		}
+
+		@Override
+		public boolean isEndpoint() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		@Override
+		public double next(Steppable s, double time) {
+			Cholera choleraInfection = (Cholera) s;
+			
+			// -------------------------- ACT ON SCHEDULED NEXT STEP CODE BLOCK ------------------------------------------------------------------------------ 
+			if (choleraInfection.time_recovered < Double.MAX_VALUE) {
+				// don't trigger recovery too early
+				if(time < choleraInfection.time_recovered)
+					return choleraInfection.time_recovered - time;
+				else {
+					nextStep = nextStepCholera.RECOVER;
+				}
+			}
+			else if (choleraInfection.time_died < Double.MAX_VALUE) {
+				// don't trigger death too early
+				if(time < choleraInfection.time_died)
+					return choleraInfection.time_died - time;
+				else {
+					nextStep = nextStepCholera.HAS_DIED;
+				}
+			}
+			else if (choleraInfection.time_start_critical < Double.MAX_VALUE) {
+				// don't trigger critical too early
+				if(time < choleraInfection.time_start_critical)
+					return choleraInfection.time_start_critical - time;
+				else {
+					nextStep = nextStepCholera.CRITICAL;
+				}
+			}
+			// ========================================== DECIDE NEXT STEP CODE BLOCK ========================================================================
+			else {
+				// Assume this person is severely infected and shedding
+				nextStep = nextStepCholera.DO_NOTHING;
+				// Does this person seek treatment? Use a flat probability for now
+				double rand_for_seeking_treatment = myWorld.random.nextDouble();
+				// Assume that 80% of people seek treatment
+				if (rand_for_seeking_treatment < 0.8) {
+					nextStep = nextStepCholera.TREATMENT;
+					// even with treatment a small percentage of people will still die
+					double rand_for_determining_mortality = myWorld.random.nextDouble();
+					if (rand_for_determining_mortality < 0.01) { // 1% CFR for those in treatment
+						choleraInfection.time_died = time + Params.ticks_per_day;
+					}
+					// schedule a recovery time
+					else {
+						choleraInfection.time_recovered = time + 3 * Params.ticks_per_day; // made up
+					}
+					
+				}
+				else {
+					// schedule the progression to critical Cholera
+					choleraInfection.time_start_critical = time; 
+					// Cholera progression can be rapid, if people have severe cholera they need to get help 
+					// fast so assume that progression to the next stage happens almost immediately
+				}
+			}
+						
+			
+			// ================================================================================================================================================
+			// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= MAKE NEXT STEP HAPPEN -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+			switch (nextStep) {
+				case DO_NOTHING:{
+					// Tick time over until next action
+					return 1;
+					}
+				case TREATMENT:{
+					// Tick time over until next action
+					return 1;
+				}
+				case CRITICAL:{
+					choleraInfection.setBehaviourNode(criticalNode);
+					return 1;
+				}
+				case HAS_DIED:{
+					choleraInfection.setBehaviourNode(deadNode);
+					return 1;
+				}
+				case RECOVER:{
+					choleraInfection.setBehaviourNode(recoveredNode);
+					return 1;
+					}
+				default:
+					return 1;
+			}
+			// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+		}
+	};
 	
 	this.recoveredNode = new BehaviourNode() {
 
