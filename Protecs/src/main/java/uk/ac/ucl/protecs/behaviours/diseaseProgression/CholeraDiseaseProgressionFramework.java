@@ -107,6 +107,30 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 
 			@Override
 			public double next(Steppable s, double time) {
+				Cholera choleraInfection = (Cholera) s;
+				// Any infection here has recovered, we need to reset some of the infections properties
+				if (choleraInfection.time_infected < Double.MAX_VALUE) {
+					choleraInfection.resetPropertiesPostRecovery();
+				}
+				// handle any time dependent protection here, first see if they had a prior asymptomatic infection
+				if (choleraInfection.time_protection_from_asymptomatic_ends < Double.MAX_VALUE) {
+					// If they have a time scheduled, tick over using the below return
+					if(time > choleraInfection.time_protection_from_asymptomatic_ends) {
+						// if we are passed the time where they have protections from an asymptomatic infection, reset this value
+						choleraInfection.time_protection_from_asymptomatic_ends = Double.MAX_VALUE;
+						choleraInfection.setHadAsymptCholera(false);
+						}
+					return 1;
+				}
+				if (choleraInfection.time_protection_from_symptomatic_ends < Double.MAX_VALUE) {
+					// If they have a time scheduled, tick over using the below return
+					if(time > choleraInfection.time_protection_from_symptomatic_ends) {
+						// if we are passed the time where they have protections from a symptomatic infection, reset this value
+						choleraInfection.time_protection_from_symptomatic_ends = Double.MAX_VALUE;
+						choleraInfection.setHadSymptCholera(false);
+						}
+					return 1;
+				}
 				// Allow for reinfection, keep this ticking over
 				return 1;
 			}
@@ -175,6 +199,18 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 			else {
 				// Temporarily have a made up whether sufficient number of bacteria was ingested for any infection to take hold
 				double randToRepresentSufficientIngestion = myWorld.random.nextDouble();
+				// Need to account for any prior infections and determine if they were asymptomatic or symptomatic
+				boolean prior_asymptomatic_infection = choleraInfection.getHadAsymptCholera();
+				boolean prior_symptomatic_infection = choleraInfection.getHadSymptCholera();
+				
+				if (prior_asymptomatic_infection) {
+					// if they had a previous asymptomatic infection and this is still offering protection, apply a reductive factor
+					randToRepresentSufficientIngestion *= myWorld.params.cholera_prior_asympt_protection_factor;
+				}
+				else if (prior_symptomatic_infection) {
+					// if they had a previous symptomatic infection and this is still offering protection, apply a reductive factor
+					randToRepresentSufficientIngestion *= myWorld.params.cholera_prior_sympt_protection_factor;
+				}
 
 				if (randToRepresentSufficientIngestion < 0.95) {
 					// Note that this is an established Cholera infection
@@ -264,7 +300,7 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 			
 			else {
 				// If I find any detail to shedding time in asymptomatic infections I will improve
-				choleraInfection.time_recovered = time + 1 * Params.ticks_per_day;
+				choleraInfection.time_recovered = time + 1 * myWorld.params.ticks_per_day;
 			}
 			// ================================================================================================================================================
 			// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= MAKE NEXT STEP HAPPEN -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -301,6 +337,8 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 		@Override
 		public double next(Steppable s, double time) {
 			Cholera choleraInfection = (Cholera) s;
+			choleraInfection.setHadSymptCholera(true);
+
 			// mild cases will recover in around 4-5 days (https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(03)15328-7/fulltext)
 			// Assume this person is mildly infected and shedding
 			nextStep = nextStepCholera.DO_NOTHING;
@@ -318,7 +356,7 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 						
 			else {
 				// If I find any detail to shedding time in mild infections I will improve
-				choleraInfection.time_recovered = time + 4.5 * Params.ticks_per_day; // with treatment this will go down to 2-3 days
+				choleraInfection.time_recovered = time + 4.5 * myWorld.params.ticks_per_day; // with treatment this will go down to 2-3 days
 			}
 			// ================================================================================================================================================
 			// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= MAKE NEXT STEP HAPPEN -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -355,6 +393,8 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 		@Override
 		public double next(Steppable s, double time) {
 			Cholera choleraInfection = (Cholera) s;
+			choleraInfection.setHadSymptCholera(true);
+
 			
 			// -------------------------- ACT ON SCHEDULED NEXT STEP CODE BLOCK ------------------------------------------------------------------------------ 
 			if (choleraInfection.time_recovered < Double.MAX_VALUE) {
@@ -393,11 +433,11 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 					// even with treatment a small percentage of people will still die
 					double rand_for_determining_mortality = myWorld.random.nextDouble();
 					if (rand_for_determining_mortality < 0.01) { // 1% CFR for those in treatment
-						choleraInfection.time_died = time + Params.ticks_per_day;
+						choleraInfection.time_died = time + myWorld.params.ticks_per_day;
 					}
 					// schedule a recovery time
 					else {
-						choleraInfection.time_recovered = time + 3 * Params.ticks_per_day; // made up
+						choleraInfection.time_recovered = time + 3 * myWorld.params.ticks_per_day; // made up
 					}
 					
 				}
@@ -481,11 +521,11 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 				// without treatment, a large portion of those infected will die
 				double rand_for_determining_mortality = myWorld.random.nextDouble();
 				if (rand_for_determining_mortality <= 0.5) { // 50% CFR for those untreated
-						choleraInfection.time_died = time + Params.ticks_per_day;
+						choleraInfection.time_died = time + myWorld.params.ticks_per_day;
 					}
 					// schedule a recovery time
 					else {
-					choleraInfection.time_recovered = time + 3 * Params.ticks_per_day; // made up
+					choleraInfection.time_recovered = time + 3 * myWorld.params.ticks_per_day; // made up
 					}
 					
 			}
@@ -521,15 +561,11 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 
 		@Override
 		public double next(Steppable s, double time) {
-			// the step from initial infection to reinfection is going to be problematic, we don't know with absolute certainty the duration that an 
-			// initial cholera infection will provide protection against subsequent infections. Furthermore it seems that the type of initial infection is
-			// important in whether a person will have protection to future infections. It seems that an asymptomatic infection does not protect against
-			// reinfection, however the studies that test this has about 4 participants... 
-			
-			// Furthermore, we need to know what cholera strains are in Zimbabwe. Same strain infections result in protection, different strain 
-			// infections may not
 			Cholera choleraInfection = (Cholera) s;
-
+			// Let's assume that we give people who had cholera a month of absolute immunity, with partial immunity being scheduled back in the 
+			// susceptible step if applicable.
+			nextStep = nextStepCholera.DO_NOTHING;
+			
 			if (choleraInfection.time_susceptible < Double.MAX_VALUE) {
 				if(time < choleraInfection.time_susceptible)
 					return choleraInfection.time_susceptible - time;
@@ -538,10 +574,22 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 				}
 			}
 			else {
-				nextStep = nextStepCholera.DO_NOTHING;
+				choleraInfection.time_susceptible = time + 30 * myWorld.params.ticks_per_day; 
+				return 1;
 				
 			}
-			return Double.MAX_VALUE;
+			switch (nextStep) {
+			case DO_NOTHING:{
+				// Tick time over until next action
+				return 1;
+				}
+			case SUSCEPTIBLE:{
+				choleraInfection.setBehaviourNode(susceptibleNode);
+				return 1;
+			}
+			default:
+				return 1;
+		}
 		}
 
 		@Override

@@ -10,11 +10,17 @@ import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
 public class Cholera extends Disease{
 	
+	// Zimbabwe's 2018 outbreak was V. cholerae O1 serotype Ogawa
+	
 	// Whether this infection was asymptomatic or not seems to have consequences on reinfection later on. As such track whether this infection was asymptomatic
 	// at any point
 	boolean hadAsymptCholera = false;
 	// Persistence studies show a reduced risk of subsequent cholera infection if this person previously had an infection
-	boolean hasSymptCholera = false;
+	boolean hadSymptCholera = false;
+	// assign values to time-dependent protection from prior infections 
+	public double time_protection_from_asymptomatic_ends = Double.MAX_VALUE;
+	public double time_protection_from_symptomatic_ends = Double.MAX_VALUE;
+
 	
 	
 	public Cholera(Host myHost, Host mySource, BehaviourNode initNode, WorldBankCovid19Sim sim){
@@ -100,10 +106,19 @@ public class Cholera extends Disease{
 	
 	public void setHadAsymptCholera(boolean hadAsympt) {
 		this.hadAsymptCholera = hadAsympt;
+
+	}
+	
+	public void setHadSymptCholera(boolean hadSympt) {
+		this.hadSymptCholera = hadSympt;
 	}
 	
 	public boolean getHadAsymptCholera() {
 		return this.hadAsymptCholera;
 	}
 	
+	public boolean getHadSymptCholera() {
+		return this.hadSymptCholera;
+	}
+
 }

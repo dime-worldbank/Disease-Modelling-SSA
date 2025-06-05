@@ -32,8 +32,8 @@ public abstract class Disease implements Steppable {
 	public double time_died = Double.MAX_VALUE;
 	public double time_susceptible = Double.MAX_VALUE;
 	// clinical care
-	double time_start_hospitalised;
-	double time_end_hospitalised;
+	double time_start_hospitalised = Double.MAX_VALUE;
+	double time_end_hospitalised = Double.MAX_VALUE;
 	
 	// infection stages
 	boolean hasAsympt = false;
@@ -279,5 +279,39 @@ public abstract class Disease implements Steppable {
 	public void confirmTestLogged() {
 		this.testLogged = true;
 	}
-
+	public void resetPropertiesPostRecovery() {
+		// reset generic disease properties
+		this.time_infected = Double.MAX_VALUE;
+		this.time_contagious = Double.MAX_VALUE;		
+		this.time_start_symptomatic = Double.MAX_VALUE;
+		this.time_start_severe = Double.MAX_VALUE;
+		this.time_start_critical = Double.MAX_VALUE;
+		this.time_recovered = 	Double.MAX_VALUE;
+		this.time_died = Double.MAX_VALUE;
+		this.time_susceptible = Double.MAX_VALUE;
+		// reset clinical care
+		this.time_start_hospitalised = Double.MAX_VALUE;
+		this.time_end_hospitalised = Double.MAX_VALUE;
+		// reset generic infection stages
+		this.hasAsympt = false;
+		this.hasMild = false;
+		this.hasSevere = false;
+		this.hasCritical = false;
+		this.hasRecovered = false;
+		this.isTheCauseOfDeath = false;
+		// reset symptom manager
+		this.isSymptomatic = false;
+		// reset test manager
+		this.tested = false;
+		this.testedPositive = false;
+		this.testLogged = false;
+		this.eligibleForTesting = false;
+		// reset loggers
+		this.hasDeathLogged = false;
+		this.hasAsymptLogged = false;
+		this.hasMildLogged = false;
+		this.hasSevereLogged = false;
+		this.hasCriticalLogged = false;
+		this.hasLogged = false;		
+	}
 }

@@ -135,7 +135,9 @@ public class Params {
 	public double cholera_exposed_to_infectious_mean = 1.4 * ticks_per_day; // (https://www.sciencedirect.com/science/article/pii/S0163445312003477)
 	public double cholera_exposed_to_infectious_std = 0.0917 * ticks_per_day; // (https://www.sciencedirect.com/science/article/pii/S0163445312003477)
 	public double cholera_prob_asymptomatic = 0.75; // (https://ui.adsabs.harvard.edu/abs/2008Natur.454..877K/abstract)
-	
+	public double cholera_prior_asympt_protection_factor = 0.1; // TBD
+	public double cholera_prior_sympt_protection_factor = 0.1; // TBD
+
 	
 	// all cause mortality parameters
 	public ArrayList <Integer> all_cause_death_age_params;
@@ -170,6 +172,7 @@ public class Params {
 		
 	public String testDataFilename = null;
 	public String testLocationFilename = null;
+
 
 	
 	// time
