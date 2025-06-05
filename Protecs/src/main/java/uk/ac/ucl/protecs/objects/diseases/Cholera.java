@@ -10,6 +10,13 @@ import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
 public class Cholera extends Disease{
 	
+	// Whether this infection was asymptomatic or not seems to have consequences on reinfection later on. As such track whether this infection was asymptomatic
+	// at any point
+	boolean hadAsymptCholera = false;
+	// Persistence studies show a reduced risk of subsequent cholera infection if this person previously had an infection
+	boolean hasSymptCholera = false;
+	
+	
 	public Cholera(Host myHost, Host mySource, BehaviourNode initNode, WorldBankCovid19Sim sim){
 		this(myHost, mySource, initNode, sim, (int) sim.schedule.getTime());
 	}
@@ -21,9 +28,7 @@ public class Cholera extends Disease{
 		source = mySource;
 		
 		host.addDisease(this);
-		
-		this.hasAsympt = true;
-			
+					
 		// store the time when it is infected!
 		time_infected = time;		
 		infectedAtLocation = myHost.getLocation();
@@ -91,6 +96,14 @@ public class Cholera extends Disease{
 	public boolean inATestingAdminZone() {
 		// TODO Auto-generated method stub
 		return false;
+	}
+	
+	public void setHadAsymptCholera(boolean hadAsympt) {
+		this.hadAsymptCholera = hadAsympt;
+	}
+	
+	public boolean getHadAsymptCholera() {
+		return this.hadAsymptCholera;
 	}
 	
 }

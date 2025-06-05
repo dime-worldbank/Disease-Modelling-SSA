@@ -62,7 +62,7 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 	
 	public enum nextStepCholera{
 		DO_NOTHING("doNothing"), ASYMPTOMATIC("asymptomatic"), MILD("mild"), SEVERE("severe"), TREATMENT("treatment"), CRITICAL("critical"),
-		RECOVER("recover"), HAS_DIED("hasDied");
+		RECOVER("recover"), HAS_DIED("hasDied"), SUSCEPTIBLE("susceptible");
 		public String key;
 	     
 		nextStepCholera(String key) { this.key = key; }
@@ -85,6 +85,8 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
         		return RECOVER;	
         	case "hasDied":
         		return HAS_DIED;
+        	case "susceptible":
+        		return SUSCEPTIBLE;
         	default:
         		throw new IllegalArgumentException();
         	}
@@ -244,6 +246,7 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 		@Override
 		public double next(Steppable s, double time) {
 			Cholera choleraInfection = (Cholera) s;
+			choleraInfection.setHadAsymptCholera(true);
 			// Asymptomatic people will shed bacteria for about a day (https://pmc.ncbi.nlm.nih.gov/articles/PMC2554681/)
 			// Assume this person is asymptomatic and shedding
 			nextStep = nextStepCholera.DO_NOTHING;
@@ -437,6 +440,77 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 		}
 	};
 	
+	this.criticalNode = new BehaviourNode() {
+
+		@Override
+		public String getTitle() {
+			return CholeraBehaviourNodeInHumans.CRITICAL.key;
+		}
+
+		@Override
+		public boolean isEndpoint() {
+
+			return false;
+		}
+
+		@Override
+		public double next(Steppable s, double time) {
+			Cholera choleraInfection = (Cholera) s;
+			// -------------------------- ACT ON SCHEDULED NEXT STEP CODE BLOCK ------------------------------------------------------------------------------ 
+			if (choleraInfection.time_recovered < Double.MAX_VALUE) {
+				// don't trigger recovery too early
+				if(time < choleraInfection.time_recovered)
+					return choleraInfection.time_recovered - time;
+				else {
+					nextStep = nextStepCholera.RECOVER;
+				}
+			}
+			else if (choleraInfection.time_died < Double.MAX_VALUE) {
+				// don't trigger death too early
+				if(time < choleraInfection.time_died)
+					return choleraInfection.time_died - time;
+				else {
+					nextStep = nextStepCholera.HAS_DIED;
+					}
+			}
+			// ========================================== DECIDE NEXT STEP CODE BLOCK ========================================================================
+			else {
+				// Assume this person is critically infected and shedding
+				nextStep = nextStepCholera.DO_NOTHING;
+
+				// without treatment, a large portion of those infected will die
+				double rand_for_determining_mortality = myWorld.random.nextDouble();
+				if (rand_for_determining_mortality <= 0.5) { // 50% CFR for those untreated
+						choleraInfection.time_died = time + Params.ticks_per_day;
+					}
+					// schedule a recovery time
+					else {
+					choleraInfection.time_recovered = time + 3 * Params.ticks_per_day; // made up
+					}
+					
+			}
+
+			// ================================================================================================================================================
+			// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= MAKE NEXT STEP HAPPEN -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+			switch (nextStep) {
+				case DO_NOTHING:{
+					// Tick time over until next action
+					return 1;
+					}
+				case HAS_DIED:{
+					choleraInfection.setBehaviourNode(deadNode);
+					return 1;
+				}
+				case RECOVER:{
+					choleraInfection.setBehaviourNode(recoveredNode);
+					return 1;
+					}
+				default:
+					return 1;
+			}
+		}
+	};
+	
 	this.recoveredNode = new BehaviourNode() {
 
 		@Override
@@ -447,7 +521,26 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 
 		@Override
 		public double next(Steppable s, double time) {
-			// for now assume there is no reinfection
+			// the step from initial infection to reinfection is going to be problematic, we don't know with absolute certainty the duration that an 
+			// initial cholera infection will provide protection against subsequent infections. Furthermore it seems that the type of initial infection is
+			// important in whether a person will have protection to future infections. It seems that an asymptomatic infection does not protect against
+			// reinfection, however the studies that test this has about 4 participants... 
+			
+			// Furthermore, we need to know what cholera strains are in Zimbabwe. Same strain infections result in protection, different strain 
+			// infections may not
+			Cholera choleraInfection = (Cholera) s;
+
+			if (choleraInfection.time_susceptible < Double.MAX_VALUE) {
+				if(time < choleraInfection.time_susceptible)
+					return choleraInfection.time_susceptible - time;
+				else {
+					nextStep = nextStepCholera.SUSCEPTIBLE;
+				}
+			}
+			else {
+				nextStep = nextStepCholera.DO_NOTHING;
+				
+			}
 			return Double.MAX_VALUE;
 		}
 
@@ -455,7 +548,8 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 		public boolean isEndpoint() {
 			// TODO Auto-generated method stub
 			return false;
-		}};
+		}
+	};
 	
 	this.deadNode = new BehaviourNode() {
 
