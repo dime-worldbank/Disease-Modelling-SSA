@@ -7,8 +7,6 @@ import java.util.HashSet;
 import java.util.Random;
 
 import uk.ac.ucl.protecs.behaviours.*;
-import uk.ac.ucl.protecs.objects.diseases.Cholera;
-import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.DummyWaterborneDiseaseProgressionFramework;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.DummyNonCommunicableDiseaseProgressionFramework;
 import uk.ac.ucl.protecs.objects.diseases.DummyNonCommunicableDisease;
@@ -31,8 +29,7 @@ import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgres
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.DummyInfectiousDiseaseProgressionFramework;
 import sim.engine.SimState;
 import sim.engine.Steppable;
-import uk.ac.ucl.protecs.sim.loadInfectionsInOtherHosts;
-import uk.ac.ucl.protecs.sim.loadInfectionsInHumans;
+
 
 
 public class WorldBankCovid19Sim extends SimState {

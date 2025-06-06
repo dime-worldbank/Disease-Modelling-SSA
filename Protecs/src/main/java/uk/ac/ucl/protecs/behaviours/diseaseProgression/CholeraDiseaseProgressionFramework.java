@@ -11,7 +11,7 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 	public enum CholeraBehaviourNodeInHumans{
 		SUSCEPTIBLE("susceptible"), EXPOSED("exposed"), PRESYMPTOMATIC("presymptomatic"), ASYMPTOMATIC("asymptomatic"), 
 		MILD("mild"), SEVERE("severe"), CRITICAL("critical"), RECOVERED("recovered"), DEAD("dead");
-        String key;
+        public String key;
      
         CholeraBehaviourNodeInHumans(String key) { this.key = key; }
     
@@ -577,16 +577,16 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 					// if this infection was symptomatic or not
 					if (choleraInfection.getHadSymptCholera()) {
 						// protection from cholera for the next three years based on persistence studies (https://pmc.ncbi.nlm.nih.gov/articles/PMC8136710/pdf/pntd.0009383.pdf)
-						choleraInfection.time_protection_from_symptomatic_ends = myWorld.params.cholera_recovered_from_sympt_partial_protection_years * myWorld.params.ticks_per_year;
+						choleraInfection.time_protection_from_symptomatic_ends = time + myWorld.params.cholera_recovered_from_sympt_partial_protection_years * myWorld.params.ticks_per_year;
 					}
 					if (choleraInfection.getHadAsymptCholera()) {
 						// evidence to suggest that reinfection from asymptomatic infection can occur from as little as three months from initial infection
-						choleraInfection.time_protection_from_asymptomatic_ends = myWorld.params.cholera_recovered_from_asympt_partial_protection_months * myWorld.params.ticks_per_month;
+						choleraInfection.time_protection_from_asymptomatic_ends = time + myWorld.params.cholera_recovered_from_asympt_partial_protection_months * myWorld.params.ticks_per_month;
 					}
 				}
 			}
 			else {
-				choleraInfection.time_susceptible = time + 30 * myWorld.params.ticks_per_day; 
+				choleraInfection.time_susceptible = time + myWorld.params.cholera_natural_immunity_days_post_infection * myWorld.params.ticks_per_day; 
 				return 1;
 				
 			}

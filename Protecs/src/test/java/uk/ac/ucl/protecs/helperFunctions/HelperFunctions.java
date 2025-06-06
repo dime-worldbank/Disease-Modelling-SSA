@@ -6,9 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import uk.ac.ucl.protecs.objects.diseases.Cholera;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.objects.diseases.Disease;
 import uk.ac.ucl.protecs.objects.hosts.Person;
+import uk.ac.ucl.protecs.behaviours.diseaseProgression.CholeraDiseaseProgressionFramework;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgressionFramework.CoronavirusBehaviourNodeTitle;
 import uk.ac.ucl.protecs.sim.Params;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
@@ -137,6 +139,19 @@ public class HelperFunctions {
 			double rand = world.random.nextDouble();
 			if (!p.getDiseaseSet().containsKey(DISEASE.COVID.key) && rand <= fraction) {
 				CoronavirusInfection inf = new CoronavirusInfection(p, null, world.covidInfectiousFramework.getEntryPoint(), world);
+				inf.setBehaviourNode(Node);
+				// kick off the infectious behaviour framework
+				inf.step(world);
+			}
+		}
+		break;
+		}
+		case Cholera:{	
+		// Make this function assigns an infectious behaviour node of your choice to a certain percentage of the population
+		for (Person p: world.agents) {
+			double rand = world.random.nextDouble();
+			if (!p.getDiseaseSet().containsKey(DISEASE.CHOLERA.key) && rand <= fraction) {
+				Cholera inf = new Cholera(p, null, world.choleraFramework.getEntryPoint(), world);
 				inf.setBehaviourNode(Node);
 				// kick off the infectious behaviour framework
 				inf.step(world);
