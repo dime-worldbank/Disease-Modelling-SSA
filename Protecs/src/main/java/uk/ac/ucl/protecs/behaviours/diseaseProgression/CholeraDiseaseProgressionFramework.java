@@ -300,7 +300,7 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 			
 			else {
 				// If I find any detail to shedding time in asymptomatic infections I will improve
-				choleraInfection.time_recovered = time + 1 * myWorld.params.ticks_per_day;
+				choleraInfection.time_recovered = time + myWorld.params.cholera_mean_time_recovery_asympt * myWorld.params.ticks_per_day;
 			}
 			// ================================================================================================================================================
 			// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= MAKE NEXT STEP HAPPEN -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -356,7 +356,7 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 						
 			else {
 				// If I find any detail to shedding time in mild infections I will improve
-				choleraInfection.time_recovered = time + 4.5 * myWorld.params.ticks_per_day; // with treatment this will go down to 2-3 days
+				choleraInfection.time_recovered = time + myWorld.params.cholera_mean_time_recovery_mild * myWorld.params.ticks_per_day; // with treatment this will go down to 2-3 days
 			}
 			// ================================================================================================================================================
 			// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= MAKE NEXT STEP HAPPEN -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -427,16 +427,16 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 				// Does this person seek treatment? Use a flat probability for now
 				double rand_for_seeking_treatment = myWorld.random.nextDouble();
 				// Assume that 80% of people seek treatment
-				if (rand_for_seeking_treatment < 0.8) {
+				if (rand_for_seeking_treatment < myWorld.params.cholera_prob_seek_treatment) {
 					nextStep = nextStepCholera.TREATMENT;
 					// even with treatment a small percentage of people will still die
 					double rand_for_determining_mortality = myWorld.random.nextDouble();
-					if (rand_for_determining_mortality < 0.01) { // 1% CFR for those in treatment, assume mortality occurs within a day
-						choleraInfection.time_died = time + myWorld.params.ticks_per_day;
+					if (rand_for_determining_mortality < myWorld.params.cholera_prob_mortality_with_treatment) { // 1% CFR for those in treatment, assume mortality occurs within a day
+						choleraInfection.time_died = time + myWorld.params.cholera_mean_time_death_with_treatment *  myWorld.params.ticks_per_day;
 					}
 					// schedule a recovery time
 					else {
-						choleraInfection.time_recovered = time + 3 * myWorld.params.ticks_per_day; // made up
+						choleraInfection.time_recovered = time + myWorld.params.cholera_mean_time_recovery_severe * myWorld.params.ticks_per_day; // made up
 					}
 					
 				}
@@ -519,12 +519,12 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 
 				// without treatment, a large portion of those infected will die
 				double rand_for_determining_mortality = myWorld.random.nextDouble();
-				if (rand_for_determining_mortality <= 0.5) { // 50% CFR for those untreated
-						choleraInfection.time_died = time + myWorld.params.ticks_per_day;
+				if (rand_for_determining_mortality <= myWorld.params.cholera_prob_mortality_without_treatment) { // 50% CFR for those untreated
+						choleraInfection.time_died = time + myWorld.params.cholera_mean_time_death_without_treatment * myWorld.params.ticks_per_day;
 					}
 					// schedule a recovery time
 					else {
-					choleraInfection.time_recovered = time + 3 * myWorld.params.ticks_per_day; // made up
+					choleraInfection.time_recovered = time + myWorld.params.cholera_mean_time_recovery_critical * myWorld.params.ticks_per_day; // made up
 					}
 					
 			}
@@ -577,11 +577,11 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 					// if this infection was symptomatic or not
 					if (choleraInfection.getHadSymptCholera()) {
 						// protection from cholera for the next three years based on persistence studies (https://pmc.ncbi.nlm.nih.gov/articles/PMC8136710/pdf/pntd.0009383.pdf)
-						choleraInfection.time_protection_from_symptomatic_ends = 3 * myWorld.params.ticks_per_year;
+						choleraInfection.time_protection_from_symptomatic_ends = myWorld.params.cholera_recovered_from_sympt_partial_protection_years * myWorld.params.ticks_per_year;
 					}
 					if (choleraInfection.getHadAsymptCholera()) {
 						// evidence to suggest that reinfection from asymptomatic infection can occur from as little as three months from initial infection
-						choleraInfection.time_protection_from_asymptomatic_ends = 2 * myWorld.params.ticks_per_month;
+						choleraInfection.time_protection_from_asymptomatic_ends = myWorld.params.cholera_recovered_from_asympt_partial_protection_months * myWorld.params.ticks_per_month;
 					}
 				}
 			}
