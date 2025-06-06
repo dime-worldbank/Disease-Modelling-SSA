@@ -137,7 +137,8 @@ public class Params {
 	public double cholera_prob_asymptomatic = 0.75; // (https://ui.adsabs.harvard.edu/abs/2008Natur.454..877K/abstract)
 	public double cholera_prior_asympt_protection_factor = 0.1; // TBD
 	public double cholera_prior_sympt_protection_factor = 0.1; // TBD
-
+	public double cholera_prob_severe = 0.03; // TBD
+	public double cholera_sufficient_ingestion = 0.95; // probably will be replaced with dose dependence
 	
 	// all cause mortality parameters
 	public ArrayList <Integer> all_cause_death_age_params;

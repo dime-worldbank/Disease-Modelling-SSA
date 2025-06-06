@@ -20,7 +20,8 @@ public class HelperFunctions {
 
 	public enum NodeOption{
 		CoronavirusInfectiousBehaviour,
-		MovementBehaviour
+		MovementBehaviour,
+		Cholera
 	}
 	public enum birthsOrDeaths{
 		births,
@@ -86,7 +87,7 @@ public class HelperFunctions {
 			world.schedule.step(world);
 			if (world.schedule.getTime() % (int) Params.ticks_per_day == sample_regularity) {
 			for (Disease i: world.human_infections) {
-				behaviourNodeBin.add(i.getBehaviourName());
+				if (i.isOfType(DISEASE.COVID)) behaviourNodeBin.add(i.getBehaviourName());
 				}
 			}
 		}
@@ -104,6 +105,19 @@ public class HelperFunctions {
 			
 		}
 			return behaviourNodeBin;
+		}
+		
+		case Cholera:{
+			// Simulate over the time period and get the movement behaviours present in the simulation
+			while(world.schedule.getTime() < (double) Params.ticks_per_day * numDaysToRun && !world.schedule.scheduleComplete()){
+				world.schedule.step(world);
+				if (world.schedule.getTime() % (int) Params.ticks_per_day == sample_regularity) {
+				for (Disease i: world.human_infections) {
+					if (i.isOfType(DISEASE.CHOLERA)) behaviourNodeBin.add(i.getBehaviourName());
+					}
+				}
+			}
+				return behaviourNodeBin;
 		}
 		
 		default:{
