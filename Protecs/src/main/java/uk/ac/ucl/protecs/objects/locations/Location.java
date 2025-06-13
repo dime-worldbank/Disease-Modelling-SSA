@@ -39,7 +39,7 @@ public class Location {
 	public int metric_new_recovered;
 	public int metric_currently_infected;
 	public enum LocationCategory{
-		HOME("home"), WORKPLACE("workplace"), COMMUNITY("community");
+		HOME("home"), WORKPLACE("workplace"), COMMUNITY("community"), ADMIN_ZONE("admin_zone");
 		
 		public String key;
 
@@ -54,6 +54,8 @@ public class Location {
         		return WORKPLACE;
         	case "community":
         		return COMMUNITY;
+        	case "admin_zone":
+        		return ADMIN_ZONE;
         	default:
         		throw new IllegalArgumentException();
         	}

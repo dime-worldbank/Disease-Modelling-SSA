@@ -13,7 +13,9 @@ import java.util.Map;
 
 import uk.ac.ucl.protecs.objects.diseases.Disease;
 import uk.ac.ucl.protecs.objects.hosts.Person;
+import uk.ac.ucl.protecs.objects.hosts.Water;
 import uk.ac.ucl.protecs.objects.hosts.Person.OCCUPATION;
+import uk.ac.ucl.protecs.objects.locations.CommunityLocation;
 import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.objects.locations.Location.LocationCategory;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
@@ -72,6 +74,9 @@ public class Params {
 	
 	HashMap <String, Location> adminZones;
 	public ArrayList <String> adminZoneNames;
+	
+	HashMap<String, CommunityLocation> communityLocations;
+	
 	ArrayList <Map<String, List<Double>>> dailyTransitionPrelockdownProbs;
 	ArrayList <Map<String, List<Double>>> dailyTransitionLockdownProbs;
 	
@@ -188,7 +193,8 @@ public class Params {
 		
 	public String testDataFilename = null;
 	public String testLocationFilename = null;
-
+	
+	public String communityLocationFilename = null;
 
 	
 	// time
@@ -249,6 +255,8 @@ public class Params {
 			load_testing(dataDir + testDataFilename);
 			load_testing_locations(dataDir + testLocationFilename);
 		}
+		// load in the community locations
+		load_community_locations(dataDir + communityLocationFilename);
 	}
 	//
 	// DATA IMPORT UTILITIES
@@ -942,7 +950,7 @@ public class Params {
 			// create Locations for each admin zone
 			for(String d: adminZoneNames){
 				Location l = new Location(d);
-				l.setLocationType(LocationCategory.COMMUNITY);
+				l.setLocationType(LocationCategory.ADMIN_ZONE);
 				adminZones.put(d, l);
 			}
 			
@@ -957,6 +965,45 @@ public class Params {
 			return null;
 		}
 	}
+	
+	public void load_community_locations(String communityLocFilename) {
+		communityLocations = new HashMap <String, CommunityLocation> ();
+		
+		try {
+			// Open the tracts file
+			FileInputStream fstream = new FileInputStream(communityLocFilename);
+
+			// Convert our input stream to a BufferedReader
+			BufferedReader communityLocationData = new BufferedReader(new InputStreamReader(fstream));
+			String s;
+
+			// extract the header
+			s = communityLocationData.readLine();
+
+			// map the header into column names relative to location
+			String [] header = splitRawCSVString(s);
+			HashMap <String, Integer> rawColumnNames = new HashMap <String, Integer> ();
+			for(int i = 0; i < header.length; i++){
+				rawColumnNames.put(header[i], new Integer(i));
+			}
+			
+			int idIndex = rawColumnNames.get("id");
+			int typeIndex = rawColumnNames.get("type");
+			int adminZoneIndex = rawColumnNames.get("location");
+			int isWaterSourceIndex = rawColumnNames.get("isWaterSource");
+			// read in the raw data
+			while ((s = communityLocationData.readLine()) != null) {
+				String [] bits = splitRawCSVString(s);
+				CommunityLocation loc = new CommunityLocation(bits[idIndex], adminZones.get(bits[adminZoneIndex]), bits[typeIndex], Boolean.parseBoolean(bits[isWaterSourceIndex]));
+				communityLocations.put(bits[idIndex], loc);
+			}
+			
+		} 
+		catch (Exception e) {
+			System.err.println("File input error: " + communityLocFilename);
+			fail();
+			}
+	};
 
 	/**
 	 * 
