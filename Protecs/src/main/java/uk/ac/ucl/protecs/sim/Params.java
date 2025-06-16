@@ -968,7 +968,7 @@ public class Params {
 	
 	public void load_community_locations(String communityLocFilename) {
 		communityLocations = new HashMap <String, CommunityLocation> ();
-		
+		if (communityLocFilename != null) {
 		try {
 			// Open the tracts file
 			FileInputStream fstream = new FileInputStream(communityLocFilename);
@@ -1003,6 +1003,7 @@ public class Params {
 			System.err.println("File input error: " + communityLocFilename);
 			fail();
 			}
+		}
 	};
 
 	/**

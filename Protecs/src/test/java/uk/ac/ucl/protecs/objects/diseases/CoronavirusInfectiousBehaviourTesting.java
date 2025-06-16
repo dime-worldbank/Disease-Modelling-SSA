@@ -27,7 +27,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void ifThereAreNoCovidInfectionsPeopleStaySusceptible() {
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_InfectiousBehaviourTest.txt");
 		sim.start();
 		loadInfectiousBehaviour(sim);
 		// Make sure there are no new infections
@@ -56,7 +56,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	public void exposedBehaviourNodesLeadToSusceptiblePresymptomaticAndAsymptomaticOnly() {
 		// create a simulation and start
 
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_InfectiousBehaviourTest.txt");
 		sim.start();
 		loadInfectiousBehaviour(sim);
 
@@ -89,7 +89,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	public void presymptomaticBehaviourNodesLeadToMildCasesOnly() {
 		// create a simulation and start
 
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_InfectiousBehaviourTest.txt");
 		sim.start();
 		loadInfectiousBehaviour(sim);
 
@@ -119,7 +119,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void asymptomaticBehaviourNodesLeadsToRecoveredOnly() {
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_InfectiousBehaviourTest.txt");
 		sim.start();
 		loadInfectiousBehaviour(sim);
 
@@ -146,7 +146,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void mildBehaviourNodesLeadToSevereAndRecoveredOnly() {
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_InfectiousBehaviourTest.txt");
 		sim.start();
 		loadInfectiousBehaviour(sim);
 
@@ -175,7 +175,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void confirmMildInfectionsResolveToRecoveredWhenTheyDoNotProgress() {
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_InfectiousBehaviourTest.txt");
 		sim.start();
 		loadInfectiousBehaviour(sim);
 
@@ -203,7 +203,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void severeBehaviourNodesLeadToCriticalAndRecoveredOnly() {
 		// create a simulation and start
-		WorldBankCovid19Sim sim =HelperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
+		WorldBankCovid19Sim sim =HelperFunctions.CreateDummySim(paramsDir + "params_InfectiousBehaviourTest.txt");
 		sim.start();
 		loadInfectiousBehaviour(sim);
 
@@ -234,7 +234,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	public void confirmSevereInfectionsResolveToRecoveredWhenTheyDoNotProgress() {
 		// create a simulation and start
 
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_InfectiousBehaviourTest.txt");
 		sim.start();
 		loadInfectiousBehaviour(sim);
 
@@ -264,7 +264,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	public void criticaBehaviourlNodesLeadToDeadOrRecoveredOnly() {
 		// create a simulation and start
 
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_InfectiousBehaviourTest.txt");
 		sim.start();
 		loadInfectiousBehaviour(sim);
 
@@ -292,7 +292,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void confirmCriticalInfectionsResolveToRecoveredWhenTheyDoNotProgress() {
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_InfectiousBehaviourTest.txt");
 		sim.start();
 		loadInfectiousBehaviour(sim);
 
@@ -320,7 +320,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void recoveredBehaviourNodesStayRecovered() {
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_InfectiousBehaviourTest.txt");
 		sim.start();
 		loadInfectiousBehaviour(sim);
 
@@ -349,7 +349,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void deadBehaviourNodesStayDead() {
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_InfectiousBehaviourTest.txt");
 		sim.start();
 		loadInfectiousBehaviour(sim);
 
@@ -375,7 +375,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void ifWeGiveEveryoneAnInfectionEventuallyTheyWillRecoverOrDie() {
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_InfectiousBehaviourTest.txt");
 		sim.start();
 		loadInfectiousBehaviour(sim);
 
@@ -403,7 +403,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	@Test
 	public void ensureNewCovidCasesAreCreated() {
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_InfectiousBehaviourTest.txt");
 		sim.start();
 		loadInfectiousBehaviour(sim);
 
