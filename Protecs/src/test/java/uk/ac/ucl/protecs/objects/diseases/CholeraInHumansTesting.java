@@ -35,7 +35,7 @@ public class CholeraInHumansTesting {
 	public void choleraCasesAreLoadedInViaLineList() {
 		// Test that cholera infections are created and loaded in via the line list
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_humans.txt");
 		sim.start();
 		// assume no cases have been loaded in the the person objects
 		boolean choleraLoadedIn = false;
@@ -55,7 +55,7 @@ public class CholeraInHumansTesting {
 	public void choleraCasesAreInitiallySetToExposedNode() {
 		// Test that cholera infections are initially load in with the exposed behaviour node
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_humans.txt");
 		sim.start();
 		// assume every cholera case starts with the exposed behaviour node
 		boolean startsAsExposed = true;
@@ -79,7 +79,7 @@ public class CholeraInHumansTesting {
 	public void exposedNodeLeadsToSusceptibleAsymptomaticMildAndSevere() {
 		// Test that the exposed node leads to susceptible, asymptomatic, mild and critical states only
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_humans.txt");
 		sim.start();
 		int num_days = 7;
 		// adjust probability of outcomes to (hopefully) make sure that all options are explored from the exposed node
@@ -115,7 +115,7 @@ public class CholeraInHumansTesting {
 	public void asymptomaticLeadsToRecoveredOnly() {
 		// Test that the asymptomatic node leads to the recovered state only
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_humans.txt");
 		sim.start();
 		int num_days = 7;
 		for (Disease d: sim.human_infections) {
@@ -144,7 +144,7 @@ public class CholeraInHumansTesting {
 	public void mildLeadsToRecoveredOnly() {
 		// Test that the mild node leads to the recovered state only
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_humans.txt");
 		sim.start();
 		int num_days = 7;
 		for (Disease d: sim.human_infections) {
@@ -173,7 +173,7 @@ public class CholeraInHumansTesting {
 	public void severeLeadsToCriticalDeadAndRecoveredOnly() {
 		// Test that the severe node leads to the critical, dead and recovered states only
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_humans.txt");
 		sim.start();
 		int num_days = 7;
 		for (Disease d: sim.human_infections) {
@@ -205,7 +205,7 @@ public class CholeraInHumansTesting {
 	public void criticalLeadsToDeadAndRecoveredOnly() {
 		// Test that the critical node leads to the dead and recovered states only
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_humans.txt");
 		sim.start();
 		int num_days = 7;
 		for (Disease d: sim.human_infections) {
@@ -235,7 +235,7 @@ public class CholeraInHumansTesting {
 	public void deadLeadsToDeadOnly() {
 		// Test that the dead node does not change
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_humans.txt");
 		sim.start();
 		int num_days = 7;
 		for (Disease d: sim.human_infections) {
@@ -265,7 +265,7 @@ public class CholeraInHumansTesting {
 	public void recoveredLeadsToSusceptible() {
 		// Test that the recovered node goes to susceptible
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_humans.txt");
 		sim.start();
 		int num_days = 7;
 		for (Disease d: sim.human_infections) {

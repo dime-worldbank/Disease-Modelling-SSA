@@ -77,4 +77,8 @@ public class Water extends Host {
 		
 		return false;
 	};
+	
+	public Location getSource() {
+		return this.source;
+	}
 }
