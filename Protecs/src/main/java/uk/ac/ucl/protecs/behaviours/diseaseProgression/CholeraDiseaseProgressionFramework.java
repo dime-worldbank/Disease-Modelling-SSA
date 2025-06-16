@@ -1,6 +1,7 @@
 package uk.ac.ucl.protecs.behaviours.diseaseProgression;
 
 
+import uk.ac.ucl.protecs.behaviours.diseaseProgression.DummyWaterborneDiseaseProgressionFramework.WaterborneBehaviourNodeInWater;
 import uk.ac.ucl.protecs.objects.diseases.Cholera;
 import uk.ac.ucl.protecs.sim.*;
 import sim.engine.Steppable;
@@ -635,12 +636,13 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 		
 	};
 	
+
 	this.contaminatedNode = new BehaviourNode() {
 
 		@Override
 		public String getTitle() {
 			// TODO Auto-generated method stub
-			return CholeraBehaviourNodeInWater.CONTAMINATED.key;
+			return WaterborneBehaviourNodeInWater.CONTAMINATED.key;
 		}
 
 		@Override
@@ -652,7 +654,7 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 		@Override
 		public double next(Steppable arg0, double arg1) {
 			// TODO Auto-generated method stub
-			return 0;
+			return 1;
 		}
 		
 	};

@@ -81,4 +81,8 @@ public class Water extends Host {
 	public Location getSource() {
 		return this.source;
 	}
+	
+	public void setSource(Location l) {
+		this.source = l;
+	}
 }

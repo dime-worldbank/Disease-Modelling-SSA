@@ -217,7 +217,7 @@ public class DummyWaterborneDiseaseProgressionFramework extends DiseaseProgressi
 		@Override
 		public double next(Steppable arg0, double arg1) {
 			// TODO Auto-generated method stub
-			return 0;
+			return 1;
 		}
 		
 	};

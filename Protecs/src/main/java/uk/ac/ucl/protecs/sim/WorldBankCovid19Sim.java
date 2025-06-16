@@ -183,17 +183,8 @@ public class WorldBankCovid19Sim extends SimState {
 		
 		// copy over the relevant information
 		adminBoundaries = new ArrayList <Location> (params.adminZones.values());
-		// set up things needed to model water
-		waterInSim = new ArrayList<Water>();
 		households = new ArrayList <Household> ();
-		// copy over community locations
-		communityLocations = new ArrayList <CommunityLocation> (params.communityLocations.values());
-		// if the community location is a watersource, create the water object and activate it
-		for (CommunityLocation loc: communityLocations) {
-			if (loc.isWaterSource()) {
-				loc.createWaterAtThisSource(this);
-			}
-		}
+
 		
 		// set up the behavioural framework
 		movementFramework = new MovementBehaviourFramework(this);
@@ -214,8 +205,7 @@ public class WorldBankCovid19Sim extends SimState {
 		
 		// load the population
 		LoadPopulation.load_population(params.dataDir + params.population_filename, this);
-		// map water to its sources
-		MapHouseholdWaterSupplyToSources.mapWaterToSource(this);
+		
 		
 		// if there are no agents, SOMETHING IS WRONG. Flag this issue!
 		if(agents.size() == 0) {
@@ -233,9 +223,35 @@ public class WorldBankCovid19Sim extends SimState {
 		human_infections = new ArrayList <Disease> ();
 		// load in the infections in humans
 		loadInfectionsInHumans.seed_infections_in_humans(this);
-		// load in the infections in the environment
+		
+		// ======================================================= cholera set up ====================================================================
+		// set up things needed to model water
+		waterInSim = new ArrayList<Water>();
+		// set up househould water
+		for (Household h : households) {
+			// for purposes of development we will set every household to be a source of water
+			h.setWaterSource(true);
+			// create a new water source
+			Water householdWater = new Water(h, null, this);
+			waterInSim.add(householdWater);
+			h.setWaterHere(householdWater);
+			// schedule the water to activate in the simulation
+			schedule.scheduleOnce(0, param_schedule_movement, householdWater);
+		}
+		// copy over community locations
+		communityLocations = new ArrayList <CommunityLocation> (params.communityLocations.values());
+		// if the community location is a water source, create the water object and activate it
+		for (CommunityLocation loc: communityLocations) {
+			if (loc.isWaterSource()) {
+				loc.createWaterAtThisSource(this);
+				}
+		}
+		// map water to its sources
+		MapHouseholdWaterSupplyToSources.mapWaterToSource(this);
+		// load in the infections in the environment 
 		loadInfectionsInOtherHosts.seed_infections_in_others(this);
 		
+		// ===========================================================================================================================================
 		// SCHEDULE UPDATING OF LOCATIONS
 		Steppable updateLocationLists = new Steppable() {
 			

@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import uk.ac.ucl.protecs.behaviours.diseaseProgression.CholeraDiseaseProgressionFramework;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.DummyWaterborneDiseaseProgressionFramework;
+import uk.ac.ucl.protecs.objects.diseases.Cholera;
 import uk.ac.ucl.protecs.objects.diseases.DummyWaterborneDisease;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.objects.hosts.Water;
@@ -17,42 +19,36 @@ public class loadInfectionsInOtherHosts{
 	
 	static void seed_infections_in_others(WorldBankCovid19Sim world) {
 		// TODO: discuss with others about how to approach building this, for now I'm just adding water to households
-
-		for (Household h : world.households) {
-			// for purposes of development we will set every household to be a source of water
-			h.setWaterSource(true);
-			// create a new water source
-			Water householdWater = new Water(h, h.getRootSuperLocation(), world);
-			world.waterInSim.add(householdWater);
-			h.setWaterHere(householdWater);
-			// schedule the water to activate in the simulation
-			world.schedule.scheduleOnce(0, world.param_schedule_movement, householdWater);
-		}
-			// create a new infection in the water for some households
+		// create a new infection in the water for some households
 		for (DISEASE d: DISEASE.values()) {
 		HashMap<Location, Integer> diseaseToSeed = world.params.lineListInOther.get(d);
 		for(Location l: diseaseToSeed.keySet()){
-			// for now just add infections to the water through the person object
-			ArrayList <Person> peopleHere = world.personsToAdminBoundary.get(l);
+			// get the water at this location
+			ArrayList<Water> waterHere = new ArrayList<Water>();
+			for (Water w: world.waterInSim) {
+				if (w.getLocation().getRootSuperLocation().equals(l)) {
+					waterHere.add(w);
+				}
+			}
 			
 			int countInfections = diseaseToSeed.get(l);
 
-			int collisions = 100; // to escape while loop in case of troubles
+			int collisions = countInfections + 10; // to escape while loop in case of troubles
 			// list of infected people
 			HashSet <Water> newlyInfected = new HashSet <Water> ();
 			
-			int numPeopleHere = peopleHere.size();
+			int numWaterHere = waterHere.size();
 			// infect until you have met the target number of infections
 			while(newlyInfected.size() < countInfections && collisions > 0){
-				Person p = peopleHere.get(world.random.nextInt(numPeopleHere));
-				
+				Water w = waterHere.get(world.random.nextInt(numWaterHere));
 				// check for duplicates!
-				if(newlyInfected.contains(p.getHouseholdAsType().getWater())){
+				if(newlyInfected.contains(w)){
 					collisions--;
+					if (collisions < 0) break;
 					continue;
 				}
 				else // otherwise record that we're infecting this person
-					newlyInfected.add(p.getHouseholdAsType().getWater());
+					newlyInfected.add(w);
 				
 				// create new infection
 				switch (d) {
@@ -69,10 +65,18 @@ public class loadInfectionsInOtherHosts{
 					if (world.dummyWaterborneFramework.equals(null)) {
 						world.dummyWaterborneFramework = new DummyWaterborneDiseaseProgressionFramework(world);
 					}
-					DummyWaterborneDisease inf = new DummyWaterborneDisease(p.getHouseholdAsType().getWater(), null, world.dummyWaterborneFramework.getStandardEntryPointForWater(), world, 0);			
+					DummyWaterborneDisease inf = new DummyWaterborneDisease(w, null, world.dummyWaterborneFramework.getStandardEntryPointForWater(), world, 0);			
 					world.schedule.scheduleOnce(1, world.param_schedule_infecting, inf);
 					break;
 				}
+				case CHOLERA:{
+					if (world.choleraFramework.equals(null)) {
+						world.choleraFramework = new CholeraDiseaseProgressionFramework(world);
+					}
+					Cholera inf = new Cholera(w, null, world.choleraFramework.getStandardEntryPointForWater(), world, 0);
+					world.schedule.scheduleOnce(1, world.param_schedule_infecting, inf);
+				}
+				break;
 				default:
 					break;
 				}

@@ -18,9 +18,6 @@ public class MapHouseholdWaterSupplyToSources{
 		// iterate over the admin zones in the simulation
 		
 		for (Location adminZone: world.adminBoundaries) {
-			if (world.params.verbose) {
-				System.out.println("Loading in water for admin zone " + adminZone.getId());
-			}
 			// create a way to map the locations to the cumulative percentage of the amount of water they supply
 			// create a holder
 			HashMap<CommunityLocation, Double> sourceToPercent = new HashMap <CommunityLocation, Double>();
@@ -51,17 +48,12 @@ public class MapHouseholdWaterSupplyToSources{
 					for (CommunityLocation source: sortedSourceToPercent.keySet()) {
 						// randomly select a community water source to provide water to this household
 						if (rand_for_choosing < sourceToPercent.get(source)) {
-							// create a new water source
-							Water householdWater = new Water(home, source, world);
-							// update the household to show that people can interact with water here
-							home.setWaterSource(true);
-							// link the house to the water object
-							home.setWaterHere(householdWater);
-							// update the water in the simulation
-							world.waterInSim.add(householdWater);
+							// Access the household water object
+							Water householdWater = home.getWater();
+							// set the source
+							householdWater.setSource(source);
 							// schedule the water to activate in the simulation
 							world.schedule.scheduleOnce(0, world.param_schedule_movement, householdWater);
-							System.out.println("Household " + home.getId() + " is drawing water from location " + source.getId());
 						}
 					}
 				}
