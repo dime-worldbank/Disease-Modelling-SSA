@@ -17,11 +17,13 @@ import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.objects.hosts.Person.OCCUPATION;
 import uk.ac.ucl.protecs.objects.hosts.Person.SEX;
 import uk.ac.ucl.protecs.objects.hosts.Water;
+import uk.ac.ucl.protecs.objects.locations.CommunityLocation;
 import uk.ac.ucl.protecs.objects.locations.Household;
 import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.objects.locations.Workplace;
 import uk.ac.ucl.protecs.sim.loggers.DemographyLogging;
 import uk.ac.ucl.protecs.sim.loggers.CovidLogging;
+import uk.ac.ucl.protecs.sim.MapHouseholdWaterSupplyToSources;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.SpuriousSymptomDiseaseProgressionFramework;
 import uk.ac.ucl.protecs.behaviours.diseaseSpread.DummyNCDOnset;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.CholeraDiseaseProgressionFramework;
@@ -47,6 +49,8 @@ public class WorldBankCovid19Sim extends SimState {
 	public Random random;
 	
 	ArrayList <Location> adminBoundaries = null;
+	
+	ArrayList <CommunityLocation> communityLocations = null;
 	
 	HashMap <Location, ArrayList<Person>> personsToAdminBoundary = null; 
 	HashMap <Location, ArrayList<Water>> waterSourcesToAdminBoundary = null; 
@@ -179,6 +183,17 @@ public class WorldBankCovid19Sim extends SimState {
 		
 		// copy over the relevant information
 		adminBoundaries = new ArrayList <Location> (params.adminZones.values());
+		// set up things needed to model water
+		waterInSim = new ArrayList<Water>();
+		households = new ArrayList <Household> ();
+		// copy over community locations
+		communityLocations = new ArrayList <CommunityLocation> (params.communityLocations.values());
+		// if the community location is a watersource, create the water object and activate it
+		for (CommunityLocation loc: communityLocations) {
+			if (loc.isWaterSource()) {
+				loc.createWaterAtThisSource(this);
+			}
+		}
 		
 		// set up the behavioural framework
 		movementFramework = new MovementBehaviourFramework(this);
@@ -189,8 +204,6 @@ public class WorldBankCovid19Sim extends SimState {
 		// initialise the agent storage
 		// holders for construction
 		agents = new ArrayList <Person> ();
-		waterInSim = new ArrayList<Water>();
-		households = new ArrayList <Household> ();
 		workplaces = new ArrayList <Workplace> ();
 
 		// initialise the holder
@@ -201,6 +214,8 @@ public class WorldBankCovid19Sim extends SimState {
 		
 		// load the population
 		LoadPopulation.load_population(params.dataDir + params.population_filename, this);
+		// map water to its sources
+		MapHouseholdWaterSupplyToSources.mapWaterToSource(this);
 		
 		// if there are no agents, SOMETHING IS WRONG. Flag this issue!
 		if(agents.size() == 0) {

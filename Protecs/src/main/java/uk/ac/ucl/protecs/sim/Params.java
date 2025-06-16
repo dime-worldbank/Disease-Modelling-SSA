@@ -991,11 +991,22 @@ public class Params {
 			int typeIndex = rawColumnNames.get("type");
 			int adminZoneIndex = rawColumnNames.get("location");
 			int isWaterSourceIndex = rawColumnNames.get("isWaterSource");
+			int percentAdminZoneServedIndex = rawColumnNames.get("percentServed");
 			// read in the raw data
 			while ((s = communityLocationData.readLine()) != null) {
 				String [] bits = splitRawCSVString(s);
-				CommunityLocation loc = new CommunityLocation(bits[idIndex], adminZones.get(bits[adminZoneIndex]), bits[typeIndex], Boolean.parseBoolean(bits[isWaterSourceIndex]));
+				CommunityLocation loc = new CommunityLocation(bits[idIndex], adminZones.get(bits[adminZoneIndex]), bits[typeIndex], 
+						Boolean.parseBoolean(bits[isWaterSourceIndex]), Double.parseDouble(bits[percentAdminZoneServedIndex]));
 				communityLocations.put(bits[idIndex], loc);
+			}
+			// need to check that the probabilities for the percent served make sense
+			double checkerForProbabilities = 0.0;
+			for (CommunityLocation loc: communityLocations.values()) {
+				checkerForProbabilities += loc.getPercentServed();
+			}
+			int number_of_admin_zones = adminZones.size();
+			if (Math.floor(number_of_admin_zones / number_of_admin_zones)!= 1) {
+				fail();
 			}
 			
 		} 
