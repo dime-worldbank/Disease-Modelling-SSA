@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import sim.engine.SimState;
+import uk.ac.ucl.protecs.objects.diseases.Cholera;
 import uk.ac.ucl.protecs.objects.diseases.Disease;
 import uk.ac.ucl.protecs.objects.diseases.DummyWaterborneDisease;
 import uk.ac.ucl.protecs.objects.locations.Location;
@@ -39,10 +40,15 @@ public class Water extends Host {
 				// skip over step if no infection is present in water/person
 				boolean thisPersonHasDummyWaterborne = p.myDiseaseSet.containsKey(DISEASE.DUMMY_WATERBORNE.key);
 				
-				boolean waterIsContaminated = (this.getDiseaseSet().containsKey(DISEASE.DUMMY_WATERBORNE.key));
+				boolean thisPersonHasCholera = p.myDiseaseSet.containsKey(DISEASE.CHOLERA.key);
+				
+				boolean waterIsContaminatedByDummy = (this.getDiseaseSet().containsKey(DISEASE.DUMMY_WATERBORNE.key));
+				
+				boolean waterIsContaminatedByCholera = (this.getDiseaseSet().containsKey(DISEASE.CHOLERA.key));
+
 				// if this person has the dummy water born infection and the location doesn't have the dummy water born infection, 
 				// potentially cause a new infection in the water
-				if (thisPersonHasDummyWaterborne & !waterIsContaminated) {
+				if (thisPersonHasDummyWaterborne & !waterIsContaminatedByDummy) {
 					double randomToShedIntoWater = myWorld.random.nextDouble();
 					// check if the person interacts and sheds into water
 					if (randomToShedIntoWater < myWorld.params.dummy_waterborne_prob_shed_into_water) {
@@ -53,11 +59,33 @@ public class Water extends Host {
 					}
 				}
 				
-				if (!thisPersonHasDummyWaterborne & waterIsContaminated) {
+				if (!thisPersonHasDummyWaterborne & waterIsContaminatedByDummy) {
 					double randomToIngestInfection = myWorld.random.nextDouble();
-					// check if the person interacts and sheds into water
+					// check if the person interacts and ingests sufficient amounts of cholera to get an infection
 					if (randomToIngestInfection < myWorld.params.dummy_prob_ingest_dummy_waterborne) {
-						DummyWaterborneDisease inf = new DummyWaterborneDisease(p, this, myWorld.dummyWaterborneFramework.getStandardEntryPointForWater(), myWorld);
+						DummyWaterborneDisease inf = new DummyWaterborneDisease(p, this, myWorld.dummyWaterborneFramework.getStandardEntryPoint(), myWorld);
+						myWorld.schedule.scheduleOnce(time, myWorld.param_schedule_infecting, inf);
+						
+					}
+				}
+				// if this person has cholera  and the location doesn't have cholera, 
+				// potentially cause a new infection in the water
+				if (thisPersonHasCholera & !waterIsContaminatedByCholera) {
+					double randomToShedIntoWater = myWorld.random.nextDouble();
+					// check if the person interacts and sheds into water
+					if (randomToShedIntoWater < myWorld.params.cholera_prob_shed) {
+						
+						Cholera inf = new Cholera(this, p, myWorld.choleraFramework.getStandardEntryPointForWater(), myWorld);
+						myWorld.schedule.scheduleOnce(time, myWorld.param_schedule_infecting, inf);
+						
+					}
+				}
+				
+				if (!thisPersonHasCholera & waterIsContaminatedByCholera) {
+					double randomToIngestInfection = myWorld.random.nextDouble();
+					// check if the person interacts and ingests sufficient amounts of cholera to get an infection
+					if (randomToIngestInfection < myWorld.params.cholera_prob_ingest) {
+						Cholera inf = new Cholera(p, this, myWorld.choleraFramework.getStandardEntryPoint(), myWorld);
 						myWorld.schedule.scheduleOnce(time, myWorld.param_schedule_infecting, inf);
 						
 					}

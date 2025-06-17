@@ -56,4 +56,25 @@ public class CholeraInWaterTesting {
 		Assert.assertTrue(choleraSeededInWater);
 	}
 	
+	@Test
+	public void checkCholeraIsSpreadToWater() {
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_water.txt");
+		sim.start();
+		int number_of_initial_infections_in_water = 0;
+
+		for (Water w: sim.waterInSim) {
+			if (w.getDiseaseSet().containsKey(DISEASE.CHOLERA.key)) number_of_initial_infections_in_water ++;
+
+		}
+		int numDays = 50;
+		HelperFunctions.runSimulation(sim, numDays);
+		int number_of_new_infections_in_water = 0;
+
+		for (Water w: sim.waterInSim) {
+			if (w.getDiseaseSet().containsKey(DISEASE.CHOLERA.key)) number_of_new_infections_in_water ++;
+
+		}
+		Assert.assertTrue(number_of_new_infections_in_water > number_of_initial_infections_in_water);
+		}
+	
 }

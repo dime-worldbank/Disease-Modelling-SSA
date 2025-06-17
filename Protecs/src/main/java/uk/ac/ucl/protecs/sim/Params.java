@@ -159,6 +159,9 @@ public class Params {
 	public double cholera_recovered_from_asympt_partial_protection_months = 2;  // https://pmc.ncbi.nlm.nih.gov/articles/PMC8136710/pdf/pntd.0009383.pdf
 	
 	public double cholera_natural_immunity_days_post_infection = 30;
+	
+	public double cholera_prob_shed = 0.1; // TODO: Change to dose dependent
+	public double cholera_prob_ingest = 0.1; // TODO: Change to dose dependent
 
 	// all cause mortality parameters
 	public ArrayList <Integer> all_cause_death_age_params;
