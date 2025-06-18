@@ -43,6 +43,9 @@ public class Cholera extends Disease{
 		if (myHost.isOfType(HOST.PERSON)){
 		myWorld.human_infections.add(this);
 		}
+		else {
+		myWorld.other_infections.add(this);
+		}
 	}
 
 	@Override

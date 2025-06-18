@@ -45,7 +45,7 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 	public enum CholeraBehaviourNodeInWater{
 		CLEAN("clean"), CONTAMINATED("contaminated");
 
-        String key;
+        public String key;
      
         CholeraBehaviourNodeInWater(String key) { this.key = key; }
     

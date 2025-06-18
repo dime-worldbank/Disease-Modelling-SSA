@@ -45,6 +45,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public ArrayList <Workplace> workplaces = null;
 
 	public ArrayList <Disease> human_infections = null;
+	public ArrayList <Disease> other_infections = null;
 	public HashSet <OCCUPATION> occupationsInSim = null;
 	public Random random;
 	
@@ -221,6 +222,7 @@ public class WorldBankCovid19Sim extends SimState {
 
 		// set up the infections
 		human_infections = new ArrayList <Disease> ();
+		other_infections = new ArrayList <Disease> ();
 		// load in the infections in humans
 		loadInfectionsInHumans.seed_infections_in_humans(this);
 		

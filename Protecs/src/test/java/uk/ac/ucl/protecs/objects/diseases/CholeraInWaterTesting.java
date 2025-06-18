@@ -1,13 +1,19 @@
 package uk.ac.ucl.protecs.objects.diseases;
 
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.junit.Assert;
 import org.junit.Test;
 
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
+import uk.ac.ucl.protecs.behaviours.diseaseProgression.CholeraDiseaseProgressionFramework.CholeraBehaviourNodeInWater;
 import uk.ac.ucl.protecs.helperFunctions.*;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.objects.hosts.Water;
+import uk.ac.ucl.protecs.objects.hosts.Person.SEX;
 import uk.ac.ucl.protecs.objects.locations.Household;
 import uk.ac.ucl.protecs.objects.locations.Location.LocationCategory;
 
@@ -43,7 +49,7 @@ public class CholeraInWaterTesting {
 		// create a simulation and start
 		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_water.txt");
 		sim.start();
-		// assume no cases have been loaded in the the person objects
+		// assume no cases have been loaded in the the water objects
 		boolean choleraSeededInWater = false;
 		// iterate over the population to try and find a cholera infection via their disease set
 		for (Water w: sim.waterInSim) {
@@ -55,6 +61,25 @@ public class CholeraInWaterTesting {
 		}
 		// test whether infections have been loaded in
 		Assert.assertTrue(choleraSeededInWater);
+	}
+	
+	@Test
+	public void checkThatCholeraInWaterStartsAtTheContaminatedNode() {
+		// Test that cholera infections are created and loaded in via the line list
+		// create a simulation and start
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_water.txt");
+		sim.start();
+		// assume cholera in water does not exhibit the contagious node
+		boolean choleraInWaterIsContaminated = true;
+		// iterate over the diseases in water to try and find a cholera infection that isn't doing the contaminated behaviour
+		for (Disease d: sim.other_infections) {
+			if (!((d.isOfType(DISEASE.CHOLERA)) & (d.getCurrentBehaviourNode().getTitle().equals(CholeraBehaviourNodeInWater.CONTAMINATED.key)))) {
+				choleraInWaterIsContaminated = false;
+				break;
+			}
+		}
+		// test whether infections have been loaded in
+		Assert.assertTrue(choleraInWaterIsContaminated);
 	}
 	
 	@Test
@@ -89,6 +114,30 @@ public class CholeraInWaterTesting {
 
 		}
 		int numDays = 50;
+		HelperFunctions.runSimulation(sim, numDays);
+		int number_of_new_infections_in_humans = 0;
+
+		for (Person p: sim.agents) {
+			if (p.getDiseaseSet().containsKey(DISEASE.CHOLERA.key)) number_of_new_infections_in_humans ++;
+
+		}
+		Assert.assertTrue(number_of_new_infections_in_humans > number_of_initial_infections_in_humans);
+		}
+	
+	@Test
+	public void checkContagiousWaterRevertsToNonContagiousWithTime() {
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_water.txt");
+		sim.start();
+		int number_of_initial_infections_in_humans = 0;
+		// get initial set of water
+		ArrayList<Water> originalContaminatedWater = new ArrayList<Water>();
+		for (Water w: sim.waterInSim) {
+			if (w.getDiseaseSet().containsKey(DISEASE.CHOLERA.key)) originalContaminatedWater.add(w);
+
+		}
+		// Make sure that no one can shed into water
+		int numDays = 50;
+		
 		HelperFunctions.runSimulation(sim, numDays);
 		int number_of_new_infections_in_humans = 0;
 
