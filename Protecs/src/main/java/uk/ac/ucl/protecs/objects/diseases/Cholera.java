@@ -20,7 +20,11 @@ public class Cholera extends Disease{
 	// assign values to time-dependent protection from prior infections 
 	public double time_protection_from_asymptomatic_ends = Double.MAX_VALUE;
 	public double time_protection_from_symptomatic_ends = Double.MAX_VALUE;
-
+	// create cholera-in-water specific time keeping things
+	public double time_hyperinfectious_in_water = Double.MAX_VALUE;
+	public double time_abnc_in_water = Double.MAX_VALUE;
+	public double time_clean_in_water = Double.MAX_VALUE;
+	
 	
 	
 	public Cholera(Host myHost, Host mySource, BehaviourNode initNode, WorldBankCovid19Sim sim){
@@ -45,6 +49,7 @@ public class Cholera extends Disease{
 		}
 		else {
 		myWorld.other_infections.add(this);
+		time_hyperinfectious_in_water = time;
 		}
 	}
 

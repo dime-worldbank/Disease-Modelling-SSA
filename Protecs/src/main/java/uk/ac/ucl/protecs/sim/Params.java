@@ -162,7 +162,9 @@ public class Params {
 	
 	public double cholera_prob_shed = 0.1; // TODO: Change to dose dependent
 	public double cholera_prob_ingest = 0.1; // TODO: Change to dose dependent
-
+	
+	public double cholera_time_hyperinfectious_in_water = 5 / 4; // hyperinfectious state is very short, around 5 hours, 1 tick is 4 hours therefore 5/4 ticks is 5 hours (https://pubmed.ncbi.nlm.nih.gov/12050664/)
+	public double cholera_time_abnc_in_water = 2 * ticks_per_week;
 	// all cause mortality parameters
 	public ArrayList <Integer> all_cause_death_age_params;
 	public ArrayList <Double> prob_death_by_age_male;
