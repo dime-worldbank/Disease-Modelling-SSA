@@ -11,6 +11,7 @@ import uk.ac.ucl.protecs.behaviours.diseaseProgression.CholeraDiseaseProgression
 import uk.ac.ucl.protecs.helperFunctions.*;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.objects.hosts.Water;
+import uk.ac.ucl.protecs.objects.locations.CommunityLocation;
 import uk.ac.ucl.protecs.objects.locations.Household;
 import uk.ac.ucl.protecs.objects.locations.Location.LocationCategory;
 
@@ -181,6 +182,35 @@ public class CholeraInWaterTesting {
 			}
 		}
 		Assert.assertTrue(all_clean);
+	}
+	
+	@Test
+	public void seedingInCommunityLocationsLeadsToSpreadToOtherLocations() {
+		// create a simulation without any cases being seeded in
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_force_no_cases.txt");
+		sim.start();
+		// get a community location and create an infection
+		for (CommunityLocation l: sim.communityLocations) {
+			if (l.isWaterSource()) {
+			Cholera inf = new Cholera(l.getWater(), null, sim.choleraFramework.getStandardEntryPointForWater(), sim, 0);
+			sim.schedule.scheduleOnce(0, sim.param_schedule_infecting, inf);
+			break;
+			}
+		}
+		// increase the likelihood of interacting with water, ingesting cholera and shedding cholera
+		sim.params.cholera_prob_ingest = 0.8;
+		sim.params.cholera_prob_shed = 0.8;
+		sim.params.dummy_prob_interact_with_water = 0.8;
+		// run for 30 days
+		int numDays = 30;
+		HelperFunctions.runSimulation(sim, numDays);
+		int number_of_contaminated_watersources = 0;
+		for (Water w: sim.waterInSim) {
+			if (w.getDiseaseSet().size() > 0) number_of_contaminated_watersources++;
+		}
+		boolean other_water_sources_contaminated = number_of_contaminated_watersources > 1;
+
+		Assert.assertTrue(other_water_sources_contaminated);
 	}
 	
 }

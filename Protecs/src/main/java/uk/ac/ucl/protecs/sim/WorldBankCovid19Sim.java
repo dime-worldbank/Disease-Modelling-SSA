@@ -51,7 +51,7 @@ public class WorldBankCovid19Sim extends SimState {
 	
 	ArrayList <Location> adminBoundaries = null;
 	
-	ArrayList <CommunityLocation> communityLocations = null;
+	public ArrayList <CommunityLocation> communityLocations = null;
 	
 	HashMap <Location, ArrayList<Person>> personsToAdminBoundary = null; 
 	HashMap <Location, ArrayList<Water>> waterSourcesToAdminBoundary = null; 
