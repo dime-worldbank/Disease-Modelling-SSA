@@ -25,6 +25,7 @@ public class CholeraInWaterTesting {
 	// 5) Cholera can be spread from water to people
 	// 6) Cholera in water reverts to an active but not culturable state in the short term
 	// 7) Cholera in water will eventually subsisde without reinfection.
+	// 8) People interact with community water sources and can collect contaminated water for home use
 	// ============================================================================================================================================================
 	private final static String paramsDir = "src/test/resources/";
 	
@@ -34,11 +35,13 @@ public class CholeraInWaterTesting {
 		// create a simulation and start
 		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_water.txt");
 		sim.start();
-		// assume no cases have been loaded in the the person objects
+		// assume all houses are linked to water sources
 		boolean housesLinkedToWatersource = true;
-		// iterate over the population to try and find a cholera infection via their disease set
+		// iterate over all households to try and find one that isn't connected to a community water source
 		for (Household h: sim.households) {
-			if (!h.getWater().getSource().getLocationType().equals(LocationCategory.COMMUNITY)) {
+			// check their water source comes from a community location (TODO this will change when we incorporate piped water)
+			// check that this community source is a water source
+			if ((!h.getWater().getSource().getLocationType().equals(LocationCategory.COMMUNITY)) || !(h.getWater().getSource().isWaterSource())) {
 				// if we found a cholera case, alter our assumption that none have been loaded in and stop the search
 				housesLinkedToWatersource = false;
 				break;
@@ -221,4 +224,32 @@ public class CholeraInWaterTesting {
 		Assert.assertTrue(other_water_sources_contaminated);
 	}
 	
+	@Test
+	public void peopleCanContaminateCommunityWaterSources() {
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_water.txt");
+		sim.start();
+		// if any community locations have had cholera seeded in them, clear it
+		for (Water w: sim.waterInSim) {
+			if ((w.getDiseaseSet().containsKey(DISEASE.CHOLERA.key)) & (w.getLocation().getLocationType().equals(LocationCategory.COMMUNITY))) {
+				w.getDiseaseSet().clear();
+			}
+
+		}
+		// up the rate of shedding into water
+		sim.params.cholera_prob_shed = 1;
+		// run for 30 days
+		int numDays = 30;
+		HelperFunctions.runSimulation(sim, numDays);
+		// check that all of the initial set of water infections are ABNC
+		boolean all_clean = true;
+		for (Disease d: sim.other_infections) {
+			if (d.infectedAt().getLocationType().equals(LocationCategory.COMMUNITY)) {
+				// if we find one that isn't clean break the loop
+				all_clean = false;
+				break;
+			}
+		}
+
+		Assert.assertFalse(all_clean);
+	}
 }

@@ -588,6 +588,7 @@ public class Person extends Host {
 	};
 
 	public void fetchWater(Water waterFrom, Water waterTo) {
+		// fetch the water
 		if (waterFrom.getDiseaseSet().size() > 0) {
 			for (String diseaseName: waterFrom.getDiseaseSet().keySet()) {
 				// check if this water is clean:
@@ -607,5 +608,24 @@ public class Person extends Host {
 				}
 			}
 		}
+		// potentially contaminate the water source
+		if (this.getDiseaseSet().containsKey(DISEASE.CHOLERA.key)) {
+			double rand_to_shed = myWorld.random.nextDouble();
+			if (rand_to_shed < myWorld.params.cholera_prob_shed) {
+				// check if the water source already has cholera
+				if (waterFrom.getDiseaseSet().containsKey(DISEASE.CHOLERA.key)){
+					// already cholera object here, change it to the entry point for water from humans
+					waterFrom.getDiseaseSet().get(DISEASE.CHOLERA.key).setBehaviourNode(myWorld.choleraFramework.getStandardEntryPointForWater());
+				}
+				else {
+					System.out.println("test should pass");
+					double time = myWorld.schedule.getTime(); 
+					// create a new cholera object in the water source
+					Cholera inf = new Cholera(waterFrom, this, myWorld.choleraFramework.getStandardEntryPointForWater(), myWorld);
+					myWorld.schedule.scheduleOnce(time, myWorld.param_schedule_infecting, inf);
+				}
+			}
+		}
+		
 	}
 }
