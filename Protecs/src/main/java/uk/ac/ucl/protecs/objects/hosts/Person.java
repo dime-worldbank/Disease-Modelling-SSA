@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import uk.ac.ucl.protecs.behaviours.diseaseProgression.CholeraDiseaseProgressionFramework.CholeraBehaviourNodeInWater;
+import uk.ac.ucl.protecs.objects.diseases.Cholera;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.objects.diseases.Disease;
 import uk.ac.ucl.protecs.objects.diseases.DummyInfectiousDisease;
@@ -585,4 +587,25 @@ public class Person extends Host {
 		return false;
 	};
 
+	public void fetchWater(Water waterFrom, Water waterTo) {
+		if (waterFrom.getDiseaseSet().size() > 0) {
+			for (String diseaseName: waterFrom.getDiseaseSet().keySet()) {
+				// check if this water is clean:
+				boolean cleanWater = waterFrom.getDiseaseSet().get(diseaseName).getCurrentBehaviourNode().getTitle().equals(CholeraBehaviourNodeInWater.CLEAN.key);
+				if (!cleanWater) {
+					// if a cholera infection exists in the other watersource, transfer over the behaviour node to represent transferring water over
+					if (waterTo.getDiseaseSet().containsKey(diseaseName)) {
+						waterTo.getDiseaseSet().get(diseaseName).setBehaviourNode(waterFrom.getDiseaseSet().get(diseaseName).getCurrentBehaviourNode());
+					}
+					// if there is no cholera present in the other water source, create a new instance of cholera in that water source, scheduling it in the next
+					// tick
+					else {					
+						double time = myWorld.schedule.getTime(); 
+						Cholera inf = new Cholera(waterTo, waterFrom, waterFrom.getDiseaseSet().get(diseaseName).getCurrentBehaviourNode(), myWorld);
+						myWorld.schedule.scheduleOnce(time + 1, myWorld.param_schedule_infecting, inf);
+					}
+				}
+			}
+		}
+	}
 }

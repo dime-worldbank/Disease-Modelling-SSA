@@ -1,1 +1,2 @@
-
+admin_zone, count, disease, host
+d_1, 1, CHOLERA, PERSON

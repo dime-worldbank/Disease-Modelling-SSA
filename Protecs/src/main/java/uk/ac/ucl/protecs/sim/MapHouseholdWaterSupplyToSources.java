@@ -23,10 +23,12 @@ public class MapHouseholdWaterSupplyToSources{
 			HashMap<CommunityLocation, Double> sourceToPercent = new HashMap <CommunityLocation, Double>();
 			double percentServedIter = 0.0;
 			for (CommunityLocation loc: world.communityLocations) {
-				// only work on locations in this zone
-				if (loc.getRootSuperLocation().equals(adminZone)) {
-					percentServedIter += loc.getPercentServed();
-					sourceToPercent.put(loc, percentServedIter);
+				if (loc.isWaterSource()){
+					// only work on locations in this zone
+					if (loc.getRootSuperLocation().equals(adminZone)) {
+						percentServedIter += loc.getPercentServed();
+						sourceToPercent.put(loc, percentServedIter);
+					}
 				}
 			}
 			// sort the values of this hashmap

@@ -1,6 +1,7 @@
 package uk.ac.ucl.protecs.behaviours;
 
 import uk.ac.ucl.protecs.objects.hosts.Person;
+import uk.ac.ucl.protecs.objects.hosts.Person.SEX;
 import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.sim.*;
 import sim.engine.Steppable;
@@ -236,7 +237,12 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 				// extract time info
 				int hour = ((int)time) % Params.ticks_per_day;
 
-				if(hour >= myWorld.params.hour_end_day_otherday) { // late! Go home!
+				if(hour >= myWorld.params.hour_end_day_otherday) { // late! Go home! Interact with a community water source before leaving
+					// assume women and children have the responsibility to get water
+					boolean willFetchWater = ((p.getAge() < 10) || (p.getSex().equals(SEX.FEMALE)));
+					if ((!p.visitingNow()) & willFetchWater) {
+						p.fetchWater(p.getHouseholdAsType().getWater().getSource().getWater(), p.getHouseholdAsType().getWater());
+					}
 					p.transferTo(p.getHomeLocation());
 					p.setActivityNode(homeNode);
 					p.setVisiting(false);
