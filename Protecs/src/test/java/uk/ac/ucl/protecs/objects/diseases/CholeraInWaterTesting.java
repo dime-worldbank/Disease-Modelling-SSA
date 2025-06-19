@@ -1,8 +1,6 @@
 package uk.ac.ucl.protecs.objects.diseases;
 
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -13,13 +11,19 @@ import uk.ac.ucl.protecs.behaviours.diseaseProgression.CholeraDiseaseProgression
 import uk.ac.ucl.protecs.helperFunctions.*;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.objects.hosts.Water;
-import uk.ac.ucl.protecs.objects.hosts.Person.SEX;
 import uk.ac.ucl.protecs.objects.locations.Household;
 import uk.ac.ucl.protecs.objects.locations.Location.LocationCategory;
 
 public class CholeraInWaterTesting {
 	// ============================================== Cholera in water testing suit ==============================================================================
-	
+	// This suite of tests is designed to check that how water is initiated, and interacted with is working as intended. Currently we test:
+	// 1) Household water supplies are linked to a community based water source
+	// 2) We can seed cholera into water sources
+	// 3) All initial sources of cholera are instantiated in the hyperinfectious state (NOTE THIS MAY CHANGE DEPENDING ON FUTURE WORK)
+	// 4) Cholera can be spread from people to water
+	// 5) Cholera can be spread from water to people
+	// 6) Cholera in water reverts to an active but not culturable state in the short term
+	// 7) Cholera in water will eventually subsisde without reinfection.
 	// ============================================================================================================================================================
 	private final static String paramsDir = "src/test/resources/";
 	
@@ -137,7 +141,7 @@ public class CholeraInWaterTesting {
 		// make sure there are no new contamination events from shedding
 		sim.params.cholera_prob_shed = 0;
 		// run for two ticks
-		int numTicks = 4;
+		int numTicks = 2;
 		HelperFunctions.runSimulationForTicks(sim, numTicks);
 		// check that all of the initial set of water infections are ABNC
 		boolean all_abnc = true;
