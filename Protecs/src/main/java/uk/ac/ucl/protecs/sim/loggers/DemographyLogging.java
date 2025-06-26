@@ -15,84 +15,14 @@ import uk.ac.ucl.protecs.sim.Params;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 
 public class DemographyLogging {
-	// set up commonly used variables to avoid repetition
-	// age boundaries to format log files
-	private final static List <Integer> upper_age_range = Arrays.asList(1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 120);
-	private final static List <Integer> lower_age_range = Arrays.asList(0, 1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95);
-	private final static List <Integer> birthrate_upper_age_range = Arrays.asList(20, 25, 30, 35, 40, 45, 50);
-	private final static List <Integer> birthrate_lower_age_range = Arrays.asList(15, 20, 25, 30, 35, 40, 45);
-	private final static String age_categories = "<1" + "\t" + "1_4" + "\t" + "5_9" + "\t" + "10_14" + "\t" + "15_19" + "\t" + "20_24" + "\t" + "25_29" + 
-			"\t" + "30_34" + "\t" + "35_39" + "\t" + "40_44" + "\t" + "45_49" + "\t" + "50_54" + "\t" + "55_59" + "\t" + "60_64" + "\t" + "65_69" + "\t" + 
-			"70_74" + "\t" + "75_79" + "\t" + "80_84" + "\t" + "85_89" + "\t" + "90_94" + "\t" + "95<";
-	// tab shortcut
-	private final static String t = "\t";
+	
+	static String t = LoggingHelperFunctions.tab;
 	// age sex breakdown header
-	private final static String age_sex_categories = t + "sex" + t + age_categories + "\n";
+	private final static String age_sex_categories = t + "sex" + t + LoggingHelperFunctions.age_categories + "\n";
 
-	// set up commonly used functions to avoid repetition
-	// get those alive of given age and sex
-	private static Map<SEX, Map<Integer, Map<Boolean, Long>>> age_sex_alive_map(WorldBankCovid19Sim world) {
-		Map<SEX, Map<Integer, Map<Boolean, Long>>> age_sex_alive_map = world.agents.stream().collect(
-				Collectors.groupingBy(
-						Person::getSex, 
-						Collectors.groupingBy(
-								Person::getAge, 
-								Collectors.groupingBy(
-										Person::isAlive,
-								Collectors.counting()
-								)
-						)
-				)
-				);
-		return age_sex_alive_map;
-	}
-	
-	// get number of those alive of age and sex
-	private static ArrayList <Integer> get_number_of_alive(WorldBankCovid19Sim world, SEX sex) {
-		ArrayList <Integer> alive_ages = new ArrayList<Integer>();
-		Map<SEX, Map<Integer, Map<Boolean, Long>>> age_sex_alive_map_copy = age_sex_alive_map(world);
-		// We now iterate over the age ranges, create a variable to keep track of the iterations
-		Integer idx = 0;
-		for (Integer val: upper_age_range) {
-			// for each age group we begin to count the number of people who fall into each category, create variables
-			// to store this information in
-			Integer count = 0;
-			// iterate over the ages set in the age ranges (lower value from lower_age_range, upper from upper_age_range)
-			for (int age = lower_age_range.get(idx); age < val; age++) {
-				
-				try {
-					// try function necessary as some ages won't be present in the population
-					// use the functions created earlier to calculate the number of people of each age group who fall
-					// into the categories we are interested in (alive, died from covid, died from other)
-					count += age_sex_alive_map_copy.get(sex).get(age).get(true).intValue();
-				}
-					catch (Exception e) {
-						// age wasn't present in the population, skip
-					}	
-			}
-			alive_ages.add(count);
-
-		}
-		return alive_ages;
-	}
-	
-	
-	
-	// get those alive at location
-	private static Map<Boolean, Map<String, List<Person>>> get_alive_at_location(WorldBankCovid19Sim world) {
-		// create a function to group the population by who is alive at this admin zone
-		Map<Boolean, Map<String, List<Person>>> aliveAtLocation = world.agents.stream().collect(
-				Collectors.groupingBy(
-						Person::isAlive,
-						Collectors.groupingBy(
-								Person::getCurrentAdminZone
-								)
-				)
-			);
-		return aliveAtLocation;
-	}
-	
-
+	// create specific age ranges for birthrate logging
+	public final static List <Integer> birthrate_upper_age_range = Arrays.asList(20, 25, 30, 35, 40, 45, 50);
+	public final static List <Integer> birthrate_lower_age_range = Arrays.asList(15, 20, 25, 30, 35, 40, 45);
 	// =============================== Demographic information logging =============================================================================
 	// output for birthRateOutputFilename
 	public class BirthRateReporter implements Steppable{
@@ -114,7 +44,7 @@ public class DemographyLogging {
 			ArrayList <Integer> female_alive_ages = new ArrayList<Integer>();
 			ArrayList <Integer> female_pregnancy_ages = new ArrayList<Integer>();
 			// create a function to group the population by sex, age and whether they are alive
-			Map<SEX, Map<Integer, Map<Boolean, Long>>> age_sex_alive_map_copy = age_sex_alive_map(world);
+			Map<SEX, Map<Integer, Map<Boolean, Long>>> age_sex_alive_map_copy = LoggingHelperFunctions.age_sex_alive_map(world);
 			
 			// create a function to group the population by sex, age and whether they gave birth
 			Map<SEX, Map<Integer, Map<Boolean, Map<Boolean, Long>>>> age_sex_map_gave_birth = world.agents.stream().collect(
@@ -218,18 +148,18 @@ public class DemographyLogging {
 					ArrayList <Integer> male_alive_ages = new ArrayList<Integer>();
 					ArrayList <Integer> female_alive_ages = new ArrayList<Integer>();
 					// create a function to group the population by sex, age and whether they are alive
-					Map<SEX, Map<Integer, Map<Boolean, Long>>> age_sex_alive_map_copy = age_sex_alive_map(world);
+					Map<SEX, Map<Integer, Map<Boolean, Long>>> age_sex_alive_map_copy = LoggingHelperFunctions.age_sex_alive_map(world);
 					//	We now iterate over the age ranges, create a variable to keep track of the iterations						
 					Integer idx = 0;
 					Integer male_count = null;
 					Integer female_count = null;
-					for (Integer val: upper_age_range) {
+					for (Integer val: LoggingHelperFunctions.upper_age_range) {
 						// for each age group we begin to count the number of people who fall into each category, create variables
 						// to store this information in
 						male_count = 0;
 						female_count = 0;
 						// iterate over the ages set in the age ranges (lower value from lower_age_range, upper from upper_age_range)
-						for (int age = lower_age_range.get(idx); age < val; age++) {
+						for (int age = LoggingHelperFunctions.lower_age_range.get(idx); age < val; age++) {
 							try {
 								// try function necessary as some ages won't be present in the population
 								// use the functions created earlier to calculate the number of people of each age group
@@ -259,7 +189,7 @@ public class DemographyLogging {
 					int time = (int) (arg0.schedule.getTime() / world.params.ticks_per_day);
 					String population = "";
 
-					String age_sex_categories = t + "sex" + t + age_categories + "\n";
+					String age_sex_categories = t + "sex" + t + LoggingHelperFunctions.age_categories + "\n";
 					if (time == 0) {
 						population += "day" + age_sex_categories + String.valueOf(time);
 					}
@@ -306,8 +236,8 @@ public class DemographyLogging {
 				// the number of covid deaths in each age range and the number of 'other' cause deaths in each age range
 				ArrayList <Integer> male_other_deaths_by_ages = new ArrayList<Integer>();
 				ArrayList <Integer> female_other_deaths_by_ages = new ArrayList<Integer>();
-				ArrayList <Integer> male_alive_ages = get_number_of_alive(world, SEX.MALE);
-				ArrayList <Integer> female_alive_ages = get_number_of_alive(world, SEX.FEMALE);
+				ArrayList <Integer> male_alive_ages = LoggingHelperFunctions.get_number_of_alive(world, SEX.MALE);
+				ArrayList <Integer> female_alive_ages = LoggingHelperFunctions.get_number_of_alive(world, SEX.FEMALE);
 
 				// create a function to group the population by sex, age and whether they died from something other than covid
 				Map<SEX, Map<Integer, Map<Boolean, Map<Boolean, Long>>>> age_sex_map_died_from_other = world.agents.stream().collect(
@@ -326,13 +256,13 @@ public class DemographyLogging {
 				);
 				//	We now iterate over the age ranges, create a variable to keep track of the iterations
 				Integer idx = 0;
-				for (Integer val: upper_age_range) {
+				for (Integer val: LoggingHelperFunctions.upper_age_range) {
 					// for each age group we begin to count the number of people who fall into each category, create variables
 					// to store this information in
 					Integer male_other_death_count = 0;
 					Integer female_other_death_count = 0;
 					// iterate over the ages set in the age ranges (lower value from lower_age_range, upper from upper_age_range)
-					for (int age = lower_age_range.get(idx); age < val; age++) {
+					for (int age = LoggingHelperFunctions.lower_age_range.get(idx); age < val; age++) {
 
 						try {
 							// try function necessary as some ages won't be present in the population
@@ -406,7 +336,7 @@ public class DemographyLogging {
 				// format the output file for population counts
 				int time = (int) (arg0.schedule.getTime() / world.params.ticks_per_day);
 				List <String> adminZones = ((WorldBankCovid19Sim)arg0).params.adminZoneNames;
-				Map<Boolean, Map<String, List<Person>>> aliveAtLocation = get_alive_at_location(world);
+				Map<Boolean, Map<String, List<Person>>> aliveAtLocation = LoggingHelperFunctions.get_alive_at_location(world);
 				// create a list to store the number of people and who has covid in each admin zone
 				ArrayList <Integer> adminZonePopCounts = new ArrayList<Integer>();
 				// iterate over each admin zone
@@ -474,7 +404,7 @@ public class DemographyLogging {
 				// export the file
 				String adminZoneLevelPopBreakdown = "";
 				
-				String admin_zone_age_sex_categories = t + "admin_zone" + t + "sex" + t + age_categories + "\n";
+				String admin_zone_age_sex_categories = t + "admin_zone" + t + "sex" + t + LoggingHelperFunctions.age_categories + "\n";
 				if (time == 0) {
 					adminZoneLevelPopBreakdown += "day" + admin_zone_age_sex_categories;
 				}
@@ -484,12 +414,12 @@ public class DemographyLogging {
 					ArrayList <Integer> male_alive_ages = new ArrayList<Integer>();
 					ArrayList <Integer> female_alive_ages = new ArrayList<Integer>();
 					idx = 0;
-					for (Integer val: upper_age_range) {
+					for (Integer val: LoggingHelperFunctions.upper_age_range) {
 						// for each age group we begin to count the number of people who fall into each category, create variables
 						// to store this information in
 						Integer male_count = 0;
 						Integer female_count = 0;
-						for (int age = lower_age_range.get(idx); age < val; age++) {
+						for (int age = LoggingHelperFunctions.lower_age_range.get(idx); age < val; age++) {
 							try {
 								// try function necessary as some ages won't be present in the population
 								// use the functions created earlier to calculate the number of people of each age group who fall
