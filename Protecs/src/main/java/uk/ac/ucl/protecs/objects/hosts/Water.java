@@ -15,6 +15,8 @@ import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.HOST;
 
 public class Water extends Host {
 	
+	double volume;
+	
 	Location source;
 	public Water(Location myLocation, Location mySource, WorldBankCovid19Sim world){
 		currentLocation = myLocation;
@@ -84,6 +86,10 @@ public class Water extends Host {
 				
 				if (!thisPersonHasCholera & waterIsContaminatedByCholera) {
 					double randomToIngestInfection = myWorld.random.nextDouble();
+					// HERE WE NEED TO ACCOUNT FOR THE HYPERINFECTIOUS STATE OF CHOLERA, DOSE DEPENDENCE ETC..
+					// 10^8 needed for severe cholera (https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(03)15328-7/abstract), 
+					// in animal studies this is reduced by two orders of magnitude in animal studies (https://wwwnc.cdc.gov/eid/article/17/11/11-1109_article)
+					
 					// check if the person interacts and ingests sufficient amounts of cholera to get an infection
 					if (randomToIngestInfection < myWorld.params.cholera_prob_ingest) {
 						Cholera inf = new Cholera(p, this, myWorld.choleraFramework.getStandardEntryPoint(), myWorld);
