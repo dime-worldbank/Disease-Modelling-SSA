@@ -18,4 +18,6 @@ import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 
 public class CholeraLogging {
 	
+	// place holder for the disease logging that is non-generic
+	
 }

@@ -22,6 +22,7 @@ import uk.ac.ucl.protecs.objects.locations.Household;
 import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.objects.locations.Workplace;
 import uk.ac.ucl.protecs.sim.loggers.DemographyLogging;
+import uk.ac.ucl.protecs.sim.loggers.LoggingHelperFunctions;
 import uk.ac.ucl.protecs.sim.loggers.CovidLogging;
 import uk.ac.ucl.protecs.sim.MapHouseholdWaterSupplyToSources;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.SpuriousSymptomDiseaseProgressionFramework;
@@ -368,28 +369,28 @@ public class WorldBankCovid19Sim extends SimState {
 		schedule.scheduleRepeating(DemographyLogging.ReportAdminZonePopulationSize(this), this.param_schedule_reporting, params.ticks_per_day);
 		
 		// Report on the percent of the population with COVID by space (adminZoneCovidPrevalenceOutputFilename)
-		schedule.scheduleRepeating(CovidLogging.ReportPercentInAdminZoneWithCovid(this), this.param_schedule_reporting, params.ticks_per_day);
+		schedule.scheduleRepeating(LoggingHelperFunctions.ReportPercentInAdminZoneWithDisease(this, DISEASE.COVID, adminZoneCovidPrevalenceOutputFilename), this.param_schedule_reporting, params.ticks_per_day);
 				
 		// Report on the age-sex structure of each admin zone (adminZonePopBreakdownOutputFilename)
 		schedule.scheduleRepeating(DemographyLogging.ReportAdminZoneAgeSexBreakdown(this), this.param_schedule_reporting, params.ticks_per_day);
 				
 		// Report on the incidence of COVID death (covidIncDeathOutputFilename)
-		schedule.scheduleRepeating(CovidLogging.ReportCovidIncidenceOfDeath(this), this.param_schedule_reporting, params.ticks_per_day);
+		schedule.scheduleRepeating(LoggingHelperFunctions.ReportDiseaseIncidenceOfDeath(this, DISEASE.COVID, covidIncDeathOutputFilename), this.param_schedule_reporting, params.ticks_per_day);
 				
 		// Report on the incidence of COVID (covidIncOutputFilename)
-		schedule.scheduleRepeating(CovidLogging.ReportIncidenceOfCovid(this), this.param_schedule_reporting, params.ticks_per_day);
+		schedule.scheduleRepeating(LoggingHelperFunctions.ReportIncidenceOfDisease(this, DISEASE.COVID, covidIncOutputFilename), this.param_schedule_reporting, params.ticks_per_day);
 				
 		// Report on the number of COVID counts in each area (covidCountsOutputFilename)
-		schedule.scheduleRepeating(CovidLogging.ReportCovidCounts(this), this.param_schedule_reporting, params.ticks_per_day);
+		schedule.scheduleRepeating(LoggingHelperFunctions.ReportDiseaseCounts(this, DISEASE.COVID, covidCountsOutputFilename), this.param_schedule_reporting, params.ticks_per_day);
 				
 		// Report on the number of COVID counts in each occupation (covidByEconOutputFilename)
-		schedule.scheduleRepeating(CovidLogging.ReportCovidCountsByOccupation(this), this.param_schedule_reporting, params.ticks_per_day);
+		schedule.scheduleRepeating(LoggingHelperFunctions.ReportDiseaseCountsByOccupation(this, DISEASE.COVID, covidByEconOutputFilename), this.param_schedule_reporting, params.ticks_per_day);
 				
 		// Report on the percent of COVID cases that are fatal per admin zone (adminZonePercentCovidCasesFatalOutputFilename)
-		schedule.scheduleRepeating(CovidLogging.ReportPercentOfCovidCasesThatAreFatalPerAdminZone(this), this.param_schedule_reporting, params.ticks_per_day);
+		schedule.scheduleRepeating(LoggingHelperFunctions.ReportPercentOfDiseaseCasesThatAreFatalPerAdminZone(this, DISEASE.COVID, adminZonePercentCovidCasesFatalOutputFilename), this.param_schedule_reporting, params.ticks_per_day);
 
 		// Report on the prevalence of COVID death per admin zone (adminZonePercentDiedFromCovidOutputFilename)
-		schedule.scheduleRepeating(CovidLogging.adminZonePercentDiedFromCovidOutputFilename(this), this.param_schedule_reporting, params.ticks_per_day);
+		schedule.scheduleRepeating(LoggingHelperFunctions.adminZonePercentDiedFromDiseaseOutputFilename(this, DISEASE.COVID, adminZonePercentDiedFromCovidOutputFilename), this.param_schedule_reporting, params.ticks_per_day);
 				
 		// Schedule the resetting of COVID reporting properties in the agents 
 		schedule.scheduleRepeating(CovidLogging.ResetCovidLoggedProperties(this), this.param_schedule_reporting_reset, params.ticks_per_day);
