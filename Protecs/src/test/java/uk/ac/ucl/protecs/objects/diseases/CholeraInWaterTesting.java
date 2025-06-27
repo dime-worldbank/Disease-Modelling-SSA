@@ -115,6 +115,7 @@ public class CholeraInWaterTesting {
 	public void checkCholeraIsPickedUpFromWater() {
 		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_water.txt");
 		sim.start();
+		sim.params.cholera_prob_ingest = 1;
 		int number_of_initial_infections_in_humans = 0;
 
 		for (Person p: sim.agents) {

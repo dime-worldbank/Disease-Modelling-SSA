@@ -399,7 +399,7 @@ public class CovidLogging {
 
 					// export the file
 					
-				ImportExport.exportMe(world.casesPerAdminZoneFilename, covidNumberOutput, world.timer);
+				ImportExport.exportMe(world.covidCasesPerAdminZoneFilename, covidNumberOutput, world.timer);
 				}
 			};
 		}

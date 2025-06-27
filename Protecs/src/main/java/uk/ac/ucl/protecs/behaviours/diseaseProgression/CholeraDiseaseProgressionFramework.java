@@ -320,6 +320,8 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 		public double next(Steppable s, double time) {
 			Cholera choleraInfection = (Cholera) s;
 			choleraInfection.setHadAsymptCholera(true);
+			// track for logging
+			choleraInfection.setAsympt();
 			// Asymptomatic people will shed bacteria for about a day (https://pmc.ncbi.nlm.nih.gov/articles/PMC2554681/)
 			// Assume this person is asymptomatic and shedding
 			nextStepInHumans = nextStepCholeraInHumans.DO_NOTHING;
@@ -375,6 +377,7 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 		public double next(Steppable s, double time) {
 			Cholera choleraInfection = (Cholera) s;
 			choleraInfection.setHadSymptCholera(true);
+			choleraInfection.setMild();
 
 			// mild cases will recover in around 4-5 days (https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(03)15328-7/fulltext)
 			// Assume this person is mildly infected and shedding
@@ -431,6 +434,7 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 		public double next(Steppable s, double time) {
 			Cholera choleraInfection = (Cholera) s;
 			choleraInfection.setHadSymptCholera(true);
+			choleraInfection.setSevere();
 			nextStepInHumans = nextStepCholeraInHumans.DO_NOTHING;
 			
 			// -------------------------- ACT ON SCHEDULED NEXT STEP CODE BLOCK ------------------------------------------------------------------------------ 
@@ -532,6 +536,7 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 		@Override
 		public double next(Steppable s, double time) {
 			Cholera choleraInfection = (Cholera) s;
+			choleraInfection.setCritical();
 			// -------------------------- ACT ON SCHEDULED NEXT STEP CODE BLOCK ------------------------------------------------------------------------------ 
 			if (choleraInfection.time_recovered < Double.MAX_VALUE) {
 				// don't trigger recovery too early
@@ -598,6 +603,7 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 		@Override
 		public double next(Steppable s, double time) {
 			Cholera choleraInfection = (Cholera) s;
+			choleraInfection.setRecovered();
 			// Let's assume that we give people who had cholera a month of absolute immunity, with partial immunity being scheduled back in the 
 			// susceptible step if applicable.
 			nextStepInHumans = nextStepCholeraInHumans.DO_NOTHING;

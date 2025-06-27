@@ -41,6 +41,7 @@ public abstract class Disease implements Steppable {
 	boolean hasSevere = false;
 	boolean hasCritical = false;
 	boolean hasRecovered = false;
+	boolean hasSusceptible = false;
 	boolean isTheCauseOfDeath = false;
 	// symptom manager
 	boolean isSymptomatic = false;
@@ -55,6 +56,8 @@ public abstract class Disease implements Steppable {
 	boolean hasMildLogged = false;
 	boolean hasSevereLogged = false;
 	boolean hasCriticalLogged = false;
+	boolean hasRecoveredLogged = false;
+	boolean hasSusceptibleLogged = false;
 	boolean hasLogged = false;
 	
 	
@@ -118,6 +121,7 @@ public abstract class Disease implements Steppable {
 		this.hasSevere = false;
 		this.hasCritical = false;
 		this.hasRecovered = false;
+		this.hasSusceptible = false;
 		this.isSymptomatic = false;
 	}
 	
@@ -136,6 +140,7 @@ public abstract class Disease implements Steppable {
 		this.hasSevere = false;
 		this.hasCritical = false;
 		this.hasRecovered = false;
+		this.hasSusceptible = false;
 	}
 	
 	public boolean hasMild() {
@@ -148,6 +153,7 @@ public abstract class Disease implements Steppable {
 		this.hasSevere = true;
 		this.hasCritical = false;
 		this.hasRecovered = false;
+		this.hasSusceptible = false;
 
 	}
 	
@@ -161,6 +167,7 @@ public abstract class Disease implements Steppable {
 		this.hasSevere = false;
 		this.hasCritical = true;
 		this.hasRecovered = false;
+		this.hasSusceptible = false;
 	}
 	
 	public boolean hasCritical() {
@@ -173,11 +180,17 @@ public abstract class Disease implements Steppable {
 		this.hasSevere = false;
 		this.hasCritical = false;
 		this.hasRecovered = true;
+		this.hasSusceptible = false;
 		
 	}
 	
 	public boolean hasRecovered() {
 		return this.hasRecovered;
+	}
+
+	
+	public boolean hasSusceptible() {
+		return this.hasSusceptible;
 	}
 	
 	public void setAsCauseOfDeath() {
@@ -187,6 +200,7 @@ public abstract class Disease implements Steppable {
 		this.hasSevere = false;
 		this.hasCritical = false;
 		this.hasRecovered = false;
+		this.hasSusceptible = false;
 	};
 	
 	public boolean isCauseOfDeath() {
@@ -233,6 +247,22 @@ public abstract class Disease implements Steppable {
 
 	public boolean getDeathLogged() {
 		return this.hasDeathLogged ;
+	}
+	
+	public boolean getRecoveredLogged() {
+		return this.hasRecoveredLogged;
+	}
+	
+	public void confirmRecoveredLogged() {
+		this.hasRecoveredLogged = true;
+	}
+	
+	public boolean getSusceptibleLogged() {
+		return this.hasSusceptibleLogged;
+	}
+	
+	public void confirmSusceptibleLogged() {
+		this.hasSusceptibleLogged = true;
 	}
 
 	public boolean getLogged() {
@@ -302,6 +332,7 @@ public abstract class Disease implements Steppable {
 		this.hasSevere = false;
 		this.hasCritical = false;
 		this.hasRecovered = false;
+		this.hasSusceptible = true;
 		this.isTheCauseOfDeath = false;
 		// reset symptom manager
 		this.isSymptomatic = false;

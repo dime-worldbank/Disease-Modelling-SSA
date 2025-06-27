@@ -220,6 +220,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 					return Double.MAX_VALUE;
 				}
 				((Person) i.getHost()).infectNeighbours();
+				i.setAsympt();
 
 				// determine when the agent will recover - this is
 				// only a matter of time in this case
