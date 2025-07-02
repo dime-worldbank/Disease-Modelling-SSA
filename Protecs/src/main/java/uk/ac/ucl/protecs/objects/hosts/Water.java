@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import sim.engine.SimState;
+import uk.ac.ucl.protecs.behaviours.diseaseProgression.CholeraDiseaseProgressionFramework.CholeraBehaviourNodeInHumans;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.CholeraDiseaseProgressionFramework.CholeraBehaviourNodeInWater;
 import uk.ac.ucl.protecs.objects.diseases.Cholera;
 import uk.ac.ucl.protecs.objects.diseases.Disease;
@@ -14,6 +15,8 @@ import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.HOST;
 
 public class Water extends Host {
+	
+	// Seasonality doesn't seem to be a factor for cholera in Zimbabwe: https://www.thelancet.com/journals/langlo/article/PIIS2214-109X(22)00007-9/fulltext
 	
 	double volume;
 	
@@ -40,66 +43,101 @@ public class Water extends Host {
 		for (Person p: this.getLocation().getPeople()) {
 			double randomToInteractWithWater = myWorld.random.nextDouble();
 			if (randomToInteractWithWater < myWorld.params.dummy_prob_interact_with_water) {
-				// skip over step if no infection is present in water/person
-				boolean thisPersonHasDummyWaterborne = p.myDiseaseSet.containsKey(DISEASE.DUMMY_WATERBORNE.key);
-				
-				boolean thisPersonHasCholera = p.myDiseaseSet.containsKey(DISEASE.CHOLERA.key);
-				
-				boolean waterIsContaminatedByDummy = (this.getDiseaseSet().containsKey(DISEASE.DUMMY_WATERBORNE.key));
-				
-				boolean waterIsContaminatedByCholera = (this.getDiseaseSet().containsKey(DISEASE.CHOLERA.key));
-
-				// if this person has the dummy water born infection and the location doesn't have the dummy water born infection, 
-				// potentially cause a new infection in the water
-				if (thisPersonHasDummyWaterborne & !waterIsContaminatedByDummy) {
-					double randomToShedIntoWater = myWorld.random.nextDouble();
-					// check if the person interacts and sheds into water
-					if (randomToShedIntoWater < myWorld.params.dummy_waterborne_prob_shed_into_water) {
-						
-						DummyWaterborneDisease inf = new DummyWaterborneDisease(this, p, myWorld.dummyWaterborneFramework.getStandardEntryPointForWater(), myWorld);
-						myWorld.schedule.scheduleOnce(time, myWorld.param_schedule_infecting, inf);
-						
-					}
-				}
-				
-				if (!thisPersonHasDummyWaterborne & waterIsContaminatedByDummy) {
-					double randomToIngestInfection = myWorld.random.nextDouble();
-					// check if the person interacts and ingests sufficient amounts of cholera to get an infection
-					if (randomToIngestInfection < myWorld.params.dummy_prob_ingest_dummy_waterborne) {
-						DummyWaterborneDisease inf = new DummyWaterborneDisease(p, this, myWorld.dummyWaterborneFramework.getStandardEntryPoint(), myWorld);
-						myWorld.schedule.scheduleOnce(time, myWorld.param_schedule_infecting, inf);
-						
-					}
-				}
-				// if this person has cholera  and the location doesn't have cholera, 
-				// potentially cause a new infection in the water
-				if (thisPersonHasCholera & !waterIsContaminatedByCholera) {
-					double randomToShedIntoWater = myWorld.random.nextDouble();
-					// check if the person interacts and sheds into water
-					if (randomToShedIntoWater < myWorld.params.cholera_prob_shed) {
-						
-						Cholera inf = new Cholera(this, p, myWorld.choleraFramework.getStandardEntryPointForWater(), myWorld);
-						myWorld.schedule.scheduleOnce(time, myWorld.param_schedule_infecting, inf);
-						
-					}
-				}
-				
-				if (!thisPersonHasCholera & waterIsContaminatedByCholera) {
-					double randomToIngestInfection = myWorld.random.nextDouble();
-					// HERE WE NEED TO ACCOUNT FOR THE HYPERINFECTIOUS STATE OF CHOLERA, DOSE DEPENDENCE ETC..
-					// 10^8 needed for severe cholera (https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(03)15328-7/abstract), 
-					// in animal studies this is reduced by two orders of magnitude in animal studies (https://wwwnc.cdc.gov/eid/article/17/11/11-1109_article)
-					
-					// check if the person interacts and ingests sufficient amounts of cholera to get an infection
-					if (randomToIngestInfection < myWorld.params.cholera_prob_ingest) {
-						Cholera inf = new Cholera(p, this, myWorld.choleraFramework.getStandardEntryPoint(), myWorld);
-						myWorld.schedule.scheduleOnce(time, myWorld.param_schedule_infecting, inf);
-						
-					}
-				}
+				// determine if the dummy waterborne disease will spread
+				determineSpreadOfDummyWaterborneDisease(time, p);
+				// determine if cholera will spread between water and person
+				determineSpreadOfCholera(time, p);
 			}
 		}
 		
+	}
+
+
+
+	private void determineSpreadOfCholera(double time, Person p) {
+		// check if this person has cholera
+		boolean thisPersonHasCholera = p.myDiseaseSet.containsKey(DISEASE.CHOLERA.key);
+		// further check to see what behaviour node this infection has i.e. exposed, symptomatic asymptomatic ect. Make eligible to spread false by default
+		boolean personIsEligibleToShed = false;
+		if (thisPersonHasCholera) {
+			// if not susceptible then this person is eligible to spread the disease
+			personIsEligibleToShed = !(p.myDiseaseSet.get(DISEASE.CHOLERA.key).getCurrentBehaviourNode().getTitle().equals(CholeraBehaviourNodeInHumans.SUSCEPTIBLE.key));
+		}
+		
+		// check if the water is contaminated 
+		boolean waterIsContaminatedByCholera = (this.getDiseaseSet().containsKey(DISEASE.CHOLERA.key));
+		boolean infectionAlreadyExistsInWater = waterIsContaminatedByCholera;
+		// check that this water hasn't become clean
+		if (waterIsContaminatedByCholera) {
+			waterIsContaminatedByCholera = !(this.getDiseaseSet().get(DISEASE.CHOLERA.key).getCurrentBehaviourNode().getTitle().equals(CholeraBehaviourNodeInWater.CLEAN.key));
+		}
+		
+		// if this person has cholera and the location doesn't have cholera, 
+		// potentially cause a new infection in the water
+		if (personIsEligibleToShed & !waterIsContaminatedByCholera) {
+			double randomToShedIntoWater = myWorld.random.nextDouble();
+			// check if the person interacts and sheds into water
+			if (randomToShedIntoWater < myWorld.params.cholera_prob_shed) {
+				if (infectionAlreadyExistsInWater) {
+					this.getDiseaseSet().get(DISEASE.CHOLERA.key).setBehaviourNode(myWorld.choleraFramework.getStandardEntryPointForWater());
+				}
+				else{
+				Cholera inf = new Cholera(this, p, myWorld.choleraFramework.getStandardEntryPointForWater(), myWorld);
+				myWorld.schedule.scheduleOnce(time, myWorld.param_schedule_infecting, inf);
+				}
+			}
+		}
+		// if this person doesn't have cholera
+		if (waterIsContaminatedByCholera & ((!thisPersonHasCholera) || (thisPersonHasCholera & !personIsEligibleToShed))) {
+			double randomToIngestInfection = myWorld.random.nextDouble();
+			// 10,000/ml minimum number needed to cause infection
+			// HERE WE NEED TO ACCOUNT FOR THE HYPERINFECTIOUS STATE OF CHOLERA, DOSE DEPENDENCE ETC..
+			// 10^8 needed for severe cholera (https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(03)15328-7/abstract), 
+			// in animal studies this is reduced by two orders of magnitude in animal studies (https://wwwnc.cdc.gov/eid/article/17/11/11-1109_article)
+			
+			// check if the person interacts and ingests sufficient amounts of cholera to get an infection
+			if (randomToIngestInfection < myWorld.params.cholera_prob_ingest) {
+				if (!thisPersonHasCholera) {
+				Cholera inf = new Cholera(p, this, myWorld.choleraFramework.getStandardEntryPoint(), myWorld);
+				myWorld.schedule.scheduleOnce(time, myWorld.param_schedule_infecting, inf);
+				}
+				else {
+					p.getDiseaseSet().get(DISEASE.CHOLERA.key).setBehaviourNode(myWorld.choleraFramework.getStandardEntryPoint());
+				}
+				
+			}
+		}
+	}
+
+
+
+	private void determineSpreadOfDummyWaterborneDisease(double time, Person p) {
+		boolean thisPersonHasDummyWaterborne = p.myDiseaseSet.containsKey(DISEASE.DUMMY_WATERBORNE.key);
+		
+		boolean waterIsContaminatedByDummy = (this.getDiseaseSet().containsKey(DISEASE.DUMMY_WATERBORNE.key));
+
+		// if this person has the dummy water born infection and the location doesn't have the dummy water born infection, 
+		// potentially cause a new infection in the water
+		if (thisPersonHasDummyWaterborne & !waterIsContaminatedByDummy) {
+			double randomToShedIntoWater = myWorld.random.nextDouble();
+			// check if the person interacts and sheds into water
+			if (randomToShedIntoWater < myWorld.params.dummy_waterborne_prob_shed_into_water) {
+				
+				DummyWaterborneDisease inf = new DummyWaterborneDisease(this, p, myWorld.dummyWaterborneFramework.getStandardEntryPointForWater(), myWorld);
+				myWorld.schedule.scheduleOnce(time, myWorld.param_schedule_infecting, inf);
+				
+			}
+		}
+		
+		if (!thisPersonHasDummyWaterborne & waterIsContaminatedByDummy) {
+			double randomToIngestInfection = myWorld.random.nextDouble();
+			// check if the person interacts and ingests sufficient amounts of cholera to get an infection
+			if (randomToIngestInfection < myWorld.params.dummy_prob_ingest_dummy_waterborne) {
+				DummyWaterborneDisease inf = new DummyWaterborneDisease(p, this, myWorld.dummyWaterborneFramework.getStandardEntryPoint(), myWorld);
+				myWorld.schedule.scheduleOnce(time, myWorld.param_schedule_infecting, inf);
+				
+			}
+		}
 	}	
 	@Override
 	public String getHostType() {	

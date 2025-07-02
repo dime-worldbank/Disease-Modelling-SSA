@@ -699,7 +699,7 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 	};
 
 	this.hyperinfectiousNode = new BehaviourNode() {
-
+		// has consequences on the transmission of disease: https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.0030007
 		@Override
 		public String getTitle() {
 			return CholeraBehaviourNodeInWater.HYPERINFECTIOUS.key;

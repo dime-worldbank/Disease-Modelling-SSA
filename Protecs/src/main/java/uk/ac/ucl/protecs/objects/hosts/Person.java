@@ -588,7 +588,7 @@ public class Person extends Host {
 	};
 
 	public void fetchWater(Water waterFrom, Water waterTo) {
-		// fetch the water
+		// fetch the water, assume that this is only collection of water and not consuming it.
 		if (waterFrom.getDiseaseSet().size() > 0) {
 			for (String diseaseName: waterFrom.getDiseaseSet().keySet()) {
 				// check if this water is clean:
@@ -618,7 +618,6 @@ public class Person extends Host {
 					waterFrom.getDiseaseSet().get(DISEASE.CHOLERA.key).setBehaviourNode(myWorld.choleraFramework.getStandardEntryPointForWater());
 				}
 				else {
-					System.out.println("test should pass");
 					double time = myWorld.schedule.getTime(); 
 					// create a new cholera object in the water source
 					Cholera inf = new Cholera(waterFrom, this, myWorld.choleraFramework.getStandardEntryPointForWater(), myWorld);
