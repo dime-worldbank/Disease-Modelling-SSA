@@ -317,29 +317,32 @@ public class WorldBankCovid19Sim extends SimState {
 	}
 
 	public void determineWaterGathererInHousehold(Household h) {
-		Map<SEX, Map<Boolean, List<Person>>> adultBySexInHousehold = h.getPeopleBelongingToHousehold().stream().collect(
-				Collectors.groupingBy(
-						Person::getSex,
-						Collectors.groupingBy(
-								Person::isAdult
-								)
-						)
-				);
-		boolean adultInHouse = h.getPeopleBelongingToHousehold().stream().anyMatch(p -> (p.isAdult() & p.isAlive()));
-		boolean adultFemaleInHouse = h.getPeopleBelongingToHousehold().stream().anyMatch(p -> (p.getSex().equals(SEX.FEMALE) & p.isAdult() & p.isAlive()));
-		// no adults in household just assign the first person as the water gatherer
-		if (!adultInHouse) {
-			h.getPeopleBelongingToHousehold().iterator().next().setWaterGatherer();
-		}
-		// adults in the house, get the first adult female and assign them as the water gatherer
-		else if (adultFemaleInHouse) {
-			List<Person> adultFemales = adultBySexInHousehold.get(SEX.FEMALE).get(true);
-			adultFemales.get(0).setWaterGatherer();
-		}
-		// no adults in the house get the first adult and assign them as the water gatherer
-		else {
-			List<Person> adultMales = adultBySexInHousehold.get(SEX.MALE).get(true);
-			adultMales.get(0).setWaterGatherer();
+		// only work on households that aren't empty
+		if (h.getPeopleBelongingToHousehold().size() > 0) {
+			Map<SEX, Map<Boolean, List<Person>>> adultBySexInHousehold = h.getPeopleBelongingToHousehold().stream().collect(
+					Collectors.groupingBy(
+							Person::getSex,
+							Collectors.groupingBy(
+									Person::isAdult
+									)
+							)
+					);
+			boolean adultInHouse = h.getPeopleBelongingToHousehold().stream().anyMatch(p -> (p.isAdult() & p.isAlive()));
+			boolean adultFemaleInHouse = h.getPeopleBelongingToHousehold().stream().anyMatch(p -> (p.getSex().equals(SEX.FEMALE) & p.isAdult() & p.isAlive()));
+			// no adults in household just assign the first person as the water gatherer
+			if (!adultInHouse) {
+				h.getPeopleBelongingToHousehold().iterator().next().setWaterGatherer();
+			}
+			// adults in the house, get the first adult female and assign them as the water gatherer
+			else if (adultFemaleInHouse) {
+				List<Person> adultFemales = adultBySexInHousehold.get(SEX.FEMALE).get(true);
+				adultFemales.get(0).setWaterGatherer();
+			}
+			// no adults in the house get the first adult and assign them as the water gatherer
+			else {
+				List<Person> adultMales = adultBySexInHousehold.get(SEX.MALE).get(true);
+				adultMales.get(0).setWaterGatherer();
+			}
 		}
 	}	
 	
