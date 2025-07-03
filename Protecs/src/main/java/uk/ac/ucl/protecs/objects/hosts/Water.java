@@ -18,7 +18,8 @@ public class Water extends Host {
 	
 	// Seasonality doesn't seem to be a factor for cholera in Zimbabwe: https://www.thelancet.com/journals/langlo/article/PIIS2214-109X(22)00007-9/fulltext
 	
-	double volume;
+	double currentVolume;
+	double capacity;
 	
 	Location source;
 	public Water(Location myLocation, Location mySource, WorldBankCovid19Sim world){
@@ -159,4 +160,11 @@ public class Water extends Host {
 		this.source = l;
 	}
 	
+	public void setCapacity(double val) {
+		this.capacity = val;
+	}
+	
+	public double getCapacity() {
+		return this.capacity;
+	}
 }

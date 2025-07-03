@@ -56,6 +56,9 @@ public class MapHouseholdWaterSupplyToSources{
 							householdWater.setSource(source);
 							// schedule the water to activate in the simulation
 							world.schedule.scheduleOnce(0, world.param_schedule_movement, householdWater);
+							// add 2 litres of water to the source per person in household
+							int numberInHousehold = home.getPeople().size();
+							source.getWater().setCapacity(source.getWater().getCapacity() + 2.0 * numberInHousehold);
 						}
 					}
 				}

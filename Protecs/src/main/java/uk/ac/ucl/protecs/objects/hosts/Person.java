@@ -58,6 +58,7 @@ public class Person extends Host {
 	boolean visiting = false;
 	boolean atWork = false;
 	boolean isUnemployed = false;
+	boolean isWaterGatherer = false;
 	
 	//
 	// Epidemic Attributes
@@ -254,6 +255,10 @@ public class Person extends Host {
 			isDead = true;
 			System.out.println(this.toString() + " has DIED from " + cause + " :( ");
 		}
+		if (cause == "Cholera") {
+			isDead = true;
+			System.out.println(this.toString() + " has DIED from " + cause + " :( ");
+		}
 		else {
 			isDeadFromOther = true;
 			System.out.println(this.toString() + " has DIED :(");
@@ -261,6 +266,12 @@ public class Person extends Host {
 		}
 		isDead = true;
 		transferTo(null);
+		// remove this person from the household storage list
+		getHouseholdAsType().removeDeceasedFromHousehold(this);
+		// if they are responsible for gathering water, reassign the responsibility
+		if (getWaterGatherer()) {
+			myWorld.determineWaterGathererInHousehold(getHouseholdAsType());
+		}
 
 
 	}
@@ -586,6 +597,18 @@ public class Person extends Host {
 		
 		return false;
 	};
+	
+	public void setWaterGatherer() {
+		isWaterGatherer = true;
+	}
+	
+	public boolean getWaterGatherer() {
+		return isWaterGatherer;
+	}
+	
+	public boolean isAdult() {
+		return this.age > 18;
+	}
 
 	public void fetchWater(Water waterFrom, Water waterTo) {
 		// fetch the water, assume that this is only collection of water and not consuming it.

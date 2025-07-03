@@ -3,7 +3,10 @@ package uk.ac.ucl.protecs.sim;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import uk.ac.ucl.protecs.behaviours.*;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.DummyWaterborneDiseaseProgressionFramework;
@@ -228,6 +231,8 @@ public class WorldBankCovid19Sim extends SimState {
 			h.setWaterHere(householdWater);
 			// schedule the water to activate in the simulation
 			schedule.scheduleOnce(0, param_schedule_movement, householdWater);
+			// set up the role of who will fetch water for the household, get adult women of household 
+			determineWaterGathererInHousehold(h);
 		}
 		// copy over community locations
 		communityLocations = new ArrayList <CommunityLocation> (params.communityLocations.values());
@@ -309,6 +314,33 @@ public class WorldBankCovid19Sim extends SimState {
 		};
 		schedule.scheduleRepeating(0, this.param_schedule_lockdown, lockdownTrigger);
 		
+	}
+
+	public void determineWaterGathererInHousehold(Household h) {
+		Map<SEX, Map<Boolean, List<Person>>> adultBySexInHousehold = h.getPeopleBelongingToHousehold().stream().collect(
+				Collectors.groupingBy(
+						Person::getSex,
+						Collectors.groupingBy(
+								Person::isAdult
+								)
+						)
+				);
+		boolean adultInHouse = h.getPeopleBelongingToHousehold().stream().anyMatch(p -> (p.isAdult() & p.isAlive()));
+		boolean adultFemaleInHouse = h.getPeopleBelongingToHousehold().stream().anyMatch(p -> (p.getSex().equals(SEX.FEMALE) & p.isAdult() & p.isAlive()));
+		// no adults in household just assign the first person as the water gatherer
+		if (!adultInHouse) {
+			h.getPeopleBelongingToHousehold().iterator().next().setWaterGatherer();
+		}
+		// adults in the house, get the first adult female and assign them as the water gatherer
+		else if (adultFemaleInHouse) {
+			List<Person> adultFemales = adultBySexInHousehold.get(SEX.FEMALE).get(true);
+			adultFemales.get(0).setWaterGatherer();
+		}
+		// no adults in the house get the first adult and assign them as the water gatherer
+		else {
+			List<Person> adultMales = adultBySexInHousehold.get(SEX.MALE).get(true);
+			adultMales.get(0).setWaterGatherer();
+		}
 	}	
 	
 	// thanks to THIS FRIEND: https://blogs.sas.com/content/iml/2014/06/04/simulate-lognormal-data-with-specified-mean-and-variance.html <3 to you Rick

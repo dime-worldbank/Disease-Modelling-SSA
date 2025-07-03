@@ -122,6 +122,7 @@ public class LoadPopulation{
 						);
 
 				h.addHost(p);
+				h.addPersonToHousehold(p);
 //				p.setLocation(myDistrict);
 				p.setActivityNode(sim.movementFramework.getEntryPoint());
 				sim.agents.add(p);
