@@ -6,6 +6,7 @@ import sim.engine.Steppable;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.objects.locations.Location;
+import uk.ac.ucl.protecs.objects.locations.Location.LocationCategory;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import uk.ac.ucl.swise.behaviours.BehaviourNode;
@@ -496,8 +497,8 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 						myWorld.schedule.scheduleOnce(i.getHost()); // schedule the agent to begin moving again!	
 					}
 					else {
-						// their occupation has some constraint, if it is that they stay at home, keep them at home
-						if (!myWorld.params.OccupationConstraintList.get(((Person) i.getHost()).getEconStatus()).equals("Home")) {
+						// their occupation has some constraint, check that their constraint is set to home or not, if it's set to home nothing changes, otherwise set them moving again
+						if (!myWorld.params.OccupationConstraintList.get(((Person) i.getHost()).getEconStatus()).equals(LocationCategory.HOME)) {
 							((Person) i.getHost()).setMobility(true);
 							myWorld.schedule.scheduleOnce(i.getHost()); // schedule the agent to begin moving again!	
 						}
