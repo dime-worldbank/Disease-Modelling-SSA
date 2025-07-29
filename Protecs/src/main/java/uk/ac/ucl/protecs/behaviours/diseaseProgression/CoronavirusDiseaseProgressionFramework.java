@@ -258,6 +258,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				
 				// the agent is infectious
 				CoronavirusInfection i = (CoronavirusInfection) s;
+				Person p = (Person) i.getHost();
 				if (((Person) i.getHost()).isDeadFromOther()) {
 					return Double.MAX_VALUE;
 				}
@@ -278,20 +279,19 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				// otherwise, if it is scheduled to worsen, progress it
 				else if(time >= i.time_start_severe){
 					i.setBehaviourNode(setNodeForTesting(CoronavirusBehaviourNodeTitle.SEVERE));
-
-					Person p = (Person) i.getHost();
-					
 					// record this event
 					p.getLocation().getRootSuperLocation().metric_new_hospitalized++;
-					
-					// send them home sick and immobilised
-					p.setMobility(false);
-					p.sendHome(); 
 					return 1;
 				}
 				
 				// finally, if the next step has not yet been decided, schedule it
 				else if(i.time_recovered == Double.MAX_VALUE && i.time_start_severe == Double.MAX_VALUE){
+					// determine if they will be immobilised with mild covid
+					double myImmobilisedLikelihood = myWorld.random.nextDouble();
+					if (myImmobilisedLikelihood < myWorld.params.covid_prob_stay_at_home_mild) {
+						p.setMobility(false);
+						p.sendHome(); 
+					}
 
 					// determine if the patient will become sicker
 					double mySevereLikelihood = myWorld.params.getLikelihoodByAge(
@@ -339,6 +339,12 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				
 				// the agent is infectious
 				CoronavirusInfection i = (CoronavirusInfection) s;
+				Person p = (Person) i.getHost();
+				// check if they are mobile, if they are send them home sick and make them immobilised
+				if (!p.isImmobilised()) {
+					p.setMobility(false);
+					p.sendHome(); 
+				}
 				if (((Person) i.getHost()).isDeadFromOther()) {
 					return Double.MAX_VALUE;
 				}
