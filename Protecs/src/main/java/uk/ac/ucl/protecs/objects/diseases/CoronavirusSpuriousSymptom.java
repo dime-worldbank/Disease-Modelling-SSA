@@ -146,7 +146,7 @@ public class CoronavirusSpuriousSymptom extends Disease{
 	}
 
 	@Override
-	public void horizontalTransmission() {
+	public void horizontalTransmission(Person otherPerson) {
 		// NA
 		
 	}

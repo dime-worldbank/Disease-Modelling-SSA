@@ -450,6 +450,9 @@ public class WorldBankCovid19Sim extends SimState {
 			}
 		};
 		schedule.scheduleRepeating(reporter, this.param_schedule_reporting, params.ticks_per_day);
+		
+		// store the infection betas in a single place
+		params.storeTransmissionParameters();
 	}
 	
 	
