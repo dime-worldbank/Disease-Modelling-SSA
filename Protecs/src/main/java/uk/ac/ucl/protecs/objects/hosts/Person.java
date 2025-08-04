@@ -72,6 +72,7 @@ public class Person extends Host {
 	boolean birthLogged = false;
 	Integer dayGaveBirth = Integer.MAX_VALUE;
 	Integer numberOfTimesWithCovid = 0;
+	HashMap<LocationCategory, HashSet<Integer>> listInteractionsByLocation = new HashMap<LocationCategory, HashSet<Integer>>();
 	
 	// Interactions
 	int number_of_interactions_today = 0;
@@ -220,6 +221,12 @@ public class Person extends Host {
 		communityBubble = new HashSet <Person> ();
 		myDiseaseSet = new HashMap <String, Disease>();
 		setLocation(hh, this);
+		
+		// Create storage for the unique interactions that took place that day
+		listInteractionsByLocation.put(LocationCategory.HOME, new HashSet<Integer>());
+		listInteractionsByLocation.put(LocationCategory.COMMUNITY, new HashSet<Integer>());
+		listInteractionsByLocation.put(LocationCategory.WORKPLACE, new HashSet<Integer>());
+
 	}
 	
 	//
@@ -238,7 +245,8 @@ public class Person extends Host {
 		
 		// reset the number of interactions per day here
 		if (time % myWorld.params.ticks_per_day == 0) {
-			this.resetNumberofInteractions();
+			resetNumberofInteractions();
+			resetListOfInteractions();
 		}
 		// Make this person interact with others
 		triggerInteractions();
@@ -251,6 +259,7 @@ public class Person extends Host {
 		
 		
 	}
+
 
 	Person myWrapper() { return this; }
 	
@@ -293,8 +302,11 @@ public class Person extends Host {
 		// get a set of people to interact with, this function handles all location based filtering and returns a list of people this person is interacting with right now
 		HashSet<Person> whoToInteractWith = determineWhoToInteractWith();
 		// update the number of people they interact with
-		
 		updateNumberofInteractions(whoToInteractWith.size());
+		// update the list of people they interacted with at this location
+		for (Person p: whoToInteractWith) {
+			listInteractionsByLocation.get(this.currentLocation.getLocationType()).add(p.getID());
+		}
 		// iterate over the other people we're interacting with
 		for (Person otherPerson: whoToInteractWith) {
 			// iterate over this person's disease set
@@ -773,4 +785,15 @@ public class Person extends Host {
 	public Integer getNumberOfInteractions() {
 		return this.number_of_interactions_today;
 	}
+	private void resetListOfInteractions() {
+		listInteractionsByLocation.get(LocationCategory.HOME).clear();
+		listInteractionsByLocation.get(LocationCategory.COMMUNITY).clear();
+		listInteractionsByLocation.get(LocationCategory.WORKPLACE).clear();
+
+	}
+	public HashMap<LocationCategory, HashSet<Integer>> getListInteractionsByLocation(){
+		return listInteractionsByLocation;
+	}
+	
+	
 }
