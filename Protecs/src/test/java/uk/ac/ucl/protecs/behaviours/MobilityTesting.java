@@ -45,7 +45,7 @@ public class MobilityTesting {
 	private final static String paramsDir = "src/test/resources/";
 
 	@Test
-	public void PeopleDoingTheCommunityNodeBehaviourSwitchToTheHomeNodeBehviourAtTheEndOfDay() {
+	public void PeopleDoingTheCommunityNodeBehaviourSwitchToTheHomeNodeBehaviourAtTheEndOfDay() {
 		// set up the simulation
 		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(params + ".txt");
 		sim.start();
