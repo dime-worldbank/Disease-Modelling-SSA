@@ -245,10 +245,11 @@ public class Person extends Host {
 		double time = world.schedule.getTime(); // find the current time
 		double myDelta = this.currentActivityNode.next(this, time);
 		
-		// reset the number of interactions per day here
+		// reset the number of interactions recorded per day here
 		if (time % myWorld.params.ticks_per_day == 0) {
 			resetNumberofInteractions();
 			resetListOfInteractions();
+			determineContactCountsPerDay();
 		}
 		// Make this person interact with others
 		triggerInteractions();
@@ -350,11 +351,7 @@ public class Person extends Host {
 		}
 		// workplace mixing
 		else if (this.atWorkNow()) {
-			int myNumInteractions;
-			if (((Person) this).getNumberOfWorkplaceInteractions() < 0) 
-				((Person) this).setNumberOfWorkplaceInteractions(myWorld.params.getWorkplaceContactCount(((Person) this).getEconStatus(), this.myWorld.random.nextDouble()));
-			
-			myNumInteractions = (int) ((Person)this).getNumberOfWorkplaceInteractions() / 2; // at work for two ticks, so just have the number of interactions meant to take place
+			int myNumInteractions = (int) ((Person)this).getNumberOfWorkplaceInteractions() / 2; // at work for two ticks, so just have the number of interactions meant to take place
 			// more interactions than people here, just return who is here currently
 			if (myNumInteractions >= this.getLocation().personsHere.size()) {
 				for (Person p: this.getLocation().personsHere) {
@@ -389,10 +386,6 @@ public class Person extends Host {
 			double someInteractions = myWorld.params.community_num_interaction_perTick;
 
 			if (myWorld.params.community_interaction_percentages != null) {
-				if (((Person) this).getNumberOfCommunityInteractions() < 0) {
-					int communityCountPerDay = myWorld.params.getCommunityContactCount(myWorld.random.nextDouble());
-					((Person) this).setNumberOfCommunityInteractions(communityCountPerDay);
-				}
 				// daily interactions are set in first step, people spend two ticks in the community, therefore set the number of interactions as half
 				someInteractions = getNumberOfCommunityInteractions() / 2;
 			}
@@ -644,6 +637,26 @@ public class Person extends Host {
 			probabilityOfInteractingWithAnyGivenGroupMember = numberOfInteractions / groupSize;
 		}
 	}
+	
+	public void determineContactCountsPerDay(){
+		// determine workplace contact counts for the day if using
+		if (myWorld.params.workplaceContactCounts != null) {
+			if (((Person) this).getNumberOfWorkplaceInteractions() < 0) {
+				int workplaceCountPerDay = myWorld.params.getWorkplaceContactCount(((Person) this).getEconStatus(), this.myWorld.random.nextDouble());
+				((Person) this).setNumberOfWorkplaceInteractions(workplaceCountPerDay);
+
+			}
+
+		}
+		// determine community contact counts for the day if using
+
+		if (myWorld.params.community_interaction_percentages != null) {
+			if (((Person) this).getNumberOfCommunityInteractions() < 0) {
+				int communityCountPerDay = myWorld.params.getCommunityContactCount(myWorld.random.nextDouble());
+				((Person) this).setNumberOfCommunityInteractions(communityCountPerDay);
+			}}
+	}
+	
 	//
 	// GETTERS AND SETTERS
 	//
