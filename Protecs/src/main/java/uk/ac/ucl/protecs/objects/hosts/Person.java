@@ -79,6 +79,8 @@ public class Person extends Host {
 	boolean interactionsLogged = false;
 	// bubble interaction counters
 	int number_of_interactions_at_work = Integer.MIN_VALUE;
+	// community varied interactions
+	int number_of_interactions_in_community_per_day = Integer.MIN_VALUE;
 	// only two options considered for biological sex, therefore use enum
 		public enum SEX {
 			MALE("male"), FEMALE("female");
@@ -384,8 +386,16 @@ public class Person extends Host {
 
 			
 			ArrayList<Person> possibleInteractions = new ArrayList<Person>(this.getLocation().getPeople());
-			
 			double someInteractions = myWorld.params.community_num_interaction_perTick;
+
+			if (myWorld.params.community_interaction_percentages != null) {
+				if (((Person) this).getNumberOfCommunityInteractions() < 0) {
+					int communityCountPerDay = myWorld.params.getCommunityContactCount(myWorld.random.nextDouble());
+					((Person) this).setNumberOfCommunityInteractions(communityCountPerDay);
+				}
+				// daily interactions are set in first step, people spend two ticks in the community, therefore set the number of interactions as half
+				someInteractions = getNumberOfCommunityInteractions() / 2;
+			}
 			
 			double myNumInteractions = Math.min(possibleInteractions.size() - 1, someInteractions);
 			// this number may be probabilistic - e.g. 3.5. In this case, in 50% of ticks they should
@@ -713,7 +723,12 @@ public class Person extends Host {
 	public void setNumberOfWorkplaceInteractions(int n) {this.number_of_interactions_at_work = n;}
 	public int getNumberOfWorkplaceInteractions() {return this.number_of_interactions_at_work;}
 
+	public void setNumberOfCommunityInteractions(int n) {this.number_of_interactions_in_community_per_day = n;}
+	public int getNumberOfCommunityInteractions() {return this.number_of_interactions_in_community_per_day;}
+	
 	public void resetWorkplaceContacts() { this.number_of_interactions_at_work = Integer.MIN_VALUE;}
+	public void resetCommunityContacts() { this.number_of_interactions_in_community_per_day = Integer.MIN_VALUE;}
+
 	// UTILS
 	
 	public String toString(){ return "P_" + this.myId;}
@@ -781,6 +796,8 @@ public class Person extends Host {
 	}
 	public void resetNumberofInteractions() {
 		this.number_of_interactions_today = 0;
+		resetWorkplaceContacts();
+		resetCommunityContacts();
 	}
 	public Integer getNumberOfInteractions() {
 		return this.number_of_interactions_today;
