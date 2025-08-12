@@ -241,8 +241,9 @@ public class Person extends Host {
 			this.resetNumberofInteractions();
 		}
 		// Make this person interact with others
+		if (this.getDiseaseSet().size() > 0) {
 		triggerInteractions();
-		
+		}
 		if(myDelta >= 0)
 			myWorld.schedule.scheduleOnce(time + myDelta, myWorld.param_schedule_movement, this);
 		else
