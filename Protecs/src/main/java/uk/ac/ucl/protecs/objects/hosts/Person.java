@@ -311,24 +311,26 @@ public class Person extends Host {
 			listInteractionsByLocation.get(this.currentLocation.getLocationType()).add(p.getID());
 		}
 		// iterate over the other people we're interacting with
-		for (Person otherPerson: whoToInteractWith) {
-			// iterate over this person's disease set
-			for (Disease d: this.getDiseaseSet().values()) {
-				// first determine if this disease is infectious if not don't do anything
-				if (d.isInfectious()) {
-					// make sure this is being spread to someone else and not to self
-					if (otherPerson.equals(this)) {
-						continue;
-					}
-					// generate a random number to determine disease spread
-					double myProb = myWorld.random.nextDouble();
-					double beta = myWorld.params.simulationBetas.get(d.getDiseaseType());
-					// check if the disease is randomly determined to spread
-					if (myProb < beta) {
-						d.horizontalTransmission(otherPerson);
+		if (this.getDiseaseSet().size() > 0) {
+			for (Person otherPerson: whoToInteractWith) {
+				// iterate over this person's disease set
+				for (Disease d: this.getDiseaseSet().values()) {
+					// first determine if this disease is infectious if not don't do anything
+					if (d.isInfectious()) {
+						// make sure this is being spread to someone else and not to self
+						if (otherPerson.equals(this)) {
+							continue;
+						}
+						// generate a random number to determine disease spread
+						double myProb = myWorld.random.nextDouble();
+						double beta = myWorld.params.simulationBetas.get(d.getDiseaseType());
+						// check if the disease is randomly determined to spread
+						if (myProb < beta) {
+							d.horizontalTransmission(otherPerson);
+							}
 						}
 					}
-				}
+			}
 		}
 		return;
 		}
@@ -642,7 +644,11 @@ public class Person extends Host {
 		// determine workplace contact counts for the day if using
 		if (myWorld.params.workplaceContactCounts != null) {
 			if (((Person) this).getNumberOfWorkplaceInteractions() < 0) {
-				int workplaceCountPerDay = myWorld.params.getWorkplaceContactCount(((Person) this).getEconStatus(), this.myWorld.random.nextDouble());
+				int workplaceCountPerDay = 0;
+				if (!this.isUnemployed()) {
+					workplaceCountPerDay = myWorld.params.getWorkplaceContactCount(((Person) this).getEconStatus(), this.myWorld.random.nextDouble());
+				}
+
 				((Person) this).setNumberOfWorkplaceInteractions(workplaceCountPerDay);
 
 			}

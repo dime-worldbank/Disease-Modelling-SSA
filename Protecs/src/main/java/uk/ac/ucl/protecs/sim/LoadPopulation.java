@@ -157,7 +157,7 @@ public class LoadPopulation{
 							Person::checkWorkplaceID
 							)
 					);
-			for (Workplace w: sim.workplaces) {
+			for (Workplace w: rawWorkplaces.values()) {
 				List<Person> peopleInThisBubble = belongingToBubble.get(w.getId());
 				// change this list to a hash set so we can store it
 				HashSet<Person> bubble = new HashSet<Person>(peopleInThisBubble);
