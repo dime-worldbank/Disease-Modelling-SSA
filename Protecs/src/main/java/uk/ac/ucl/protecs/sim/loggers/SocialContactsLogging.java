@@ -26,13 +26,16 @@ public class SocialContactsLogging{
 	
 				
 				// get those alive at location with that occupation
-				Map<OCCUPATION, Map<String, Map<Boolean, List<Person>>>> economic_alive_at_location = world.agents.stream().collect(
+				Map<OCCUPATION, Map<String, Map<Boolean, Map<Boolean, List<Person>>>>> economic_alive_with_disease_at_location = world.agents.stream().collect(
 						Collectors.groupingBy(
 								Person::getEconStatus,
 								Collectors.groupingBy(
 										Person::getCurrentAdminZone,
 										Collectors.groupingBy(
-												Person::isAlive
+												Person::isAlive,
+												Collectors.groupingBy(
+														Person::hasADisease
+														)
 												)
 										)
 								)
@@ -56,7 +59,7 @@ public class SocialContactsLogging{
 							double av_community_contacts = 0;
 							double av_total_contacts = 0;
 							try {
-								List<Person> eligiblePersons = economic_alive_at_location.get(status).get(zone).get(true);
+								List<Person> eligiblePersons = economic_alive_with_disease_at_location.get(status).get(zone).get(true).get(true);
 								ArrayList<Integer> homeContactCounts = new ArrayList<Integer>();
 								ArrayList<Integer> workplaceContactCounts = new ArrayList<Integer>();
 								ArrayList<Integer> communityContactCounts = new ArrayList<Integer>();
