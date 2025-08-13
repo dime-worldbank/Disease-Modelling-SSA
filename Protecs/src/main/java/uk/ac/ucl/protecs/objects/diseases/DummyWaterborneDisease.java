@@ -43,14 +43,14 @@ public class DummyWaterborneDisease extends Disease{
 
 	@Override
 	public boolean isInfectious() {
-		return true;
+		return false;
 	}
 	@Override
 	public boolean isWaterborne() {
 		return true;
 	}
 	@Override
-	public void horizontalTransmission() {
+	public void horizontalTransmission(Person otherPerson) {
 				
 	}
 

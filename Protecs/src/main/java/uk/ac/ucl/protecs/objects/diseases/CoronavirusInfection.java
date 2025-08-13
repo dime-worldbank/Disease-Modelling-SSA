@@ -115,8 +115,8 @@ public class CoronavirusInfection extends Disease {
 						myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting); 
 					}
 				}
-				return;
 			}
+			// if they don't already have a covid infection in their disease set they are eligible for an infection
 			else {
 				if(this.getHost().getLocation() instanceof Household){
 					assert (!((Person) this.getHost()).atWorkNow()): "p_" + ((Person) this.getHost()).getID() + "at work but having interactions at home";

@@ -149,7 +149,7 @@ public class DummyNonCommunicableDisease extends Disease {
 	public boolean isWaterborne() {return false;}
 
 	@Override
-	public void horizontalTransmission() {
+	public void horizontalTransmission(Person otherPerson) {
 		// TODO Auto-generated method stub
 		
 	}

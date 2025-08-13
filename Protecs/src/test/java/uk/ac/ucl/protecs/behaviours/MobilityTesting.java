@@ -45,7 +45,7 @@ public class MobilityTesting {
 	private final static String paramsDir = "src/test/resources/";
 
 	@Test
-	public void PeopleDoingTheCommunityNodeBehaviourSwitchToTheHomeNodeBehviourAtTheEndOfDay() {
+	public void PeopleDoingTheCommunityNodeBehaviourSwitchToTheHomeNodeBehaviourAtTheEndOfDay() {
 		// set up the simulation
 		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(params + ".txt");
 		sim.start();
@@ -82,6 +82,7 @@ public class MobilityTesting {
 		
 		HashSet<Boolean> allAtHome =  new HashSet<Boolean>();
 		for (Person p: sim.agents) {
+			boolean answer = p.getHomeLocation().getPeople().contains(p);
 			allAtHome.add(p.getHomeLocation().getPeople().contains(p));
 		}
 		// if everyone is at home, then allAtHome should not have false in it

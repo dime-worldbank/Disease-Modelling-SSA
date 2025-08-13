@@ -7,11 +7,14 @@ import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.HOST;
 import sim.engine.SimState;
 import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgressionFramework.CoronavirusBehaviourNodeTitle;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.objects.diseases.Disease;
 import uk.ac.ucl.protecs.objects.diseases.DummyInfectiousDisease;
@@ -69,7 +72,11 @@ public class Person extends Host {
 	boolean birthLogged = false;
 	Integer dayGaveBirth = Integer.MAX_VALUE;
 	Integer numberOfTimesWithCovid = 0;
-
+	HashMap<LocationCategory, HashSet<Integer>> listInteractionsByLocation = new HashMap<LocationCategory, HashSet<Integer>>();
+	
+	// Interactions
+	int number_of_interactions_today = 0;
+	boolean interactionsLogged = false;
 	// bubble interaction counters
 	int number_of_interactions_at_work = Integer.MIN_VALUE;
 	int number_of_interactions_at_work_happened = 0;
@@ -218,6 +225,12 @@ public class Person extends Host {
 		communityBubble = new HashSet <Person> ();
 		myDiseaseSet = new HashMap <String, Disease>();
 		setLocation(hh, this);
+		
+		// Create storage for the unique interactions that took place that day
+		listInteractionsByLocation.put(LocationCategory.HOME, new HashSet<Integer>());
+		listInteractionsByLocation.put(LocationCategory.COMMUNITY, new HashSet<Integer>());
+		listInteractionsByLocation.put(LocationCategory.WORKPLACE, new HashSet<Integer>());
+
 	}
 	
 	//
@@ -234,6 +247,16 @@ public class Person extends Host {
 		double time = world.schedule.getTime(); // find the current time
 		double myDelta = this.currentActivityNode.next(this, time);
 		
+		// reset the number of interactions recorded per day here
+		if (time % myWorld.params.ticks_per_day == 0) {
+			resetNumberofInteractions();
+			resetListOfInteractions();
+			determineContactCountsPerDay();
+		}
+		// Make this person interact with others
+		if (this.getDiseaseSet().size() > 0) {
+			triggerInteractions();
+		}
 		if(myDelta >= 0)
 			myWorld.schedule.scheduleOnce(time + myDelta, myWorld.param_schedule_movement, this);
 		else
@@ -242,6 +265,7 @@ public class Person extends Host {
 		
 		
 	}
+
 
 	Person myWrapper() { return this; }
 	
@@ -268,39 +292,144 @@ public class Person extends Host {
 	}
 	
 	public void infectNeighbours(){
-		for (Disease d: this.getDiseaseSet().values()) {
-			d.horizontalTransmission();
-		}
-//		// if this person is dead, do not try and interact
-//		if (this.isDead) return;
-//		// if not currently in the space, do not try to interact
-//		else if(currentLocation == null) return;
-//		// if they do not have an infection object return out 
-////		else if(myInfection == null){
-////			System.out.println("ERROR: " + this.myId + " asked to infect others, but is not infected!");
-////			return;
-////		}
-//		else if(!myDiseaseSet.containsKey(DISEASE.COVID.key)){
-//			System.out.println("ERROR: " + this.myId + " asked to infect others, but is not infected!");
-//			return;
-//		}
-//		// if there is no one else other than the individual at the location, save computation time and return out
-//		else if(this.currentLocation.getPersonsHere().length < 2) {
-//			return; 
-//			} 
-//		
-//		if(myWorld.params.setting_perfectMixing) {
-//			
-//			perfectMixingInteractions(); 
-//			return;
-//		}
-//		else {
-//			structuredMixingInteractions();
-//			return;
-//		} 
+		this.triggerInteractions();
 	}
 		
  
+	private void triggerInteractions() {
+		double time = myWorld.schedule.getTime(); // find the current time
+
+		// if this person is dead, do not try and interact
+		if (!this.isAlive()) return;
+		// if not currently in the space, do not try to interact
+		else if (this.getLocation() == null) return;
+		// if there is no one else other than the individual at the location, save computation time and return out
+		else if(this.getLocation().getPersonsHere().length < 2) {
+			return; 
+			} 
+		// get a set of people to interact with, this function handles all location based filtering and returns a list of people this person is interacting with right now
+		HashSet<Person> whoToInteractWith = determineWhoToInteractWith();
+		// update the number of people they interact with
+		updateNumberofInteractions(whoToInteractWith.size());
+		// update the list of people they interacted with at this location
+		for (Person p: whoToInteractWith) {
+			if (this.atWorkNow()) {
+				listInteractionsByLocation.get(LocationCategory.WORKPLACE).add(p.getID());
+			}
+			else {
+				listInteractionsByLocation.get(this.currentLocation.getLocationType()).add(p.getID());
+			}
+		}
+		// iterate over the other people we're interacting with
+		if (this.getDiseaseSet().size() > 0) {
+			for (Person otherPerson: whoToInteractWith) {
+				// iterate over this person's disease set
+				for (Disease d: this.getDiseaseSet().values()) {
+					// first determine if this disease is infectious if not don't do anything
+					if (d.isInfectious()) {
+						// make sure this is being spread to someone else and not to self
+						if (otherPerson.equals(this)) {
+							continue;
+						}
+						// generate a random number to determine disease spread
+						double myProb = myWorld.random.nextDouble();
+						double beta = myWorld.params.simulationBetas.get(d.getDiseaseType());
+						// check if the disease is randomly determined to spread
+						if (myProb < beta) {
+							d.horizontalTransmission(otherPerson);
+							}
+						}
+					}
+			}
+		}
+		return;
+		}
+
+
+	private HashSet <Person> determineWhoToInteractWith(){
+		// a function to determine who this person will interact with, handling both perfect and imperfect interactions
+		HashSet <Person> whoToInteractWith = new HashSet<Person>();
+		// Who to interact with is determined by their location. If they are in the community they interact with perfect mixing, 
+		// if they are at home they interact with everyone, if they are at work they interact with a predetermined number of people
+		// handle community mixing
+		
+		// within household mixing
+		if (this.isHome()) {
+			for (Person p: this.getLocation().personsHere) {
+				if (!p.equals(this)) {
+					whoToInteractWith.add(p);
+				}
+			}			
+		}
+		// workplace mixing
+		else if (this.atWorkNow()) {
+			int myNumInteractions = (int) ((Person)this).getNumberOfWorkplaceInteractions() / 2; // at work for two ticks, so just have the number of interactions meant to take place
+			// more interactions than people here, just return who is here currently
+			if (myNumInteractions >= this.getLocation().personsHere.size()) {
+				for (Person p: this.getLocation().personsHere) {
+					if (!p.equals(this)) {
+						whoToInteractWith.add(p);
+					}
+				}	
+			}
+			else {
+				// convert the people here into a list
+				ArrayList<Person> possibleInteractions = new ArrayList<Person>(this.getLocation().getPeople());
+				Collections.shuffle(possibleInteractions);
+				int selection_idx = 0;
+				for(int i = 0; i < myNumInteractions; i++) {
+					Person otherPerson = possibleInteractions.get(selection_idx);
+					if (otherPerson.equals(this)) {
+						i-=1;
+					}
+					else {
+						whoToInteractWith.add(otherPerson);
+					}
+					selection_idx ++;
+				}
+			}
+		}
+		// community mixing
+		else {
+
+
+			
+			ArrayList<Person> possibleInteractions = new ArrayList<Person>(this.getLocation().getPeople());
+			double someInteractions = myWorld.params.community_num_interaction_perTick;
+
+			if (myWorld.params.community_interaction_percentages != null) {
+				// daily interactions are set in first step, people spend two ticks in the community, therefore set the number of interactions as half
+				someInteractions = getNumberOfCommunityInteractions() / 2;
+			}
+			
+			double myNumInteractions = Math.min(possibleInteractions.size() - 1, someInteractions);
+			// this number may be probabilistic - e.g. 3.5. In this case, in 50% of ticks they should
+			// interact with 4 people, and in 50% of ticks they should interact with only 3.
+			
+			// Thus, we calculate the probability of the extra person
+			double diff = myNumInteractions - Math.floor(myNumInteractions); // number between 0 and 1
+			
+			// if the random number is less than this, we bump the number up to the higher number this tick
+			if(myWorld.random.nextDouble() < diff)
+					myNumInteractions = Math.ceil(myNumInteractions);
+			
+			Collections.shuffle(possibleInteractions);
+			int selection_idx = 0;
+			for(int i = 0; i < myNumInteractions; i++) {
+				Person otherPerson = possibleInteractions.get(selection_idx);
+				if (otherPerson.equals(this)) {
+					i-=1;
+				}
+				else {
+					whoToInteractWith.add(otherPerson);
+				}
+				selection_idx ++;
+			}
+		}
+		
+		return whoToInteractWith;
+		
+	}
 //	private void perfectMixingInteractions() {
 //		Object [] peopleHere = this.currentLocation.getPersonsHere();
 //		int numPeople = peopleHere.length;
@@ -416,6 +545,8 @@ public class Person extends Host {
 				
 				// if neither of the above are true, the interaction can take place!
 				numberOfInteractions -= 1; 
+				// update the number of interactions that happened today
+				p.updateNumberofInteractions(1);
 				switch (inf) {
 				case COVID:{
 					if(!p.getDiseaseSet().containsKey(inf.key) && myWorld.random.nextDouble() < beta){
@@ -445,6 +576,101 @@ public class Person extends Host {
 				myIt.next();
 			groupSize -= 1; 
 			probabilityOfInteractingWithAnyGivenGroupMember = numberOfInteractions / groupSize;
+		}
+	}
+	public void testInteractWithin(HashSet <Person> group, HashSet <Person> largerCommunity, int interactNumber) {
+		
+		// set up parameters
+		boolean largerCommunityContext = largerCommunity != null;
+
+		// set up the probabilities
+		double groupSize = group.size(); 
+		double numberOfInteractions = interactNumber; 
+		double probabilityOfInteractingWithAnyGivenGroupMember = numberOfInteractions / groupSize;
+
+		// create the iterator and iterate over the set elements
+		// TODO: look at selection without replacement   
+		Iterator myIt = group.iterator();
+		while(myIt.hasNext() && numberOfInteractions > 0) {  
+			
+			// generate the likelihood of selecting this particular element
+			double prob = myWorld.random.nextDouble();
+			
+			if(prob <= probabilityOfInteractingWithAnyGivenGroupMember) { // INTERACT WITH THE PERSON  
+				
+				// pull them out!
+				Person p = (Person) myIt.next();
+				
+				if(p == this) // oops! It might be this person - if so, continue!
+					continue;
+				
+				// if it's someone else, make sure they're here!
+				else if (largerCommunityContext && !largerCommunity.contains(p))
+					continue;
+				
+				// if neither of the above are true, the interaction can take place!
+				numberOfInteractions -= 1; 
+				// update the number of interactions that happened today
+				p.updateNumberofInteractions(1);
+				for (Disease d: p.getDiseaseSet().values()) {
+					if (d.isInfectious()) {
+						DISEASE inf = d.getDiseaseType();
+						double beta = myWorld.params.simulationBetas.get(inf);
+						switch (inf) {
+						case COVID:{
+							if(!p.getDiseaseSet().containsKey(inf.key) && myWorld.random.nextDouble() < beta){
+								p.getDiseaseSet().put(inf.key, new CoronavirusInfection(p, this, myWorld.infectiousFramework.getEntryPoint(), myWorld));
+								myWorld.schedule.scheduleOnce(p.getDiseaseSet().get(inf.key), myWorld.param_schedule_infecting);
+							}
+						}
+						break;
+						case DUMMY_INFECTIOUS:{
+							if(!p.getDiseaseSet().containsKey(inf.key) && myWorld.random.nextDouble() < beta){
+								p.getDiseaseSet().put(inf.key, new DummyInfectiousDisease(p, this, myWorld.dummyInfectiousFramework.getEntryPoint(), myWorld));
+								myWorld.schedule.scheduleOnce(p.getDiseaseSet().get(inf.key), myWorld.param_schedule_infecting);
+							}
+						}
+						break;
+						default:
+							break;
+						}
+					}
+				}
+				// check if they are already infected; if they are not, infect with with probability BETA
+//				if(!p.myDiseaseSet.containsKey(inf.key) && myWorld.random.nextDouble() < beta){
+//					p.myDiseaseSet.put(inf.key, new CoronavirusInfection(p, this, myWorld.infectiousFramework.getEntryPoint(), myWorld));
+//					myWorld.schedule.scheduleOnce(p.myDiseaseSet.get(inf.key), myWorld.param_schedule_infecting);
+//				}
+
+			}
+			else // just pass over it
+				myIt.next();
+			groupSize -= 1; 
+			probabilityOfInteractingWithAnyGivenGroupMember = numberOfInteractions / groupSize;
+		}
+	}
+	
+	public void determineContactCountsPerDay(){
+		// determine workplace contact counts for the day if using
+		if (myWorld.params.workplaceContactCounts != null) {
+			if (((Person) this).getNumberOfWorkplaceInteractions() < 0) {
+				int workplaceCountPerDay = 0;
+				if (!this.isUnemployed()) {
+					workplaceCountPerDay = myWorld.params.getWorkplaceContactCount(((Person) this).getEconStatus(), this.myWorld.random.nextDouble());
+				}
+
+				((Person) this).setNumberOfWorkplaceInteractions(workplaceCountPerDay);
+
+			}
+
+		}
+		// determine community contact counts for the day if using
+
+		if (myWorld.params.community_interaction_percentages != null) {
+			if (((Person) this).getNumberOfCommunityInteractions() < 0) {
+				int communityCountPerDay = myWorld.params.getCommunityContactCount(myWorld.random.nextDouble());
+				((Person) this).setNumberOfCommunityInteractions(communityCountPerDay);
+			}	
 		}
 	}
 	
@@ -611,4 +837,27 @@ public class Person extends Host {
 		return false;
 	};
 
+	// getters and setters for number of interactions
+	public void updateNumberofInteractions(Integer interactions) {
+		this.number_of_interactions_today += interactions;
+	}
+	public void resetNumberofInteractions() {
+		this.number_of_interactions_today = 0;
+		resetWorkplaceContacts();
+		resetCommunityContacts();
+	}
+	public Integer getNumberOfInteractions() {
+		return this.number_of_interactions_today;
+	}
+	private void resetListOfInteractions() {
+		listInteractionsByLocation.get(LocationCategory.HOME).clear();
+		listInteractionsByLocation.get(LocationCategory.COMMUNITY).clear();
+		listInteractionsByLocation.get(LocationCategory.WORKPLACE).clear();
+
+	}
+	public HashMap<LocationCategory, HashSet<Integer>> getListInteractionsByLocation(){
+		return listInteractionsByLocation;
+	}
+	
+	
 }
