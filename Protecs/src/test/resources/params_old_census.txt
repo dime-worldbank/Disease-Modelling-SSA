@@ -22,5 +22,3 @@ lineListWeightingFactor: 1
 all_cause_mortality_filename: test_mortality_rates.txt
 birth_rate_filename: test_birth_rates.txt
 
-
-communityLocationFilename: community_loc_empty.txt
