@@ -94,7 +94,7 @@ public abstract class Disease implements Steppable {
 	
 	// =============================================== Disease transmission ===========================================================================
 	
-	public abstract void horizontalTransmission(Person otherPerson);
+	public abstract void horizontalTransmission();
 	
 	public abstract void verticalTransmission(Person baby);
 	
