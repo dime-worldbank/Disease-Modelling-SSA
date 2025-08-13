@@ -23,7 +23,6 @@ import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.objects.locations.Workplace;
 import uk.ac.ucl.protecs.sim.loggers.DemographyLogging;
 import uk.ac.ucl.protecs.sim.loggers.CovidLogging;
-import uk.ac.ucl.protecs.sim.loggers.SocialContactsLogging;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.SpuriousSymptomDiseaseProgressionFramework;
 import uk.ac.ucl.protecs.behaviours.diseaseSpread.DummyNCDOnset;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgressionFramework;
@@ -75,7 +74,6 @@ public class WorldBankCovid19Sim extends SimState {
 	public String covidCountsOutputFilename = null;
 	public String covidByEconOutputFilename = null;
 	public String covidTestingOutputFilename = null;
-	public String socialContactsOutputFilename = null;
 	int targetDuration = 0;
 	
 	// ordering information
@@ -166,7 +164,7 @@ public class WorldBankCovid19Sim extends SimState {
 		this.adminZonePercentDiedFromCovidOutputFilename = outputFilename + "_Percent_In_Admin_Zone_Died_From_Covid.txt";
 		this.adminZonePercentCovidCasesFatalOutputFilename = outputFilename + "_Percent_Covid_Cases_Fatal_In_Admin_Zone.txt";
 		this.covidTestingOutputFilename = outputFilename + "_Covid_Testing.txt";
-		this.socialContactsOutputFilename = outputFilename + "_Social_Contacts.txt";
+
 	}
 	
 	public void start(){
@@ -408,10 +406,6 @@ public class WorldBankCovid19Sim extends SimState {
 		// Schedule the resetting of COVID reporting properties in the agents 
 		schedule.scheduleRepeating(CovidLogging.ResetCovidLoggedProperties(this), this.param_schedule_reporting_reset, params.ticks_per_day);
 
-		// Schedule the logging of social contacts
-		schedule.scheduleRepeating(SocialContactsLogging.UniqueContactsReporter(this), this.param_schedule_reporting, params.ticks_per_day);
-
-		
 		// SCHEDULE LOCKDOWNS
 		Steppable lockdownTrigger = new Steppable() {
 
@@ -456,9 +450,6 @@ public class WorldBankCovid19Sim extends SimState {
 			}
 		};
 		schedule.scheduleRepeating(reporter, this.param_schedule_reporting, params.ticks_per_day);
-		
-		// store the infection betas in a single place
-		params.storeTransmissionParameters();
 	}
 	
 	
