@@ -75,7 +75,6 @@ public class WorldBankCovid19Sim extends SimState {
 	public String covidCountsOutputFilename = null;
 	public String covidByEconOutputFilename = null;
 	public String covidTestingOutputFilename = null;
-	public String socialContactsOutputFilename = null;
 	int targetDuration = 0;
 	
 	// ordering information

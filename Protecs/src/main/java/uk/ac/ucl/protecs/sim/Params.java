@@ -224,10 +224,6 @@ public class Params {
 			load_testing(dataDir + testDataFilename);
 			load_testing_locations(dataDir + testLocationFilename);
 		}
-		
-		if (!(communityContactCountsFilename == null)) {
-			load_community_contacts(dataDir + communityContactCountsFilename);
-		}
 	}
 	//
 	// DATA IMPORT UTILITIES
@@ -566,58 +562,6 @@ public class Params {
 		
 	}
 
-	public void load_community_contacts(String filename) {
-		// set up structure to hold transition probability
-		community_interaction_counts = new ArrayList<Integer>();
-		community_interaction_percentages = new ArrayList<Double>();				
-		try {
-					
-			if(verbose)
-				System.out.println("Reading in Community contact counts from " + filename);
-					
-				// Open the tracts file
-				FileInputStream fstream = new FileInputStream(filename);
-
-				// Convert our input stream to a BufferedReader
-				BufferedReader communityContactData = new BufferedReader(new InputStreamReader(fstream));
-					
-				String s;
-
-				// extract the header
-				s = communityContactData.readLine();
-					
-				// map the header into column names
-				String [] header = splitRawCSVString(s);
-				HashMap <String, Integer> rawColumnNames = new HashMap <String, Integer> ();
-				for(int i = 0; i < header.length; i++){
-					rawColumnNames.put(header[i], new Integer(i));
-				}
-				int countIndex = rawColumnNames.get("community_contact_counts");			
-				int percentIndex = rawColumnNames.get("cumulative_percent");			
-				if(verbose)
-					System.out.println("BEGIN READING IN COMMUNITY CONTACT COUNTS");
-					
-					
-				// read in the raw data
-				while ((s = communityContactData.readLine()) != null) {
-					String [] bits = splitRawCSVString(s);
-						
-					// extract the count data
-					int count = Integer.parseInt(bits[countIndex]);
-					double percent = Double.parseDouble(bits[percentIndex]);
-
-					// save the data
-					community_interaction_counts.add(count);
-					community_interaction_percentages.add(percent);
-					}
-				// clean up after ourselves
-				communityContactData.close();
-			} 
-		catch (Exception e) {
-			System.err.println("File input error: " + filename);
-			fail();
-		}
-	}
 	
 	
 	public void load_infection_params(String filename){

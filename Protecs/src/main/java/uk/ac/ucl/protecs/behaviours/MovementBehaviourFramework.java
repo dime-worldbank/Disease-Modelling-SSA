@@ -76,7 +76,7 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 					// reset occurs at hour 2
 					p.resetWorkplaceContacts();
 					p.resetCommunityContacts();
-
+ 
 					return determineDailyRoutine(p, hour, day);
 				}
 				
