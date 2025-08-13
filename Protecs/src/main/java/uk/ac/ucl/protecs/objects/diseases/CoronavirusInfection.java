@@ -1,6 +1,5 @@
 package uk.ac.ucl.protecs.objects.diseases;
 
-import uk.ac.ucl.protecs.objects.hosts.Host;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 
 import uk.ac.ucl.protecs.objects.locations.Household;
@@ -70,6 +69,17 @@ public class CoronavirusInfection extends Disease {
 				
 				double someInteractions = myWorld.params.community_num_interaction_perTick;
 				
+				if (myWorld.params.community_interaction_percentages != null) {
+					if (((Person) this.getHost()).getNumberOfCommunityInteractions() < 0) 
+						((Person) this.getHost()).setNumberOfCommunityInteractions(myWorld.params.getCommunityContactCount(this.myWorld.random.nextDouble()));
+					
+					// daily interactions are set in first step, people spend two ticks in the community, therefore set the number of interactions as half
+					someInteractions = ((Person) this.getHost()).getNumberOfCommunityInteractions() / 2;
+				}
+				if (((Person) this.getHost()).isHome()) {
+					someInteractions = ((Person) this.getHost()).getHomeLocation().getPeople().size();
+				}
+				
 				double myNumInteractions = Math.min(numPeople - 1, someInteractions);
 				
 				// this number may be probabilistic - e.g. 3.5. In this case, in 50% of ticks they should
@@ -99,6 +109,7 @@ public class CoronavirusInfection extends Disease {
 									
 					// check if they are already infected; if they are not, infect with with probability BETA
 					double myProb = myWorld.random.nextDouble();
+					((Person) this.getHost()).addCommunityContact();
 					if (!otherPerson.getDiseaseSet().containsKey(DISEASE.COVID.key) && myProb < myWorld.params.infection_beta) {
 						CoronavirusInfection inf = new CoronavirusInfection(otherPerson, (Person) this.getHost(), myWorld.infectiousFramework.getEntryPoint(), myWorld);
 						myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting); 
@@ -120,6 +131,10 @@ public class CoronavirusInfection extends Disease {
 					myNumInteractions = (int) ((Person)this.getHost()).getNumberOfWorkplaceInteractions() / 2;
 
 					if (myNumInteractions > this.getHost().getLocation().personsHere.size()) myNumInteractions = this.getHost().getLocation().personsHere.size();
+					
+					for (int i = 0; i < myNumInteractions; i++) {
+						((Person) this.getHost()).addWorkplaceContact();
+					}
 					// interact 
 					((Person) this.getHost()).interactWithin(this.getHost().getLocation().personsHere, null, myNumInteractions, DISEASE.COVID, myWorld.params.infection_beta);		
 
@@ -133,50 +148,57 @@ public class CoronavirusInfection extends Disease {
 					else if(((Person)this.getHost()).getLocation().getPersonsHere().length < 2) {
 						return; 
 						} 
-					if(myWorld.params.setting_perfectMixing) {
-						Object [] peopleHere = ((Person)this.getHost()).getLocation().getPersonsHere();
-						int numPeople = peopleHere.length;
+					
+					Object [] peopleHere = ((Person)this.getHost()).getLocation().getPersonsHere();
+					int numPeople = peopleHere.length;
 						
-						double someInteractions = myWorld.params.community_num_interaction_perTick;
-						
-						double myNumInteractions = Math.min(numPeople - 1, someInteractions);
-						
-						// this number may be probabilistic - e.g. 3.5. In this case, in 50% of ticks they should
-						// interact with 4 people, and in 50% of ticks they should interact with only 3.
-						
-						// Thus, we calculate the probability of the extra person
-						double diff = myNumInteractions - Math.floor(myNumInteractions); // number between 0 and 1
-						
-						// if the random number is less than this, we bump the number up to the higher number this tick
-						if(myWorld.random.nextDouble() < diff)
-								myNumInteractions = Math.ceil(myNumInteractions);
-						
-						// don't interact with the same person twice
-						HashSet <Person> otherPeople = new HashSet <Person> ();
-						otherPeople.add(((Person) this.getHost()));  
-						
-						for(int i = 0; i < myNumInteractions; i++) {
-							Person otherPerson = (Person) peopleHere[myWorld.random.nextInt(numPeople)]; 
+					double someInteractions = myWorld.params.community_num_interaction_perTick;
+					if (myWorld.params.community_interaction_percentages != null) {
+						if (((Person) this.getHost()).getNumberOfCommunityInteractions() < 0) 
+							((Person) this.getHost()).setNumberOfCommunityInteractions(myWorld.params.getCommunityContactCount(this.myWorld.random.nextDouble()));
 							
-							// don't interact with the same person multiple times
-							if(otherPeople.contains(otherPerson)) {
-								i -= 1;
-								continue; 
-							}
-							else
-								otherPeople.add(otherPerson); 
-											
-							// check if they are already infected; if they are not, infect with with probability BETA
-							double myProb = myWorld.random.nextDouble();
-							if (!otherPerson.getDiseaseSet().containsKey(DISEASE.COVID.key) && myProb < myWorld.params.infection_beta) {
-								CoronavirusInfection inf = new CoronavirusInfection(otherPerson, (Person) this.getHost(), myWorld.infectiousFramework.getEntryPoint(), myWorld);
-								myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting); 
-							}
-						}
-						return;
+						// daily interactions are set in first step, people spend two ticks in the community, therefore set the number of interactions as half
+						someInteractions = ((Person) this.getHost()).getNumberOfCommunityInteractions() / 2;
 					}
-			} 
-		}
+					double myNumInteractions = Math.min(numPeople - 1, someInteractions);
+						
+					// this number may be probabilistic - e.g. 3.5. In this case, in 50% of ticks they should
+					// interact with 4 people, and in 50% of ticks they should interact with only 3.
+						
+					// Thus, we calculate the probability of the extra person
+					double diff = myNumInteractions - Math.floor(myNumInteractions); // number between 0 and 1
+						
+					// if the random number is less than this, we bump the number up to the higher number this tick
+					if(myWorld.random.nextDouble() < diff)
+						myNumInteractions = Math.ceil(myNumInteractions);
+						
+					// don't interact with the same person twice
+					HashSet <Person> otherPeople = new HashSet <Person> ();
+					otherPeople.add(((Person) this.getHost()));  
+					
+					for(int i = 0; i < myNumInteractions; i++) {
+						Person otherPerson = (Person) peopleHere[myWorld.random.nextInt(numPeople)]; 
+							
+						// don't interact with the same person multiple times
+						if(otherPeople.contains(otherPerson)) {
+							i -= 1;
+							continue; 
+						}
+						else
+							otherPeople.add(otherPerson); 
+											
+						// check if they are already infected; if they are not, infect with with probability BETA
+						double myProb = myWorld.random.nextDouble();
+						((Person) this.getHost()).addCommunityContact();
+
+						if (!otherPerson.getDiseaseSet().containsKey(DISEASE.COVID.key) && myProb < myWorld.params.infection_beta) {
+							CoronavirusInfection inf = new CoronavirusInfection(otherPerson, (Person) this.getHost(), myWorld.infectiousFramework.getEntryPoint(), myWorld);
+							myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting); 
+						}
+					}
+					return;
+				} 
+			}
 		}
 		
 		public void verticalTransmission(Person baby) {

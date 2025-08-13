@@ -75,6 +75,7 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 				if(hour >= myWorld.params.hour_start_day_weekday){ 
 					// reset occurs at hour 2
 					p.resetWorkplaceContacts();
+					p.resetCommunityContacts();
 
 					return determineDailyRoutine(p, hour, day);
 				}

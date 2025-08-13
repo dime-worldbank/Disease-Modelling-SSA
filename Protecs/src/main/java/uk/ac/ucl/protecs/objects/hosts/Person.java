@@ -72,6 +72,10 @@ public class Person extends Host {
 
 	// bubble interaction counters
 	int number_of_interactions_at_work = Integer.MIN_VALUE;
+	int number_of_interactions_at_work_happened = 0;
+	int number_of_interactions_in_community_per_day = Integer.MIN_VALUE;
+	int number_of_interactions_at_community_happened = 0;
+
 	// only two options considered for biological sex, therefore use enum
 		public enum SEX {
 			MALE("male"), FEMALE("female");
@@ -522,8 +526,30 @@ public class Person extends Host {
 	public boolean isUnemployed() {return this.isUnemployed;}  
 	public void setNumberOfWorkplaceInteractions(int n) {this.number_of_interactions_at_work = n;}
 	public int getNumberOfWorkplaceInteractions() {return this.number_of_interactions_at_work;}
+	public int getNumberOfWorkplaceInteractionsHappened() {return this.number_of_interactions_at_work_happened;}
 
-	public void resetWorkplaceContacts() { this.number_of_interactions_at_work = Integer.MIN_VALUE;}
+	public void setNumberOfCommunityInteractions(int n) {this.number_of_interactions_in_community_per_day = n;}
+	public int getNumberOfCommunityInteractions() {return this.number_of_interactions_in_community_per_day;}
+	public int getNumberOfCommunityInteractionsHappened() {return this.number_of_interactions_at_community_happened;}
+
+	
+	public void addCommunityContact() {
+		this.number_of_interactions_at_community_happened += 1;
+	}
+	public void addWorkplaceContact() {
+		this.number_of_interactions_at_work_happened += 1;
+	}
+	
+	public void resetCommunityContacts() { 
+		this.number_of_interactions_in_community_per_day = Integer.MIN_VALUE;
+		this.number_of_interactions_at_community_happened = 0;
+		}
+
+
+	public void resetWorkplaceContacts() { 
+		this.number_of_interactions_at_work = Integer.MIN_VALUE;
+		this.number_of_interactions_at_work_happened = 0;
+		}
 	// UTILS
 	
 	public String toString(){ return "P_" + this.myId;}
