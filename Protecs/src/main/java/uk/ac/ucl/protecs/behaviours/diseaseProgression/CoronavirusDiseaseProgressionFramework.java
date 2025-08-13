@@ -6,6 +6,7 @@ import sim.engine.Steppable;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.objects.locations.Location;
+import uk.ac.ucl.protecs.objects.locations.Location.LocationCategory;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import uk.ac.ucl.swise.behaviours.BehaviourNode;
@@ -179,7 +180,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				if (((Person) i.getHost()).isDeadFromOther()) {
 					return Double.MAX_VALUE;
 				}
-				((Person) i.getHost()).infectNeighbours();
+//				((Person) i.getHost()).infectNeighbours();
 				// determine when the infection will proceed to symptoms - this is
 				// only a matter of time in this case
 				if(time >= i.time_start_symptomatic){
@@ -219,7 +220,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				if (((Person) i.getHost()).isDeadFromOther()) {
 					return Double.MAX_VALUE;
 				}
-				((Person) i.getHost()).infectNeighbours();
+//				((Person) i.getHost()).infectNeighbours();
 
 				// determine when the agent will recover - this is
 				// only a matter of time in this case
@@ -257,10 +258,11 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				
 				// the agent is infectious
 				CoronavirusInfection i = (CoronavirusInfection) s;
+				Person p = (Person) i.getHost();
 				if (((Person) i.getHost()).isDeadFromOther()) {
 					return Double.MAX_VALUE;
 				}
-				((Person) i.getHost()).infectNeighbours();
+//				((Person) i.getHost()).infectNeighbours();
 				i.setSymptomatic();
 				i.setMild();
 				i.setEligibleForTesting();
@@ -277,20 +279,19 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				// otherwise, if it is scheduled to worsen, progress it
 				else if(time >= i.time_start_severe){
 					i.setBehaviourNode(setNodeForTesting(CoronavirusBehaviourNodeTitle.SEVERE));
-
-					Person p = (Person) i.getHost();
-					
 					// record this event
 					p.getLocation().getRootSuperLocation().metric_new_hospitalized++;
-					
-					// send them home sick and immobilised
-					p.setMobility(false);
-					p.sendHome(); 
 					return 1;
 				}
 				
 				// finally, if the next step has not yet been decided, schedule it
 				else if(i.time_recovered == Double.MAX_VALUE && i.time_start_severe == Double.MAX_VALUE){
+					// determine if they will be immobilised with mild covid
+					double myImmobilisedLikelihood = myWorld.random.nextDouble();
+					if (myImmobilisedLikelihood < myWorld.params.covid_prob_stay_at_home_mild) {
+						p.setMobility(false);
+						p.sendHome(); 
+					}
 
 					// determine if the patient will become sicker
 					double mySevereLikelihood = myWorld.params.getLikelihoodByAge(
@@ -338,10 +339,16 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				
 				// the agent is infectious
 				CoronavirusInfection i = (CoronavirusInfection) s;
+				Person p = (Person) i.getHost();
+				// check if they are mobile, if they are send them home sick and make them immobilised
+				if (!p.isImmobilised()) {
+					p.setMobility(false);
+					p.sendHome(); 
+				}
 				if (((Person) i.getHost()).isDeadFromOther()) {
 					return Double.MAX_VALUE;
 				}
-				((Person) i.getHost()).infectNeighbours();
+//				((Person) i.getHost()).infectNeighbours();
 				i.setSevere();
 				// if the agent is scheduled to recover, make sure that it
 				// does so
@@ -410,7 +417,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				if (((Person) i.getHost()).isDeadFromOther()) {
 					return Double.MAX_VALUE;
 				}
-				((Person) i.getHost()).infectNeighbours();
+//				((Person) i.getHost()).infectNeighbours();
 				i.setCritical();
 				
 				// if the agent is scheduled to recover, make sure that it
@@ -496,8 +503,8 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 						myWorld.schedule.scheduleOnce(i.getHost()); // schedule the agent to begin moving again!	
 					}
 					else {
-						// their occupation has some constraint, if it is that they stay at home, keep them at home
-						if (!myWorld.params.OccupationConstraintList.get(((Person) i.getHost()).getEconStatus()).equals("Home")) {
+						// their occupation has some constraint, check that their constraint is set to home or not, if it's set to home nothing changes, otherwise set them moving again
+						if (!myWorld.params.OccupationConstraintList.get(((Person) i.getHost()).getEconStatus()).equals(LocationCategory.HOME)) {
 							((Person) i.getHost()).setMobility(true);
 							myWorld.schedule.scheduleOnce(i.getHost()); // schedule the agent to begin moving again!	
 						}
