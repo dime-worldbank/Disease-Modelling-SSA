@@ -50,10 +50,6 @@ public abstract class Host extends MobileAgent implements Steppable  {
 	public HashMap<String, Disease> getDiseaseSet() {return this.myDiseaseSet; }
 	
 	public abstract boolean isOfType(HOST host);
-	
-	public boolean hasADisease() {
-		return this.myDiseaseSet.size() > 0;
-	}
 
 	public boolean hasADisease() {
 		return this.myDiseaseSet.size() > 0;

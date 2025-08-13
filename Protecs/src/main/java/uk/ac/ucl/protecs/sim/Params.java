@@ -15,7 +15,6 @@ import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.objects.hosts.Person.OCCUPATION;
 import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.objects.locations.Location.LocationCategory;
-import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 
 public class Params {
 	
@@ -61,7 +60,8 @@ public class Params {
 
 	public static int community_bubble_size = 30;
 	
-	public HashMap<DISEASE, Double> simulationBetas = new HashMap<DISEASE, Double>();
+	
+	double mild_symptom_movement_prob;
 	
 	// export parameters
 	String [] exportParams = new String [] {"time", "infected_count", "num_died",
@@ -127,7 +127,7 @@ public class Params {
 	public double criticalToRecovery_std =		6.3 * ticks_per_day;
 	
 	// probability of staying at home if having covid taken from Makinde et al. 2021 https://genus.springeropen.com/articles/10.1186/s41118-021-00130-w
-	public double covid_prob_stay_at_home_mild = 0.589;
+	public double covid_prob_stay_at_home_mild = 0.707;
 	
 	// all cause mortality parameters, currently pulled out my arse
 	public ArrayList <Integer> all_cause_death_age_params;
@@ -1149,14 +1149,6 @@ public class Params {
 				return distrib.get(i);
 		}
 		return -1; // somehow poorly formatted?
-	}
-
-	public void storeTransmissionParameters() {
-		// load the infection beta parameters into a single place
-		// store the COVID horizontal transmission term
-		simulationBetas.put(DISEASE.COVID, infection_beta);
-		// store the DUMMYINFECTIOUS horizontal transmission term
-		simulationBetas.put(DISEASE.DUMMY_INFECTIOUS, dummy_infectious_beta_horizontal);
 	}
 
 }
