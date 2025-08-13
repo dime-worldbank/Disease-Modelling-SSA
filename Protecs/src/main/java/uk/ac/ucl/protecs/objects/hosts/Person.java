@@ -295,6 +295,8 @@ public class Person extends Host {
 		
  
 	private void triggerInteractions() {
+		double time = myWorld.schedule.getTime(); // find the current time
+
 		// if this person is dead, do not try and interact
 		if (!this.isAlive()) return;
 		// if not currently in the space, do not try to interact
@@ -309,7 +311,12 @@ public class Person extends Host {
 		updateNumberofInteractions(whoToInteractWith.size());
 		// update the list of people they interacted with at this location
 		for (Person p: whoToInteractWith) {
-			listInteractionsByLocation.get(this.currentLocation.getLocationType()).add(p.getID());
+			if (this.atWorkNow()) {
+				listInteractionsByLocation.get(LocationCategory.WORKPLACE).add(p.getID());
+			}
+			else {
+				listInteractionsByLocation.get(this.currentLocation.getLocationType()).add(p.getID());
+			}
 		}
 		// iterate over the other people we're interacting with
 		if (this.getDiseaseSet().size() > 0) {
@@ -661,7 +668,8 @@ public class Person extends Host {
 			if (((Person) this).getNumberOfCommunityInteractions() < 0) {
 				int communityCountPerDay = myWorld.params.getCommunityContactCount(myWorld.random.nextDouble());
 				((Person) this).setNumberOfCommunityInteractions(communityCountPerDay);
-			}}
+			}	
+		}
 	}
 	
 	//
