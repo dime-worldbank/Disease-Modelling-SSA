@@ -6,6 +6,7 @@ import sim.engine.Steppable;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.objects.locations.Location;
+import uk.ac.ucl.protecs.objects.locations.Location.LocationCategory;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import uk.ac.ucl.swise.behaviours.BehaviourNode;
@@ -291,7 +292,12 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				
 				// finally, if the next step has not yet been decided, schedule it
 				else if(i.time_recovered == Double.MAX_VALUE && i.time_start_severe == Double.MAX_VALUE){
+					double myImmobilisedLikelihood = myWorld.random.nextDouble();
 
+					if (myImmobilisedLikelihood < myWorld.params.covid_prob_stay_at_home_mild) {
+						((Person) i.getHost()).setMobility(false);
+						((Person) i.getHost()).sendHome(); 
+					}
 					// determine if the patient will become sicker
 					double mySevereLikelihood = myWorld.params.getLikelihoodByAge(
 							myWorld.params.infection_p_sev_by_age, myWorld.params.infection_age_params, ((Person) i.getHost()).getAge());
@@ -497,8 +503,8 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 					}
 					else {
 						// their occupation has some constraint, if it is that they stay at home, keep them at home
-						if (!myWorld.params.OccupationConstraintList.get(((Person) i.getHost()).getEconStatus()).equals("Home")) {
-							((Person) i.getHost()).setMobility(true);
+						if (!myWorld.params.OccupationConstraintList.get(((Person) i.getHost()).getEconStatus()).equals(LocationCategory.HOME)) {
+							((Person) i.getHost()).setMobility(false);
 							myWorld.schedule.scheduleOnce(i.getHost()); // schedule the agent to begin moving again!	
 						}
 					}
