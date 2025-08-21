@@ -29,6 +29,7 @@ public abstract class Disease implements Steppable {
 	public double time_start_severe = Double.MAX_VALUE;
 	public double time_start_critical = Double.MAX_VALUE;
 	public double time_recovered = 	Double.MAX_VALUE;
+	public double time_susceptible = Double.MAX_VALUE;
 	public double time_died = Double.MAX_VALUE;
 	// clinical care
 	double time_start_hospitalised;
