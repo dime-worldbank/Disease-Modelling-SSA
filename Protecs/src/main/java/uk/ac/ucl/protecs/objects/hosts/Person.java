@@ -69,6 +69,9 @@ public class Person extends Host {
 	boolean deathLogged = false;
 	boolean gaveBirthLastYear = false;
 	boolean birthLogged = false;
+	boolean isMalnourished = false;
+	boolean isHIVAIDSPositive = false;
+	boolean isPregnant = false;
 	Integer dayGaveBirth = Integer.MAX_VALUE;
 	Integer numberOfTimesWithCovid = 0;
 
@@ -638,5 +641,27 @@ public class Person extends Host {
 		
 		return false;
 	};
+	public boolean isMalnourished() {
+		return isMalnourished;
+	}
 
+	public void setMalnourished(boolean isMalnourished) {
+		this.isMalnourished = isMalnourished;
+	}
+
+	public boolean isHIVAIDSPositive() {
+		return isHIVAIDSPositive;
+	}
+
+	public void setHIVAIDSPositive(boolean isHIVAIDSPositive) {
+		this.isHIVAIDSPositive = isHIVAIDSPositive;
+	}
+
+	public boolean isPregnant() {
+		return isPregnant;
+	}
+
+	public void setPregnant(boolean isPregnant) {
+		this.isPregnant = isPregnant;
+	}
 }
