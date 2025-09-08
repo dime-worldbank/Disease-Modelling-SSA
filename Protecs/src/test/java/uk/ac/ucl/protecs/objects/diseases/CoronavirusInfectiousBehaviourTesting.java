@@ -247,7 +247,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 	}
 	
 	@Test
-	public void criticaBehaviourlNodesLeadToDeadOrRecoveredOnly() {
+	public void criticaBehaviourNodesLeadToDeadOrRecoveredOnly() {
 		// create a simulation and start
 
 		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "InfectiousBehaviourTestParams.txt");
