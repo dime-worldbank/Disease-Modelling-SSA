@@ -17,10 +17,6 @@ public class MeaslesInfection extends Disease {
 		host = myHost;
 		myHost.addDisease(this);
 		source = mySource;
-		
-		//	epidemic_state = Params.state_susceptible;
-		//	infected_symptomatic_status = Params.symptom_none;
-		//	clinical_state = Params.clinical_not_hospitalized;
 			
 		// store the time when it is infected!
 		time_infected = time;		
