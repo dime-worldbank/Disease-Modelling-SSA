@@ -109,9 +109,6 @@ public class WorkplaceTesting{
 		// run for three ticks (people leave the house at tick 2 and leave work at tick 4)
 		int numTicks = 3;
 		HelperFunctions.runSimulationForTicks(sim, numTicks);
-		for (Workplace w: sim.workplaces) {
-			System.out.println(w.personsHere.size());
-		}
 		// determine if everyone has travelled to their workplace
 		// some jobs are based in the community, change to match
 		for (Person p: sim.agents) {
