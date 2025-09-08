@@ -641,6 +641,7 @@ public class Person extends Host {
 		
 		return false;
 	};
+	
 	public boolean isMalnourished() {
 		return isMalnourished;
 	}
