@@ -79,6 +79,10 @@ public class LoadPopulation{
 				String hhName = bits[householdIDIndex];
 				Household h = rawHouseholds.get(hhName);
 				String wpName = "None";				
+
+				if (usingWorkplaces) {
+					wpName = bits[workplaceIDIndex];
+				}
 				Workplace w = rawWorkplaces.get(wpName);
 
 				// target district
@@ -152,6 +156,7 @@ public class LoadPopulation{
 					sim.workplaces.add(w);
 				}
 			}
+			
 			// clean up after ourselves!
 			agentData.close();
 							

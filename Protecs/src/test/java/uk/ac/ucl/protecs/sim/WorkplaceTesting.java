@@ -97,6 +97,33 @@ public class WorkplaceTesting{
 				}
 		}		
 	}
+	
+	@Test
+	public void checkWorkplacesHaveEnoughPeopleInThem() {
+		// check the movement of the population to their workplaces
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_bubble_small.txt");
+		HelperFunctions.makePeopleLeaveTheHouseEachDay(sim);
+		// make everyone decide to go to their workplace
+		sim.params.prob_go_to_work = 1.1d;
+		sim.start();
+		// run for three ticks (people leave the house at tick 2 and leave work at tick 4)
+		int numTicks = 3;
+		HelperFunctions.runSimulationForTicks(sim, numTicks);
+		for (Workplace w: sim.workplaces) {
+			System.out.println(w.personsHere.size());
+		}
+		// determine if everyone has travelled to their workplace
+		// some jobs are based in the community, change to match
+		for (Person p: sim.agents) {
+			// get people who aren't at work, but should be
+			if (!p.isUnemployed() && !p.visitingNow() && !(p.getLocation() instanceof Workplace)) {
+				// if they aren't forced to stay out of their workplace and aren't at work assert false
+				if (!sim.params.OccupationConstraintList.containsKey(p.getEconStatus()))
+					// force an assertion failure
+					Assert.assertTrue(p.getLocation() instanceof Workplace);
+				}
+		}		
+	}
 	@Test
 	public void testWorkplaceContactsCountDataIsBeingLoaded() {
 		// check the parameters associated with workplace contacts are being loaded

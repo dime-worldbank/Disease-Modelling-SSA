@@ -45,7 +45,7 @@ public class MobilityTesting {
 	private final static String paramsDir = "src/test/resources/";
 
 	@Test
-	public void PeopleDoingTheCommunityNodeBehaviourSwitchToTheHomeNodeBehaviourAtTheEndOfDay() {
+	public void PeopleDoingTheCommunityNodeBehaviourSwitchToTheHomeNodeBehviourAtTheEndOfDay() {
 		// set up the simulation
 		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(params + ".txt");
 		sim.start();
@@ -221,7 +221,7 @@ public class MobilityTesting {
 					}
 			}
 			// Now rerun the simulation with the same seed making sure that people leave their workplace
-			int numTicksForAfterWork = 4;
+			int numTicksForAfterWork = 5;
 			sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "workplace_bubbles_params.txt");
 			HelperFunctions.makePeopleLeaveTheHouseEachDay(sim);
 			sim.params.prob_go_to_work = 1.1d;

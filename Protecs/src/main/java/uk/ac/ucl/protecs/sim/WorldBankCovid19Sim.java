@@ -22,6 +22,7 @@ import uk.ac.ucl.protecs.objects.locations.Household;
 import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.objects.locations.Workplace;
 import uk.ac.ucl.protecs.sim.loggers.DemographyLogging;
+import uk.ac.ucl.protecs.sim.loggers.SocialContactsLogging;
 import uk.ac.ucl.protecs.sim.loggers.CovidLogging;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.SpuriousSymptomDiseaseProgressionFramework;
 import uk.ac.ucl.protecs.behaviours.diseaseSpread.DummyNCDOnset;
@@ -74,6 +75,9 @@ public class WorldBankCovid19Sim extends SimState {
 	public String covidCountsOutputFilename = null;
 	public String covidByEconOutputFilename = null;
 	public String covidTestingOutputFilename = null;
+	public String workplaceContactsOutputFilename = null;
+	public String communityContactsOutputFilename = null;
+
 	int targetDuration = 0;
 	
 	// ordering information
@@ -164,6 +168,9 @@ public class WorldBankCovid19Sim extends SimState {
 		this.adminZonePercentDiedFromCovidOutputFilename = outputFilename + "_Percent_In_Admin_Zone_Died_From_Covid.txt";
 		this.adminZonePercentCovidCasesFatalOutputFilename = outputFilename + "_Percent_Covid_Cases_Fatal_In_Admin_Zone.txt";
 		this.covidTestingOutputFilename = outputFilename + "_Covid_Testing.txt";
+		this.workplaceContactsOutputFilename = outputFilename + "_Workplace_Contacts.txt";
+		this.communityContactsOutputFilename = outputFilename + "_Community_Contacts.txt";
+
 
 	}
 	
@@ -275,6 +282,9 @@ public class WorldBankCovid19Sim extends SimState {
 				for(Location l: adminBoundaries) {
 					l.updatePersonsHere();
 					}
+				for (Workplace w: workplaces) {
+					w.updatePersonsHere();
+				}
 			}
 			
 		};
@@ -405,7 +415,13 @@ public class WorldBankCovid19Sim extends SimState {
 				
 		// Schedule the resetting of COVID reporting properties in the agents 
 		schedule.scheduleRepeating(CovidLogging.ResetCovidLoggedProperties(this), this.param_schedule_reporting_reset, params.ticks_per_day);
+		
+		if (this.workplaces.size() > 0) {
+		// Schedule the resetting of COVID reporting properties in the agents 
+		schedule.scheduleRepeating(SocialContactsLogging.WorkplaceContactsReporter(this), this.param_schedule_reporting, params.ticks_per_day);
+		schedule.scheduleRepeating(SocialContactsLogging.CommunityContactsReporter(this), this.param_schedule_reporting, params.ticks_per_day);
 
+		}
 		// SCHEDULE LOCKDOWNS
 		Steppable lockdownTrigger = new Steppable() {
 

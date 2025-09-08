@@ -75,7 +75,8 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 				if(hour >= myWorld.params.hour_start_day_weekday){ 
 					// reset occurs at hour 2
 					p.resetWorkplaceContacts();
-
+					p.resetCommunityContacts();
+ 
 					return determineDailyRoutine(p, hour, day);
 				}
 				
@@ -124,12 +125,14 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 					if(goToWork){ // working
 						p.setActivityNode(workNode);
 						p.setAtWork(true);
+						p.setWentToWorkToday(true);
 						p.setVisiting(false);
-						return myWorld.params.hours_at_work_weekday;
+						return 1;
 					}					
 					else { // in home district, not working
 						p.setActivityNode(communityNode);
 						p.setAtWork(false);	
+						p.setWentToCommunityToday(true);
 						p.setVisiting(false);
 						assert p.getHomeLocation().getSuper().getId().equals(target.getId()) : 
 							"set to travel to a within admin zone but didn't, home/target is " + p.getHomeLocation().getSuper().getId() + " " + target.getId();
@@ -193,6 +196,7 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 			public double next(Steppable s, double time) {
 
 				Person p = (Person) s;
+//				System.out.println(p.getLocation().personsHere.size() + p.checkWorkplaceID());
 
 				// extract time info
 				int hour = ((int)time) % Params.ticks_per_day;
@@ -206,12 +210,13 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 				}
 				
 				// if there is some time before going home, go out into the community!
-				else if(hour <= myWorld.params.hour_end_day_weekday) {
-					p.transferTo(p.getCommunityLocation());
-					p.setActivityNode(communityNode);
-					p.setAtWork(false);
-					return 1; // 4 hours in the community
-				}
+//				else if(hour <= myWorld.params.hour_end_day_weekday) {
+//					p.transferTo(p.getCommunityLocation());
+//					p.setActivityNode(communityNode);
+//					p.setWentToCommunityToday(true);
+//					p.setAtWork(false);
+//					return 1; // 4 hours in the community
+//				}
 
 				return 1; // otherwise, stay at work
 			}
