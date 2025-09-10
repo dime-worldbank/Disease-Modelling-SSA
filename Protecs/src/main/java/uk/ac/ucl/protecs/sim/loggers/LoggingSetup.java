@@ -44,6 +44,12 @@ public class LoggingSetup{
 			world.adminZonePercentCholeraCasesFatalOutputFilename = world.outputFilename + "_Percent_Cholera_Cases_Fatal_In_Admin_Zone.txt";
 
 		}
+		if (world.workplaces.size() > 0) {
+			// only record contact counts if we are not doing perfect mixing
+			world.workplaceContactsOutputFilename = world.outputFilename + "_Workplace_Contacts.txt";
+			world.communityContactsOutputFilename = world.outputFilename + "_Community_Contacts.txt";
+		}
+
 	}
 	
 	// create a function to schedule logging
@@ -139,6 +145,12 @@ public class LoggingSetup{
 			world.schedule.scheduleRepeating(LoggingHelperFunctions.adminZonePercentDiedFromDiseaseOutputFilename(world, DISEASE.CHOLERA, world.adminZonePercentDiedFromCholeraOutputFilename), world.param_schedule_reporting, world.params.ticks_per_day);
 			// Report on the percent of COVID cases that are fatal per admin zone
 			world.schedule.scheduleRepeating(LoggingHelperFunctions.adminZonePercentDiedFromDiseaseOutputFilename(world, DISEASE.CHOLERA, world.adminZonePercentCholeraCasesFatalOutputFilename), world.param_schedule_reporting, world.params.ticks_per_day);
+
+		}
+		if (world.workplaces.size() > 0) {
+		// Schedule the resetting of COVID reporting properties in the agents 
+		world.schedule.scheduleRepeating(SocialContactsLogging.WorkplaceContactsReporter(world), world.param_schedule_reporting, world.params.ticks_per_day);
+		world.schedule.scheduleRepeating(SocialContactsLogging.CommunityContactsReporter(world), world.param_schedule_reporting, world.params.ticks_per_day);
 
 		}
 		

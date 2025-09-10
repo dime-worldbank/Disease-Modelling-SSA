@@ -180,28 +180,6 @@ public class WorldBankCovid19Sim extends SimState {
 		this.adminZonePopBreakdownOutputFilename = outputFilename + "_Admin_Zone_level_Demographics.txt";
 		this.sim_info_filename = outputFilename + "_Sim_Information.txt";
 		this.infections_export_filename = outputFilename + "_Infections.txt";
-		//this.params = params;
-//		this.outputFilename = outputFilename + ".txt";
-//		this.random = new Random(this.seed());
-//		this.covidIncOutputFilename = outputFilename + "_Incidence_Of_Covid.txt"; 
-//		this.populationOutputFilename = outputFilename + "_Overall_Demographics.txt";
-//		this.covidIncDeathOutputFilename = outputFilename + "_Incidence_Of_Covid_Death.txt";
-//		this.otherIncDeathOutputFilename = outputFilename + "_Incidence_Of_Other_Death.txt";
-//		this.birthRateOutputFilename = outputFilename + "_Birth_Rate.txt";
-//		this.adminZonePopSizeOutputFilename = outputFilename + "_Admin_Zone_Level_Population_Size.txt";
-//		this.casesPerAdminZoneFilename = outputFilename + "_Cases_Per_Admin_Zone.txt"; 
-//		this.infections_export_filename = outputFilename + "_Infections.txt";
-//		this.adminZoneCovidPrevalenceOutputFilename = outputFilename + "_Percent_In_Admin_Zone_With_Covid.txt";
-//		this.adminZonePopBreakdownOutputFilename = outputFilename + "_Admin_Zone_level_Demographics.txt";
-//		this.sim_info_filename = outputFilename + "_Sim_Information.txt";
-//		this.covidCountsOutputFilename = outputFilename + "_Age_Gender_Demographics_Covid.txt";
-//		this.covidByEconOutputFilename = outputFilename + "_Economic_Status_Covid.txt";
-//		this.adminZonePercentDiedFromCovidOutputFilename = outputFilename + "_Percent_In_Admin_Zone_Died_From_Covid.txt";
-//		this.adminZonePercentCovidCasesFatalOutputFilename = outputFilename + "_Percent_Covid_Cases_Fatal_In_Admin_Zone.txt";
-//		this.covidTestingOutputFilename = outputFilename + "_Covid_Testing.txt";
-//		this.workplaceContactsOutputFilename = outputFilename + "_Workplace_Contacts.txt";
-//		this.communityContactsOutputFilename = outputFilename + "_Community_Contacts.txt";
-
 	}
 	
 	public void start(){
@@ -443,58 +421,7 @@ public class WorldBankCovid19Sim extends SimState {
 					schedule.scheduleOnce(0, this.param_schedule_reporting, agentBirths);
 				}
 			}
-//			DemographyLogging logger = new DemographyLogging();
-//			DemographyLogging.BirthRateReporter birthRateLog = logger.new BirthRateReporter(this);
-//			// schedule the birth rate reporter (birthRateOutputFilename)
-//			schedule.scheduleOnce(params.ticks_per_year, this.param_schedule_reporting, birthRateLog);
-//			// schedule the 'other deaths' reporter (otherIncDeathOutputFilename)
-//			schedule.scheduleRepeating(DemographyLogging.ReportOtherIncidenceOfDeath(this), this.param_schedule_reporting, params.ticks_per_day);
 		}
-		
-		
-//		// =============================== Schedule core logging events ==================================================================
-//				// Report on the age sex breakdown of the population (populationOutputFilename)
-//				schedule.scheduleRepeating(DemographyLogging.ReportPopStructure(this), this.param_schedule_reporting, params.ticks_per_day);
-//				
-//				// Report on the number of cases by type and their location (casesPerAdminZoneFilename)
-//				schedule.scheduleRepeating(CovidLogging.ReportCovidCasesByTypeAndLocation(this), this.param_schedule_reporting, params.ticks_per_day);
-//
-//				// Report on the breakdown of population size by space (adminZonePopSizeOutputFilename)
-//				schedule.scheduleRepeating(DemographyLogging.ReportAdminZonePopulationSize(this), this.param_schedule_reporting, params.ticks_per_day);
-//				
-//				// Report on the percent of the population with COVID by space (adminZoneCovidPrevalenceOutputFilename)
-//				schedule.scheduleRepeating(CovidLogging.ReportPercentInAdminZoneWithCovid(this), this.param_schedule_reporting, params.ticks_per_day);
-//						
-//				// Report on the age-sex structure of each admin zone (adminZonePopBreakdownOutputFilename)
-//				schedule.scheduleRepeating(DemographyLogging.ReportAdminZoneAgeSexBreakdown(this), this.param_schedule_reporting, params.ticks_per_day);
-//						
-//				// Report on the incidence of COVID death (covidIncDeathOutputFilename)
-//				schedule.scheduleRepeating(CovidLogging.ReportCovidIncidenceOfDeath(this), this.param_schedule_reporting, params.ticks_per_day);
-//						
-//				// Report on the incidence of COVID (covidIncOutputFilename)
-//				schedule.scheduleRepeating(CovidLogging.ReportIncidenceOfCovid(this), this.param_schedule_reporting, params.ticks_per_day);
-//						
-//				// Report on the number of COVID counts in each area (covidCountsOutputFilename)
-//				schedule.scheduleRepeating(CovidLogging.ReportCovidCounts(this), this.param_schedule_reporting, params.ticks_per_day);
-//						
-//				// Report on the number of COVID counts in each occupation (covidByEconOutputFilename)
-//				schedule.scheduleRepeating(CovidLogging.ReportCovidCountsByOccupation(this), this.param_schedule_reporting, params.ticks_per_day);
-//						
-//				// Report on the percent of COVID cases that are fatal per admin zone (adminZonePercentCovidCasesFatalOutputFilename)
-//				schedule.scheduleRepeating(CovidLogging.ReportPercentOfCovidCasesThatAreFatalPerAdminZone(this), this.param_schedule_reporting, params.ticks_per_day);
-//
-//				// Report on the prevalence of COVID death per admin zone (adminZonePercentDiedFromCovidOutputFilename)
-//				schedule.scheduleRepeating(CovidLogging.adminZonePercentDiedFromCovidOutputFilename(this), this.param_schedule_reporting, params.ticks_per_day);
-//						
-//				// Schedule the resetting of COVID reporting properties in the agents 
-//				schedule.scheduleRepeating(CovidLogging.ResetCovidLoggedProperties(this), this.param_schedule_reporting_reset, params.ticks_per_day);
-//				
-//				if (this.workplaces.size() > 0) {
-//				// Schedule the resetting of COVID reporting properties in the agents 
-//				schedule.scheduleRepeating(SocialContactsLogging.WorkplaceContactsReporter(this), this.param_schedule_reporting, params.ticks_per_day);
-//				schedule.scheduleRepeating(SocialContactsLogging.CommunityContactsReporter(this), this.param_schedule_reporting, params.ticks_per_day);
-//
-//				}
 		
 		
 		// =============================== Schedule core loggers events ==================================================================
