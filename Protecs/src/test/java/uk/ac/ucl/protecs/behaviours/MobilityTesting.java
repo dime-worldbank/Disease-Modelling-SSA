@@ -221,7 +221,7 @@ public class MobilityTesting {
 					}
 			}
 			// Now rerun the simulation with the same seed making sure that people leave their workplace
-			int numTicksForAfterWork = 4;
+			int numTicksForAfterWork = 5;
 			sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_workplace_bubbles.txt");
 			HelperFunctions.makePeopleLeaveTheHouseEachDay(sim);
 			sim.params.prob_go_to_work = 1.1d;

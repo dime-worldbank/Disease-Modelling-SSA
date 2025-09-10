@@ -301,7 +301,8 @@ public class DummyDiseaseTesting{
 		sim.start();
 		sim.params.dummy_prob_ingest_dummy_waterborne = 1;
 		int number_of_initial_infections_in_people = 0;
-
+		sim.params.dummy_prob_interact_with_water = 1;
+		sim.params.dummy_prob_ingest_dummy_waterborne = 0.5;
 		for (Person p: sim.agents) {
 			if (p.getDiseaseSet().containsKey(DISEASE.DUMMY_WATERBORNE.key)) number_of_initial_infections_in_people ++;
 

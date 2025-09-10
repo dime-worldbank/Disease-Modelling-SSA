@@ -59,6 +59,9 @@ public class Params {
 	public ArrayList <String> occupationNames;
 	public ArrayList <Integer> workplaceContactCounts;  
 	public static int community_num_interaction_perTick = 5;
+	
+	public ArrayList<Integer> community_interaction_counts;
+	public ArrayList<Double> community_interaction_percentages;
 
 	public static int community_bubble_size = 30;
 	
@@ -135,6 +138,9 @@ public class Params {
 	public double covid_criticalToRecovery_mean =		18.1 * ticks_per_day;
 	public double covid_criticalToRecovery_std =		6.3 * ticks_per_day;
 	
+	// probability of staying at home if having covid taken from Makinde et al. 2021 https://genus.springeropen.com/articles/10.1186/s41118-021-00130-w
+	public double covid_prob_stay_at_home_mild = 0.707;
+	
 	// -------------------- Cholera parameters ---------------------------------
 	
 	public double cholera_exposed_to_infectious_mean = 1.4 * ticks_per_day; // (https://www.sciencedirect.com/science/article/pii/S0163445312003477)
@@ -195,6 +201,8 @@ public class Params {
 	
 	public String workplaceContactsFilename = null;
 	public String workplaceConstraintsFilename= null;
+	
+	public String communityContactCountsFilename = null;
 		
 	public String testDataFilename = null;
 	public String testLocationFilename = null;
@@ -260,7 +268,11 @@ public class Params {
 			load_testing(dataDir + testDataFilename);
 			load_testing_locations(dataDir + testLocationFilename);
 		}
-		// load in the community locations
+		// load in the community contacts		
+		if (!(communityContactCountsFilename == null)) {
+			load_community_contacts(dataDir + communityContactCountsFilename);
+		}
+		// load in the community locations		
 		load_community_locations(dataDir + communityLocationFilename);
 	}
 	//
@@ -637,6 +649,58 @@ public class Params {
 		
 	}
 
+	public void load_community_contacts(String filename) {
+		// set up structure to hold transition probability
+		community_interaction_counts = new ArrayList<Integer>();
+		community_interaction_percentages = new ArrayList<Double>();				
+		try {
+					
+			if(verbose)
+				System.out.println("Reading in Community contact counts from " + filename);
+					
+				// Open the tracts file
+				FileInputStream fstream = new FileInputStream(filename);
+
+				// Convert our input stream to a BufferedReader
+				BufferedReader communityContactData = new BufferedReader(new InputStreamReader(fstream));
+					
+				String s;
+
+				// extract the header
+				s = communityContactData.readLine();
+					
+				// map the header into column names
+				String [] header = splitRawCSVString(s);
+				HashMap <String, Integer> rawColumnNames = new HashMap <String, Integer> ();
+				for(int i = 0; i < header.length; i++){
+					rawColumnNames.put(header[i], new Integer(i));
+				}
+				int countIndex = rawColumnNames.get("community_contact_counts");			
+				int percentIndex = rawColumnNames.get("cumulative_percent");			
+				if(verbose)
+					System.out.println("BEGIN READING IN COMMUNITY CONTACT COUNTS");
+					
+					
+				// read in the raw data
+				while ((s = communityContactData.readLine()) != null) {
+					String [] bits = splitRawCSVString(s);
+						
+					// extract the count data
+					int count = Integer.parseInt(bits[countIndex]);
+					double percent = Double.parseDouble(bits[percentIndex]);
+
+					// save the data
+					community_interaction_counts.add(count);
+					community_interaction_percentages.add(percent);
+					}
+				// clean up after ourselves
+				communityContactData.close();
+			} 
+		catch (Exception e) {
+			System.err.println("File input error: " + filename);
+			fail();
+		}
+	}
 	
 	public void load_infection_params(String filename){
 		try {
@@ -1151,7 +1215,19 @@ public class Params {
 		}
 		return workplaceContactCounts.get(indexOfCount);
 	}
-
+	
+	public int getCommunityContactCount(double random) {
+		
+		int indexOfCount = 0;
+		for (double probability: community_interaction_percentages) {
+			if (random < probability) break;
+			indexOfCount ++;
+		}
+		int countToReturn = community_interaction_counts.get(indexOfCount);
+		
+		return countToReturn;
+	}
+	
 	/**
 	 * Get the probability of leaving a admin zone.
 	 * @param l A location, which may be a sub-location of the admin zone. In this case, the module

@@ -57,6 +57,8 @@ public class Person extends Host {
 	boolean immobilised = false;
 	boolean visiting = false;
 	boolean atWork = false;
+	boolean wentToWorkToday = false;
+	boolean wentToCommunityToday = false;
 	boolean isUnemployed = false;
 	boolean isWaterGatherer = false;
 	
@@ -75,6 +77,10 @@ public class Person extends Host {
 
 	// bubble interaction counters
 	int number_of_interactions_at_work = Integer.MIN_VALUE;
+	int number_of_interactions_at_work_happened = 0;
+	int number_of_interactions_in_community_per_day = Integer.MIN_VALUE;
+	int number_of_interactions_at_community_happened = 0;
+
 	// only two options considered for biological sex, therefore use enum
 		public enum SEX {
 			MALE("male"), FEMALE("female");
@@ -431,23 +437,25 @@ public class Person extends Host {
 						p.getDiseaseSet().put(inf.key, new CoronavirusInfection(p, this, myWorld.covidInfectiousFramework.getEntryPoint(), myWorld));
 						myWorld.schedule.scheduleOnce(p.getDiseaseSet().get(inf.key), myWorld.param_schedule_infecting);
 					}
+					// reinfection
+					// check if they are already infected; if they are not, infect with with probability BETA
+
+//					else {
+//						p.getDiseaseSet().get(inf.key).setBehaviourNode(myWorld.infectiousFramework.getEntryPoint());
+//						myWorld.schedule.scheduleOnce(p.getDiseaseSet().get(inf.key), myWorld.param_schedule_infecting);
+//					}
+					break;
 				}
-				break;
 				case DUMMY_INFECTIOUS:{
 					if(!p.getDiseaseSet().containsKey(inf.key) && myWorld.random.nextDouble() < beta){
 						p.getDiseaseSet().put(inf.key, new DummyInfectiousDisease(p, this, myWorld.dummyInfectiousFramework.getEntryPoint(), myWorld));
 						myWorld.schedule.scheduleOnce(p.getDiseaseSet().get(inf.key), myWorld.param_schedule_infecting);
 					}
-				}
 				break;
+				}
 				default:
 					break;
 				}
-				// check if they are already infected; if they are not, infect with with probability BETA
-//				if(!p.myDiseaseSet.containsKey(inf.key) && myWorld.random.nextDouble() < beta){
-//					p.myDiseaseSet.put(inf.key, new CoronavirusInfection(p, this, myWorld.infectiousFramework.getEntryPoint(), myWorld));
-//					myWorld.schedule.scheduleOnce(p.myDiseaseSet.get(inf.key), myWorld.param_schedule_infecting);
-//				}
 
 			}
 			else // just pass over it
@@ -533,10 +541,50 @@ public class Person extends Host {
 	public String getCurrentAdminZone() {return this.getHomeLocation().getRootSuperLocation().myId;}
 	public void setUnemployed() {this.isUnemployed = true;}
 	public boolean isUnemployed() {return this.isUnemployed;}  
+	
 	public void setNumberOfWorkplaceInteractions(int n) {this.number_of_interactions_at_work = n;}
 	public int getNumberOfWorkplaceInteractions() {return this.number_of_interactions_at_work;}
+	
+	public int getNumberOfWorkplaceInteractionsHappened() {return this.number_of_interactions_at_work_happened;}
+	
+	public void setNumberOfCommunityInteractions(int n) {this.number_of_interactions_in_community_per_day = n;}
+	public int getNumberOfCommunityInteractions() {return this.number_of_interactions_in_community_per_day;}
+	public int getNumberOfCommunityInteractionsHappened() {return this.number_of_interactions_at_community_happened;}
 
-	public void resetWorkplaceContacts() { this.number_of_interactions_at_work = Integer.MIN_VALUE;}
+	
+	public void addCommunityContact() {
+		this.number_of_interactions_at_community_happened += 1;
+	}
+	public void addWorkplaceContact() {
+		this.number_of_interactions_at_work_happened += 1;
+	}
+	
+	public void resetCommunityContacts() { 
+		this.number_of_interactions_in_community_per_day = Integer.MIN_VALUE;
+		this.number_of_interactions_at_community_happened = 0;
+		setWentToCommunityToday(false);
+
+		}
+
+
+	public void resetWorkplaceContacts() { 
+		this.number_of_interactions_at_work = Integer.MIN_VALUE;
+		this.number_of_interactions_at_work_happened = 0;
+		setWentToWorkToday(false);
+		}
+	
+	public void setWentToWorkToday(boolean val) {
+		this.wentToWorkToday = val;
+	}
+	public boolean getWentToWorkToday() {
+		return this.wentToWorkToday;
+	}
+	public void setWentToCommunityToday(boolean val) {
+		this.wentToCommunityToday = val;
+	}
+	public boolean getWentToCommunityToday() {
+		return this.wentToCommunityToday;
+	}
 	// UTILS
 	
 	public String toString(){ return "P_" + this.myId;}

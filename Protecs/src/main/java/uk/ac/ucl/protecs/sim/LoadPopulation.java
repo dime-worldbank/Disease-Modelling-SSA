@@ -79,6 +79,10 @@ public class LoadPopulation{
 				String hhName = bits[householdIDIndex];
 				Household h = rawHouseholds.get(hhName);
 				String wpName = "None";				
+
+				if (usingWorkplaces) {
+					wpName = bits[workplaceIDIndex];
+				}
 				Workplace w = rawWorkplaces.get(wpName);
 
 				// target district
@@ -92,7 +96,7 @@ public class LoadPopulation{
 					// set up the Household
 					h = new Household(hhName, myAdminZone);
 					rawHouseholds.put(hhName, h);
-					sim.households.add(h);
+//					sim.households.add(h);
 				}
 				if (usingWorkplaces && w == null) {
 					// if the workplace doesn't already exist, create it and save it
@@ -100,7 +104,7 @@ public class LoadPopulation{
 					// set up the Household
 					w = new Workplace(wpName, myAdminZone);
 					rawWorkplaces.put(wpName, w);
-					sim.workplaces.add(w);
+//					sim.workplaces.add(w);
 					
 					
 				}
@@ -144,6 +148,14 @@ public class LoadPopulation{
 				}
 				if (bits[economicStatusIndex].equals("inactive") || bits[economicStatusIndex].equals("unemployed_not_ag")) p.setUnemployed();
 				
+			}
+			for (Household h: rawHouseholds.values()) {
+				sim.households.add(h);
+			}
+			if (usingWorkplaces) {
+				for (Workplace w: rawWorkplaces.values()) {
+					sim.workplaces.add(w);
+				}
 			}
 			
 			// clean up after ourselves!
