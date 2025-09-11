@@ -189,7 +189,6 @@ public class WorldBankCovid19Sim extends SimState {
 		
 		// set up the behavioural framework
 		movementFramework = new MovementBehaviourFramework(this);
-		covidInfectiousFramework = new CoronavirusDiseaseProgressionFramework(this);
 		spuriousFramework = new SpuriousSymptomDiseaseProgressionFramework(this);
 		if (developingModularity) {
 			dummyNCDFramework = new DummyNonCommunicableDiseaseProgressionFramework(this);

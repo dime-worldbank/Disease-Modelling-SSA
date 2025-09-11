@@ -78,7 +78,7 @@ public class Params {
 	HashMap <String, Location> adminZones;
 	public ArrayList <String> adminZoneNames;
 	
-	HashMap<String, CommunityLocation> communityLocations;
+	HashMap<String, CommunityLocation> communityLocations = new HashMap <String, CommunityLocation> ();;
 	
 	ArrayList <Map<String, List<Double>>> dailyTransitionPrelockdownProbs;
 	ArrayList <Map<String, List<Double>>> dailyTransitionLockdownProbs;
@@ -272,8 +272,10 @@ public class Params {
 		if (!(communityContactCountsFilename == null)) {
 			load_community_contacts(dataDir + communityContactCountsFilename);
 		}
-		// load in the community locations		
-		load_community_locations(dataDir + communityLocationFilename);
+		// load in the community locations
+		if (!(communityLocationFilename == null)) {
+			load_community_locations(dataDir + communityLocationFilename);
+		}
 	}
 	//
 	// DATA IMPORT UTILITIES
@@ -1036,7 +1038,6 @@ public class Params {
 	}
 	
 	public void load_community_locations(String communityLocFilename) {
-		communityLocations = new HashMap <String, CommunityLocation> ();
 		if (communityLocFilename != null) {
 		try {
 			// Open the tracts file

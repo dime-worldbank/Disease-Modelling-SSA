@@ -101,50 +101,71 @@ public class LoggingSetup{
 		// schedule covid specific loggers
 		if (!(world.covidInfectiousFramework == null)) {
 			// Report on the number of cases by type and their location (casesPerAdminZoneFilename)
-			world.schedule.scheduleRepeating(CovidLogging.ReportCovidCasesByTypeAndLocation(world), world.param_schedule_reporting, world.params.ticks_per_day);
-
-
+			Steppable covidCasesbByTypeAndLoc = CovidLogging.ReportCovidCasesByTypeAndLocation(world);
+			world.schedule.scheduleRepeating(covidCasesbByTypeAndLoc, world.param_schedule_reporting, world.params.ticks_per_day);
+			
 			// Report on the percent of the population with COVID by space (adminZoneCovidPrevalenceOutputFilename)
-			world.schedule.scheduleRepeating(LoggingHelperFunctions.ReportPercentInAdminZoneWithDisease(world, DISEASE.COVID, world.adminZoneCovidPrevalenceOutputFilename), world.param_schedule_reporting, world.params.ticks_per_day);
-					
+			Steppable percentWithCovid = LoggingHelperFunctions.ReportPercentInAdminZoneWithDisease(world, DISEASE.COVID, world.adminZoneCovidPrevalenceOutputFilename);
+			world.schedule.scheduleRepeating(percentWithCovid, world.param_schedule_reporting, world.params.ticks_per_day);
+			
 			// Report on the incidence of COVID death (covidIncDeathOutputFilename)
-			world.schedule.scheduleRepeating(LoggingHelperFunctions.ReportDiseaseIncidenceOfDeath(world, DISEASE.COVID, world.covidIncDeathOutputFilename), world.param_schedule_reporting, world.params.ticks_per_day);
+			Steppable incCovidDeath = LoggingHelperFunctions.ReportDiseaseIncidenceOfDeath(world, DISEASE.COVID, world.covidIncDeathOutputFilename);
+			world.schedule.scheduleRepeating(incCovidDeath, world.param_schedule_reporting, world.params.ticks_per_day);
 					
 			// Report on the incidence of COVID (covidIncOutputFilename)
-			world.schedule.scheduleRepeating(LoggingHelperFunctions.ReportIncidenceOfDisease(world, DISEASE.COVID, world.covidIncOutputFilename), world.param_schedule_reporting, world.params.ticks_per_day);
+			Steppable incCovid = LoggingHelperFunctions.ReportIncidenceOfDisease(world, DISEASE.COVID, world.covidIncOutputFilename);
+			world.schedule.scheduleRepeating(incCovid, world.param_schedule_reporting, world.params.ticks_per_day);
 					
 			// Report on the number of COVID counts in each area (covidCountsOutputFilename)
-			world.schedule.scheduleRepeating(LoggingHelperFunctions.ReportDiseaseCounts(world, DISEASE.COVID, world.covidCountsOutputFilename), world.param_schedule_reporting, world.params.ticks_per_day);
+			Steppable covidCounts = LoggingHelperFunctions.ReportDiseaseCounts(world, DISEASE.COVID, world.covidCountsOutputFilename);
+			world.schedule.scheduleRepeating(covidCounts, world.param_schedule_reporting, world.params.ticks_per_day);
 					
 			// Report on the number of COVID counts in each occupation (covidByEconOutputFilename)
-			world.schedule.scheduleRepeating(LoggingHelperFunctions.ReportDiseaseCountsByOccupation(world, DISEASE.COVID, world.covidByEconOutputFilename), world.param_schedule_reporting, world.params.ticks_per_day);
+			Steppable covidCountsByOcc = LoggingHelperFunctions.ReportDiseaseCountsByOccupation(world, DISEASE.COVID, world.covidByEconOutputFilename);
+			world.schedule.scheduleRepeating(covidCountsByOcc, world.param_schedule_reporting, world.params.ticks_per_day);
 					
 			// Report on the percent of COVID cases that are fatal per admin zone (adminZonePercentCovidCasesFatalOutputFilename)
-			world.schedule.scheduleRepeating(LoggingHelperFunctions.ReportPercentOfDiseaseCasesThatAreFatalPerAdminZone(world, DISEASE.COVID, world.adminZonePercentCovidCasesFatalOutputFilename), world.param_schedule_reporting, world.params.ticks_per_day);
+			Steppable covidPercFatal = LoggingHelperFunctions.ReportPercentOfDiseaseCasesThatAreFatalPerAdminZone(world, DISEASE.COVID, world.adminZonePercentCovidCasesFatalOutputFilename);
+			world.schedule.scheduleRepeating(covidPercFatal, world.param_schedule_reporting, world.params.ticks_per_day);
 
 			// Report on the prevalence of COVID death per admin zone (adminZonePercentDiedFromCovidOutputFilename)
-			world.schedule.scheduleRepeating(LoggingHelperFunctions.adminZonePercentDiedFromDiseaseOutputFilename(world, DISEASE.COVID, world.adminZonePercentDiedFromCovidOutputFilename), world.param_schedule_reporting, world.params.ticks_per_day);
+			Steppable CovidPrev = LoggingHelperFunctions.adminZonePercentDiedFromDiseaseOutputFilename(world, DISEASE.COVID, world.adminZonePercentDiedFromCovidOutputFilename);
+			world.schedule.scheduleRepeating(CovidPrev, world.param_schedule_reporting, world.params.ticks_per_day);
 					
-			// Schedule the resetting of COVID reporting properties in the agents 
-			world.schedule.scheduleRepeating(CovidLogging.ResetCovidLoggedProperties(world), world.param_schedule_reporting_reset, world.params.ticks_per_day);
+			// Schedule the resetting of COVID reporting properties in the agents
+			Steppable covidLoggingReset = CovidLogging.ResetCovidLoggedProperties(world);
+			world.schedule.scheduleRepeating(covidLoggingReset, world.param_schedule_reporting_reset, world.params.ticks_per_day);
 			
 		}
 		
 		if (!(world.choleraFramework == null)) {
 			// Report on the prevalence of cholera
-			world.schedule.scheduleRepeating(LoggingHelperFunctions.ReportPercentInAdminZoneWithDisease(world, DISEASE.CHOLERA, world.adminZoneCholeraPrevalenceOutputFilename), world.param_schedule_reporting, world.params.ticks_per_day);
+			Steppable choleraPrevalence = LoggingHelperFunctions.ReportPercentInAdminZoneWithDisease(world, DISEASE.CHOLERA, world.adminZoneCholeraPrevalenceOutputFilename);
+			world.schedule.scheduleRepeating(choleraPrevalence, world.param_schedule_reporting, world.params.ticks_per_day);
+			
 			// Report on the incidence of cholera
-			world.schedule.scheduleRepeating(LoggingHelperFunctions.ReportIncidenceOfDisease(world, DISEASE.CHOLERA, world.choleraIncOutputFilename), world.param_schedule_reporting, world.params.ticks_per_day);
+			Steppable choleraInc = LoggingHelperFunctions.ReportIncidenceOfDisease(world, DISEASE.CHOLERA, world.choleraIncOutputFilename);
+			world.schedule.scheduleRepeating(choleraInc, world.param_schedule_reporting, world.params.ticks_per_day);
+			
 			// Report on the incidence of cholera death
-			world.schedule.scheduleRepeating(LoggingHelperFunctions.ReportDiseaseIncidenceOfDeath(world, DISEASE.CHOLERA, world.choleraIncDeathOutputFilename), world.param_schedule_reporting, world.params.ticks_per_day);
+			Steppable choleraIncDeath = LoggingHelperFunctions.ReportDiseaseIncidenceOfDeath(world, DISEASE.CHOLERA, world.choleraIncDeathOutputFilename);
+			world.schedule.scheduleRepeating(choleraIncDeath, world.param_schedule_reporting, world.params.ticks_per_day);
+			
 			// Report on the cholera counts per age and sex
-			world.schedule.scheduleRepeating(LoggingHelperFunctions.ReportDiseaseCounts(world, DISEASE.CHOLERA, world.choleraCountsOutputFilename), world.param_schedule_reporting, world.params.ticks_per_day);
+			Steppable choleraCountsByAgeSex = LoggingHelperFunctions.ReportDiseaseCounts(world, DISEASE.CHOLERA, world.choleraCountsOutputFilename);
+			world.schedule.scheduleRepeating(choleraCountsByAgeSex, world.param_schedule_reporting, world.params.ticks_per_day);
+			
 			// Report on cholera cases per occupation
-			world.schedule.scheduleRepeating(LoggingHelperFunctions.ReportDiseaseCountsByOccupation(world, DISEASE.CHOLERA, world.choleraByEconOutputFilename), world.param_schedule_reporting, world.params.ticks_per_day);
+			Steppable choleraCountsByOcc = LoggingHelperFunctions.ReportDiseaseCountsByOccupation(world, DISEASE.CHOLERA, world.choleraByEconOutputFilename);
+			world.schedule.scheduleRepeating(choleraCountsByOcc, world.param_schedule_reporting, world.params.ticks_per_day);
+			
 			// report on the percent who died from cholera
-			world.schedule.scheduleRepeating(LoggingHelperFunctions.adminZonePercentDiedFromDiseaseOutputFilename(world, DISEASE.CHOLERA, world.adminZonePercentDiedFromCholeraOutputFilename), world.param_schedule_reporting, world.params.ticks_per_day);
-			// Report on the percent of COVID cases that are fatal per admin zone
-			world.schedule.scheduleRepeating(LoggingHelperFunctions.adminZonePercentDiedFromDiseaseOutputFilename(world, DISEASE.CHOLERA, world.adminZonePercentCholeraCasesFatalOutputFilename), world.param_schedule_reporting, world.params.ticks_per_day);
+			Steppable CholeraPercentDied = LoggingHelperFunctions.adminZonePercentDiedFromDiseaseOutputFilename(world, DISEASE.CHOLERA, world.adminZonePercentDiedFromCholeraOutputFilename);
+			world.schedule.scheduleRepeating(CholeraPercentDied, world.param_schedule_reporting, world.params.ticks_per_day);
+			
+			// Report on the percent of cholera cases that are fatal per admin zone
+			Steppable CholeraPercentDiedPerAdminZone = LoggingHelperFunctions.adminZonePercentDiedFromDiseaseOutputFilename(world, DISEASE.CHOLERA, world.adminZonePercentCholeraCasesFatalOutputFilename);
+			world.schedule.scheduleRepeating(CholeraPercentDiedPerAdminZone, world.param_schedule_reporting, world.params.ticks_per_day);
 
 		}
 		if (world.workplaces.size() > 0) {

@@ -21,4 +21,3 @@ covidTesting: true
 testDataFilename: dummy_n_tests.txt
 testLocationFilename: most_travelled_from_testing.txt
 
-communityLocationFilename: community_loc_empty.txt
