@@ -276,7 +276,7 @@ public class Person extends Host {
 		getHouseholdAsType().removeDeceasedFromHousehold(this);
 		// if they are responsible for gathering water, reassign the responsibility
 		if (getWaterGatherer()) {
-			myWorld.determineWaterGathererInHousehold(getHouseholdAsType());
+			this.getHouseholdAsType().determineWaterGathererInHousehold();
 		}
 
 

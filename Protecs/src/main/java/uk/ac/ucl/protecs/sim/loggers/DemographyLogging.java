@@ -353,9 +353,9 @@ public class DemographyLogging {
 				String pop_size_in_admin_zone = "";
 		
 				if (time == 0) {
-					pop_size_in_admin_zone += "day" + t;
+					pop_size_in_admin_zone += "day";
 					for (String place: adminZones) {
-						pop_size_in_admin_zone += place + t;
+						pop_size_in_admin_zone += t + place;
 					}
 					pop_size_in_admin_zone += "\n" + String.valueOf(time);
 				}

@@ -276,9 +276,9 @@ public class LoggingHelperFunctions{
 				// format the output for the percent of the admin zone with the disease
 				String percent_with_disease_str = "";
 				if (time == 0) {
-					percent_with_disease_str += "day" + tab;
+					percent_with_disease_str += "day";
 					for (String place: adminZones) {
-						percent_with_disease_str += place + tab;
+						percent_with_disease_str += tab + place;
 						}
 					percent_with_disease_str += "\n" + String.valueOf(time);
 				}
@@ -330,9 +330,9 @@ public class LoggingHelperFunctions{
 				// format log file
 				String percent_disease_death_per_admin = "";
 				if (time == 0) {
-					percent_disease_death_per_admin += "day" + tab;
+					percent_disease_death_per_admin += "day";
 					for (String place: adminZones) {
-						percent_disease_death_per_admin += place + tab;
+						percent_disease_death_per_admin += tab + place;
 					}
 					percent_disease_death_per_admin += "\n" + String.valueOf(time);
 				}
@@ -382,9 +382,9 @@ public class LoggingHelperFunctions{
 				String percent_disease_death_per_admin = "";
 
 				if (time == 0) {
-					percent_disease_death_per_admin += "day" + tab;
+					percent_disease_death_per_admin += "day";
 					for (String place: adminZones) {
-						percent_disease_death_per_admin += place + tab;
+						percent_disease_death_per_admin += tab + place;
 					}
 					percent_disease_death_per_admin += "\n" + String.valueOf(time);
 				}
@@ -650,12 +650,12 @@ public class LoggingHelperFunctions{
 				
 				String econ_status_categories = "";
 				for (OCCUPATION job: world.occupationsInSim) {
-					econ_status_categories += job.name() + tab;
+					econ_status_categories += tab + job.name();
 				}
 				econ_status_categories += "\n";
 				String econ_status_output = "";
 				if (time == 0) {
-					econ_status_output += "day" + tab + "metric" + tab + econ_status_categories + String.valueOf(time);
+					econ_status_output += "day" + tab + "metric" + econ_status_categories + String.valueOf(time);
 				}
 				else {
 					econ_status_output += String.valueOf(time);
