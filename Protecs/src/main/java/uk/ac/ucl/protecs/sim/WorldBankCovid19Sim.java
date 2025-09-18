@@ -59,7 +59,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public ArrayList <CommunityLocation> communityLocations = null;
 	
 	HashMap <Location, ArrayList<Person>> personsToAdminBoundary = null; 
-	HashMap <Location, ArrayList<Water>> waterSourcesToAdminBoundary = null; 
+	public HashMap <Location, ArrayList<Water>> waterSourcesToAdminBoundary = null; 
 
 	
 	public MovementBehaviourFramework movementFramework = null;
@@ -202,13 +202,11 @@ public class WorldBankCovid19Sim extends SimState {
 		// initialise the agent storage
 		// holders for construction
 		agents = new ArrayList <Person> ();
-		waterInSim = new ArrayList<Water>();
 		households = new ArrayList <Household> ();
 		workplaces = new ArrayList <Workplace> ();
 
 		// initialise the holder
 		personsToAdminBoundary = new HashMap <Location, ArrayList<Person>>();
-		waterSourcesToAdminBoundary = new HashMap <Location, ArrayList<Water>>();
 		// initialise occupations in sim
 		occupationsInSim = new HashSet <OCCUPATION>(); 
 		
@@ -236,33 +234,47 @@ public class WorldBankCovid19Sim extends SimState {
 		
 		// ======================================================= cholera set up ====================================================================
 		// set up things needed to model water
-		waterInSim = new ArrayList<Water>();
-		// set up househould water
-		for (Household h : households) {
-			// for purposes of development we will set every household to be a source of water
-			h.setWaterSource(true);
-			// create a new water source
-			Water householdWater = new Water(h, null, this);
-			waterInSim.add(householdWater);
-			h.setWaterHere(householdWater);
-			// schedule the water to activate in the simulation
-			schedule.scheduleOnce(0, param_schedule_movement, householdWater);
-			// set up the role of who will fetch water for the household, get adult women of household 
-			h.determineWaterGathererInHousehold();
-		}
-		// copy over community locations
-		communityLocations = new ArrayList <CommunityLocation> (params.communityLocations.values());
-		// if the community location is a water source, create the water object and activate it
-		for (CommunityLocation loc: communityLocations) {
-			if (loc.isWaterSource()) {
-				loc.createWaterAtThisSource(this);
-				}
-		}
-		// map water to its sources
-		MapHouseholdWaterSupplyToSources.mapWaterToSource(this);
-		// load in the infections in the environment 
-		loadInfectionsInOtherHosts.seed_infections_in_others(this);
 		
+		// all this is dependent on a waterborne disease being present
+		boolean waterborneBeingModelled = ((choleraFramework != null) || (dummyWaterborneFramework != null));
+		
+		if (waterborneBeingModelled) {
+			waterSourcesToAdminBoundary = new HashMap <Location, ArrayList<Water>>();
+			waterInSim = new ArrayList<Water>();
+			// set up househould water
+			for (Household h : households) {
+				// for purposes of development we will set every household to be a source of water
+				h.setWaterSource(true);
+				// create a new water source
+				Water householdWater = new Water(h, null, this);
+				waterInSim.add(householdWater);
+				h.setWaterHere(householdWater);
+				// put the water in the waterSourcesToAdminBoundary holder
+				try {
+					waterSourcesToAdminBoundary.get(h.getRootSuperLocation()).add(householdWater);
+				}
+				catch (NullPointerException e) {
+					waterSourcesToAdminBoundary.put(h.getRootSuperLocation(), new ArrayList<Water>());
+					waterSourcesToAdminBoundary.get(h.getRootSuperLocation()).add(householdWater);
+				}
+				// schedule the water to activate in the simulation
+				schedule.scheduleOnce(0, param_schedule_movement, householdWater);
+				// set up the role of who will fetch water for the household, get adult women of household 
+				h.determineWaterGathererInHousehold();
+			}
+			// copy over community locations
+			communityLocations = new ArrayList <CommunityLocation> (params.communityLocations.values());
+			// if the community location is a water source, create the water object and activate it
+			for (CommunityLocation loc: communityLocations) {
+				if (loc.isWaterSource()) {
+					loc.createWaterAtThisSource(this);
+					}
+			}
+			// map water to its sources
+			MapHouseholdWaterSupplyToSources.mapWaterToSource(this);
+			// load in the infections in the environment 
+			loadInfectionsInOtherHosts.seed_infections_in_others(this);
+		}
 //		for(Location l: params.lineList.keySet()){
 //			
 //			// activate this location
