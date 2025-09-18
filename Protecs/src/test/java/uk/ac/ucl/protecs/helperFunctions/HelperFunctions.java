@@ -384,4 +384,24 @@ public class HelperFunctions {
 			sim.params.economic_status_weekday_movement_prob.put(key, (double) 1);         
 		}
 	}
+	
+	public static List<String> getFinalNodesInHumans(WorldBankCovid19Sim world, int numDaysToRun){
+		// This function runs the simulation for a predetermined number of days.
+		// At the end of the simulation, the function returns a list of the behaviour nodes being 'performed' by the infections.
+		
+		// Create a list to store the unique node stages that occur in each step
+		HashSet <String> behaviourNodeBin = new HashSet<String>();
+		
+		// Simulate over the time period and get the disease stages present in the simulation
+		HelperFunctions.runSimulation(world, numDaysToRun);
+		
+		for (Disease i: world.human_infections) {
+			behaviourNodeBin.add(i.getBehaviourName());
+		}
+		
+		List<String> UniqueNodes = new ArrayList<String>(behaviourNodeBin);
+
+		return UniqueNodes;
+	}
+	
 }

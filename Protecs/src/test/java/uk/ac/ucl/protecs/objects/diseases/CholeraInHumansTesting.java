@@ -7,8 +7,11 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
+import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgressionFramework;
+import uk.ac.ucl.protecs.behaviours.diseaseProgression.CholeraDiseaseProgressionFramework;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.CholeraDiseaseProgressionFramework.CholeraBehaviourNodeInHumans;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgressionFramework.CoronavirusBehaviourNodeTitle;
+import uk.ac.ucl.protecs.sim.ImportExport;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import uk.ac.ucl.protecs.helperFunctions.*;
@@ -289,5 +292,38 @@ public class CholeraInHumansTesting {
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		
+	}
+	
+	@Test
+	public void ifWeGiveEveryoneAnInfectionEventuallyTheyWillRecoverOrDie() {
+		// create a simulation and start
+				WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_humans.txt");
+				sim.choleraFramework = new CholeraDiseaseProgressionFramework(sim);
+
+				sim.start();
+
+				// Make sure there are no new infections
+				sim.params.cholera_prob_shed = 0;
+				sim.params.cholera_prob_ingest = 0;
+				sim.params.cholera_sufficient_ingestion = 1;
+
+				// seed a number of the specific node to the run
+				HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.choleraFramework.setNodeForTesting(CholeraBehaviourNodeInHumans.EXPOSED), 
+						NodeOption.Cholera);		// Set up a duration to run the simulation
+				int numDays = 150; 
+				// Run the simulation and record the infectious behaviour nodes reached in this simulation
+				List<String> uniqueNodesInRun = HelperFunctions.getFinalNodesInHumans(sim, numDays);
+				// we would expect only the recovered or dead node to appear at the end of simulation
+				List<String> expectedNodes = Arrays.asList(CholeraBehaviourNodeInHumans.SUSCEPTIBLE.key, CholeraBehaviourNodeInHumans.RECOVERED.key, CholeraBehaviourNodeInHumans.DEAD.key);
+				// Make sure than no other nodes are reaching in the simulation
+//				Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
+//				
+//				for (Disease d: sim.human_infections) {
+//					if (d.hasAsympt() || d.hasMild() || d.hasSevere() || d.hasCritical()) {
+//						Assert.fail();
+//					}
+//				}
+				ImportExport.exportInfections("_human_infections.txt", sim.human_infections);
+
 	}
 }

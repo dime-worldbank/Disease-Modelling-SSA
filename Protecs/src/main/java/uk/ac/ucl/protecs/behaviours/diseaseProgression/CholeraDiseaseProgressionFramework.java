@@ -224,9 +224,13 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 					// assume that 3% of exposed infections that take will result in a severe infection
 					if (rand_for_ingesting_large_dose < myWorld.params.cholera_prob_severe) { // needs to be calibrated
 						nextStepInHumans = nextStepCholeraInHumans.SEVERE;
+						choleraInfection.time_start_severe = choleraInfection.time_contagious;
+
 					}
 					else {
 						nextStepInHumans = nextStepCholeraInHumans.MILD;
+						choleraInfection.time_start_symptomatic = choleraInfection.time_contagious;
+
 					}
 				}
 			

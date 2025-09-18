@@ -572,7 +572,9 @@ public class WorldBankCovid19Sim extends SimState {
 		mySim.timer = endTime - startTime;
 		
 		System.out.println("...run finished after " + mySim.timer + " ms");
-		ImportExport.exportInfections(outputFilename + "_infections.txt", mySim.human_infections);
+		ImportExport.exportInfections(outputFilename + "_human_infections.txt", mySim.human_infections);
+		ImportExport.exportInfections(outputFilename + "_other_infections.txt", mySim.other_infections);
+
 
 	}
 
