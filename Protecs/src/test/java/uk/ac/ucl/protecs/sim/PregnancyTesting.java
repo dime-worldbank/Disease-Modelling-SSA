@@ -20,7 +20,7 @@ public class PregnancyTesting {
 	@Test
 	public void testPregnancyIsReset() {
 		// Create the simulation object
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "demography_params.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_demography.txt");
 		sim.start();
 		// turn off deaths
 		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
