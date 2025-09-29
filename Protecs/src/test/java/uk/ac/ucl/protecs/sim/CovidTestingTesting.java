@@ -20,10 +20,10 @@ public class CovidTestingTesting {
 	
 	@Test
 	public void CheckTestsOnlyHappenForThoseWithSymptomsOfCovid() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "covid_testing_params.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_covid_testing.txt");
 		sim.start();
 		int numDays = 1;
-		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(0.5, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD),
+		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(0.5, sim, sim.covidInfectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD),
 				NodeOption.CoronavirusInfectiousBehaviour);
 		HelperFunctions.StopRecoveryHappening(sim);
 		HelperFunctions.StopCovidFromSpreading(sim);
@@ -51,13 +51,13 @@ public class CovidTestingTesting {
 //	@Test
 //	public void CheckThereAreNoDifferencesInCaseNumbers() {
 //		//Arrange
-//		WorldBankCovid19Sim sim_without_testing = helperFunctions.CreateDummySimWithChosenSeed(12, "src/main/resources/covid_testing_params.txt", false, false);
+//		WorldBankCovid19Sim sim_without_testing = helperFunctions.CreateDummySimWithChosenSeed(12, "src/main/resources/params_covid_testing.txt", false, false);
 //		sim_without_testing.start();
 //		int numDays = 50;
 //		while(sim_without_testing.schedule.getTime() < Params.ticks_per_day * numDays && !sim_without_testing.schedule.scheduleComplete()){
 //			sim_without_testing.schedule.step(sim_without_testing);
 //		}
-//		WorldBankCovid19Sim sim_with_testing = helperFunctions.CreateDummySimWithChosenSeed(12, "src/main/resources/covid_testing_params.txt", false, true);
+//		WorldBankCovid19Sim sim_with_testing = helperFunctions.CreateDummySimWithChosenSeed(12, "src/main/resources/params_covid_testing.txt", false, true);
 //
 //		sim_with_testing.start();
 //		while(sim_with_testing.schedule.getTime() < Params.ticks_per_day * numDays && !sim_with_testing.schedule.scheduleComplete()){

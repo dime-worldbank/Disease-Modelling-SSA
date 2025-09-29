@@ -6,9 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import uk.ac.ucl.protecs.objects.diseases.Cholera;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.objects.diseases.Disease;
 import uk.ac.ucl.protecs.objects.hosts.Person;
+import uk.ac.ucl.protecs.behaviours.diseaseProgression.CholeraDiseaseProgressionFramework;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgressionFramework.CoronavirusBehaviourNodeTitle;
 import uk.ac.ucl.protecs.sim.Params;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
@@ -20,7 +22,8 @@ public class HelperFunctions {
 
 	public enum NodeOption{
 		CoronavirusInfectiousBehaviour,
-		MovementBehaviour
+		MovementBehaviour,
+		Cholera
 	}
 	public enum birthsOrDeaths{
 		births,
@@ -62,7 +65,7 @@ public class HelperFunctions {
 		for (Person p: world.agents) {
 			double rand = world.random.nextDouble();
 			if (!p.getDiseaseSet().containsKey(DISEASE.COVID.key) && rand <= fraction) {			
-				CoronavirusInfection inf = new CoronavirusInfection(p, null, world.infectiousFramework.getEntryPoint(), world);
+				CoronavirusInfection inf = new CoronavirusInfection(p, null, world.covidInfectiousFramework.getEntryPoint(), world);
 				inf.setBehaviourNode(Node);
 				world.human_infections.add(inf);
 				// kick off the infectious behaviour framework
@@ -86,7 +89,7 @@ public class HelperFunctions {
 			world.schedule.step(world);
 			if (world.schedule.getTime() % (int) Params.ticks_per_day == sample_regularity) {
 			for (Disease i: world.human_infections) {
-				behaviourNodeBin.add(i.getBehaviourName());
+				if (i.isOfType(DISEASE.COVID)) behaviourNodeBin.add(i.getBehaviourName());
 				}
 			}
 		}
@@ -106,6 +109,19 @@ public class HelperFunctions {
 			return behaviourNodeBin;
 		}
 		
+		case Cholera:{
+			// Simulate over the time period and get the movement behaviours present in the simulation
+			while(world.schedule.getTime() < (double) Params.ticks_per_day * numDaysToRun && !world.schedule.scheduleComplete()){
+				world.schedule.step(world);
+				if (world.schedule.getTime() % (int) Params.ticks_per_day == sample_regularity) {
+				for (Disease i: world.human_infections) {
+					if (i.isOfType(DISEASE.CHOLERA)) behaviourNodeBin.add(i.getBehaviourName());
+					}
+				}
+			}
+				return behaviourNodeBin;
+		}
+		
 		default:{
 			System.out.println("No option recognised");
 			return null;
@@ -122,7 +138,20 @@ public class HelperFunctions {
 		for (Person p: world.agents) {
 			double rand = world.random.nextDouble();
 			if (!p.getDiseaseSet().containsKey(DISEASE.COVID.key) && rand <= fraction) {
-				CoronavirusInfection inf = new CoronavirusInfection(p, null, world.infectiousFramework.getEntryPoint(), world);
+				CoronavirusInfection inf = new CoronavirusInfection(p, null, world.covidInfectiousFramework.getEntryPoint(), world);
+				inf.setBehaviourNode(Node);
+				// kick off the infectious behaviour framework
+				inf.step(world);
+			}
+		}
+		break;
+		}
+		case Cholera:{	
+		// Make this function assigns an infectious behaviour node of your choice to a certain percentage of the population
+		for (Person p: world.agents) {
+			double rand = world.random.nextDouble();
+			if (!p.getDiseaseSet().containsKey(DISEASE.CHOLERA.key) && rand <= fraction) {
+				Cholera inf = new Cholera(p, null, world.choleraFramework.getEntryPoint(), world);
 				inf.setBehaviourNode(Node);
 				// kick off the infectious behaviour framework
 				inf.step(world);
@@ -161,36 +190,36 @@ public class HelperFunctions {
 		case "Exposed":
 			int exp_idx = 0;
 			// Make sure there are no transitions from exposed to symptomatic COVID
-			for (double val: world.params.infection_p_sym_by_age) {
-				world.params.infection_p_sym_by_age.set(exp_idx, 0.0);
+			for (double val: world.params.covid_infection_p_sym_by_age) {
+				world.params.covid_infection_p_sym_by_age.set(exp_idx, 0.0);
 				exp_idx ++;
 			}
 			break;
 		case "Presymptomatic":
-			world.params.infectiousToSymptomatic_mean = Integer.MAX_VALUE;
-			world.params.infectiousToSymptomatic_std = 0;
+			world.params.covid_infectiousToSymptomatic_mean = Integer.MAX_VALUE;
+			world.params.covid_infectiousToSymptomatic_std = 0;
 			break;
 		case "Mild":
 			int mild_idx = 0;
 			// Make sure there are no transitions from mild to severe COVID
-			for (double val: world.params.infection_p_sym_by_age) {
-				world.params.infection_p_sev_by_age.set(mild_idx, 0.0);
+			for (double val: world.params.covid_infection_p_sym_by_age) {
+				world.params.covid_infection_p_sev_by_age.set(mild_idx, 0.0);
 				mild_idx ++;
 			}
 			break;
 		case "Severe":
 			int severe_idx = 0;
 			// Make sure there are no transitions from severe to critical COVID
-			for (double val: world.params.infection_p_sym_by_age) {
-				world.params.infection_p_cri_by_age.set(severe_idx, 0.0);
+			for (double val: world.params.covid_infection_p_sym_by_age) {
+				world.params.covid_infection_p_cri_by_age.set(severe_idx, 0.0);
 				severe_idx ++;
 			}
 			break;
 		case "Critical":
 			int critical_idx = 0;
 			// Make sure there are no transitions from critical covid to death
-			for (double val: world.params.infection_p_sym_by_age) {
-				world.params.infection_p_dea_by_age.set(critical_idx, 0.0);
+			for (double val: world.params.covid_infection_p_sym_by_age) {
+				world.params.covid_infection_p_dea_by_age.set(critical_idx, 0.0);
 				critical_idx ++;
 			}
 			break;
@@ -203,14 +232,14 @@ public class HelperFunctions {
 	public static void StopRecoveryHappening(WorldBankCovid19Sim world) {
 		// This function sets the recovery time of COVID at various stages of the disease to an very high integer beyond the range
 		// of the simulation, thereby stopping recovery from COVID happening
-		world.params.asymptomaticToRecovery_mean = Integer.MAX_VALUE;
-		world.params.asymptomaticToRecovery_std = 0;
-		world.params.symptomaticToRecovery_mean = Integer.MAX_VALUE;
-		world.params.symptomaticToRecovery_std = 0;
-		world.params.severeToRecovery_mean = Integer.MAX_VALUE;
-		world.params.severeToRecovery_std = 0;
-		world.params.criticalToRecovery_mean = Integer.MAX_VALUE;
-		world.params.criticalToRecovery_std = 0;
+		world.params.covid_asymptomaticToRecovery_mean = Integer.MAX_VALUE;
+		world.params.covid_asymptomaticToRecovery_std = 0;
+		world.params.covid_symptomaticToRecovery_mean = Integer.MAX_VALUE;
+		world.params.covid_symptomaticToRecovery_std = 0;
+		world.params.covid_severeToRecovery_mean = Integer.MAX_VALUE;
+		world.params.covid_severeToRecovery_std = 0;
+		world.params.covid_criticalToRecovery_mean = Integer.MAX_VALUE;
+		world.params.covid_criticalToRecovery_std = 0;
 	}
 	public static List<String> getFinalBehaviourNodesInSim(WorldBankCovid19Sim world, double numDaysToRun, NodeOption option){
 		// This function runs the simulation for a predetermined number of days.
@@ -283,36 +312,36 @@ public class HelperFunctions {
 		case EXPOSED:
 			int exp_idx = 0;
 			// Make sure there are no transitions from exposed to symptomatic COVID
-			for (double val: world.params.infection_p_sym_by_age) {
-				world.params.infection_p_sym_by_age.set(exp_idx, 0.0);
+			for (double val: world.params.covid_infection_p_sym_by_age) {
+				world.params.covid_infection_p_sym_by_age.set(exp_idx, 0.0);
 				exp_idx ++;
 			}
 			break;
 		case PRESYMPTOMATIC:
-			world.params.infectiousToSymptomatic_mean = Integer.MAX_VALUE;
-			world.params.infectiousToSymptomatic_std = 0;
+			world.params.covid_infectiousToSymptomatic_mean = Integer.MAX_VALUE;
+			world.params.covid_infectiousToSymptomatic_std = 0;
 			break;
 		case MILD:
 			int mild_idx = 0;
 			// Make sure there are no transitions from exposed to symptomatic COVID
-			for (double val: world.params.infection_p_sym_by_age) {
-				world.params.infection_p_sev_by_age.set(mild_idx, 0.0);
+			for (double val: world.params.covid_infection_p_sym_by_age) {
+				world.params.covid_infection_p_sev_by_age.set(mild_idx, 0.0);
 				mild_idx ++;
 			}
 			break;
 		case SEVERE:
 			int severe_idx = 0;
 			// Make sure there are no transitions from exposed to symptomatic COVID
-			for (double val: world.params.infection_p_sym_by_age) {
-				world.params.infection_p_cri_by_age.set(severe_idx, 0.0);
+			for (double val: world.params.covid_infection_p_sym_by_age) {
+				world.params.covid_infection_p_cri_by_age.set(severe_idx, 0.0);
 				severe_idx ++;
 			}
 			break;
 		case CRITICAL:
 			int critical_idx = 0;
 			// Make sure there are no transitions from exposed to symptomatic COVID
-			for (double val: world.params.infection_p_sym_by_age) {
-				world.params.infection_p_dea_by_age.set(critical_idx, 0.0);
+			for (double val: world.params.covid_infection_p_sym_by_age) {
+				world.params.covid_infection_p_dea_by_age.set(critical_idx, 0.0);
 				critical_idx ++;
 			}
 			break;
@@ -355,4 +384,24 @@ public class HelperFunctions {
 			sim.params.economic_status_weekday_movement_prob.put(key, (double) 1);         
 		}
 	}
+	
+	public static List<String> getFinalNodesInHumans(WorldBankCovid19Sim world, int numDaysToRun){
+		// This function runs the simulation for a predetermined number of days.
+		// At the end of the simulation, the function returns a list of the behaviour nodes being 'performed' by the infections.
+		
+		// Create a list to store the unique node stages that occur in each step
+		HashSet <String> behaviourNodeBin = new HashSet<String>();
+		
+		// Simulate over the time period and get the disease stages present in the simulation
+		HelperFunctions.runSimulation(world, numDaysToRun);
+		
+		for (Disease i: world.human_infections) {
+			behaviourNodeBin.add(i.getBehaviourName());
+		}
+		
+		List<String> UniqueNodes = new ArrayList<String>(behaviourNodeBin);
+
+		return UniqueNodes;
+	}
+	
 }

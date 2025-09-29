@@ -11,10 +11,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import uk.ac.ucl.protecs.objects.diseases.Disease;
 import uk.ac.ucl.protecs.objects.hosts.Person;
+import uk.ac.ucl.protecs.objects.hosts.Water;
 import uk.ac.ucl.protecs.objects.hosts.Person.OCCUPATION;
+import uk.ac.ucl.protecs.objects.locations.CommunityLocation;
 import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.objects.locations.Location.LocationCategory;
+import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
+import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.HOST;
 
 public class Params {
 	
@@ -37,7 +42,7 @@ public class Params {
 	public double dummy_ncd_initial_fraction_with_ncd = 0.1;
 
 
-	public double rate_of_spurious_symptoms = 0.004;
+	public double rate_of_covid_spurious_symptoms = 0.004;
 	public int lineListWeightingFactor = 1; // the line list contains only detected instances, which can be biased 
 											// - weight this if we suspect it's undercounting
 	public boolean setting_perfectMixing = true; // if TRUE: there are no work or social bubbles; individuals have
@@ -72,6 +77,9 @@ public class Params {
 	
 	HashMap <String, Location> adminZones;
 	public ArrayList <String> adminZoneNames;
+	
+	HashMap<String, CommunityLocation> communityLocations = new HashMap <String, CommunityLocation> ();;
+	
 	ArrayList <Map<String, List<Double>>> dailyTransitionPrelockdownProbs;
 	ArrayList <Map<String, List<Double>>> dailyTransitionLockdownProbs;
 	
@@ -84,7 +92,9 @@ public class Params {
 	
 	// holders for epidemic-related data
 	
-	HashMap <Location, Integer> lineList;
+	HashMap <DISEASE, HashMap<Location, Integer>> lineList;
+	HashMap <DISEASE, HashMap<Location, Integer>> lineListInOther;
+
 	ArrayList <Double> lockdownChangeList = new ArrayList <Double>();
 	
 	// holders for testing data
@@ -99,37 +109,69 @@ public class Params {
 	public HashMap <OCCUPATION, LocationCategory> OccupationConstraintList = new HashMap <OCCUPATION, LocationCategory> ();
 	  
 	// parameters drawn from Kerr et al 2020 - https://www.medrxiv.org/content/10.1101/2020.05.10.20097469v3.full.pdf
-	public ArrayList <Integer> infection_age_params;
-	public ArrayList <Double> infection_r_sus_by_age;
-	public ArrayList <Double> infection_p_sym_by_age;
-	public ArrayList <Double> infection_p_sev_by_age;
-	public ArrayList <Double> infection_p_cri_by_age;
-	public ArrayList <Double> infection_p_dea_by_age;
+	public ArrayList <Integer> covid_infection_age_params;
+	public ArrayList <Double> covid_infection_r_sus_by_age;
+	public ArrayList <Double> covid_infection_p_sym_by_age;
+	public ArrayList <Double> covid_infection_p_sev_by_age;
+	public ArrayList <Double> covid_infection_p_cri_by_age;
+	public ArrayList <Double> covid_infection_p_dea_by_age;
 
 	// also from Kerr et al 2020, translated from days into ticks 
-	public double exposedToInfectious_mean =	4.5 * ticks_per_day;
-	public double exposedToInfectious_std =		1.5 * ticks_per_day;
-	public double infectiousToSymptomatic_mean =1.1 * ticks_per_day;
-	public double infectiousToSymptomatic_std = 0.9 * ticks_per_day;
-	public double symptomaticToSevere_mean = 	6.6 * ticks_per_day;
-	public double symptomaticToSevere_std = 	4.9 * ticks_per_day;
-	public double severeToCritical_mean =		1.5 * ticks_per_day;
-	public double severeToCritical_std =		2.0 * ticks_per_day;
-	public double criticalToDeath_mean =		10.7 * ticks_per_day;
-	public double criticalToDeath_std =			4.8 * ticks_per_day;
-	public double asymptomaticToRecovery_mean =	8.0 * ticks_per_day;
-	public double asymptomaticToRecovery_std =	2.0 * ticks_per_day;
-	public double symptomaticToRecovery_mean =	8.0 * ticks_per_day;
-	public double symptomaticToRecovery_std =	2.0 * ticks_per_day;
-	public double severeToRecovery_mean =		18.1 * ticks_per_day;
-	public double severeToRecovery_std =		6.3 * ticks_per_day;
-	public double criticalToRecovery_mean =		18.1 * ticks_per_day;
-	public double criticalToRecovery_std =		6.3 * ticks_per_day;
+	// TODO shove these sorts of parameters somewhere else
+	
+	public double covid_exposedToInfectious_mean =	4.5 * ticks_per_day;
+	public double covid_exposedToInfectious_std =		1.5 * ticks_per_day;
+	public double covid_infectiousToSymptomatic_mean =1.1 * ticks_per_day;
+	public double covid_infectiousToSymptomatic_std = 0.9 * ticks_per_day;
+	public double covid_symptomaticToSevere_mean = 	6.6 * ticks_per_day;
+	public double covid_symptomaticToSevere_std = 	4.9 * ticks_per_day;
+	public double covid_severeToCritical_mean =		1.5 * ticks_per_day;
+	public double covid_severeToCritical_std =		2.0 * ticks_per_day;
+	public double covid_criticalToDeath_mean =		10.7 * ticks_per_day;
+	public double covid_criticalToDeath_std =			4.8 * ticks_per_day;
+	public double covid_asymptomaticToRecovery_mean =	8.0 * ticks_per_day;
+	public double covid_asymptomaticToRecovery_std =	2.0 * ticks_per_day;
+	public double covid_symptomaticToRecovery_mean =	8.0 * ticks_per_day;
+	public double covid_symptomaticToRecovery_std =	2.0 * ticks_per_day;
+	public double covid_severeToRecovery_mean =		18.1 * ticks_per_day;
+	public double covid_severeToRecovery_std =		6.3 * ticks_per_day;
+	public double covid_criticalToRecovery_mean =		18.1 * ticks_per_day;
+	public double covid_criticalToRecovery_std =		6.3 * ticks_per_day;
 	
 	// probability of staying at home if having covid taken from Makinde et al. 2021 https://genus.springeropen.com/articles/10.1186/s41118-021-00130-w
 	public double covid_prob_stay_at_home_mild = 0.707;
 	
-	// all cause mortality parameters, currently pulled out my arse
+	// -------------------- Cholera parameters ---------------------------------
+	
+	public double cholera_exposed_to_infectious_mean = 1.4 * ticks_per_day; // (https://www.sciencedirect.com/science/article/pii/S0163445312003477)
+	public double cholera_exposed_to_infectious_std = 0.0917 * ticks_per_day; // (https://www.sciencedirect.com/science/article/pii/S0163445312003477)
+	public double cholera_mean_time_recovery_asympt = 1; // (https://pmc.ncbi.nlm.nih.gov/articles/PMC2554681/)
+	public double cholera_mean_time_recovery_mild = 4.5; // (https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(03)15328-7/fulltext)
+	public double cholera_mean_time_recovery_severe = 3; // TBD
+	public double cholera_mean_time_recovery_critical = 3; // TBD
+	public double cholera_mean_time_death_with_treatment = 1; // TBD
+	public double cholera_mean_time_death_without_treatment = 1; // TBD
+	public double cholera_prob_seek_treatment = 0.8; // TBD
+
+	public double cholera_prob_asymptomatic = 0.75; // (https://ui.adsabs.harvard.edu/abs/2008Natur.454..877K/abstract)
+	public double cholera_prior_asympt_protection_factor = 0.1; // TBD
+	public double cholera_prior_sympt_protection_factor = 0.1; // TBD
+	public double cholera_prob_severe = 0.03; // TBD
+	public double cholera_sufficient_ingestion = 0.95; // probably will be replaced with dose dependence
+	public double cholera_prob_mortality_with_treatment = 0.01;
+	public double cholera_prob_mortality_without_treatment = 0.5;
+	
+	public double cholera_recovered_from_sympt_partial_protection_years = 3;  // https://pmc.ncbi.nlm.nih.gov/articles/PMC8136710/pdf/pntd.0009383.pdf
+	public double cholera_recovered_from_asympt_partial_protection_months = 2;  // https://pmc.ncbi.nlm.nih.gov/articles/PMC8136710/pdf/pntd.0009383.pdf
+	
+	public double cholera_natural_immunity_days_post_infection = 30;
+	
+	public double cholera_prob_shed = 0.1; // TODO: Change to dose dependent
+	public double cholera_prob_ingest = 0.1; // TODO: Change to dose dependent
+	
+	public double cholera_time_hyperinfectious_in_water = 5 / 4; // hyperinfectious state is very short, around 5 hours, 1 tick is 4 hours therefore 5/4 ticks is 5 hours (https://pubmed.ncbi.nlm.nih.gov/12050664/)
+	public double cholera_time_abnc_in_water = 2 * ticks_per_week;
+	// all cause mortality parameters
 	public ArrayList <Integer> all_cause_death_age_params;
 	public ArrayList <Double> prob_death_by_age_male;
 	public ArrayList <Double> prob_death_by_age_female;
@@ -164,6 +206,8 @@ public class Params {
 		
 	public String testDataFilename = null;
 	public String testLocationFilename = null;
+	
+	public String communityLocationFilename = null;
 
 	
 	// time
@@ -224,9 +268,13 @@ public class Params {
 			load_testing(dataDir + testDataFilename);
 			load_testing_locations(dataDir + testLocationFilename);
 		}
-		
+		// load in the community contacts		
 		if (!(communityContactCountsFilename == null)) {
 			load_community_contacts(dataDir + communityContactCountsFilename);
+		}
+		// load in the community locations
+		if (!(communityLocationFilename == null)) {
+			load_community_locations(dataDir + communityLocationFilename);
 		}
 	}
 	//
@@ -298,18 +346,55 @@ public class Params {
 			HashMap <String, Integer> columnNames = parseHeader(header);
 			int adminZoneNameIndex = columnNames.get("admin_zone");
 			int countIndex = columnNames.get("count");
+			int diseaseKeyIndex = columnNames.get("disease");
+			int hostKeyIndex = columnNames.get("host");
 			
-			// set up data container
-			lineList = new HashMap <Location, Integer> ();
-			
+			// set up data container for each disease being seeded in, one container for people and one for other hosts
+			lineList = new HashMap <DISEASE, HashMap <Location, Integer>>();
+			lineListInOther = new HashMap <DISEASE, HashMap<Location, Integer>>();
+			// iterate over all diseases in the simulation to map disease to a hash map of places to be seeded with n cases
+			for (DISEASE d: DISEASE.values()) {
+				lineList.put(d, new HashMap <Location, Integer>());
+				lineListInOther.put(d, new HashMap <Location, Integer>());
+			}
 			// read in the raw data
 			while ((s = lineListDataFile.readLine()) != null) {
+				// split the string between commas
 				String [] bits = splitRawCSVString(s);
+				// get the admin zone to seed in cases
 				Location myAdminZone = adminZones.get(bits[adminZoneNameIndex]);
+				// get the number of cases to seed
 				Integer myCount = Integer.parseInt(bits[countIndex]);
-				lineList.put(myAdminZone, myCount);
+				// get the type of host to seed in
+				HOST myHost = HOST.getValue(bits[hostKeyIndex]);
+				// do a switch based on the type of host, assuming most cases are intended to be seeded into people
+				switch (myHost) {
+				// cases to be seeded into water
+				case WATER:{
+					lineListInOther.get(DISEASE.getValue(bits[diseaseKeyIndex])).put(myAdminZone, myCount);
+					break;
+					}
+				// default cases to be seeded into humans
+				default: {
+					lineList.get(DISEASE.getValue(bits[diseaseKeyIndex])).put(myAdminZone, myCount);
+					break;
+				}
+				}
 			}
-			assert (lineList.size() > 0): "lineList not loaded";
+			// check that some disease has been seeded in to the agents
+			boolean aDiseaseHasBeenSeeded = false;
+			for (DISEASE d: DISEASE.values()) {
+				if (lineList.get(d).size() > 0){
+					aDiseaseHasBeenSeeded = true;
+				}
+				if (lineListInOther.get(d).size() > 0) {
+					aDiseaseHasBeenSeeded = true;
+
+				}
+			}
+			
+			assert aDiseaseHasBeenSeeded: "No disease has been seeded";
+			
 		} catch (Exception e) {
 			System.err.println("File input error: " + lineListFilename);
 			fail();
@@ -640,12 +725,12 @@ public class Params {
 			HashMap <String, Integer> columnNames = parseHeader(header);
 			
 			// set up data container
-			infection_age_params = new ArrayList <Integer> ();
-			infection_r_sus_by_age = new ArrayList <Double> ();
-			infection_p_sym_by_age = new ArrayList <Double> ();
-			infection_p_sev_by_age = new ArrayList <Double> ();
-			infection_p_cri_by_age = new ArrayList <Double> ();
-			infection_p_dea_by_age = new ArrayList <Double> ();
+			covid_infection_age_params = new ArrayList <Integer> ();
+			covid_infection_r_sus_by_age = new ArrayList <Double> ();
+			covid_infection_p_sym_by_age = new ArrayList <Double> ();
+			covid_infection_p_sev_by_age = new ArrayList <Double> ();
+			covid_infection_p_cri_by_age = new ArrayList <Double> ();
+			covid_infection_p_dea_by_age = new ArrayList <Double> ();
 
 			
 			// read in the raw data
@@ -658,7 +743,7 @@ public class Params {
 				if(ageRange.length > 1){
 					maxAge = Integer.parseInt(ageRange[1]); // take the maximum
 				}
-				infection_age_params.add(maxAge);
+				covid_infection_age_params.add(maxAge);
 				
 				double r_sus  = Double.parseDouble(bits[1]),
 						p_sym = Double.parseDouble(bits[2]),
@@ -672,18 +757,18 @@ public class Params {
 				p_sev /= p_sym;
 				
 				// store the values
-				infection_r_sus_by_age.add(r_sus);
-				infection_p_sym_by_age.add(p_sym);
-				infection_p_sev_by_age.add(p_sev);
-				infection_p_cri_by_age.add(p_cri);
-				infection_p_dea_by_age.add(p_dea);
+				covid_infection_r_sus_by_age.add(r_sus);
+				covid_infection_p_sym_by_age.add(p_sym);
+				covid_infection_p_sev_by_age.add(p_sev);
+				covid_infection_p_cri_by_age.add(p_cri);
+				covid_infection_p_dea_by_age.add(p_dea);
 
 			}
-			assert (infection_r_sus_by_age.size() > 0): "infection_r_sus_by_age is negative, cannot be the case";
-			assert (infection_p_sym_by_age.size() > 0): "infection_p_sym_by_age is negative, cannot be the case";
-			assert (infection_p_sev_by_age.size() > 0): "infection_p_sev_by_age is negative, cannot be the case";
-			assert (infection_p_cri_by_age.size() > 0): "infection_p_cri_by_age is negative, cannot be the case";
-			assert (infection_p_dea_by_age.size() > 0): "infection_p_dea_by_age is negative, cannot be the case";
+			assert (covid_infection_r_sus_by_age.size() > 0): "infection_r_sus_by_age is negative, cannot be the case";
+			assert (covid_infection_p_sym_by_age.size() > 0): "infection_p_sym_by_age is negative, cannot be the case";
+			assert (covid_infection_p_sev_by_age.size() > 0): "infection_p_sev_by_age is negative, cannot be the case";
+			assert (covid_infection_p_cri_by_age.size() > 0): "infection_p_cri_by_age is negative, cannot be the case";
+			assert (covid_infection_p_dea_by_age.size() > 0): "infection_p_dea_by_age is negative, cannot be the case";
 
 			lineListDataFile.close();
 			} catch (Exception e) {
@@ -936,7 +1021,7 @@ public class Params {
 			// create Locations for each admin zone
 			for(String d: adminZoneNames){
 				Location l = new Location(d);
-				l.setLocationType(LocationCategory.COMMUNITY);
+				l.setLocationType(LocationCategory.ADMIN_ZONE);
 				adminZones.put(d, l);
 			}
 			
@@ -951,6 +1036,56 @@ public class Params {
 			return null;
 		}
 	}
+	
+	public void load_community_locations(String communityLocFilename) {
+		if (communityLocFilename != null) {
+		try {
+			// Open the tracts file
+			FileInputStream fstream = new FileInputStream(communityLocFilename);
+
+			// Convert our input stream to a BufferedReader
+			BufferedReader communityLocationData = new BufferedReader(new InputStreamReader(fstream));
+			String s;
+
+			// extract the header
+			s = communityLocationData.readLine();
+
+			// map the header into column names relative to location
+			String [] header = splitRawCSVString(s);
+			HashMap <String, Integer> rawColumnNames = new HashMap <String, Integer> ();
+			for(int i = 0; i < header.length; i++){
+				rawColumnNames.put(header[i], new Integer(i));
+			}
+			
+			int idIndex = rawColumnNames.get("id");
+			int typeIndex = rawColumnNames.get("type");
+			int adminZoneIndex = rawColumnNames.get("location");
+			int isWaterSourceIndex = rawColumnNames.get("isWaterSource");
+			int percentAdminZoneServedIndex = rawColumnNames.get("percentServed");
+			// read in the raw data
+			while ((s = communityLocationData.readLine()) != null) {
+				String [] bits = splitRawCSVString(s);
+				CommunityLocation loc = new CommunityLocation(bits[idIndex], adminZones.get(bits[adminZoneIndex]), bits[typeIndex], 
+						Boolean.parseBoolean(bits[isWaterSourceIndex]), Double.parseDouble(bits[percentAdminZoneServedIndex]));
+				communityLocations.put(bits[idIndex], loc);
+			}
+			// need to check that the probabilities for the percent served make sense
+			double checkerForProbabilities = 0.0;
+			for (CommunityLocation loc: communityLocations.values()) {
+				checkerForProbabilities += loc.getPercentServed();
+			}
+			int number_of_admin_zones = adminZones.size();
+			if (Math.floor(number_of_admin_zones / number_of_admin_zones)!= 1) {
+				fail();
+			}
+			
+		} 
+		catch (Exception e) {
+			System.err.println("File input error: " + communityLocFilename);
+			fail();
+			}
+		}
+	};
 
 	/**
 	 * 
@@ -1047,7 +1182,7 @@ public class Params {
 	
 	// Epidemic data access
 	public double getSuspectabilityByAge(int age){
-		return infection_beta * getLikelihoodByAge(infection_r_sus_by_age, infection_age_params, age);
+		return infection_beta * getLikelihoodByAge(covid_infection_r_sus_by_age, covid_infection_age_params, age);
 	}
 	
 	// Mobility data access

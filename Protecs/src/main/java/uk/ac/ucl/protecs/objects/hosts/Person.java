@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import uk.ac.ucl.protecs.behaviours.diseaseProgression.CholeraDiseaseProgressionFramework.CholeraBehaviourNodeInWater;
+import uk.ac.ucl.protecs.objects.diseases.Cholera;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.objects.diseases.Disease;
 import uk.ac.ucl.protecs.objects.diseases.DummyInfectiousDisease;
@@ -58,6 +60,7 @@ public class Person extends Host {
 	boolean wentToWorkToday = false;
 	boolean wentToCommunityToday = false;
 	boolean isUnemployed = false;
+	boolean isWaterGatherer = false;
 	
 	//
 	// Epidemic Attributes
@@ -259,6 +262,10 @@ public class Person extends Host {
 			isDead = true;
 			System.out.println(this.toString() + " has DIED from " + cause + " :( ");
 		}
+		if (cause == "Cholera") {
+			isDead = true;
+			System.out.println(this.toString() + " has DIED from " + cause + " :( ");
+		}
 		else {
 			isDeadFromOther = true;
 			System.out.println(this.toString() + " has DIED :(");
@@ -266,6 +273,12 @@ public class Person extends Host {
 		}
 		isDead = true;
 		transferTo(null);
+		// remove this person from the household storage list
+		getHouseholdAsType().removeDeceasedFromHousehold(this);
+		// if they are responsible for gathering water, reassign the responsibility
+		if (getWaterGatherer()) {
+			this.getHouseholdAsType().determineWaterGathererInHousehold();
+		}
 
 
 	}
@@ -419,37 +432,31 @@ public class Person extends Host {
 				
 				// if neither of the above are true, the interaction can take place!
 				numberOfInteractions -= 1; 
-				if (myWorld.random.nextDouble() < beta) {
-					switch (inf) {
-					case COVID:{
-							if(!p.getDiseaseSet().containsKey(inf.key)){
-								p.getDiseaseSet().put(inf.key, new CoronavirusInfection(p, this, myWorld.infectiousFramework.getEntryPoint(), myWorld));
-								myWorld.schedule.scheduleOnce(p.getDiseaseSet().get(inf.key), myWorld.param_schedule_infecting);
-							}
-//							else {
-	//							p.getDiseaseSet().get(inf.key).setBehaviourNode(myWorld.infectiousFramework.getEntryPoint());
-	//							myWorld.schedule.scheduleOnce(p.getDiseaseSet().get(inf.key), myWorld.param_schedule_infecting);
-	
-//							}
-						
+				switch (inf) {
+				case COVID:{
+					if(!p.getDiseaseSet().containsKey(inf.key) && myWorld.random.nextDouble() < beta){
+						p.getDiseaseSet().put(inf.key, new CoronavirusInfection(p, this, myWorld.covidInfectiousFramework.getEntryPoint(), myWorld));
+						myWorld.schedule.scheduleOnce(p.getDiseaseSet().get(inf.key), myWorld.param_schedule_infecting);
 					}
+					// reinfection
+					// check if they are already infected; if they are not, infect with with probability BETA
+
+//					else {
+//						p.getDiseaseSet().get(inf.key).setBehaviourNode(myWorld.infectiousFramework.getEntryPoint());
+//						myWorld.schedule.scheduleOnce(p.getDiseaseSet().get(inf.key), myWorld.param_schedule_infecting);
+//					}
 					break;
-					case DUMMY_INFECTIOUS:{
-						if(!p.getDiseaseSet().containsKey(inf.key) && myWorld.random.nextDouble() < beta){
-							p.getDiseaseSet().put(inf.key, new DummyInfectiousDisease(p, this, myWorld.dummyInfectiousFramework.getEntryPoint(), myWorld));
-							myWorld.schedule.scheduleOnce(p.getDiseaseSet().get(inf.key), myWorld.param_schedule_infecting);
-						}
-					}
-					break;
-					default:
-						break;
-					}
 				}
-				// check if they are already infected; if they are not, infect with with probability BETA
-//				if(!p.myDiseaseSet.containsKey(inf.key) && myWorld.random.nextDouble() < beta){
-//					p.myDiseaseSet.put(inf.key, new CoronavirusInfection(p, this, myWorld.infectiousFramework.getEntryPoint(), myWorld));
-//					myWorld.schedule.scheduleOnce(p.myDiseaseSet.get(inf.key), myWorld.param_schedule_infecting);
-//				}
+				case DUMMY_INFECTIOUS:{
+					if(!p.getDiseaseSet().containsKey(inf.key) && myWorld.random.nextDouble() < beta){
+						p.getDiseaseSet().put(inf.key, new DummyInfectiousDisease(p, this, myWorld.dummyInfectiousFramework.getEntryPoint(), myWorld));
+						myWorld.schedule.scheduleOnce(p.getDiseaseSet().get(inf.key), myWorld.param_schedule_infecting);
+					}
+				break;
+				}
+				default:
+					break;
+				}
 
 			}
 			else // just pass over it
@@ -653,5 +660,57 @@ public class Person extends Host {
 		
 		return false;
 	};
+	
+	public void setWaterGatherer() {
+		isWaterGatherer = true;
+	}
+	
+	public boolean getWaterGatherer() {
+		return isWaterGatherer;
+	}
+	
+	public boolean isAdult() {
+		return this.age > 18;
+	}
 
+	public void fetchWater(Water waterFrom, Water waterTo) {
+		// fetch the water, assume that this is only collection of water and not consuming it.
+		if (waterFrom.getDiseaseSet().size() > 0) {
+			for (String diseaseName: waterFrom.getDiseaseSet().keySet()) {
+				// check if this water is clean:
+				boolean cleanWater = waterFrom.getDiseaseSet().get(diseaseName).getCurrentBehaviourNode().getTitle().equals(CholeraBehaviourNodeInWater.CLEAN.key);
+				if (!cleanWater) {
+					// if a cholera infection exists in the other watersource, transfer over the behaviour node to represent transferring water over
+					if (waterTo.getDiseaseSet().containsKey(diseaseName)) {
+						waterTo.getDiseaseSet().get(diseaseName).setBehaviourNode(waterFrom.getDiseaseSet().get(diseaseName).getCurrentBehaviourNode());
+					}
+					// if there is no cholera present in the other water source, create a new instance of cholera in that water source, scheduling it in the next
+					// tick
+					else {					
+						double time = myWorld.schedule.getTime(); 
+						Cholera inf = new Cholera(waterTo, waterFrom, waterFrom.getDiseaseSet().get(diseaseName).getCurrentBehaviourNode(), myWorld);
+						myWorld.schedule.scheduleOnce(time + 1, myWorld.param_schedule_infecting, inf);
+					}
+				}
+			}
+		}
+		// potentially contaminate the water source
+		if (this.getDiseaseSet().containsKey(DISEASE.CHOLERA.key)) {
+			double rand_to_shed = myWorld.random.nextDouble();
+			if (rand_to_shed < myWorld.params.cholera_prob_shed) {
+				// check if the water source already has cholera
+				if (waterFrom.getDiseaseSet().containsKey(DISEASE.CHOLERA.key)){
+					// already cholera object here, change it to the entry point for water from humans
+					waterFrom.getDiseaseSet().get(DISEASE.CHOLERA.key).setBehaviourNode(myWorld.choleraFramework.getStandardEntryPointForWater());
+				}
+				else {
+					double time = myWorld.schedule.getTime(); 
+					// create a new cholera object in the water source
+					Cholera inf = new Cholera(waterFrom, this, myWorld.choleraFramework.getStandardEntryPointForWater(), myWorld);
+					myWorld.schedule.scheduleOnce(time, myWorld.param_schedule_infecting, inf);
+				}
+			}
+		}
+		
+	}
 }

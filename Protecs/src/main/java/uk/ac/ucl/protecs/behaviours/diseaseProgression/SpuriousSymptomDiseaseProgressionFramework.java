@@ -77,7 +77,7 @@ public class SpuriousSymptomDiseaseProgressionFramework extends DiseaseProgressi
 				CoronavirusSpuriousSymptom symptom = (CoronavirusSpuriousSymptom) s;
 				// default next step of progression is no symptoms, check if they will develop symptoms this week
 				nextStep = nextStepSpurious.NO_SYMPTOMS;
-				if (myWorld.random.nextDouble() <= myWorld.params.rate_of_spurious_symptoms) {
+				if (myWorld.random.nextDouble() <= myWorld.params.rate_of_covid_spurious_symptoms) {
 					nextStep = nextStepSpurious.CAUSE_SYMPTOMS;
 				}
 				// need to check that those who died don't do anything, do this here

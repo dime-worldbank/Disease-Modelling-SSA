@@ -18,3 +18,4 @@ lockdown_changeList_filename: lockdownChangelist.txt
 
 workplaceContactsFilename: contact_counts_w_student_teacher.csv
 workplaceConstraintsFilename: workplace_constraints_default.txt
+communityLocationFilename: community_loc_empty.txt

@@ -14,7 +14,8 @@ setting_perfectMixing: false
 
 line_list_filename: line_list_dummy.txt
 infection_transition_params_filename: covasim_infect_transitions.txt
-lockdown_changeList_filename: lockdownChangelistDefault.txt
+lockdown_changeList_filename: lockdownChangelist.txt
 
 workplaceContactsFilename: contact_counts_w_student_teacher.csv
-workplaceConstraintsFilename: workplace_constraints_all_community.txt
+workplaceConstraintsFilename: workplace_constraints_default.txt
+communityLocationFilename: community_loc_empty.txt
