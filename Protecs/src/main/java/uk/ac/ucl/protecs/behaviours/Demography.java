@@ -17,14 +17,14 @@ import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 public class Demography {
 	
 	enum MortalitySteps {
-		death,
-		noDeath
+		DEATH,
+		NO_DEATH
 	}
 	
 	enum BirthSteps {
-		pregnancy,
-		birth,
-		noBirth
+		PREGNANCY,
+		SCHEDULE_PREGNANCY,
+		NO_PREGNANCY
 	}
 	
 	public class Aging implements Steppable {
@@ -102,22 +102,22 @@ public class Demography {
 			}
 				
 			// check if this person is going to die in the next year. Set up default choice here.
-			MortalitySteps nextStep = MortalitySteps.noDeath;
+			MortalitySteps nextStep = MortalitySteps.NO_DEATH;
 			
 			if (arg0.random.nextDouble() <= myMortalityLikelihood){
-				nextStep = MortalitySteps.death;
+				nextStep = MortalitySteps.DEATH;
 				}
 			// act on next step
 			switch (nextStep) {
 			// ------------------------------------------------------------------------------------------------------------
-			case death:{
+			case DEATH:{
 				// choose a day to die this year, then schedule this death to take place
 				this.tickToCauseMortality = arg0.random.nextInt(365) * world.params.ticks_per_day;
 				arg0.schedule.scheduleOnce(arg0.schedule.getTime() + this.tickToCauseMortality, this);
 				break;
 			}
 			// ------------------------------------------------------------------------------------------------------------
-			case noDeath:{
+			case NO_DEATH:{
 				// reschedule this whole mortality deciding process to begin next year.
 				arg0.schedule.scheduleOnce(arg0.schedule.getTime() + this.ticksUntilNextMortalityCheck, this);
 				break;
@@ -130,6 +130,7 @@ public class Demography {
 		}
 		
 	}
+	
 	public class Births implements Steppable{
 		
 		Person target;
@@ -137,15 +138,16 @@ public class Demography {
 		int tickToCauseBirth = Integer.MAX_VALUE;
 		int ticksToUpdatePregnancy = Integer.MAX_VALUE;
 		int daysToRescheduleNextBirth = Integer.MAX_VALUE;
+		boolean initialSetUp = true;
 		WorldBankCovid19Sim world;
 		public Births( Person p, WorldBankCovid19Sim myWorld ) {
 			this.target = p;
-			this.ticksUntilNextBirthCheck = myWorld.params.ticks_per_year;
+			this.ticksUntilNextBirthCheck = myWorld.params.ticks_per_month;
 			this.world = myWorld;
 		} 
 		@Override
 		public void step(SimState arg0) {
-			// If a date to start pregnancy has been met, update this person's properties to remove this property
+			// If a date to start pregnancy has been set, update this person's properties to remove this property
 			if (this.ticksToUpdatePregnancy < arg0.schedule.getTime()) {
 				// Reset the update pregnancy value as the pregnancy has been established so doesn't need to be established again
 				this.ticksToUpdatePregnancy = Integer.MAX_VALUE;
@@ -156,42 +158,94 @@ public class Demography {
 				postBirthRescheduling(arg0, target.isAlive());
 			}
 			else {
-				determineGivingBirth(arg0, target);
+				determineGivingBirth(arg0, target, initialSetUp);
 				
 			}
 			
 		}
 		private void postBirthRescheduling(SimState arg0, boolean isAlive) {
 			if (isAlive) {
-			// reset tickToCauseBirth so this pathway can be used again
-			this.tickToCauseBirth = Integer.MAX_VALUE;
-			// reschedule the check to occur next year
-			int currentTime = (int) arg0.schedule.getTime();
-			int currentYear = (int) Math.floor(currentTime / world.params.ticks_per_year);
-			int nextYear = (currentYear + 1);
-			arg0.schedule.scheduleOnce(nextYear * world.params.ticks_per_year, this);
+				// reset tickToCauseBirth so this pathway can be used again
+				this.tickToCauseBirth = Integer.MAX_VALUE;
+				// reschedule the check to occur next year
+				int currentTime = (int) arg0.schedule.getTime();
+				int currentDay = (int) currentTime / world.params.ticks_per_day;
+				int currentYear = (int) Math.floor(currentTime / world.params.ticks_per_year);
+				int nextYear = (currentYear + 1);
+				arg0.schedule.scheduleOnce((nextYear * 365 + currentDay) * world.params.ticks_per_day, this);
+			}
 		}
-		}
-		private void determineGivingBirth(SimState arg0, Person target) {
+		private void determineGivingBirth(SimState arg0, Person target, Boolean initialSetUp) {
 			// We first need to determine if this person will give birth this year. As some people will have become pregnant before the start of the simulation, we will need to
 			// update pregnancy properties when births are scheduled in the first nine months of simulation time
 			boolean isAlive = target.isAlive();
 			int currentTime = (int) arg0.schedule.getTime();
-			int currentYear = (int) Math.floor(currentTime / world.params.ticks_per_year);
-
+			int currentDay = (int) arg0.schedule.getTime() / world.params.ticks_per_day;
+			
+			
+			// handle the first time this is set up here (we want to start with some people being pregnant, therefore we need to set up the pregnancies that would
+			// have happened before the simulation started.
 			if (isAlive) {
+				if (initialSetUp) {
+					
+					// assuming that in the last nine months on average 9/12 of the population would be a year younger we may need to adjust this person's age
+					// to accurately represent their likelihood of being pregnant in the last 9 months
+					boolean needToAdjustAge = world.random.nextDouble() < (9 / 12);
+					int ageForCheck = target.getAge();
+					if ((needToAdjustAge) && (target.getAge() > 1)) {
+						ageForCheck -= 1;
+					}
+					double myPregnancyLikelihood = world.params.getLikelihoodByAge(
+							world.params.prob_birth_by_age, world.params.birth_age_params, ageForCheck);
+					// increase this likelihood nine-fold to determine if they got pregnant in the last nine months
+					myPregnancyLikelihood *= 9;
+					BirthSteps nextStep = BirthSteps.NO_PREGNANCY;
+					if (arg0.random.nextDouble() <= myPregnancyLikelihood) {
+						// this person is pregnant
+						nextStep = BirthSteps.PREGNANCY;
+					}
+					switch (nextStep) {
+					case PREGNANCY:{
+						target.setPregnant(true);
+						int dayToCauseBirth = arg0.random.nextInt(9 * 30);
+						this.tickToCauseBirth = (currentDay + dayToCauseBirth) * world.params.ticks_per_day;
+//						System.out.println("First nine months scheduled to give birth on " + (currentDay + dayToCauseBirth));
+						// schedule this to rerun on the birth date
+						arg0.schedule.scheduleOnce(this.tickToCauseBirth, this);	
+						break;
+						
+					}
+					// ------------------------------------------------------------------------------------------------------------
+					case NO_PREGNANCY:{
+						// schedule a check for birth next year
+						arg0.schedule.scheduleOnce(arg0.schedule.getTime() + this.ticksUntilNextBirthCheck, this);
+						this.ticksUntilNextBirthCheck += world.params.ticks_per_month;
+						break;
+						}
+					// ------------------------------------------------------------------------------------------------------------
+					default: {
+						System.out.println("Giving birth not determined");
+						}
+					}
+					
+					// after initial set up is done, make sure this pathway isn't followed again
+					this.initialSetUp = false;
+					return;
+				}
+			
+				// handle this months checks of starting pregnancy in this section
 				double myPregnancyLikelihood = world.params.getLikelihoodByAge(
 						world.params.prob_birth_by_age, world.params.birth_age_params, target.getAge());
-				BirthSteps nextStep = BirthSteps.noBirth;
+				BirthSteps nextStep = BirthSteps.NO_PREGNANCY;
 				if (arg0.random.nextDouble() <= myPregnancyLikelihood) {
-					nextStep = BirthSteps.birth;
+					nextStep = BirthSteps.SCHEDULE_PREGNANCY;
 				}
 				if (this.ticksToUpdatePregnancy < Integer.MAX_VALUE) {
-					nextStep = BirthSteps.pregnancy;
+					nextStep = BirthSteps.PREGNANCY;
 				}
 			
 				switch (nextStep) {
-					case pregnancy:{
+					case PREGNANCY:{
 						target.setPregnant(true);
 						// schedule this to rerun on the birth date
 						arg0.schedule.scheduleOnce(this.tickToCauseBirth, this);	
@@ -199,33 +253,24 @@ public class Demography {
 					
 					}
 					// ------------------------------------------------------------------------------------------------------------
-					case birth:{
+					case SCHEDULE_PREGNANCY:{
 						// schedule day for the birth
-						int dayToCauseBirth = arg0.random.nextInt(365);
-						this.tickToCauseBirth = dayToCauseBirth * world.params.ticks_per_day;
-						
-						int dayToCausePregnancy = dayToCauseBirth - 9 * 30;
+						int dayToCausePregnancy = arg0.random.nextInt(30);
+						this.tickToCauseBirth = (currentDay + dayToCausePregnancy + 9 * 30) * world.params.ticks_per_day;
 						// create a corresponding start of pregnancy
-						this.ticksToUpdatePregnancy = dayToCausePregnancy * world.params.ticks_per_day;
-						// if this is set before the start of the simulation time, make them have the pregnant property straight away
-						if (this.ticksToUpdatePregnancy < 0) {
-							target.setPregnant(true);
-							// schedule this to rerun on the birth date
-							arg0.schedule.scheduleOnce(currentYear * world.params.ticks_per_year + this.tickToCauseBirth, this);
-							// We don't need to monitor when they should become pregnant so just reset this property now
-							this.ticksToUpdatePregnancy = Integer.MAX_VALUE;
-							break;
-						}
-						// Otherwise, we will need to schedule a time to update the pregnancy property and the subsequent birth
-						else {
-							arg0.schedule.scheduleOnce(currentYear * world.params.ticks_per_year + this.ticksToUpdatePregnancy, this);
-							break;
-						}	
+						this.ticksToUpdatePregnancy = (currentDay + dayToCausePregnancy) * world.params.ticks_per_day;
+//						System.out.println("Starting pregnancy on " + (currentDay + dayToCausePregnancy));
+
+						// schedule this event again on the day to cause pregnancy
+						arg0.schedule.scheduleOnce(currentTime + this.ticksToUpdatePregnancy, this);
+						break;
+								
 					}
 					// ------------------------------------------------------------------------------------------------------------
-					case noBirth:{
-						// schedule a check for birth next year
-						arg0.schedule.scheduleOnce(arg0.schedule.getTime() + this.ticksUntilNextBirthCheck, this);
+					case NO_PREGNANCY:{
+						// schedule a check for birth next month
+						arg0.schedule.scheduleOnce(this.ticksUntilNextBirthCheck, this);
+						this.ticksUntilNextBirthCheck += world.params.ticks_per_month;
 						break;
 						}
 					// ------------------------------------------------------------------------------------------------------------
@@ -234,12 +279,13 @@ public class Demography {
 						}
 				}
 			}
-			
 		}
 		
 		private void createBirth(SimState arg0, boolean isAlive) {
 			if (isAlive) {
 				int time = (int) (arg0.schedule.getTime() / world.params.ticks_per_day);
+//				System.out.println(target.getID() + " giving birth on " + (time));
+
 				target.gaveBirth(time);
 				// create attributed for the newborn, id, age, sex, occupation status (lol), their 
 				// household (assume this is the mothers), where the baby is, that it's not going to school

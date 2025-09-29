@@ -25,12 +25,13 @@ public class PregnancyTesting {
 		// turn off deaths
 		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
 		// Increase the birth rate to ensure births take place
-		HelperFunctions.setParameterListsToValue(sim, sim.params.prob_birth_by_age, 1.0);
+		HelperFunctions.setParameterListsToValue(sim, sim.params.prob_birth_by_age, 0.05);
 		// Run the simulation for one day to set up the births
 		int numDays = 1; 		
 		HelperFunctions.runSimulation(sim, numDays);
 		// Get the original set of pregnant women
 		List<Person> currently_pregnant = get_pregnant(sim).get(true).get(true);
+		
 		int original_number_of_pregnant_women = currently_pregnant.size();
 		// keep running the simulation for 8 months so that some pregnancies will have resolved
 		numDays = 8 * 30;

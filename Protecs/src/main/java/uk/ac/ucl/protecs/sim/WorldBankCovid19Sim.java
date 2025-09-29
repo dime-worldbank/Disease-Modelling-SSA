@@ -426,8 +426,8 @@ public class WorldBankCovid19Sim extends SimState {
 				// Trigger the process to determine mortality each year
 				Demography.Mortality agentMortality = myDemography.new Mortality(a, this);
 				schedule.scheduleOnce(0, this.param_schedule_reporting, agentMortality);
-				// if biologically female, trigger checks for giving birth each year
-				if (((Person) a).getSex().equals(SEX.FEMALE)) {
+				// if biologically female and below 50, trigger checks for giving birth each year
+				if ((((Person) a).getSex().equals(SEX.FEMALE)) && (((Person) a).getAge() < 50)) {
 					Demography.Births agentBirths = myDemography.new Births(a, this);
 					schedule.scheduleOnce(0, this.param_schedule_reporting, agentBirths);
 				}
