@@ -1,1 +1,1 @@
-admin_zone, count
+admin_zone, count, disease

@@ -173,7 +173,7 @@ public class MobilityTesting {
 	@Test
 	public void checkPeopleGoToTheirWorkplace() {
 		// check the movement of the population to their workplaces
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "workplace_bubbles_params.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_workplace_bubbles.txt");
 		HelperFunctions.makePeopleLeaveTheHouseEachDay(sim);
 		// make everyone decide to go to their workplace
 		sim.params.prob_go_to_work = 1.1d;
@@ -200,7 +200,7 @@ public class MobilityTesting {
 		Random rand = new Random();
 		int seed = rand.nextInt(1000000000);
 		// check the movement of the population to their workplaces
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "workplace_bubbles_params.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_workplace_bubbles.txt");
 		HelperFunctions.makePeopleLeaveTheHouseEachDay(sim);
 		// make everyone decide to go to their workplace
 		sim.params.prob_go_to_work = 1.1d;
@@ -222,7 +222,7 @@ public class MobilityTesting {
 			}
 			// Now rerun the simulation with the same seed making sure that people leave their workplace
 			int numTicksForAfterWork = 5;
-			sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "workplace_bubbles_params.txt");
+			sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_workplace_bubbles.txt");
 			HelperFunctions.makePeopleLeaveTheHouseEachDay(sim);
 			sim.params.prob_go_to_work = 1.1d;
 			sim.start();

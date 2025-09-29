@@ -18,3 +18,4 @@ infection_transition_params_filename: covasim_infect_transitions.txt
 lockdown_changeList_filename: lockdownChangelist.txt
 lineListWeightingFactor: 1
 
+communityLocationFilename: community_loc_empty.txt

@@ -22,3 +22,4 @@ lineListWeightingFactor: 1
 
 testDataFilename: dummy_n_tests_faulty.txt
 testLocationFilename: most_travelled_from_testing.txt
+communityLocationFilename: community_loc_empty.txt

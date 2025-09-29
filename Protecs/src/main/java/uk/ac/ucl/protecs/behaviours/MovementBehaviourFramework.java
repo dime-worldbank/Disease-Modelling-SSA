@@ -1,6 +1,7 @@
 package uk.ac.ucl.protecs.behaviours;
 
 import uk.ac.ucl.protecs.objects.hosts.Person;
+import uk.ac.ucl.protecs.objects.hosts.Person.SEX;
 import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.sim.*;
 import sim.engine.Steppable;
@@ -241,7 +242,13 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 				// extract time info
 				int hour = ((int)time) % Params.ticks_per_day;
 
-				if(hour >= myWorld.params.hour_end_day_otherday) { // late! Go home!
+				if(hour >= myWorld.params.hour_end_day_otherday) { // late! Go home! Interact with a community water source before leaving
+					// this section of code is only used if we are modelling cholera. Put a wrapper around it based on that
+					if (myWorld.choleraFramework != null) {
+						if ((!p.visitingNow()) & p.getWaterGatherer()) {
+							p.fetchWater(p.getHouseholdAsType().getWater().getSource().getWater(), p.getHouseholdAsType().getWater());
+						}
+					}
 					p.transferTo(p.getHomeLocation());
 					p.setActivityNode(homeNode);
 					p.setVisiting(false);

@@ -1,4 +1,4 @@
-admin_zone, count
-w_000021016, 5
-w_000021003, 5
-w_000021008, 5
+admin_zone, count, disease, host
+w_000021016, 5, COVID-19, PERSON
+w_000021003, 5, COVID-19, PERSON
+w_000021008, 5, COVID-19, PERSON

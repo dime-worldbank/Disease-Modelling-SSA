@@ -30,6 +30,15 @@ public class ParamsTesting {
 	private final static String paramsDir = "src/test/resources/";
 	
 	@Test
+	public void testCommunityLocationWorks() {
+		// Create the simulation object with the older style census
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_community_locations.txt");
+		// attempt to load that object in to the simulation
+		sim.start();
+		Assert.assertTrue(sim.params.communityLocations.size() > 0);
+	}
+	
+	@Test
 	public void testOldStyleCensusStillLoads() {
 		// Create the simulation object with the older style census
 		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_old_census.txt");

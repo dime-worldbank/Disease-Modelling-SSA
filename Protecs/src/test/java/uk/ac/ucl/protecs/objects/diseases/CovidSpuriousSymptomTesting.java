@@ -23,11 +23,11 @@ public class CovidSpuriousSymptomTesting{
 	
 	@Test
 	public void CheckPeopleWithSymptomaticCovidDoNotGetSpuriousSymptoms() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "covid_testing_params.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_covid_testing.txt");
 		sim.start();
 		int numDays = 8;
 		// Give the population mild Covid and spurious symptoms to see if those with mild covid have their spurious symptoms resolved 
-		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD),
+		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.covidInfectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD),
 				NodeOption.CoronavirusInfectiousBehaviour);
 		// make sure no one recovers or progresses from their mild covid
 		HelperFunctions.StopRecoveryHappening(sim);
@@ -36,7 +36,7 @@ public class CovidSpuriousSymptomTesting{
 		// make sure there are no new Covid infections
 		sim.params.infection_beta = 0.0;
 		// make sure that after the initial bout of symptoms, no one develops new spurious symptoms
-		sim.params.rate_of_spurious_symptoms = 0.0;
+		sim.params.rate_of_covid_spurious_symptoms = 0.0;
 		// create a bunch of spurious symptoms for each person
 		giveAFractionASpuriousSymptom(1, sim);
 		// run the simulation
@@ -53,12 +53,12 @@ public class CovidSpuriousSymptomTesting{
 	
 	@Test
 	public void CheckPeopleCanHaveAsymptomaticCovidAndSpuriousSymptoms() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "covid_testing_params.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_covid_testing.txt");
 		sim.start();
 		int numDays = 1;
 		giveAFractionASpuriousSymptom(1, sim);
 		// Give everyone asymptomatic Covid
-		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1, sim, sim.infectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.ASYMPTOMATIC),
+		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1, sim, sim.covidInfectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.ASYMPTOMATIC),
 				NodeOption.CoronavirusInfectiousBehaviour);
 		// run the simulation
 		HelperFunctions.runSimulation(sim, numDays);
@@ -70,11 +70,11 @@ public class CovidSpuriousSymptomTesting{
 	
 	@Test
 	public void CheckSettingCovidSpuriousSymptomAndTestingEligibilityPropertiesAreBeingRemovedAfterAWeek() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "covid_testing_params.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_covid_testing.txt");
 		sim.start();
 		int numDays = 8;
 		// Change the rate of setting Covid spurious symptoms so we have control the number of people who get given symptoms
-		sim.params.rate_of_spurious_symptoms = 0.0;
+		sim.params.rate_of_covid_spurious_symptoms = 0.0;
 		// Stop new Covid infections from developing
 		sim.params.infection_beta = 0.0;
 		// remove and existing infections from the population and assign half the population spurious symptoms
@@ -93,7 +93,7 @@ public class CovidSpuriousSymptomTesting{
 	
 	@Test
 	public void CheckCovidSpuriousSymptomAndTestingEligibilityPropertiesAreBeingSetWhenCreated() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "covid_testing_params.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_covid_testing.txt");
 		sim.start();
 		int numDays = 7;	
 		// Remove the development of new symptoms
@@ -112,11 +112,11 @@ public class CovidSpuriousSymptomTesting{
 
 	@Test
 	public void CheckSpuriousObjectsAreCreated() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "covid_testing_params.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_covid_testing.txt");
 		sim.start();
-		int numDays = 8;
+		int numDays = 7;
 		// Change the rate of setting Covid spurious symptoms so we have control the number of people who get given symptoms
-		sim.params.rate_of_spurious_symptoms = 0.5;		
+		sim.params.rate_of_covid_spurious_symptoms = 0.5;		
 		// Remove the development of new symptoms
 		sim.params.infection_beta = 0.0;
 		// run the simulation

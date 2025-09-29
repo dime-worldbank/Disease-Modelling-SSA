@@ -101,6 +101,10 @@ public class CoronavirusInfection extends Disease {
 					// immediately check whether this person can be infected by calculating the less than beta random for infection up front
 					// check if they are already infected; if they are not, infect with with probability BETA
 					double myProb = myWorld.random.nextDouble();
+//					if (!otherPerson.getDiseaseSet().containsKey(DISEASE.COVID.key) && myProb < myWorld.params.infection_beta) {
+//						CoronavirusInfection inf = new CoronavirusInfection(otherPerson, (Person) this.getHost(), myWorld.covidInfectiousFramework.getEntryPoint(), myWorld);
+//						myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting); 
+//					}
 					if (myProb < myWorld.params.infection_beta) {
 						Person otherPerson = (Person) peopleHere[myWorld.random.nextInt(numPeople)]; 
 						
@@ -115,7 +119,7 @@ public class CoronavirusInfection extends Disease {
 						// create or reactivate the infection
 						((Person) this.getHost()).addCommunityContact();
 						if(!otherPerson.getDiseaseSet().containsKey(DISEASE.COVID.key)){
-							otherPerson.getDiseaseSet().put(DISEASE.COVID.key, new CoronavirusInfection(otherPerson, (Person) this.getHost(), myWorld.infectiousFramework.getEntryPoint(), myWorld));
+							otherPerson.getDiseaseSet().put(DISEASE.COVID.key, new CoronavirusInfection(otherPerson, (Person) this.getHost(), myWorld.covidInfectiousFramework.getEntryPoint(), myWorld));
 							myWorld.schedule.scheduleOnce(otherPerson.getDiseaseSet().get(DISEASE.COVID.key), myWorld.param_schedule_infecting);
 						}
 //						else if (otherPerson.getDiseaseSet().get(DISEASE.COVID.key).getBehaviourName().equals(CoronavirusBehaviourNodeTitle.SUSCEPTIBLE.key)) {
@@ -123,9 +127,10 @@ public class CoronavirusInfection extends Disease {
 //							myWorld.schedule.scheduleOnce(otherPerson.getDiseaseSet().get(DISEASE.COVID.key), myWorld.param_schedule_infecting);
 //
 //						}
+					
 					}
+					return;
 				}
-				return;
 			}
 			else {
 				if(this.getHost().getLocation() instanceof Household){
@@ -199,10 +204,15 @@ public class CoronavirusInfection extends Disease {
 							else
 								otherPeople.add(otherPerson); 
 											
-							// create or reactivate the infection
+							// check if they are already infected; if they are not, infect with with probability BETA
+//							double myProb = myWorld.random.nextDouble();
+//							if (!otherPerson.getDiseaseSet().containsKey(DISEASE.COVID.key) && myProb < myWorld.params.infection_beta) {
+//								CoronavirusInfection inf = new CoronavirusInfection(otherPerson, (Person) this.getHost(), myWorld.covidInfectiousFramework.getEntryPoint(), myWorld);
+//								myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting); 
+//							}
 							((Person) this.getHost()).addCommunityContact();
 							if(!otherPerson.getDiseaseSet().containsKey(DISEASE.COVID.key)){
-								otherPerson.getDiseaseSet().put(DISEASE.COVID.key, new CoronavirusInfection(otherPerson, (Person) this.getHost(), myWorld.infectiousFramework.getEntryPoint(), myWorld));
+								otherPerson.getDiseaseSet().put(DISEASE.COVID.key, new CoronavirusInfection(otherPerson, (Person) this.getHost(), myWorld.covidInfectiousFramework.getEntryPoint(), myWorld));
 								myWorld.schedule.scheduleOnce(otherPerson.getDiseaseSet().get(DISEASE.COVID.key), myWorld.param_schedule_infecting);
 							}
 //							else if (otherPerson.getDiseaseSet().get(DISEASE.COVID.key).getBehaviourName().equals(CoronavirusBehaviourNodeTitle.SUSCEPTIBLE.key)) {
