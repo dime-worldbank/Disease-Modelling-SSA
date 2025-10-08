@@ -21,20 +21,17 @@ public class SocialContactsLogging{
 			return new Steppable() {
 				WorldBankCovid19Sim world = myWorld;
 				boolean firstTimeReporting = true;
-	
-				
+
 				// get those alive at location with that occupation
-				Map<OCCUPATION,  Map<Boolean, Map<Boolean, List<Person>>>> economic_alive_with_disease_at_location = world.agents.stream().collect(
+				Map<OCCUPATION,  Map<Boolean, List<Person>>> economic_alive_with_disease_at_location = world.agents.stream().collect(
 						Collectors.groupingBy(
 								Person::getEconStatus,
 										Collectors.groupingBy(
-												Person::isAlive,
-												Collectors.groupingBy(
-														Person::hasADisease
+												Person::isAlive
 														)
-												)
+												
 										)
-								);
+						);
 				@Override
 				public void step(SimState arg0) {
 					// get day
@@ -48,7 +45,6 @@ public class SocialContactsLogging{
 						socialContactsOutput += "day" + outputColumnNames;
 						firstTimeReporting = false;
 					}
-				
 					for (OCCUPATION status: world.occupationsInSim) {
 						double av_workplace_contacts_happened = 0;
 						double std_workplace_contacts_happened = 0;
@@ -57,14 +53,18 @@ public class SocialContactsLogging{
 						double av_workplace_contacts_scheduled = 0;
 						double std_workplace_contacts_scheduled = 0;
 
-						
 						try {
-							List<Person> eligiblePersons = economic_alive_with_disease_at_location.get(status).get(true).get(true);
+							List<Person> eligiblePersons = economic_alive_with_disease_at_location.get(status).get(true);
+							List<Person> wentToWorkToday = new ArrayList<Person>();
+							for (Person p: eligiblePersons) {
+								if (p.getWentToWorkToday()) {wentToWorkToday.add(p);}
+							}
+
 							ArrayList<Integer> workplaceContactCountsHappened = new ArrayList<Integer>();
 							ArrayList<Integer> workplaceContactCountsScheduled = new ArrayList<Integer>();
 							workplaceContactCountsHappened.add(0);
 							workplaceContactCountsScheduled.add(0);
-							for (Person p: eligiblePersons) {
+							for (Person p: wentToWorkToday) {
 								if (p.getNumberOfWorkplaceInteractionsHappened() > 0) {
 									workplaceContactCountsHappened.add(p.getNumberOfWorkplaceInteractionsHappened());
 									}
@@ -72,6 +72,7 @@ public class SocialContactsLogging{
 									workplaceContactCountsScheduled.add(p.getNumberOfWorkplaceInteractions());
 									}
 
+								p.resetWorkplaceContacts();
 
 							}
 							if (workplaceContactCountsHappened.size() > 1) {
@@ -95,9 +96,9 @@ public class SocialContactsLogging{
 							
 						socialContactsOutput += dayOfSimulation + t + lockedDown + t + status  + t + av_workplace_contacts_happened + t + std_workplace_contacts_happened  + 
 								t + av_workplace_contacts_scheduled + t + std_workplace_contacts_scheduled + "\n";
-						}
-					
-		
+						
+					}					
+
 					ImportExport.exportMe(world.workplaceContactsOutputFilename, socialContactsOutput, world.timer);
 		
 				}
@@ -111,17 +112,15 @@ public class SocialContactsLogging{
 	
 				
 				// get those alive at location with that occupation
-				Map<OCCUPATION,  Map<Boolean, Map<Boolean, List<Person>>>> economic_alive_with_disease_at_location = world.agents.stream().collect(
+				Map<OCCUPATION,  Map<Boolean, List<Person>>> economic_alive_with_disease_at_location = world.agents.stream().collect(
 						Collectors.groupingBy(
 								Person::getEconStatus,
 										Collectors.groupingBy(
-												Person::isAlive,
-												Collectors.groupingBy(
-														Person::hasADisease
+												Person::isAlive
 														)
-												)
+												
 										)
-								);
+						);
 				@Override
 				public void step(SimState arg0) {
 					// get day
@@ -144,8 +143,11 @@ public class SocialContactsLogging{
 						double std_community_contacts_scheduled = 0;
 						
 						try {
-							List<Person> eligiblePersons = economic_alive_with_disease_at_location.get(status).get(true).get(true);
-
+							List<Person> eligiblePersons = economic_alive_with_disease_at_location.get(status).get(true);
+							List<Person> wentToCommunityToday = new ArrayList<Person>();
+							for (Person p: eligiblePersons) {
+								if (p.getWentToCommunityToday()) {wentToCommunityToday.add(p);}
+							}
 							ArrayList<Integer> communityContactCountsHappened = new ArrayList<Integer>();
 							ArrayList<Integer> communityContactCountsScheduled = new ArrayList<Integer>();
 							communityContactCountsHappened.add(0);
@@ -157,6 +159,7 @@ public class SocialContactsLogging{
 								if (p.getNumberOfCommunityInteractions() > 0) {
 									communityContactCountsScheduled.add(p.getNumberOfCommunityInteractions());
 									}
+								p.resetCommunityContacts();
 
 							}
 							if (communityContactCountsHappened.size() > 1) {
