@@ -17,13 +17,16 @@ import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 public class Demography {
 	
 	enum MortalitySteps {
-		death,
-		noDeath
+		DEATH,
+		NO_DEATH
 	}
 	
 	enum BirthSteps {
-		birth,
-		noBirth
+		INITIALISED_PREGNANT,
+		BIRTH,
+		PREGNANCY,
+		SCHEDULE_PREGNANCY,
+		NO_PREGNANCY
 	}
 	
 	public class Aging implements Steppable {
@@ -101,22 +104,22 @@ public class Demography {
 			}
 				
 			// check if this person is going to die in the next year. Set up default choice here.
-			MortalitySteps nextStep = MortalitySteps.noDeath;
+			MortalitySteps nextStep = MortalitySteps.NO_DEATH;
 			
 			if (arg0.random.nextDouble() <= myMortalityLikelihood){
-				nextStep = MortalitySteps.death;
+				nextStep = MortalitySteps.DEATH;
 				}
 			// act on next step
 			switch (nextStep) {
 			// ------------------------------------------------------------------------------------------------------------
-			case death:{
+			case DEATH:{
 				// choose a day to die this year, then schedule this death to take place
 				this.tickToCauseMortality = arg0.random.nextInt(365) * world.params.ticks_per_day;
 				arg0.schedule.scheduleOnce(arg0.schedule.getTime() + this.tickToCauseMortality, this);
 				break;
 			}
 			// ------------------------------------------------------------------------------------------------------------
-			case noDeath:{
+			case NO_DEATH:{
 				// reschedule this whole mortality deciding process to begin next year.
 				arg0.schedule.scheduleOnce(arg0.schedule.getTime() + this.ticksUntilNextMortalityCheck, this);
 				break;
@@ -129,115 +132,220 @@ public class Demography {
 		}
 		
 	}
+	
 	public class Births implements Steppable{
 		
 		Person target;
 		int ticksUntilNextBirthCheck = 0;
 		int tickToCauseBirth = Integer.MAX_VALUE;
+		int ticksToUpdatePregnancy = Integer.MAX_VALUE;
 		int daysToRescheduleNextBirth = Integer.MAX_VALUE;
+		boolean initialSetUp = true;
 		WorldBankCovid19Sim world;
 		public Births( Person p, WorldBankCovid19Sim myWorld ) {
 			this.target = p;
-			this.ticksUntilNextBirthCheck = myWorld.params.ticks_per_year;
+			this.ticksUntilNextBirthCheck = myWorld.params.ticks_per_month;
 			this.world = myWorld;
 		} 
 		@Override
 		public void step(SimState arg0) {
-			// If a due date has been created cause a birth on this day
-			if (this.tickToCauseBirth < Integer.MAX_VALUE) {
-				createBirth(arg0, target.isAlive());
-				postBirthRescheduling(arg0, target.isAlive());
-			}
-			else {
-				determineGivingBirth(arg0, target.isAlive());
-				
-			}
 			
+			determineGivingBirth(arg0, target, initialSetUp);
 		}
+		
 		private void postBirthRescheduling(SimState arg0, boolean isAlive) {
 			if (isAlive) {
-			// reset tickToCauseBirth so this pathway can be used again
-			this.tickToCauseBirth = Integer.MAX_VALUE;
-			// reschedule the check to occur next year
-			int currentTime = (int) arg0.schedule.getTime();
-			int currentYear = (int) Math.floor(currentTime / world.params.ticks_per_year);
-			int nextYear = (currentYear + 1);
-			arg0.schedule.scheduleOnce(nextYear * world.params.ticks_per_year, this);
-		}
-		}
-		private void determineGivingBirth(SimState arg0, boolean isAlive) {
-			if (isAlive) {
-			double myPregnancyLikelihood = world.params.getLikelihoodByAge(
-					world.params.prob_birth_by_age, world.params.birth_age_params, target.getAge());
-			BirthSteps nextStep = BirthSteps.noBirth;
-			if (arg0.random.nextDouble() <= myPregnancyLikelihood) {
-				nextStep = BirthSteps.birth;
-				}
-			switch (nextStep) {
-			// ------------------------------------------------------------------------------------------------------------
-			case birth:{
-				// schedule day for the birth
-				this.tickToCauseBirth = arg0.random.nextInt(365) * world.params.ticks_per_day;
-				arg0.schedule.scheduleOnce(arg0.schedule.getTime() + this.tickToCauseBirth, this);	
-				break;
-				}
-			// ------------------------------------------------------------------------------------------------------------
-			case noBirth:{
-				// schedule a check for birth next year
-				arg0.schedule.scheduleOnce(arg0.schedule.getTime() + this.ticksUntilNextBirthCheck, this);
-				break;
-				}
-			// ------------------------------------------------------------------------------------------------------------
-			default: {
-				System.out.println("Giving birth not determined");
-				}
+				// reset tickToCauseBirth so this pathway can be used again
+				this.tickToCauseBirth = Integer.MAX_VALUE;
+				this.ticksToUpdatePregnancy = Integer.MAX_VALUE;
+
+				// reschedule the check to occur next year
+				int currentTime = (int) arg0.schedule.getTime();
+				int currentDay = (int) currentTime / world.params.ticks_per_day;
+				int currentYear = (int) Math.floor(currentTime / world.params.ticks_per_year);
+				int nextYear = (currentYear + 1);
+				this.ticksUntilNextBirthCheck = (nextYear * 365 + currentDay) * world.params.ticks_per_day;
+				arg0.schedule.scheduleOnce((nextYear * 365 + currentDay) * world.params.ticks_per_day, this);
 			}
 		}
+		private void determineGivingBirth(SimState arg0, Person target, Boolean initialSetUp) {
+			// We first need to determine if this person will give birth this year. As some people will have become pregnant before the start of the simulation, we will need to
+			// update pregnancy properties when births are scheduled in the first nine months of simulation time
+			boolean isAlive = target.isAlive();
+			int currentTime = (int) arg0.schedule.getTime();
+			int currentDay = (int) arg0.schedule.getTime() / world.params.ticks_per_day;
 			
+			
+			// handle the first time this is set up here (we want to start with some people being pregnant, therefore we need to set up the pregnancies that would
+			// have happened before the simulation started.
+			if (isAlive) {
+				if (initialSetUp) {
+					
+					// assuming that in the last nine months on average 9/12 of the population would be a year younger we may need to adjust this person's age
+					// to accurately represent their likelihood of being pregnant in the last 9 months
+					boolean needToAdjustAge = world.random.nextDouble() < (9 / 12);
+					int ageForCheck = target.getAge();
+					if ((needToAdjustAge) && (target.getAge() > 1)) {
+						ageForCheck -= 1;
+					}
+					double myPregnancyLikelihood = world.params.getLikelihoodByAge(
+							world.params.prob_birth_by_age, world.params.birth_age_params, ageForCheck);
+					// increase this likelihood nine-fold to determine if they got pregnant in the last nine months
+					double adjustedPregnancyLikelihood = myPregnancyLikelihood * 9;
+					BirthSteps nextStep = BirthSteps.NO_PREGNANCY;
+					if (arg0.random.nextDouble() <= adjustedPregnancyLikelihood) {
+						// this person is pregnant
+						nextStep = BirthSteps.INITIALISED_PREGNANT;
+					}
+					// If they aren't initialised as pregnant do a check again to see if they will be born at some point in the tenth month
+					if ((nextStep != BirthSteps.INITIALISED_PREGNANT) && (arg0.random.nextDouble() <= myPregnancyLikelihood)) {
+						nextStep = BirthSteps.SCHEDULE_PREGNANCY;
+					}
+					switch (nextStep) {
+					case INITIALISED_PREGNANT:{
+						target.setPregnant(true);
+						int dayToCauseBirth = arg0.random.nextInt(9 * 30);
+						this.tickToCauseBirth = (currentDay + dayToCauseBirth) * world.params.ticks_per_day;
+//						System.out.println("First nine months scheduled to give birth on " + (currentDay + dayToCauseBirth));
+						// schedule this to rerun on the birth date
+						arg0.schedule.scheduleOnce(this.tickToCauseBirth, this);	
+						break;
+						
+					}
+					// ------------------------------------------------------------------------------------------------------------
+					case SCHEDULE_PREGNANCY:{
+						// schedule day for the pregnancy
+						int dayToCausePregnancy = arg0.random.nextInt(30);
+						// create a corresponding start of pregnancy
+						this.ticksToUpdatePregnancy = (currentDay + dayToCausePregnancy) * world.params.ticks_per_day;
+//						System.out.println("Starting pregnancy on " + (currentDay + dayToCausePregnancy));
+
+						// schedule this event again on the day to cause pregnancy
+						arg0.schedule.scheduleOnce(currentTime + this.ticksToUpdatePregnancy, this);
+						break;
+					}
+					// ------------------------------------------------------------------------------------------------------------
+					case NO_PREGNANCY:{
+						// schedule a check for birth next month
+						arg0.schedule.scheduleOnce(arg0.schedule.getTime() + this.ticksUntilNextBirthCheck, this);
+						this.ticksUntilNextBirthCheck += world.params.ticks_per_month;
+						break;
+						}
+					// ------------------------------------------------------------------------------------------------------------
+					default: {
+						System.out.println("Giving birth not determined");
+						}
+					}
+					
+					// after initial set up is done, make sure this pathway isn't followed again
+					this.initialSetUp = false;
+					return;
+				}
+			
+				// handle this months checks of starting pregnancy in this section
+				double myPregnancyLikelihood = world.params.getLikelihoodByAge(
+						world.params.prob_birth_by_age, world.params.birth_age_params, target.getAge());
+				BirthSteps nextStep = BirthSteps.NO_PREGNANCY;
+				if (arg0.random.nextDouble() <= myPregnancyLikelihood) {
+					nextStep = BirthSteps.SCHEDULE_PREGNANCY;
+				}
+				if (this.ticksToUpdatePregnancy < Integer.MAX_VALUE) {
+					nextStep = BirthSteps.PREGNANCY;
+				}
+				if (this.tickToCauseBirth < Integer.MAX_VALUE) {
+					nextStep = BirthSteps.BIRTH;
+				}
+				
+			
+				switch (nextStep) {
+					case BIRTH:{
+						createBirth(arg0, target.isAlive());
+						postBirthRescheduling(arg0, target.isAlive());
+						break;
+					}
+					
+					case PREGNANCY:{
+						target.setPregnant(true);
+						// set a date for the birth
+						this.tickToCauseBirth =  9 * 30 * world.params.ticks_per_day + ticksToUpdatePregnancy;
+						// schedule this to rerun on the birth date
+						arg0.schedule.scheduleOnce(this.tickToCauseBirth, this);	
+						break;
+					
+					}
+					// ------------------------------------------------------------------------------------------------------------
+					case SCHEDULE_PREGNANCY:{
+						// schedule day for the pregnancy
+						int dayToCausePregnancy = arg0.random.nextInt(30);
+						this.ticksToUpdatePregnancy = (currentDay + dayToCausePregnancy) * world.params.ticks_per_day;
+//						System.out.println("Starting pregnancy on " + (currentDay + dayToCausePregnancy));
+
+						// schedule this event again on the day to cause pregnancy
+						arg0.schedule.scheduleOnce(currentTime + this.ticksToUpdatePregnancy, this);
+						break;
+								
+					}
+					// ------------------------------------------------------------------------------------------------------------
+					case NO_PREGNANCY:{
+						// schedule a check for birth next month
+						arg0.schedule.scheduleOnce(this.ticksUntilNextBirthCheck, this);
+						this.ticksUntilNextBirthCheck += world.params.ticks_per_month;
+						break;
+						}
+					// ------------------------------------------------------------------------------------------------------------
+					default: {
+						System.out.println("Giving birth not determined");
+						}
+				}
+			}
 		}
 		
 		private void createBirth(SimState arg0, boolean isAlive) {
 			if (isAlive) {
-			int time = (int) (arg0.schedule.getTime() / world.params.ticks_per_day);
-			target.gaveBirth(time);
-			// create attributed for the newborn, id, age, sex, occupation status (lol), their 
-			// household (assume this is the mothers), where the baby is, that it's not going to school
-			// and a copy of the simulation, then create the person
-			int new_id = world.agents.size() + 1;
-			int baby_age = 0;
-			// although we use an enum for biological sex, upon creation of a person a string is passed to choose sex. This is because
-			List<SEX> sexList = Arrays.asList(SEX.MALE, SEX.FEMALE);
-			SEX sexAssigned = sexList.get(world.random.nextInt(sexList.size()));
-			OCCUPATION babiesJob = OCCUPATION.UNEMPLOYED;
-			Household babyHousehold = target.getHouseholdAsType();
-			Workplace babyWorkplace = null;
-			boolean babySchooling = false;
-			int birthday = time;
-			Person baby = new Person(new_id, // ID 
-					baby_age, // age
-					birthday, // date of birth
-					sexAssigned, // sex
-					babiesJob, // lower case all of the job titles
-					babySchooling,
-					babyHousehold, // household
-					babyWorkplace,
-					world
-					);				
-			// update the household and location to include the baby
-			babyHousehold.addHost(baby);
-			// the baby has decided to go home
-			baby.setActivityNode(world.movementFramework.getEntryPoint());
-			// store the baby in the newBirths array
-			world.agents.add(baby);
-			// Add the person to the admin zone
-			baby.transferTo((Household) babyHousehold);
-			// This is a new birth that hasn't been recorded
-			target.removeBirthLogged();
-			// call on vertical transmission functions for any infections
-			for (Disease d: target.getDiseaseSet().values()) {
-				d.verticalTransmission(baby);
+				int time = (int) (arg0.schedule.getTime() / world.params.ticks_per_day);
+//				System.out.println(target.getID() + " giving birth on " + (time));
+
+				target.gaveBirth(time);
+				// create attributed for the newborn, id, age, sex, occupation status (lol), their 
+				// household (assume this is the mothers), where the baby is, that it's not going to school
+				// and a copy of the simulation, then create the person
+				int new_id = world.agents.size() + 1;
+				int baby_age = 0;
+				// although we use an enum for biological sex, upon creation of a person a string is passed to choose sex. This is because
+				List<SEX> sexList = Arrays.asList(SEX.MALE, SEX.FEMALE);
+				SEX sexAssigned = sexList.get(world.random.nextInt(sexList.size()));
+				OCCUPATION babiesJob = OCCUPATION.UNEMPLOYED;
+				Household babyHousehold = target.getHouseholdAsType();
+				Workplace babyWorkplace = null;
+				boolean babySchooling = false;
+				int birthday = time;
+				Person baby = new Person(new_id, // ID 
+						baby_age, // age
+						birthday, // date of birth
+						sexAssigned, // sex
+						babiesJob, // lower case all of the job titles
+						babySchooling,
+						babyHousehold, // household
+						babyWorkplace,
+						world
+						);				
+				// update the household and location to include the baby
+				babyHousehold.addHost(baby);
+				// the baby has decided to go home
+				baby.setActivityNode(world.movementFramework.getEntryPoint());
+				// store the baby in the newBirths array
+				world.agents.add(baby);
+				// Add the person to the admin zone
+				baby.transferTo((Household) babyHousehold);
+				// This is a new birth that hasn't been recorded
+				target.removeBirthLogged();
+				// call on vertical transmission functions for any infections
+				for (Disease d: target.getDiseaseSet().values()) {
+					d.verticalTransmission(baby);
+				}
 			}
-		}
+		// reset if they are pregnant or not
+		target.setPregnant(false);
 		}
 		
 	}

@@ -127,9 +127,6 @@ public class DemographyLogging {
 					}
 				}
 
-			int currentYear = 1 + (int) Math.floor(time / 365);
-			int nextYear = currentYear + 1;
-			arg0.schedule.scheduleOnce((365 * nextYear - 1) * params.ticks_per_day, world.param_schedule_reporting, this);
 			this.firstTimeReporting = false;
 		}
 		
