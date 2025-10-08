@@ -284,7 +284,7 @@ public class DummyDiseaseTesting{
 			if (w.getDiseaseSet().containsKey(DISEASE.DUMMY_WATERBORNE.key)) number_of_initial_infections_in_water ++;
 
 		}
-		int numDays = 50;
+		int numDays = 100;
 		HelperFunctions.runSimulation(sim, numDays);
 		int number_of_new_infections_in_water = 0;
 
