@@ -74,9 +74,6 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 
 				// if it's morning, go out for the day, reset the number of contacts they will have
 				if(hour >= myWorld.params.hour_start_day_weekday){ 
-					// reset occurs at hour 2
-					p.resetWorkplaceContacts();
-					p.resetCommunityContacts();
  
 					return determineDailyRoutine(p, hour, day);
 				}
@@ -95,6 +92,8 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 					// travelling to another district!
 					p.transferTo(target);
 					p.setActivityNode(communityNode);
+					p.setWentToCommunityToday(true);
+
 					p.setAtWork(false);
 					assert ! p.getHomeLocation().getSuper().equals(target) : 
 						"set to travel to a different district but didn't, home/target " + p.getHomeLocation().getSuper().getId() + " " + target.getId();
@@ -195,7 +194,6 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 
 			@Override
 			public double next(Steppable s, double time) {
-
 				Person p = (Person) s;
 //				System.out.println(p.getLocation().personsHere.size() + p.checkWorkplaceID());
 
@@ -207,6 +205,7 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 					p.transferTo(p.getHomeLocation());
 					p.setActivityNode(homeNode);
 					p.setAtWork(false);
+
 					return myWorld.params.hours_sleeping;
 				}
 				
