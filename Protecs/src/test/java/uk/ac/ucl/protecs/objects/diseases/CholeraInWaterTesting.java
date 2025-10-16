@@ -115,7 +115,7 @@ public class CholeraInWaterTesting {
 	public void checkCholeraIsPickedUpFromWater() {
 		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_water.txt");
 		sim.start();
-		sim.params.cholera_prob_ingest = 1;
+		sim.choleraFramework.setCholera_prob_ingest(1);
 		int number_of_initial_infections_in_humans = 0;
 
 		for (Person p: sim.agents) {
@@ -144,7 +144,7 @@ public class CholeraInWaterTesting {
 
 		}
 		// make sure there are no new contamination events from shedding
-		sim.params.cholera_prob_shed = 0;
+		sim.choleraFramework.setCholera_prob_shed(1);
 		// run for two ticks
 		int numTicks = 2;
 		HelperFunctions.runSimulationForTicks(sim, numTicks);
@@ -171,7 +171,8 @@ public class CholeraInWaterTesting {
 
 		}
 		// make sure there are no new contamination events from shedding
-		sim.params.cholera_prob_shed = 0;
+		sim.choleraFramework.setCholera_prob_shed(0);
+
 		// run for 30 days
 		int numDays = 30;
 		HelperFunctions.runSimulation(sim, numDays);
@@ -209,8 +210,8 @@ public class CholeraInWaterTesting {
 			}
 		}
 		// Make the spread of cholera in water only occur mechanically through the fetchWater function in the person object
-		sim.params.cholera_prob_ingest = 0;
-		sim.params.cholera_prob_shed = 0;
+		sim.choleraFramework.setCholera_prob_ingest(0);
+		sim.choleraFramework.setCholera_prob_shed(0);
 		
 		// run for 35 days
 		int numDays = 50;
@@ -236,7 +237,7 @@ public class CholeraInWaterTesting {
 
 		}
 		// up the rate of shedding into water
-		sim.params.cholera_prob_shed = 1;
+		sim.choleraFramework.setCholera_prob_shed(1);
 		// run for 30 days
 		int numDays = 30;
 		HelperFunctions.runSimulation(sim, numDays);

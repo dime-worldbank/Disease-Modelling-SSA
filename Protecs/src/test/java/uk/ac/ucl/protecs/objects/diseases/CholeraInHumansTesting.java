@@ -87,21 +87,23 @@ public class CholeraInHumansTesting {
 		int num_days = 7;
 		// adjust probability of outcomes to (hopefully) make sure that all options are explored from the exposed node
 		// balance out the likelihood of the next states from the exposed node
-		sim.params.cholera_sufficient_ingestion = 0.5;
-		sim.params.cholera_prob_asymptomatic = 0.5;
-		sim.params.cholera_prob_severe = 0.5;
+		sim.choleraFramework.setCholera_sufficient_ingestion(0.5);
+		sim.choleraFramework.setCholera_prob_asymptomatic(0.5);
+		sim.choleraFramework.setCholera_prob_severe(0.5);
 		// remove any chance of severe infections becoming critical
-		sim.params.cholera_prob_seek_treatment = 1.01;
+		sim.choleraFramework.setCholera_prob_seek_treatment(1.01);
 		// remove any chance of death
-		sim.params.cholera_prob_mortality_with_treatment = 0;
-		sim.params.cholera_prob_mortality_without_treatment = 0;
+		sim.choleraFramework.setCholera_prob_mortality_with_treatment(0);
+		sim.choleraFramework.setCholera_prob_mortality_without_treatment(0);
+
 		// remove any chance of recovery in the simulation time
-		sim.params.cholera_mean_time_recovery_asympt = num_days + 2; 
-		sim.params.cholera_mean_time_recovery_mild = num_days + 2; 
-		sim.params.cholera_mean_time_recovery_severe = num_days + 2; 
-		sim.params.cholera_mean_time_recovery_critical = num_days + 2; 
-		sim.params.cholera_mean_time_death_with_treatment = num_days + 2; 
-		sim.params.cholera_mean_time_death_without_treatment = num_days + 2; 
+		sim.choleraFramework.setCholera_mean_time_recovery_asympt(num_days + 2);
+		sim.choleraFramework.setCholera_mean_time_recovery_mild(num_days + 2);
+		sim.choleraFramework.setCholera_mean_time_recovery_severe(num_days + 2);
+		sim.choleraFramework.setCholera_mean_time_recovery_critical(num_days + 2);
+		sim.choleraFramework.setCholera_mean_time_death_with_treatment(num_days + 2);
+		
+		sim.choleraFramework.setCholera_mean_time_death_without_treatment(num_days + 2);
 		
 		// run the simulation for a few day and track the unique behaviour nodes of cholera infections
 		HashSet<String> uniqueNodesInRun = HelperFunctions.getUniqueNodesOverCourseofSim(sim, num_days, NodeOption.Cholera, 1);
@@ -130,8 +132,7 @@ public class CholeraInHumansTesting {
 				NodeOption.Cholera);
 
 		// remove any chance of recovery in the simulation time
-		sim.params.cholera_mean_time_recovery_asympt = num_days - 3; 
-
+		sim.choleraFramework.setCholera_mean_time_recovery_asympt(num_days - 3);
 		
 		// run the simulation for a few day and track the unique behaviour nodes of cholera infections
 		HashSet<String> uniqueNodesInRun = HelperFunctions.getUniqueNodesOverCourseofSim(sim, num_days, NodeOption.Cholera, 1);
@@ -159,7 +160,7 @@ public class CholeraInHumansTesting {
 				NodeOption.Cholera);
 
 		// ensure that recovery time happens within the simulation time
-		sim.params.cholera_mean_time_recovery_mild = num_days - 3; 
+		sim.choleraFramework.setCholera_mean_time_recovery_mild(num_days - 3);
 
 		
 		// run the simulation for a few day and track the unique behaviour nodes of cholera infections
@@ -188,10 +189,9 @@ public class CholeraInHumansTesting {
 				NodeOption.Cholera);
 
 		// ensure that recovery time happens within the simulation time
-		sim.params.cholera_mean_time_recovery_severe = num_days - 3; 
+		sim.choleraFramework.setCholera_mean_time_recovery_severe(num_days - 3);
 		// make half the people seek treatment and those who don't will develop critical cholera
-		sim.params.cholera_prob_mortality_with_treatment = 0.5;
-
+		sim.choleraFramework.setCholera_mean_time_death_with_treatment(0.5);
 		
 		// run the simulation for a few day and track the unique behaviour nodes of cholera infections
 		HashSet<String> uniqueNodesInRun = HelperFunctions.getUniqueNodesOverCourseofSim(sim, num_days, NodeOption.Cholera, 1);
@@ -220,7 +220,7 @@ public class CholeraInHumansTesting {
 				NodeOption.Cholera);
 
 		// ensure that recovery time happens within the simulation time
-		sim.params.cholera_mean_time_recovery_critical = num_days - 3; 
+		sim.choleraFramework.setCholera_mean_time_recovery_critical(num_days - 3);
 
 		
 		// run the simulation for a few day and track the unique behaviour nodes of cholera infections
@@ -250,8 +250,8 @@ public class CholeraInHumansTesting {
 				NodeOption.Cholera);
 
 		// ensure that recovery time happens within the simulation time
-		sim.params.cholera_mean_time_recovery_critical = num_days - 3; 
-
+		sim.choleraFramework.setCholera_mean_time_recovery_critical(num_days - 3);
+		
 		
 		// run the simulation for a few day and track the unique behaviour nodes of cholera infections
 		HashSet<String> uniqueNodesInRun = HelperFunctions.getUniqueNodesOverCourseofSim(sim, num_days, NodeOption.Cholera, 1);
@@ -280,8 +280,7 @@ public class CholeraInHumansTesting {
 				NodeOption.Cholera);
 
 		// ensure that immunity from cholera wears out over the course of the simulation
-		sim.params.cholera_natural_immunity_days_post_infection = num_days - 3; 
-
+		sim.choleraFramework.setCholera_natural_immunity_days_post_infection(num_days - 3);
 		
 		// run the simulation for a few day and track the unique behaviour nodes of cholera infections
 		HashSet<String> uniqueNodesInRun = HelperFunctions.getUniqueNodesOverCourseofSim(sim, num_days, NodeOption.Cholera, 1);
@@ -303,10 +302,9 @@ public class CholeraInHumansTesting {
 				sim.start();
 
 				// Make sure there are no new infections
-				sim.params.cholera_prob_shed = 0;
-				sim.params.cholera_prob_ingest = 0;
-				sim.params.cholera_sufficient_ingestion = 1;
-
+				sim.choleraFramework.setCholera_prob_shed(0);
+				sim.choleraFramework.setCholera_prob_ingest(0);
+				sim.choleraFramework.setCholera_sufficient_ingestion(1);
 				// seed a number of the specific node to the run
 				HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.choleraFramework.setNodeForTesting(CholeraBehaviourNodeInHumans.EXPOSED), 
 						NodeOption.Cholera);		// Set up a duration to run the simulation

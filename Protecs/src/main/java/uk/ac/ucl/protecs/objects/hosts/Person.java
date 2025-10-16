@@ -682,7 +682,7 @@ public class Person extends Host {
 		// potentially contaminate the water source
 		if (this.getDiseaseSet().containsKey(DISEASE.CHOLERA.key)) {
 			double rand_to_shed = myWorld.random.nextDouble();
-			if (rand_to_shed < myWorld.params.cholera_prob_shed) {
+			if (rand_to_shed < myWorld.choleraFramework.getCholera_prob_shed()) {
 				// check if the water source already has cholera
 				if (waterFrom.getDiseaseSet().containsKey(DISEASE.CHOLERA.key)){
 					// already cholera object here, change it to the entry point for water from humans

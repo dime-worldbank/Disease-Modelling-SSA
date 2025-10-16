@@ -128,34 +128,6 @@ public class Params {
 	
 	// -------------------- Cholera parameters ---------------------------------
 	
-	public double cholera_exposed_to_infectious_mean = 1.4 * ticks_per_day; // (https://www.sciencedirect.com/science/article/pii/S0163445312003477)
-	public double cholera_exposed_to_infectious_std = 0.0917 * ticks_per_day; // (https://www.sciencedirect.com/science/article/pii/S0163445312003477)
-	public double cholera_mean_time_recovery_asympt = 1; // (https://pmc.ncbi.nlm.nih.gov/articles/PMC2554681/)
-	public double cholera_mean_time_recovery_mild = 4.5; // (https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(03)15328-7/fulltext)
-	public double cholera_mean_time_recovery_severe = 3; // TBD
-	public double cholera_mean_time_recovery_critical = 3; // TBD
-	public double cholera_mean_time_death_with_treatment = 1; // TBD
-	public double cholera_mean_time_death_without_treatment = 1; // TBD
-	public double cholera_prob_seek_treatment = 0.8; // TBD
-
-	public double cholera_prob_asymptomatic = 0.75; // (https://ui.adsabs.harvard.edu/abs/2008Natur.454..877K/abstract)
-	public double cholera_prior_asympt_protection_factor = 0.1; // TBD
-	public double cholera_prior_sympt_protection_factor = 0.1; // TBD
-	public double cholera_prob_severe = 0.03; // TBD
-	public double cholera_sufficient_ingestion = 0.95; // probably will be replaced with dose dependence
-	public double cholera_prob_mortality_with_treatment = 0.01;
-	public double cholera_prob_mortality_without_treatment = 0.5;
-	
-	public double cholera_recovered_from_sympt_partial_protection_years = 3;  // https://pmc.ncbi.nlm.nih.gov/articles/PMC8136710/pdf/pntd.0009383.pdf
-	public double cholera_recovered_from_asympt_partial_protection_months = 2;  // https://pmc.ncbi.nlm.nih.gov/articles/PMC8136710/pdf/pntd.0009383.pdf
-	
-	public double cholera_natural_immunity_days_post_infection = 30;
-	
-	public double cholera_prob_shed = 0.1; // TODO: Change to dose dependent
-	public double cholera_prob_ingest = 0.1; // TODO: Change to dose dependent
-	
-	public double cholera_time_hyperinfectious_in_water = 5 / 4; // hyperinfectious state is very short, around 5 hours, 1 tick is 4 hours therefore 5/4 ticks is 5 hours (https://pubmed.ncbi.nlm.nih.gov/12050664/)
-	public double cholera_time_abnc_in_water = 2 * ticks_per_week;
 	// all cause mortality parameters
 	public ArrayList <Integer> all_cause_death_age_params;
 	public ArrayList <Double> prob_death_by_age_male;
