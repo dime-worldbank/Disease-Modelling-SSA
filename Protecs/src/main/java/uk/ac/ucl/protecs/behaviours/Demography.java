@@ -1,6 +1,13 @@
 package uk.ac.ucl.protecs.behaviours;
 
+import static org.junit.Assert.fail;
+
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import sim.engine.SimState;
@@ -15,6 +22,13 @@ import uk.ac.ucl.protecs.objects.locations.Workplace;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 
 public class Demography {
+	WorldBankCovid19Sim myWorld;
+	// all cause mortality parameters
+	public ArrayList <Integer> all_cause_death_age_params;
+	public ArrayList <Double> prob_death_by_age_male;
+	public ArrayList <Double> prob_death_by_age_female;
+	public ArrayList <Integer> birth_age_params;
+	public ArrayList <Double> prob_birth_by_age;
 	
 	enum MortalitySteps {
 		DEATH,
@@ -27,6 +41,11 @@ public class Demography {
 		PREGNANCY,
 		SCHEDULE_PREGNANCY,
 		NO_PREGNANCY
+	}
+	public Demography(WorldBankCovid19Sim myWorld) {
+		this.myWorld = myWorld;
+		load_all_cause_mortality_params(myWorld.params.dataDir + myWorld.params.all_cause_mortality_filename);
+		load_all_birthrate_params(myWorld.params.dataDir + myWorld.params.birth_rate_filename);
 	}
 	
 	public class Aging implements Steppable {
@@ -89,14 +108,14 @@ public class Demography {
 			// get probability of dying this year if male
 			case MALE: {
 				myMortalityLikelihood = world.params.getLikelihoodByAge(
-					world.params.prob_death_by_age_male, world.params.all_cause_death_age_params, target.getAge());
+					prob_death_by_age_male, all_cause_death_age_params, target.getAge());
 				break;
 			}
 			// ------------------------------------------------------------------------------------------------------------
 			// get probability of dying this year if female
 			case FEMALE: {
 				myMortalityLikelihood = world.params.getLikelihoodByAge(
-						world.params.prob_death_by_age_female, world.params.all_cause_death_age_params, target.getAge());	
+						prob_death_by_age_female, all_cause_death_age_params, target.getAge());	
 				break;
 			}
 			// ------------------------------------------------------------------------------------------------------------
@@ -189,7 +208,7 @@ public class Demography {
 						ageForCheck -= 1;
 					}
 					double myPregnancyLikelihood = world.params.getLikelihoodByAge(
-							world.params.prob_birth_by_age, world.params.birth_age_params, ageForCheck);
+							prob_birth_by_age, birth_age_params, ageForCheck);
 					// increase this likelihood nine-fold to determine if they got pregnant in the last nine months
 					double adjustedPregnancyLikelihood = myPregnancyLikelihood * 9;
 					BirthSteps nextStep = BirthSteps.NO_PREGNANCY;
@@ -244,7 +263,7 @@ public class Demography {
 			
 				// handle this months checks of starting pregnancy in this section
 				double myPregnancyLikelihood = world.params.getLikelihoodByAge(
-						world.params.prob_birth_by_age, world.params.birth_age_params, target.getAge());
+						prob_birth_by_age, birth_age_params, target.getAge());
 				BirthSteps nextStep = BirthSteps.NO_PREGNANCY;
 				if (arg0.random.nextDouble() <= myPregnancyLikelihood) {
 					nextStep = BirthSteps.SCHEDULE_PREGNANCY;
@@ -348,6 +367,149 @@ public class Demography {
 		target.setPregnant(false);
 		}
 		
+	}
+	public ArrayList<Integer> getAll_cause_death_age_params() {
+		return all_cause_death_age_params;
+	}
+
+	public void setAll_cause_death_age_params(ArrayList<Integer> all_cause_death_age_params) {
+		this.all_cause_death_age_params = all_cause_death_age_params;
+	}
+
+	public ArrayList<Double> getProb_death_by_age_male() {
+		return prob_death_by_age_male;
+	}
+
+	public void setProb_death_by_age_male(ArrayList<Double> prob_death_by_age_male) {
+		this.prob_death_by_age_male = prob_death_by_age_male;
+	}
+
+	public ArrayList<Double> getProb_death_by_age_female() {
+		return prob_death_by_age_female;
+	}
+
+	public void setProb_death_by_age_female(ArrayList<Double> prob_death_by_age_female) {
+		this.prob_death_by_age_female = prob_death_by_age_female;
+	}
+
+	public ArrayList<Integer> getBirth_age_params() {
+		return birth_age_params;
+	}
+
+	public void setBirth_age_params(ArrayList<Integer> birth_age_params) {
+		this.birth_age_params = birth_age_params;
+	}
+
+	public ArrayList<Double> getProb_birth_by_age() {
+		return prob_birth_by_age;
+	}
+
+	public void setProb_birth_by_age(ArrayList<Double> prob_birth_by_age) {
+		this.prob_birth_by_age = prob_birth_by_age;
+	}
+	public void load_all_cause_mortality_params(String filename) {
+		try {
+			
+			if(myWorld.params.verbose)
+				System.out.println("Reading in all cause mortality data from " + filename);
+			
+			// Open the tracts file
+			FileInputStream fstream = new FileInputStream(filename);
+
+			// Convert our input stream to a BufferedReader
+			BufferedReader lineListDataFile = new BufferedReader(new InputStreamReader(fstream));
+			String s;
+
+			// extract the header
+			s = lineListDataFile.readLine();
+
+			// map the header into column names relative to location
+			String [] header = myWorld.params.splitRawCSVString(s);
+			HashMap <String, Integer> columnNames = myWorld.params.parseHeader(header);
+			
+			// set up data container
+			
+			all_cause_death_age_params = new ArrayList<Integer> ();
+			prob_death_by_age_male = new ArrayList <Double> ();
+			prob_death_by_age_female = new ArrayList <Double> ();
+
+			
+			// read in the raw data
+			while ((s = lineListDataFile.readLine()) != null) {
+				String [] bits = myWorld.params.splitRawCSVString(s);
+				
+				// assemble the age data
+				String [] ageRange = bits[0].split("-");
+				int maxAge = Integer.MAX_VALUE;
+				if(ageRange.length > 1){
+					maxAge = Integer.parseInt(ageRange[1]); // take the maximum
+				}
+				all_cause_death_age_params.add(maxAge);
+				
+				double male_prob_death  = Double.parseDouble(bits[1]),
+						female_prob_death = Double.parseDouble(bits[2]);
+				
+				// store the values
+				prob_death_by_age_male.add(male_prob_death);
+				prob_death_by_age_female.add(female_prob_death);
+
+			}
+			lineListDataFile.close();
+			} catch (Exception e) {
+				System.err.println("File input error: " + filename);
+				fail();
+			}
+	}
+	
+	public void load_all_birthrate_params(String filename) {
+		try {
+			
+			if(myWorld.params.verbose)
+				System.out.println("Reading in birth rate data from " + filename);
+			
+			// Open the tracts file
+			FileInputStream fstream = new FileInputStream(filename);
+
+			// Convert our input stream to a BufferedReader
+			BufferedReader lineListDataFile = new BufferedReader(new InputStreamReader(fstream));
+			String s;
+
+			// extract the header
+			s = lineListDataFile.readLine();
+
+			// map the header into column names relative to location
+			String [] header = myWorld.params.splitRawCSVString(s);
+			HashMap <String, Integer> columnNames = myWorld.params.parseHeader(header);
+			
+			// set up data container
+			
+			birth_age_params = new ArrayList<Integer> ();
+			prob_birth_by_age = new ArrayList <Double> ();
+
+			
+			// read in the raw data
+			while ((s = lineListDataFile.readLine()) != null) {
+				String [] bits = myWorld.params.splitRawCSVString(s);
+				
+				// assemble the age data
+				String [] ageRange = bits[0].split("-");
+				int maxAge = Integer.MAX_VALUE;
+				if(ageRange.length > 1){
+					maxAge = Integer.parseInt(ageRange[1]); // take the maximum
+				}
+				birth_age_params.add(maxAge);
+				
+				double female_prob_birth = Double.parseDouble(bits[1]);
+				
+				// store the values
+				prob_birth_by_age.add(female_prob_birth);
+
+			}
+			lineListDataFile.close();
+			} catch (Exception e) {
+				System.err.println("File input error: " + filename);
+				fail();
+			}
 	}
 	
 }

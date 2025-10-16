@@ -69,6 +69,7 @@ public class WorldBankCovid19Sim extends SimState {
 	public DummyWaterborneDiseaseProgressionFramework dummyWaterborneFramework = null;
 	public DummyInfectiousDiseaseProgressionFramework dummyInfectiousFramework = null;
 	public CholeraDiseaseProgressionFramework choleraFramework = null;
+	public Demography demographyFramework = null;
 	public Params params = null;
 	public boolean lockedDown = false;
 	// the names of file names of each output filename		
@@ -418,17 +419,18 @@ public class WorldBankCovid19Sim extends SimState {
 			}
 		// =============================== Schedule demography events if using ============================================================
 		if (this.params.demography) {
-			Demography myDemography = new Demography();
+			demographyFramework = new Demography(this);
+			
 			for(Person a: agents) {
 				// Trigger the aging process for this person
-				Demography.Aging agentAging = myDemography.new Aging(a, this);
+				Demography.Aging agentAging = demographyFramework.new Aging(a, this);
 				schedule.scheduleOnce(a.getBirthday()*params.ticks_per_day, this.param_schedule_reporting, agentAging);
 				// Trigger the process to determine mortality each year
-				Demography.Mortality agentMortality = myDemography.new Mortality(a, this);
+				Demography.Mortality agentMortality = demographyFramework.new Mortality(a, this);
 				schedule.scheduleOnce(0, this.param_schedule_reporting, agentMortality);
 				// if biologically female and below 50, trigger checks for giving birth each year
 				if ((((Person) a).getSex().equals(SEX.FEMALE)) && (((Person) a).getAge() < 50)) {
-					Demography.Births agentBirths = myDemography.new Births(a, this);
+					Demography.Births agentBirths = demographyFramework.new Births(a, this);
 					schedule.scheduleOnce(0, this.param_schedule_reporting, agentBirths);
 				}
 			}

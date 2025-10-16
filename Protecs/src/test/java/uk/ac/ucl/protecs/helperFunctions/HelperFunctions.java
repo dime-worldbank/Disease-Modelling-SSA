@@ -367,11 +367,13 @@ public class HelperFunctions {
 	public static void turnOffBirthsOrDeaths(WorldBankCovid19Sim world, birthsOrDeaths whatToTurnOff) {
 		switch (whatToTurnOff) {
 		case births:
-			HelperFunctions.setParameterListsToValue(world, world.params.prob_birth_by_age, 0.0);
+			
+			HelperFunctions.setParameterListsToValue(world, world.demographyFramework.getProb_birth_by_age(), 0.0);
 			break;
 		case deaths:
-			HelperFunctions.setParameterListsToValue(world, world.params.prob_death_by_age_male, 0.0);
-			HelperFunctions.setParameterListsToValue(world, world.params.prob_death_by_age_female, 0.0);
+			
+			HelperFunctions.setParameterListsToValue(world, world.demographyFramework.getProb_death_by_age_male(), 0.0);
+			HelperFunctions.setParameterListsToValue(world, world.demographyFramework.getProb_death_by_age_female(), 0.0);
 			break;
 		default:
 			System.out.println("No part of the demography has been turned off");

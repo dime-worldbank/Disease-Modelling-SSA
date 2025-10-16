@@ -25,7 +25,8 @@ public class PregnancyTesting {
 		// turn off deaths
 		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
 		// Increase the birth rate to ensure births take place
-		HelperFunctions.setParameterListsToValue(sim, sim.params.prob_birth_by_age, 0.05);
+		HelperFunctions.setParameterListsToValue(sim, sim.demographyFramework.getProb_birth_by_age(), 0.05);
+		
 		// Run the simulation for one day to set up the births
 		int numDays = 1; 		
 		HelperFunctions.runSimulation(sim, numDays);
@@ -59,7 +60,7 @@ public class PregnancyTesting {
 		// turn off deaths
 		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
 		// Increase the birth rate to ensure births take place
-		HelperFunctions.setParameterListsToValue(sim, sim.params.prob_birth_by_age, 0.05);
+		HelperFunctions.setParameterListsToValue(sim, sim.demographyFramework.getProb_birth_by_age(), 0.05);
 		// Run the simulation for one day to set up the births
 		int numDays = 1; 		
 		HelperFunctions.runSimulation(sim, numDays);
@@ -85,7 +86,7 @@ public class PregnancyTesting {
 		// turn off deaths
 		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
 		// Increase the birth rate to ensure births take place
-		HelperFunctions.setParameterListsToValue(sim, sim.params.prob_birth_by_age, 0.05);
+		HelperFunctions.setParameterListsToValue(sim, sim.demographyFramework.getProb_birth_by_age(), 0.05);
 		// Run the simulation for one day to set up the births
 		int numDays = 1; 		
 		HelperFunctions.runSimulation(sim, numDays);
@@ -111,7 +112,7 @@ public class PregnancyTesting {
 		// turn off deaths
 		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
 		// Increase the birth rate to ensure births take place
-		HelperFunctions.setParameterListsToValue(sim, sim.params.prob_birth_by_age, 0.00);
+		HelperFunctions.setParameterListsToValue(sim, sim.demographyFramework.getProb_birth_by_age(), 0.00);
 		// Run the simulation for one day to set up the births
 		int numDays = 365; 		
 		HelperFunctions.runSimulation(sim, numDays);

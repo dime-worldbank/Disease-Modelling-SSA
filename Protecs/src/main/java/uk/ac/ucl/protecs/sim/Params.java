@@ -171,12 +171,7 @@ public class Params {
 	
 	public double cholera_time_hyperinfectious_in_water = 5 / 4; // hyperinfectious state is very short, around 5 hours, 1 tick is 4 hours therefore 5/4 ticks is 5 hours (https://pubmed.ncbi.nlm.nih.gov/12050664/)
 	public double cholera_time_abnc_in_water = 2 * ticks_per_week;
-	// all cause mortality parameters
-	public ArrayList <Integer> all_cause_death_age_params;
-	public ArrayList <Double> prob_death_by_age_male;
-	public ArrayList <Double> prob_death_by_age_female;
-	public ArrayList <Integer> birth_age_params;
-	public ArrayList <Double> prob_birth_by_age;
+
 	// data files
 	
 	public String dataDir = null;
@@ -257,11 +252,6 @@ public class Params {
 		// Load in whether/when you want to trigger lockdown only if a file name has been declared
 		if (!(lockdown_changeList_filename == null)) {
 			load_lockdown_changelist(dataDir +  lockdown_changeList_filename);
-		}
-		// only load in all cause mortality and birth rate files only if demography is set to true, or if these file name fields are initialised		
-		if (this.demography || (!(all_cause_mortality_filename == null) & !(birth_rate_filename == null))) {
-			load_all_cause_mortality_params(dataDir + all_cause_mortality_filename);
-			load_all_birthrate_params(dataDir + birth_rate_filename);
 		}
 		// load the testing data
 		if (this.covidTesting || (!(testDataFilename == null) & !(testLocationFilename == null))) {
@@ -777,110 +767,7 @@ public class Params {
 			}
 		}
 	
-	public void load_all_cause_mortality_params(String filename) {
-		try {
-			
-			if(verbose)
-				System.out.println("Reading in all cause mortality data from " + filename);
-			
-			// Open the tracts file
-			FileInputStream fstream = new FileInputStream(filename);
-
-			// Convert our input stream to a BufferedReader
-			BufferedReader lineListDataFile = new BufferedReader(new InputStreamReader(fstream));
-			String s;
-
-			// extract the header
-			s = lineListDataFile.readLine();
-
-			// map the header into column names relative to location
-			String [] header = splitRawCSVString(s);
-			HashMap <String, Integer> columnNames = parseHeader(header);
-			
-			// set up data container
-			
-			all_cause_death_age_params = new ArrayList<Integer> ();
-			prob_death_by_age_male = new ArrayList <Double> ();
-			prob_death_by_age_female = new ArrayList <Double> ();
-
-			
-			// read in the raw data
-			while ((s = lineListDataFile.readLine()) != null) {
-				String [] bits = splitRawCSVString(s);
-				
-				// assemble the age data
-				String [] ageRange = bits[0].split("-");
-				int maxAge = Integer.MAX_VALUE;
-				if(ageRange.length > 1){
-					maxAge = Integer.parseInt(ageRange[1]); // take the maximum
-				}
-				all_cause_death_age_params.add(maxAge);
-				
-				double male_prob_death  = Double.parseDouble(bits[1]),
-						female_prob_death = Double.parseDouble(bits[2]);
-				
-				// store the values
-				prob_death_by_age_male.add(male_prob_death);
-				prob_death_by_age_female.add(female_prob_death);
-
-			}
-			lineListDataFile.close();
-			} catch (Exception e) {
-				System.err.println("File input error: " + filename);
-				fail();
-			}
-	}
 	
-	public void load_all_birthrate_params(String filename) {
-		try {
-			
-			if(verbose)
-				System.out.println("Reading in birth rate data from " + filename);
-			
-			// Open the tracts file
-			FileInputStream fstream = new FileInputStream(filename);
-
-			// Convert our input stream to a BufferedReader
-			BufferedReader lineListDataFile = new BufferedReader(new InputStreamReader(fstream));
-			String s;
-
-			// extract the header
-			s = lineListDataFile.readLine();
-
-			// map the header into column names relative to location
-			String [] header = splitRawCSVString(s);
-			HashMap <String, Integer> columnNames = parseHeader(header);
-			
-			// set up data container
-			
-			birth_age_params = new ArrayList<Integer> ();
-			prob_birth_by_age = new ArrayList <Double> ();
-
-			
-			// read in the raw data
-			while ((s = lineListDataFile.readLine()) != null) {
-				String [] bits = splitRawCSVString(s);
-				
-				// assemble the age data
-				String [] ageRange = bits[0].split("-");
-				int maxAge = Integer.MAX_VALUE;
-				if(ageRange.length > 1){
-					maxAge = Integer.parseInt(ageRange[1]); // take the maximum
-				}
-				birth_age_params.add(maxAge);
-				
-				double female_prob_birth = Double.parseDouble(bits[1]);
-				
-				// store the values
-				prob_birth_by_age.add(female_prob_birth);
-
-			}
-			lineListDataFile.close();
-			} catch (Exception e) {
-				System.err.println("File input error: " + filename);
-				fail();
-			}
-	}
 
 	// Economic
 	// ------------------- This form of including workplace bubbles in the model has been replaced ------------------------------
