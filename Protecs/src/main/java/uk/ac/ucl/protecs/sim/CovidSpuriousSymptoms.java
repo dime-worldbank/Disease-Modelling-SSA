@@ -93,7 +93,7 @@ public class CovidSpuriousSymptoms implements SpuriousSymptoms {
 			}
 			}
 		
-		double number_people_with_symptoms_as_double = world.params.rate_of_covid_spurious_symptoms * eligiblePersons.size();
+		double number_people_with_symptoms_as_double =	world.spuriousFramework.getRate_of_covid_spurious_symptoms() * eligiblePersons.size();
         int number_people_with_symptoms = (int)number_people_with_symptoms_as_double;          
         // Pick a selection of the people eligible for developing spurious symptoms
         people_developing_symptoms = SpuriousSymptoms.pickRandomWithoutReplacement(world, eligiblePersons, number_people_with_symptoms);

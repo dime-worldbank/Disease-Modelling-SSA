@@ -28,7 +28,6 @@ public class Params {
 	public double infection_beta = 0.016;
 	public double prob_interact_with_water = 0.1;
 
-	public double rate_of_covid_spurious_symptoms = 0.004;
 	public int lineListWeightingFactor = 1; // the line list contains only detected instances, which can be biased 
 											// - weight this if we suspect it's undercounting
 	public boolean setting_perfectMixing = true; // if TRUE: there are no work or social bubbles; individuals have
