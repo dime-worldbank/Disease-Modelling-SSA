@@ -54,14 +54,14 @@ public class DummyNCDOnset {
 			}
 			// if they are male increase the likelihood of developing the NCD 
 			if (p.getSex().equals(SEX.MALE)) {
-				riskFactor *= myWorld.params.dummy_ncd_rr_male;
+				riskFactor *= myWorld.dummyNCDFramework.getDummy_ncd_rr_male();
 			}
 			// if they are over 50 increase the likelihood of developing the NCD 
 			if (p.getAge() > 50) {
-				riskFactor *= myWorld.params.dummy_ncd_rr_over_50;
+				riskFactor *= myWorld.dummyNCDFramework.getDummy_ncd_rr_over_50();
 			}
 			// Check if they develop the NCD
-			if (myWorld.random.nextDouble() < riskFactor * myWorld.params.dummy_ncd_base_rate) {
+			if (myWorld.random.nextDouble() < riskFactor * myWorld.dummyNCDFramework.getDummy_ncd_base_rate()) {
 				createNCD(myWorld, p);
 			 }
 		}

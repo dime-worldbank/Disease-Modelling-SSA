@@ -63,10 +63,10 @@ public class DummyDiseaseTesting{
 		// turn off deaths to only focus on births.
 		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
 		// stop horizontal transmission
-		sim.params.dummy_infectious_beta_horizontal = 0.0;
+		sim.dummyInfectiousFramework.setDummy_infectious_beta_horizontal(0.0);
 		// make vertical transmission a certainty
-		sim.params.dummy_infectious_beta_vertical = 1.0;
-		sim.params.dummy_infectious_recovery_rate = 0.0;
+		sim.dummyInfectiousFramework.setDummy_infectious_beta_vertical(1.0);
+		sim.dummyInfectiousFramework.setDummy_infectious_recovery_rate(0.0);
 		int numDays = 365; // has to be long test as births are seeded randomly throughout a year
 		// get the number of initial dummy infectious diseases
 		int number_of_initial_infections = 0;
@@ -93,9 +93,9 @@ public class DummyDiseaseTesting{
 		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.births);
 
 		// stop vertical transmission
-		sim.params.dummy_infectious_beta_horizontal = 1.0;
-		sim.params.dummy_infectious_beta_vertical = 0.0;
-		sim.params.dummy_infectious_recovery_rate = 0.0;
+		sim.dummyInfectiousFramework.setDummy_infectious_beta_horizontal(1.0);
+		sim.dummyInfectiousFramework.setDummy_infectious_beta_vertical(0.0);
+		sim.dummyInfectiousFramework.setDummy_infectious_recovery_rate(0.0);
 		int numDays = 50;
 		// get the number of initial dummy infectious diseases
 		int number_of_initial_infections = 0;
@@ -117,7 +117,7 @@ public class DummyDiseaseTesting{
 		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_dummy_disease.txt");
 		sim.start();
 		// turn off the rate of dummy NCD acquisition
-		sim.params.dummy_ncd_base_rate = 0.0;
+		sim.dummyNCDFramework.setDummy_ncd_base_rate(0.0);
 		// turn off deaths to only focus on births.
 		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
 		int numDays = 50;
@@ -141,7 +141,7 @@ public class DummyDiseaseTesting{
 		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_dummy_disease.txt");
 		sim.start();
 		// increase the rate of dummy NCD acquisition
-		sim.params.dummy_ncd_base_rate = 0.5;
+		sim.dummyNCDFramework.setDummy_ncd_base_rate(0.5);
 		// turn off deaths to only focus on births.
 		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
 		int numDays = 100;
@@ -184,9 +184,9 @@ public class DummyDiseaseTesting{
 		}
 		
 		// increase the rate of dummy NCD acquisition
-		sim.params.dummy_ncd_rr_over_50 = 1.0;
+		sim.dummyNCDFramework.setDummy_ncd_rr_over_50(1);
 		// increase the relative risk of developing this condition if male
-		sim.params.dummy_ncd_rr_male = 2;
+		sim.dummyNCDFramework.setDummy_ncd_rr_male(2);
 		// turn off deaths to only focus on births.
 		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
 		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.births);
@@ -218,9 +218,8 @@ public class DummyDiseaseTesting{
 	@Test
 	public void checkThatMoreNewDummyNCDsInOver50s() {
 		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_dummy_disease.txt");
-		sim.params.dummy_ncd_initial_fraction_with_ncd = 0;
 		sim.start();
-		
+
 		// equalise the number of over and under 50s in the simulation
 		int initial_number_over_50 = 0;
 		int initial_number_under_50 = 0;
@@ -241,9 +240,9 @@ public class DummyDiseaseTesting{
 		}
 		
 		// increase the rate of dummy NCD acquisition
-		sim.params.dummy_ncd_rr_over_50 = 2.0;
+		sim.dummyNCDFramework.setDummy_ncd_rr_over_50(2.0);
 		// increase the relative risk of developing this condition if male
-		sim.params.dummy_ncd_rr_male = 1.0;
+		sim.dummyNCDFramework.setDummy_ncd_rr_male(1.0);
 		// turn off deaths to only focus on births.
 		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
 		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.births);
@@ -278,7 +277,8 @@ public class DummyDiseaseTesting{
 		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_dummy_disease.txt");
 		sim.start();
 		int number_of_initial_infections_in_water = 0;
-		sim.params.dummy_waterborne_prob_shed_into_water = 1;
+		sim.dummyWaterborneFramework.setDummy_waterborne_prob_shed_into_water(1);
+
 
 		for (Water w: sim.waterInSim) {
 			if (w.getDiseaseSet().containsKey(DISEASE.DUMMY_WATERBORNE.key)) number_of_initial_infections_in_water ++;
@@ -299,10 +299,10 @@ public class DummyDiseaseTesting{
 	public void checkDummyWaterborneDiseaseIsSpreadToPeople() {
 		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_dummy_disease.txt");
 		sim.start();
-		sim.params.dummy_prob_ingest_dummy_waterborne = 1;
+		sim.dummyWaterborneFramework.setDummy_prob_ingest_dummy_waterborne(1);
 		int number_of_initial_infections_in_people = 0;
-		sim.params.dummy_prob_interact_with_water = 1;
-		sim.params.dummy_prob_ingest_dummy_waterborne = 0.5;
+		sim.params.prob_interact_with_water = 1;
+		sim.dummyWaterborneFramework.setDummy_prob_ingest_dummy_waterborne(0.5);
 		for (Person p: sim.agents) {
 			if (p.getDiseaseSet().containsKey(DISEASE.DUMMY_WATERBORNE.key)) number_of_initial_infections_in_people ++;
 
@@ -321,7 +321,7 @@ public class DummyDiseaseTesting{
 	@Test
 	public void checkNoNewDummyWaterborneCasesHappenIfPeopleDoNotInteractWithWater() {
 		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_dummy_disease.txt");
-		sim.params.dummy_prob_interact_with_water = 0;
+		sim.params.prob_interact_with_water = 0;
 		sim.start();
 		int number_of_initial_infections_in_both_hosts = 0;
 

@@ -211,7 +211,6 @@ public class CholeraInWaterTesting {
 		// Make the spread of cholera in water only occur mechanically through the fetchWater function in the person object
 		sim.params.cholera_prob_ingest = 0;
 		sim.params.cholera_prob_shed = 0;
-		sim.params.dummy_prob_interact_with_water = 0;
 		
 		// run for 35 days
 		int numDays = 50;

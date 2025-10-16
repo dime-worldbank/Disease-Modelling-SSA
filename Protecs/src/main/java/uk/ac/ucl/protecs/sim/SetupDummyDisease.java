@@ -14,7 +14,7 @@ public class SetupDummyDisease{
 	
 	public static void SetupDummyDiseases(WorldBankCovid19Sim world) {
 		DummyNCDOnset myDummyNCD = new DummyNCDOnset();
-		double num_to_seed = world.agents.size() * world.params.dummy_ncd_initial_fraction_with_ncd;
+		double num_to_seed = world.agents.size() * world.dummyNCDFramework.getDummy_ncd_initial_fraction_with_ncd();
 		double i = 0.0;
 		for (Person a: world.agents) {
 			if (i < num_to_seed) {
@@ -37,7 +37,8 @@ public class SetupDummyDisease{
 			}
 			else break;
 		}
-		double num_hh_to_seed = world.households.size() * world.params.dummy_waterborne_initial_fraction_with_inf;
+		double num_hh_to_seed = world.households.size() * world.dummyWaterborneFramework.getDummy_waterborne_initial_fraction_with_inf()
+;
 		i = 0.0;
 		for (Household h : world.households) {
 			// for purposes of development we will set every household to be a source of water

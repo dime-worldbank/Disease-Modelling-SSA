@@ -26,21 +26,7 @@ public class Params {
 	public boolean verbose = true;
 	
 	public double infection_beta = 0.016;
-	public double dummy_infectious_beta_horizontal = 0.05;
-	public double dummy_infectious_beta_vertical = 0.05;
-	public double dummy_infectious_recovery_rate = 0.5;
-	
-	public double dummy_waterborne_prob_shed_into_water = 0.05;
-	public double dummy_waterborne_initial_fraction_with_inf = 0.1;
-	public double dummy_prob_interact_with_water = 0.1;
-	public double dummy_prob_ingest_dummy_waterborne = 0.1;
-
-	
-	public double dummy_ncd_base_rate = 0.2;
-	public double dummy_ncd_rr_male = 1.05;
-	public double dummy_ncd_rr_over_50 = 1.2;
-	public double dummy_ncd_initial_fraction_with_ncd = 0.1;
-
+	public double prob_interact_with_water = 0.1;
 
 	public double rate_of_covid_spurious_symptoms = 0.004;
 	public int lineListWeightingFactor = 1; // the line list contains only detected instances, which can be biased 
