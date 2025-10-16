@@ -511,7 +511,7 @@ public class Person extends Host {
 
 	// ATTRIBUTES
 
-	public double getSusceptibility(){ return myWorld.params.getSuspectabilityByAge(age); } // TODO make more nuanced
+	public double getSusceptibility(){ return myWorld.covidInfectiousFramework.getSuspectabilityByAge(age); } // TODO make more nuanced
 	
 	public void setActivityNode(BehaviourNode bn){ currentActivityNode = bn; }
 	public BehaviourNode getActivityNode(){ return currentActivityNode; }

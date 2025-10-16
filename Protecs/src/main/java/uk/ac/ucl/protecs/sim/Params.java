@@ -11,9 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import uk.ac.ucl.protecs.objects.diseases.Disease;
 import uk.ac.ucl.protecs.objects.hosts.Person;
-import uk.ac.ucl.protecs.objects.hosts.Water;
 import uk.ac.ucl.protecs.objects.hosts.Person.OCCUPATION;
 import uk.ac.ucl.protecs.objects.locations.CommunityLocation;
 import uk.ac.ucl.protecs.objects.locations.Location;
@@ -25,7 +23,6 @@ public class Params {
 	
 	public boolean verbose = true;
 	
-	public double infection_beta = 0.016;
 	public double prob_interact_with_water = 0.1;
 
 	public int lineListWeightingFactor = 1; // the line list contains only detected instances, which can be biased 
@@ -49,10 +46,7 @@ public class Params {
 	public ArrayList<Double> community_interaction_percentages;
 
 	public static int community_bubble_size = 30;
-	
-	
-	double mild_symptom_movement_prob;
-	
+		
 	// export parameters
 	String [] exportParams = new String [] {"time", "infected_count", "num_died",
 			"num_recovered", "num_exposed", 
@@ -92,39 +86,7 @@ public class Params {
 	
 	// holders for workplace bubble constraints
 	public HashMap <OCCUPATION, LocationCategory> OccupationConstraintList = new HashMap <OCCUPATION, LocationCategory> ();
-	  
-	// parameters drawn from Kerr et al 2020 - https://www.medrxiv.org/content/10.1101/2020.05.10.20097469v3.full.pdf
-	public ArrayList <Integer> covid_infection_age_params;
-	public ArrayList <Double> covid_infection_r_sus_by_age;
-	public ArrayList <Double> covid_infection_p_sym_by_age;
-	public ArrayList <Double> covid_infection_p_sev_by_age;
-	public ArrayList <Double> covid_infection_p_cri_by_age;
-	public ArrayList <Double> covid_infection_p_dea_by_age;
 
-	// also from Kerr et al 2020, translated from days into ticks 
-	// TODO shove these sorts of parameters somewhere else
-	
-	public double covid_exposedToInfectious_mean =	4.5 * ticks_per_day;
-	public double covid_exposedToInfectious_std =		1.5 * ticks_per_day;
-	public double covid_infectiousToSymptomatic_mean =1.1 * ticks_per_day;
-	public double covid_infectiousToSymptomatic_std = 0.9 * ticks_per_day;
-	public double covid_symptomaticToSevere_mean = 	6.6 * ticks_per_day;
-	public double covid_symptomaticToSevere_std = 	4.9 * ticks_per_day;
-	public double covid_severeToCritical_mean =		1.5 * ticks_per_day;
-	public double covid_severeToCritical_std =		2.0 * ticks_per_day;
-	public double covid_criticalToDeath_mean =		10.7 * ticks_per_day;
-	public double covid_criticalToDeath_std =			4.8 * ticks_per_day;
-	public double covid_asymptomaticToRecovery_mean =	8.0 * ticks_per_day;
-	public double covid_asymptomaticToRecovery_std =	2.0 * ticks_per_day;
-	public double covid_symptomaticToRecovery_mean =	8.0 * ticks_per_day;
-	public double covid_symptomaticToRecovery_std =	2.0 * ticks_per_day;
-	public double covid_severeToRecovery_mean =		18.1 * ticks_per_day;
-	public double covid_severeToRecovery_std =		6.3 * ticks_per_day;
-	public double covid_criticalToRecovery_mean =		18.1 * ticks_per_day;
-	public double covid_criticalToRecovery_std =		6.3 * ticks_per_day;
-	
-	// probability of staying at home if having covid taken from Makinde et al. 2021 https://genus.springeropen.com/articles/10.1186/s41118-021-00130-w
-	public double covid_prob_stay_at_home_mild = 0.707;
 	
 	// -------------------- Cholera parameters ---------------------------------
 	
@@ -138,7 +100,7 @@ public class Params {
 	
 	public String dataDir = null;
 	
-	
+	public String paramsFilename = null;
 	public String population_filename = null;
 	public String admin_zone_transition_LOCKDOWN_filename = null;
 	public String admin_zone_transition_PRELOCKDOWN_filename = null;
@@ -188,6 +150,8 @@ public class Params {
 		this.verbose = isVerbose;
 		// Read in parameter file locations
 		readInParamFile(paramsFilename);
+		this.paramsFilename = dataDir + paramsFilename;
+
 		// Load in movement data.
 		dailyTransitionLockdownProbs = load_admin_zone_data(dataDir + admin_zone_transition_LOCKDOWN_filename);
 		dailyTransitionPrelockdownProbs = load_admin_zone_data(dataDir + admin_zone_transition_PRELOCKDOWN_filename);
@@ -199,10 +163,7 @@ public class Params {
 		economic_status_otherday_movement_prob = readInEconomicData(dataDir + economic_status_otherday_movement_prob_filename, "economic_status", "movement_probability");				
 		assert (economic_status_otherday_movement_prob.size() == economic_status_weekday_movement_prob.size()): "Inconsistent data for ecom movement prob between weekday and otherday";
 		// Load in where you want COVID cases to be initialised
-		load_line_list(dataDir  + line_list_filename);
-		// Load in disease progression parameters
-		load_infection_params(dataDir  + infection_transition_params_filename);
-		
+		load_line_list(dataDir  + line_list_filename);		
 		// Load in workplace contact parameters if setting_perfectMixing is false
 		if (!this.setting_perfectMixing) { 
 			// load the workplace contacts data
@@ -661,79 +622,6 @@ public class Params {
 		}
 	}
 	
-	public void load_infection_params(String filename){
-		try {
-			
-			if(verbose)
-				System.out.println("Reading in data from " + filename);
-			
-			// Open the tracts file
-			FileInputStream fstream = new FileInputStream(filename);
-
-			// Convert our input stream to a BufferedReader
-			BufferedReader lineListDataFile = new BufferedReader(new InputStreamReader(fstream));
-			String s;
-
-			// extract the header
-			s = lineListDataFile.readLine();
-
-			// map the header into column names relative to location
-			String [] header = splitRawCSVString(s);
-			HashMap <String, Integer> columnNames = parseHeader(header);
-			
-			// set up data container
-			covid_infection_age_params = new ArrayList <Integer> ();
-			covid_infection_r_sus_by_age = new ArrayList <Double> ();
-			covid_infection_p_sym_by_age = new ArrayList <Double> ();
-			covid_infection_p_sev_by_age = new ArrayList <Double> ();
-			covid_infection_p_cri_by_age = new ArrayList <Double> ();
-			covid_infection_p_dea_by_age = new ArrayList <Double> ();
-
-			
-			// read in the raw data
-			while ((s = lineListDataFile.readLine()) != null) {
-				String [] bits = splitRawCSVString(s);
-				
-				// assemble the age data
-				String [] ageRange = bits[0].split("-");
-				int maxAge = Integer.MAX_VALUE;
-				if(ageRange.length > 1){
-					maxAge = Integer.parseInt(ageRange[1]); // take the maximum
-				}
-				covid_infection_age_params.add(maxAge);
-				
-				double r_sus  = Double.parseDouble(bits[1]),
-						p_sym = Double.parseDouble(bits[2]),
-						p_sev = Double.parseDouble(bits[3]),
-						p_cri = Double.parseDouble(bits[4]),
-						p_dea = Double.parseDouble(bits[5]);
-				
-				// they are read in as ABSOLUTE values - convert to relative values!
-				p_dea /= p_cri;
-				p_cri /= p_sev;
-				p_sev /= p_sym;
-				
-				// store the values
-				covid_infection_r_sus_by_age.add(r_sus);
-				covid_infection_p_sym_by_age.add(p_sym);
-				covid_infection_p_sev_by_age.add(p_sev);
-				covid_infection_p_cri_by_age.add(p_cri);
-				covid_infection_p_dea_by_age.add(p_dea);
-
-			}
-			assert (covid_infection_r_sus_by_age.size() > 0): "infection_r_sus_by_age is negative, cannot be the case";
-			assert (covid_infection_p_sym_by_age.size() > 0): "infection_p_sym_by_age is negative, cannot be the case";
-			assert (covid_infection_p_sev_by_age.size() > 0): "infection_p_sev_by_age is negative, cannot be the case";
-			assert (covid_infection_p_cri_by_age.size() > 0): "infection_p_cri_by_age is negative, cannot be the case";
-			assert (covid_infection_p_dea_by_age.size() > 0): "infection_p_dea_by_age is negative, cannot be the case";
-
-			lineListDataFile.close();
-			} catch (Exception e) {
-				System.out.println("File input error: " + filename);
-				fail();
-			}
-		}
-	
 	public void load_all_cause_mortality_params(String filename) {
 		try {
 			
@@ -1138,9 +1026,7 @@ public class Params {
 	//
 	
 	// Epidemic data access
-	public double getSuspectabilityByAge(int age){
-		return infection_beta * getLikelihoodByAge(covid_infection_r_sus_by_age, covid_infection_age_params, age);
-	}
+
 	
 	// Mobility data access
 	

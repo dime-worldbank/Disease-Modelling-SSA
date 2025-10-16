@@ -2,18 +2,58 @@ package uk.ac.ucl.protecs.behaviours.diseaseProgression;
 
 
 
+import static org.junit.Assert.fail;
+
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import sim.engine.Steppable;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.objects.locations.Location.LocationCategory;
+import uk.ac.ucl.protecs.sim.Params;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
 public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBehaviourFramework {
 	
+	public double covid_infectious_beta = 0.016;
 	
+	// parameters drawn from Kerr et al 2020 - https://www.medrxiv.org/content/10.1101/2020.05.10.20097469v3.full.pdf
+	public ArrayList <Integer> covid_infection_age_params;
+	public ArrayList <Double> covid_infection_r_sus_by_age;
+	public ArrayList <Double> covid_infection_p_sym_by_age;
+	public ArrayList <Double> covid_infection_p_sev_by_age;
+	public ArrayList <Double> covid_infection_p_cri_by_age;
+	public ArrayList <Double> covid_infection_p_dea_by_age;
+	// also from Kerr et al 2020, translated from days into ticks 
+	
+	public double covid_exposedToInfectious_mean = 4.5 * Params.ticks_per_day;
+	public double covid_exposedToInfectious_std = 1.5 * Params.ticks_per_day;
+	public double covid_infectiousToSymptomatic_mean = 1.1 * Params.ticks_per_day;
+	public double covid_infectiousToSymptomatic_std = 0.9 * Params.ticks_per_day;
+	public double covid_symptomaticToSevere_mean = 6.6 * Params.ticks_per_day;
+	public double covid_symptomaticToSevere_std = 4.9 * Params.ticks_per_day;
+	public double covid_severeToCritical_mean =	1.5 * Params.ticks_per_day;
+	public double covid_severeToCritical_std = 2.0 * Params.ticks_per_day;
+	public double covid_criticalToDeath_mean = 10.7 * Params.ticks_per_day;
+	public double covid_criticalToDeath_std = 4.8 * Params.ticks_per_day;
+	public double covid_asymptomaticToRecovery_mean = 8.0 * Params.ticks_per_day;
+	public double covid_asymptomaticToRecovery_std = 2.0 * Params.ticks_per_day;
+	public double covid_symptomaticToRecovery_mean = 8.0 * Params.ticks_per_day;
+	public double covid_symptomaticToRecovery_std =	2.0 * Params.ticks_per_day;
+	public double covid_severeToRecovery_mean =	18.1 * Params.ticks_per_day;
+	public double covid_severeToRecovery_std = 6.3 * Params.ticks_per_day;
+	public double covid_criticalToRecovery_mean = 18.1 * Params.ticks_per_day;
+	public double covid_criticalToRecovery_std = 6.3 * Params.ticks_per_day;
+	
+	// probability of staying at home if having covid taken from Makinde et al. 2021 https://genus.springeropen.com/articles/10.1186/s41118-021-00130-w
+	public double covid_prob_stay_at_home_mild = 0.707;
 	public enum CoronavirusBehaviourNodeTitle{
 		SUSCEPTIBLE("susceptible"), EXPOSED("exposed"), PRESYMPTOMATIC("presymptomatic"), ASYMPTOMATIC("asymptomatic"), 
 		MILD("mild"), SEVERE("severe"), CRITICAL("critical"), RECOVERED("recovered"), DEAD("dead");
@@ -100,7 +140,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 
 					// moderate this based on the age of the host
 					double mySymptLikelihood = myWorld.params.getLikelihoodByAge(
-							myWorld.params.covid_infection_p_sym_by_age, myWorld.params.covid_infection_age_params, ((Person) i.getHost()).getAge());
+							covid_infection_p_sym_by_age, covid_infection_age_params, ((Person) i.getHost()).getAge());
 					assert (mySymptLikelihood >= 0.0) & (mySymptLikelihood <= 1.0) : "probability out of bounds " + mySymptLikelihood;
 					assert i.getHost() != null : "PROBLEM WITH INFECTION IN PERSON. INFECTION IS NULL " + ((Person) i.getHost()).getID();
 					assert i.getHost().getLocation() != null : "PROBLEM WITH LOCATION, LOCATION IS NULL" + i.getHost().getLocation().getId();
@@ -128,7 +168,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				//
 				
 				double mySusceptLikelihood = myWorld.params.getLikelihoodByAge(
-						myWorld.params.covid_infection_r_sus_by_age, myWorld.params.covid_infection_age_params, ((Person) i.getHost()).getAge());
+						covid_infection_r_sus_by_age, covid_infection_age_params, ((Person) i.getHost()).getAge());
 				if(myWorld.random.nextDouble() < mySusceptLikelihood){
 					
 					// timekeep this
@@ -139,8 +179,8 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 					assert i.getHost().getLocation() != null : "PROBLEM WITH LOCATION, LOCATION IS NULL" + i.getHost().getLocation().getId();
 					// the agent has been infected - set the time at which it will become infecTIOUS
 					double timeUntilInfectious = myWorld.nextRandomLognormal(
-							myWorld.params.covid_exposedToInfectious_mean,
-							myWorld.params.covid_exposedToInfectious_std);
+							covid_exposedToInfectious_mean,
+							covid_exposedToInfectious_std);
 					assert (timeUntilInfectious > 0): "Something has gone wrong in deciding when a person will become infectious, time is not in future: " + timeUntilInfectious;
 					i.time_contagious = time + timeUntilInfectious;
 					// update the person's properties to show they have covid
@@ -188,8 +228,8 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				}
 				else if(i.time_start_symptomatic == Double.MAX_VALUE ){
 					double time_until_symptoms = myWorld.nextRandomLognormal(
-							myWorld.params.covid_infectiousToSymptomatic_mean, 
-							myWorld.params.covid_infectiousToSymptomatic_std);
+							covid_infectiousToSymptomatic_mean, 
+							covid_infectiousToSymptomatic_std);
 					assert (time_until_symptoms >= 0.0) : "sheduled time not in future: " + time_until_symptoms;
 					i.time_start_symptomatic = time + time_until_symptoms;
 				}
@@ -231,8 +271,8 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				else if(i.time_recovered == Double.MAX_VALUE){ // has not been set
 					
 					double time_until_recovered = myWorld.nextRandomLognormal(
-							myWorld.params.covid_asymptomaticToRecovery_mean, 
-							myWorld.params.covid_asymptomaticToRecovery_std);
+							covid_asymptomaticToRecovery_mean, 
+							covid_asymptomaticToRecovery_std);
 					assert (time_until_recovered > 0) : "Time until recovered is not set to the future " + time_until_recovered;
 					i.time_recovered = time + time_until_recovered;
 				}
@@ -295,18 +335,18 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				else if(i.time_recovered == Double.MAX_VALUE && i.time_start_severe == Double.MAX_VALUE){
 					double myImmobilisedLikelihood = myWorld.random.nextDouble();
 
-					if (myImmobilisedLikelihood < myWorld.params.covid_prob_stay_at_home_mild) {
+					if (myImmobilisedLikelihood < covid_prob_stay_at_home_mild) {
 						((Person) i.getHost()).setMobility(false);
 						((Person) i.getHost()).sendHome(); 
 					}
 					// determine if the patient will become sicker
 					double mySevereLikelihood = myWorld.params.getLikelihoodByAge(
-							myWorld.params.covid_infection_p_sev_by_age, myWorld.params.covid_infection_age_params, ((Person) i.getHost()).getAge());
+							covid_infection_p_sev_by_age, covid_infection_age_params, ((Person) i.getHost()).getAge());
 					assert (mySevereLikelihood >= 0.0) & (mySevereLikelihood <= 1.0) : "probablilty not valid: " + mySevereLikelihood;
 					if(myWorld.random.nextDouble() < mySevereLikelihood){
 						double time_until_severe = myWorld.nextRandomLognormal(
-								myWorld.params.covid_symptomaticToSevere_mean, 
-								myWorld.params.covid_symptomaticToSevere_std);
+								covid_symptomaticToSevere_mean, 
+								covid_symptomaticToSevere_std);
 						assert time_until_severe > 0 : "time until disease progression not scheduled in future";
 						i.time_start_severe = time + time_until_severe;
 					}
@@ -314,8 +354,8 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 					// if not, they will recover: schedule this instead
 					else {
 						double time_until_recovered = myWorld.nextRandomLognormal(
-								myWorld.params.covid_symptomaticToRecovery_mean, 
-								myWorld.params.covid_symptomaticToRecovery_std);
+								covid_symptomaticToRecovery_mean, 
+								covid_symptomaticToRecovery_std);
 						assert time_until_recovered > 0 : "time until recovery not scheduled in future: " + time_until_recovered;
 
 						i.time_recovered = time + time_until_recovered;
@@ -367,14 +407,14 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				else if(i.time_recovered == Double.MAX_VALUE && i.time_start_critical == Double.MAX_VALUE){
 
 					double myCriticalLikelihood = myWorld.params.getLikelihoodByAge(
-							myWorld.params.covid_infection_p_cri_by_age, myWorld.params.covid_infection_age_params, ((Person) i.getHost()).getAge());
+							covid_infection_p_cri_by_age, covid_infection_age_params, ((Person) i.getHost()).getAge());
 					assert (myCriticalLikelihood >= 0.0) & (myCriticalLikelihood <= 1.0) : "probablilty not valid " + myCriticalLikelihood;
 
 					// determine if the patient will become sicker
 					if(myWorld.random.nextDouble() < myCriticalLikelihood){
 						double time_until_critical = myWorld.nextRandomLognormal(
-								myWorld.params.covid_severeToCritical_mean, 
-								myWorld.params.covid_severeToCritical_std);
+								covid_severeToCritical_mean, 
+								covid_severeToCritical_std);
 						assert time_until_critical > 0.0 : "time until critical not in future";
 
 						i.time_start_critical = time + time_until_critical;
@@ -383,8 +423,8 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 					// if not, they will recover: schedule this instead
 					else {
 						double time_until_recovered = myWorld.nextRandomLognormal(
-								myWorld.params.covid_severeToRecovery_mean, 
-								myWorld.params.covid_severeToRecovery_std);
+								covid_severeToRecovery_mean, 
+								covid_severeToRecovery_std);
 						assert time_until_recovered > 0.0 : "time until recovered not in future " + time_until_recovered;
 
 						i.time_recovered = time + time_until_recovered;
@@ -440,15 +480,15 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				else if(i.time_recovered == Double.MAX_VALUE && i.time_died == Double.MAX_VALUE ){
 
 					double myDeathLikelihood = myWorld.params.getLikelihoodByAge(
-							myWorld.params.covid_infection_p_dea_by_age, myWorld.params.covid_infection_age_params, ((Person) i.getHost()).getAge());
+							covid_infection_p_dea_by_age, covid_infection_age_params, ((Person) i.getHost()).getAge());
 					
 					assert (myDeathLikelihood >= 0.0) & (myDeathLikelihood <= 1.0) : "probablilty not valid " + myDeathLikelihood;
 
 					// determine if the patient will die
 					if(myWorld.random.nextDouble() < myDeathLikelihood){
 						double time_until_death = myWorld.nextRandomLognormal(
-								myWorld.params.covid_criticalToDeath_mean, 
-								myWorld.params.covid_criticalToDeath_std);
+								covid_criticalToDeath_mean, 
+								covid_criticalToDeath_std);
 						assert time_until_death > 0.0 : "time until died not in future " + time_until_death;
 
 						i.time_died = time + time_until_death;
@@ -457,8 +497,8 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 					// if not, they will recover: schedule this instead
 					else {
 						double time_until_recovered = myWorld.nextRandomLognormal(
-								myWorld.params.covid_criticalToRecovery_mean, 
-								myWorld.params.covid_criticalToRecovery_std);
+								covid_criticalToRecovery_mean, 
+								covid_criticalToRecovery_std);
 						assert time_until_recovered > 0.0 : "time until recovered not in future " + time_until_recovered;
 
 						i.time_recovered = time + time_until_recovered;
@@ -611,5 +651,285 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 			return asymptomaticNode;
 		}
 	} 
+	public double getCovid_exposedToInfectious_mean() {
+		return covid_exposedToInfectious_mean;
+	}
 
+	public void setCovid_exposedToInfectious_mean(double covid_exposedToInfectious_mean) {
+		this.covid_exposedToInfectious_mean = covid_exposedToInfectious_mean;
+	}
+
+	public double getCovid_exposedToInfectious_std() {
+		return covid_exposedToInfectious_std;
+	}
+
+	public void setCovid_exposedToInfectious_std(double covid_exposedToInfectious_std) {
+		this.covid_exposedToInfectious_std = covid_exposedToInfectious_std;
+	}
+
+	public double getCovid_infectiousToSymptomatic_mean() {
+		return covid_infectiousToSymptomatic_mean;
+	}
+
+	public void setCovid_infectiousToSymptomatic_mean(double covid_infectiousToSymptomatic_mean) {
+		this.covid_infectiousToSymptomatic_mean = covid_infectiousToSymptomatic_mean;
+	}
+
+	public double getCovid_infectiousToSymptomatic_std() {
+		return covid_infectiousToSymptomatic_std;
+	}
+
+	public void setCovid_infectiousToSymptomatic_std(double covid_infectiousToSymptomatic_std) {
+		this.covid_infectiousToSymptomatic_std = covid_infectiousToSymptomatic_std;
+	}
+
+	public double getCovid_symptomaticToSevere_mean() {
+		return covid_symptomaticToSevere_mean;
+	}
+
+	public void setCovid_symptomaticToSevere_mean(double covid_symptomaticToSevere_mean) {
+		this.covid_symptomaticToSevere_mean = covid_symptomaticToSevere_mean;
+	}
+
+	public double getCovid_symptomaticToSevere_std() {
+		return covid_symptomaticToSevere_std;
+	}
+
+	public void setCovid_symptomaticToSevere_std(double covid_symptomaticToSevere_std) {
+		this.covid_symptomaticToSevere_std = covid_symptomaticToSevere_std;
+	}
+
+	public double getCovid_severeToCritical_mean() {
+		return covid_severeToCritical_mean;
+	}
+
+	public void setCovid_severeToCritical_mean(double covid_severeToCritical_mean) {
+		this.covid_severeToCritical_mean = covid_severeToCritical_mean;
+	}
+
+	public double getCovid_severeToCritical_std() {
+		return covid_severeToCritical_std;
+	}
+
+	public void setCovid_severeToCritical_std(double covid_severeToCritical_std) {
+		this.covid_severeToCritical_std = covid_severeToCritical_std;
+	}
+
+	public double getCovid_criticalToDeath_mean() {
+		return covid_criticalToDeath_mean;
+	}
+
+	public void setCovid_criticalToDeath_mean(double covid_criticalToDeath_mean) {
+		this.covid_criticalToDeath_mean = covid_criticalToDeath_mean;
+	}
+
+	public double getCovid_criticalToDeath_std() {
+		return covid_criticalToDeath_std;
+	}
+
+	public void setCovid_criticalToDeath_std(double covid_criticalToDeath_std) {
+		this.covid_criticalToDeath_std = covid_criticalToDeath_std;
+	}
+
+	public double getCovid_asymptomaticToRecovery_mean() {
+		return covid_asymptomaticToRecovery_mean;
+	}
+
+	public void setCovid_asymptomaticToRecovery_mean(double covid_asymptomaticToRecovery_mean) {
+		this.covid_asymptomaticToRecovery_mean = covid_asymptomaticToRecovery_mean;
+	}
+
+	public double getCovid_asymptomaticToRecovery_std() {
+		return covid_asymptomaticToRecovery_std;
+	}
+
+	public void setCovid_asymptomaticToRecovery_std(double covid_asymptomaticToRecovery_std) {
+		this.covid_asymptomaticToRecovery_std = covid_asymptomaticToRecovery_std;
+	}
+
+	public double getCovid_symptomaticToRecovery_mean() {
+		return covid_symptomaticToRecovery_mean;
+	}
+
+	public void setCovid_symptomaticToRecovery_mean(double covid_symptomaticToRecovery_mean) {
+		this.covid_symptomaticToRecovery_mean = covid_symptomaticToRecovery_mean;
+	}
+
+	public double getCovid_symptomaticToRecovery_std() {
+		return covid_symptomaticToRecovery_std;
+	}
+
+	public void setCovid_symptomaticToRecovery_std(double covid_symptomaticToRecovery_std) {
+		this.covid_symptomaticToRecovery_std = covid_symptomaticToRecovery_std;
+	}
+
+	public double getCovid_severeToRecovery_mean() {
+		return covid_severeToRecovery_mean;
+	}
+
+	public void setCovid_severeToRecovery_mean(double covid_severeToRecovery_mean) {
+		this.covid_severeToRecovery_mean = covid_severeToRecovery_mean;
+	}
+
+	public double getCovid_severeToRecovery_std() {
+		return covid_severeToRecovery_std;
+	}
+
+	public void setCovid_severeToRecovery_std(double covid_severeToRecovery_std) {
+		this.covid_severeToRecovery_std = covid_severeToRecovery_std;
+	}
+
+	public double getCovid_criticalToRecovery_mean() {
+		return covid_criticalToRecovery_mean;
+	}
+
+	public void setCovid_criticalToRecovery_mean(double covid_criticalToRecovery_mean) {
+		this.covid_criticalToRecovery_mean = covid_criticalToRecovery_mean;
+	}
+
+	public double getCovid_criticalToRecovery_std() {
+		return covid_criticalToRecovery_std;
+	}
+
+	public void setCovid_criticalToRecovery_std(double covid_criticalToRecovery_std) {
+		this.covid_criticalToRecovery_std = covid_criticalToRecovery_std;
+	}
+
+	public double getCovid_prob_stay_at_home_mild() {
+		return covid_prob_stay_at_home_mild;
+	}
+
+	public void setCovid_prob_stay_at_home_mild(double covid_prob_stay_at_home_mild) {
+		this.covid_prob_stay_at_home_mild = covid_prob_stay_at_home_mild;
+	}
+	public ArrayList<Integer> getCovid_infection_age_params() {
+		return covid_infection_age_params;
+	}
+
+	public void setCovid_infection_age_params(ArrayList<Integer> covid_infection_age_params) {
+		this.covid_infection_age_params = covid_infection_age_params;
+	}
+
+	public ArrayList<Double> getCovid_infection_r_sus_by_age() {
+		return covid_infection_r_sus_by_age;
+	}
+
+	public void setCovid_infection_r_sus_by_age(ArrayList<Double> covid_infection_r_sus_by_age) {
+		this.covid_infection_r_sus_by_age = covid_infection_r_sus_by_age;
+	}
+
+	public ArrayList<Double> getCovid_infection_p_sym_by_age() {
+		return covid_infection_p_sym_by_age;
+	}
+
+	public void setCovid_infection_p_sym_by_age(ArrayList<Double> covid_infection_p_sym_by_age) {
+		this.covid_infection_p_sym_by_age = covid_infection_p_sym_by_age;
+	}
+
+	public ArrayList<Double> getCovid_infection_p_sev_by_age() {
+		return covid_infection_p_sev_by_age;
+	}
+
+	public void setCovid_infection_p_sev_by_age(ArrayList<Double> covid_infection_p_sev_by_age) {
+		this.covid_infection_p_sev_by_age = covid_infection_p_sev_by_age;
+	}
+
+	public ArrayList<Double> getCovid_infection_p_cri_by_age() {
+		return covid_infection_p_cri_by_age;
+	}
+
+	public void setCovid_infection_p_cri_by_age(ArrayList<Double> covid_infection_p_cri_by_age) {
+		this.covid_infection_p_cri_by_age = covid_infection_p_cri_by_age;
+	}
+
+	public ArrayList<Double> getCovid_infection_p_dea_by_age() {
+		return covid_infection_p_dea_by_age;
+	}
+
+	public void setCovid_infection_p_dea_by_age(ArrayList<Double> covid_infection_p_dea_by_age) {
+		this.covid_infection_p_dea_by_age = covid_infection_p_dea_by_age;
+	}
+	public double getCovid_infectious_beta() {
+		return covid_infectious_beta;
+	}
+
+	public void setCovid_infectious_beta(double covid_infectious_beta) {
+		this.covid_infectious_beta = covid_infectious_beta;
+	}
+	
+	public void load_infection_params(String filename){
+		try {
+			
+			if(myWorld.params.verbose)
+				System.out.println("Reading in data from " + filename);
+			
+			// Open the tracts file
+			FileInputStream fstream = new FileInputStream(filename);
+
+			// Convert our input stream to a BufferedReader
+			BufferedReader lineListDataFile = new BufferedReader(new InputStreamReader(fstream));
+			String s;
+
+			// extract the header
+			s = lineListDataFile.readLine();
+
+			// map the header into column names relative to location
+			String [] header = Params.splitRawCSVString(s);
+			HashMap <String, Integer> columnNames =  Params.parseHeader(header);
+			
+			// set up data container
+			covid_infection_age_params = new ArrayList <Integer> ();
+			covid_infection_r_sus_by_age = new ArrayList <Double> ();
+			covid_infection_p_sym_by_age = new ArrayList <Double> ();
+			covid_infection_p_sev_by_age = new ArrayList <Double> ();
+			covid_infection_p_cri_by_age = new ArrayList <Double> ();
+			covid_infection_p_dea_by_age = new ArrayList <Double> ();
+
+			
+			// read in the raw data
+			while ((s = lineListDataFile.readLine()) != null) {
+				String [] bits =  myWorld.params.splitRawCSVString(s);
+				
+				// assemble the age data
+				String [] ageRange = bits[0].split("-");
+				int maxAge = Integer.MAX_VALUE;
+				if(ageRange.length > 1){
+					maxAge = Integer.parseInt(ageRange[1]); // take the maximum
+				}
+				covid_infection_age_params.add(maxAge);
+				
+				double r_sus  = Double.parseDouble(bits[1]),
+						p_sym = Double.parseDouble(bits[2]),
+						p_sev = Double.parseDouble(bits[3]),
+						p_cri = Double.parseDouble(bits[4]),
+						p_dea = Double.parseDouble(bits[5]);
+				
+				// they are read in as ABSOLUTE values - convert to relative values!
+				p_dea /= p_cri;
+				p_cri /= p_sev;
+				p_sev /= p_sym;
+				
+				// store the values
+				covid_infection_r_sus_by_age.add(r_sus);
+				covid_infection_p_sym_by_age.add(p_sym);
+				covid_infection_p_sev_by_age.add(p_sev);
+				covid_infection_p_cri_by_age.add(p_cri);
+				covid_infection_p_dea_by_age.add(p_dea);
+
+			}
+			assert (covid_infection_r_sus_by_age.size() > 0): "infection_r_sus_by_age is negative, cannot be the case";
+			assert (covid_infection_p_sym_by_age.size() > 0): "infection_p_sym_by_age is negative, cannot be the case";
+			assert (covid_infection_p_sev_by_age.size() > 0): "infection_p_sev_by_age is negative, cannot be the case";
+			assert (covid_infection_p_cri_by_age.size() > 0): "infection_p_cri_by_age is negative, cannot be the case";
+			assert (covid_infection_p_dea_by_age.size() > 0): "infection_p_dea_by_age is negative, cannot be the case";
+
+			lineListDataFile.close();
+			} catch (Exception e) {
+				System.out.println("File input error: " + filename);
+				fail();
+			}
+		}
+	public double getSuspectabilityByAge(int age){
+		return covid_infectious_beta * myWorld.params.getLikelihoodByAge(covid_infection_r_sus_by_age, covid_infection_age_params, age);
+	}
 }

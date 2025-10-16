@@ -26,8 +26,7 @@ public class BulkRun {
 				WorldBankCovid19Sim mySim = new WorldBankCovid19Sim(i, new Params(paramFilename, true), outputFilename);
 				
 				System.out.println("Loading...");
-
-				mySim.params.infection_beta = myBeta; // normalised to be per tick
+				mySim.covidInfectiousFramework.setCovid_infectious_beta(myBeta);
 				mySim.targetDuration = numDays;
 				mySim.start();
 				

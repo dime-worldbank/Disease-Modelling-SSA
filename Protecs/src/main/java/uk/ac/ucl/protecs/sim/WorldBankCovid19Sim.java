@@ -554,7 +554,9 @@ public class WorldBankCovid19Sim extends SimState {
 		System.out.println("Loading...");
 
 		// ensure that all parameters are set
-		mySim.params.infection_beta = myBeta / mySim.params.ticks_per_day; // normalised to be per tick
+		if (mySim.covidInfectiousFramework != null) {
+			mySim.covidInfectiousFramework.setCovid_infectious_beta(myBeta / mySim.params.ticks_per_day);
+		}
 		mySim.targetDuration = numDays;
 		mySim.start(); // start the simulation
 				

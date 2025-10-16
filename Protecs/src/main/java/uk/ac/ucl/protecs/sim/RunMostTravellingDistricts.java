@@ -39,7 +39,7 @@ public class RunMostTravellingDistricts {
 	
 				System.out.println("Loading...");
 	
-				mySim.params.infection_beta = myBeta; // normalised to be per tick
+				mySim.covidInfectiousFramework.setCovid_infectious_beta(myBeta);
 				mySim.targetDuration = numDays;
 				mySim.start();
 				mySim.infections_export_filename = infectionsOutputFilename;

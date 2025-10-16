@@ -105,7 +105,7 @@ public class CoronavirusInfection extends Disease {
 //						CoronavirusInfection inf = new CoronavirusInfection(otherPerson, (Person) this.getHost(), myWorld.covidInfectiousFramework.getEntryPoint(), myWorld);
 //						myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting); 
 //					}
-					if (myProb < myWorld.params.infection_beta) {
+					if (myProb < myWorld.covidInfectiousFramework.getCovid_infectious_beta()) {
 						Person otherPerson = (Person) peopleHere[myWorld.random.nextInt(numPeople)]; 
 						
 						// don't interact with the same person multiple times
@@ -135,7 +135,7 @@ public class CoronavirusInfection extends Disease {
 			else {
 				if(this.getHost().getLocation() instanceof Household){
 					assert (!((Person) this.getHost()).atWorkNow()): "p_" + ((Person) this.getHost()).getID() + "at work but having interactions at home";
-					((Person) this.getHost()).interactWithin(this.getHost().getLocation().personsHere, null, this.getHost().getLocation().personsHere.size(), DISEASE.COVID, myWorld.params.infection_beta);		
+					((Person) this.getHost()).interactWithin(this.getHost().getLocation().personsHere, null, this.getHost().getLocation().personsHere.size(), DISEASE.COVID, myWorld.covidInfectiousFramework.getCovid_infectious_beta());		
 				}
 				// they may be at their economic activity site!
 				// TODO: Work out why the old version checking that it was an instance of a workplace failed
@@ -153,7 +153,7 @@ public class CoronavirusInfection extends Disease {
 						((Person) this.getHost()).addWorkplaceContact();
 					}
 					// interact 
-					((Person) this.getHost()).interactWithin(this.getHost().getLocation().personsHere, null, myNumInteractions, DISEASE.COVID, myWorld.params.infection_beta);		
+					((Person) this.getHost()).interactWithin(this.getHost().getLocation().personsHere, null, myNumInteractions, DISEASE.COVID, myWorld.covidInfectiousFramework.getCovid_infectious_beta());		
 
 				}
 				else {
@@ -193,7 +193,7 @@ public class CoronavirusInfection extends Disease {
 						// immediately check whether this person can be infected by calculating the less than beta random for infection up front
 						// check if they are already infected; if they are not, infect with with probability BETA
 						double myProb = myWorld.random.nextDouble();
-						if (myProb < myWorld.params.infection_beta) {
+						if (myProb < myWorld.covidInfectiousFramework.getCovid_infectious_beta()) {
 							Person otherPerson = (Person) peopleHere[myWorld.random.nextInt(numPeople)]; 
 							
 							// don't interact with the same person multiple times
