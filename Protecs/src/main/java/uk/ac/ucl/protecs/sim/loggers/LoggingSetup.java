@@ -93,7 +93,8 @@ public class LoggingSetup{
 			DemographyLogging logger = new DemographyLogging();
 			DemographyLogging.BirthRateReporter birthRateLog = logger.new BirthRateReporter(world);
 			// schedule the birth rate reporter (birthRateOutputFilename)
-			world.schedule.scheduleOnce(world.params.ticks_per_year, world.param_schedule_reporting, birthRateLog);
+			world.schedule.scheduleRepeating(birthRateLog, world.param_schedule_reporting, world.params.ticks_per_day);
+//			world.schedule.scheduleOnce(world.params.ticks_per_year, world.param_schedule_reporting, birthRateLog);
 			// schedule the 'other deaths' reporter (otherIncDeathOutputFilename)
 			world.schedule.scheduleRepeating(DemographyLogging.ReportOtherIncidenceOfDeath(world), world.param_schedule_reporting, world.params.ticks_per_day);	
 		}

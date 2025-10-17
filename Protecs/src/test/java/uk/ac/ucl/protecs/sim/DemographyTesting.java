@@ -31,7 +31,8 @@ public class DemographyTesting {
 		// turn off deaths to only focus on births.
 		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
 		// Increase the birth rate to ensure births take place
-		HelperFunctions.setParameterListsToValue(sim, sim.params.prob_birth_by_age, 1.0);
+		HelperFunctions.setParameterListsToValue(sim, sim.demographyFramework.getProb_birth_by_age(), 1.0);
+		
 		// Run the simulation for 100 days
 		int numDays = 100; 
 		
@@ -69,16 +70,16 @@ public class DemographyTesting {
 		WorldBankCovid19Sim sim_with_male_mortality = HelperFunctions.CreateDummySimWithSeed(seed, "src/test/resources/params_demography.txt");
 		sim_with_male_mortality.start();
 		// turn off female mortality in this simulation
-		HelperFunctions.setParameterListsToValue(sim_with_male_mortality, sim_with_male_mortality.params.prob_death_by_age_female, 0.0);
-		HelperFunctions.setParameterListsToValue(sim_with_male_mortality, sim_with_male_mortality.params.prob_death_by_age_male, 0.5);
+		HelperFunctions.setParameterListsToValue(sim_with_male_mortality, sim_with_male_mortality.demographyFramework.getProb_death_by_age_female(), 0.0);
+		HelperFunctions.setParameterListsToValue(sim_with_male_mortality, sim_with_male_mortality.demographyFramework.getProb_death_by_age_male(), 0.5);
 
 		WorldBankCovid19Sim sim_with_female_mortality = HelperFunctions.CreateDummySimWithSeed(seed, "src/test/resources/params_demography.txt");
+		sim_with_female_mortality.start();
 		// turn off female mortality in this simulation
-		HelperFunctions.setParameterListsToValue(sim_with_female_mortality, sim_with_female_mortality.params.prob_death_by_age_male, 0.0);
-		HelperFunctions.setParameterListsToValue(sim_with_female_mortality, sim_with_female_mortality.params.prob_death_by_age_female, 0.5);
+		HelperFunctions.setParameterListsToValue(sim_with_female_mortality, sim_with_female_mortality.demographyFramework.getProb_death_by_age_male(), 0.0);
+		HelperFunctions.setParameterListsToValue(sim_with_female_mortality, sim_with_female_mortality.demographyFramework.getProb_death_by_age_female(), 0.5);
 
 	
-		sim_with_female_mortality.start();
 		// Make sure there are no births in either simulation
 		HelperFunctions.turnOffBirthsOrDeaths(sim_with_male_mortality, birthsOrDeaths.births);
 		HelperFunctions.turnOffBirthsOrDeaths(sim_with_female_mortality, birthsOrDeaths.births);
