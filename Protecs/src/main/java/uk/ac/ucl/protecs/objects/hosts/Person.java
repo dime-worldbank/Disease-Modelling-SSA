@@ -70,7 +70,7 @@ public class Person extends Host {
 
 	boolean isDeadFromOther = false;
 	boolean deathLogged = false;
-	boolean isPregnant = false;
+	private boolean isPregnant = false;
 	boolean gaveBirthLastYear = false;
 	boolean birthLogged = false;
 	Integer dayGaveBirth = Integer.MAX_VALUE;
@@ -598,18 +598,12 @@ public class Person extends Host {
 	}
 	public void confirmDeathLogged() { this.deathLogged = true; }
 	public boolean isPregnant() {
-		if (getSex().equals(SEX.MALE)) {
-			return false;
-		}
-		else {
-			return isPregnant;
-		}
+		return isPregnant;
 	}
 
 	public void setPregnant(boolean isPregnant) {
-		if (getSex().equals(SEX.FEMALE)) {
-			this.isPregnant = isPregnant;
-		}
+		this.isPregnant = isPregnant;
+
 	}
 	public void gaveBirth(int time) { 
 		this.gaveBirthLastYear = true; 

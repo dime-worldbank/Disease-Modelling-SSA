@@ -111,7 +111,7 @@ public class PregnancyTesting {
 		int initialNumberOfPeople = HelperFunctions.GetNumberAlive(sim);
 		// turn off deaths
 		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
-		// Increase the birth rate to ensure births take place
+
 		HelperFunctions.setParameterListsToValue(sim, sim.demographyFramework.getProb_birth_by_age(), 0.00);
 		// Run the simulation for one day to set up the births
 		int numDays = 365; 		
