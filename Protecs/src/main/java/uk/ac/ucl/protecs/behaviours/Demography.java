@@ -210,7 +210,8 @@ public class Demography {
 					double myPregnancyLikelihood = world.params.getLikelihoodByAge(
 							prob_birth_by_age, birth_age_params, ageForCheck);
 					// increase this likelihood nine-fold to determine if they got pregnant in the last nine months
-					double adjustedPregnancyLikelihood = myPregnancyLikelihood * 9;
+					double prob_not_pregnant = Math.pow(1 - myPregnancyLikelihood, 9);
+					double adjustedPregnancyLikelihood = 1 - prob_not_pregnant;
 					BirthSteps nextStep = BirthSteps.NO_PREGNANCY;
 					if (myWorld.random.nextDouble() <= adjustedPregnancyLikelihood) {
 						// this person is pregnant
