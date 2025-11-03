@@ -70,7 +70,7 @@ public class CoronavirusInfection extends Disease {
 				
 				double someInteractions = myWorld.params.community_num_interaction_perTick;
 				
-				if (myWorld.params.community_interaction_percentages != null) {
+				if ((myWorld.params.community_interaction_percentages != null) && (!myWorld.params.setting_perfectMixing)) {
 					if (((Person) this.getHost()).getNumberOfCommunityInteractions() < 0) 
 						((Person) this.getHost()).setNumberOfCommunityInteractions(myWorld.params.getCommunityContactCount(this.myWorld.random.nextDouble()));
 					
