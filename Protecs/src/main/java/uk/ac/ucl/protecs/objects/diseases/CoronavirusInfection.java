@@ -70,13 +70,13 @@ public class CoronavirusInfection extends Disease {
 				
 				double someInteractions = myWorld.params.community_num_interaction_perTick;
 				
-				if ((myWorld.params.community_interaction_percentages != null) && (!myWorld.params.setting_perfectMixing)) {
-					if (((Person) this.getHost()).getNumberOfCommunityInteractions() < 0) 
-						((Person) this.getHost()).setNumberOfCommunityInteractions(myWorld.params.getCommunityContactCount(this.myWorld.random.nextDouble()));
-					
-					// daily interactions are set in first step, people spend two ticks in the community, therefore set the number of interactions as half
-					someInteractions = ((Person) this.getHost()).getNumberOfCommunityInteractions() / 2;
-				}
+//				if ((myWorld.params.community_interaction_percentages != null) && (!myWorld.params.setting_perfectMixing)) {
+//					if (((Person) this.getHost()).getNumberOfCommunityInteractions() < 0) 
+//						((Person) this.getHost()).setNumberOfCommunityInteractions(myWorld.params.getCommunityContactCount(this.myWorld.random.nextDouble()));
+//					
+//					// daily interactions are set in first step, people spend two ticks in the community, therefore set the number of interactions as half
+//					someInteractions = ((Person) this.getHost()).getNumberOfCommunityInteractions() / 2;
+//				}
 				if (((Person) this.getHost()).isHome()) {
 					someInteractions = ((Person) this.getHost()).getHomeLocation().getPeople().size();
 				}
@@ -129,8 +129,8 @@ public class CoronavirusInfection extends Disease {
 //						}
 					
 					}
-					return;
 				}
+				return;
 			}
 			else {
 				if(this.getHost().getLocation() instanceof Household){
