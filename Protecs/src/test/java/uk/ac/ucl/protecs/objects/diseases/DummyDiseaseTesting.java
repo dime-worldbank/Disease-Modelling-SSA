@@ -38,8 +38,9 @@ public class DummyDiseaseTesting{
 	public void checkVerticalTransmissionOfDummyInfectiousWorks() {
 		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_dummy_disease.txt");
 		// Increase the birth rate to ensure births take place
-		HelperFunctions.setParameterListsToValue(sim, sim.params.prob_birth_by_age, 1.0);
 		sim.start();
+		HelperFunctions.setParameterListsToValue(sim, sim.demographyFramework.getProb_birth_by_age(), 1.0);
+
 		// Check that there is an infection in a female
 		boolean infectionInFemale = false;
 		for (Disease d: sim.human_infections) {
