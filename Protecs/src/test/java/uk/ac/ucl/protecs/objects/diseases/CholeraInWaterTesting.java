@@ -144,7 +144,7 @@ public class CholeraInWaterTesting {
 
 		}
 		// make sure there are no new contamination events from shedding
-		sim.choleraFramework.setCholera_prob_shed(1);
+		sim.choleraFramework.setCholera_prob_shed(0);
 		// run for two ticks
 		int numTicks = 2;
 		HelperFunctions.runSimulationForTicks(sim, numTicks);
@@ -209,7 +209,8 @@ public class CholeraInWaterTesting {
 			number_initial_infections ++;
 			}
 		}
-		// Make the spread of cholera in water only occur mechanically through the fetchWater function in the person object
+		// Make the spread of cholera in water only occur mechanically through the fetchWater function in the person object, i.e. from the physical transfer of water between 
+		// the community source and the household water
 		sim.choleraFramework.setCholera_prob_ingest(0);
 		sim.choleraFramework.setCholera_prob_shed(0);
 		
