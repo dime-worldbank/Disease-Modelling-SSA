@@ -185,9 +185,9 @@ public class DummyDiseaseTesting{
 		}
 		
 		// increase the rate of dummy NCD acquisition
-		sim.dummyNCDFramework.setDummy_ncd_rr_over_50(1);
+		sim.dummyNCDFramework.setDummy_ncd_relative_risk_over_50(1);
 		// increase the relative risk of developing this condition if male
-		sim.dummyNCDFramework.setDummy_ncd_rr_male(2);
+		sim.dummyNCDFramework.setDummy_ncd_relative_risk_male(2);
 		// turn off deaths to only focus on births.
 		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
 		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.births);
@@ -241,9 +241,9 @@ public class DummyDiseaseTesting{
 		}
 		
 		// increase the rate of dummy NCD acquisition
-		sim.dummyNCDFramework.setDummy_ncd_rr_over_50(2.0);
+		sim.dummyNCDFramework.setDummy_ncd_relative_risk_over_50(2.0);
 		// increase the relative risk of developing this condition if male
-		sim.dummyNCDFramework.setDummy_ncd_rr_male(1.0);
+		sim.dummyNCDFramework.setDummy_ncd_relative_risk_male(1.0);
 		// turn off deaths to only focus on births.
 		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
 		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.births);
