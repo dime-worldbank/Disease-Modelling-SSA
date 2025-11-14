@@ -47,7 +47,7 @@ public class Params {
 											// - weight this if we suspect it's undercounting
 	public boolean setting_perfectMixing = true; // if TRUE: there are no work or social bubbles; individuals have
 	// equal chance of interacting with anyone else in the simulation
-	public double prob_go_to_work = 0.8;
+	public double prob_go_to_work = 1;
 	public boolean demography = false;
 	public boolean covidTesting = false;
 
@@ -217,6 +217,10 @@ public class Params {
 	
 	public static int hour_end_day_weekday = 16 / hours_per_tick;
 	public static int hour_end_day_otherday = 16 / hours_per_tick;
+	
+	public static int hour_return_from_visiting = 16 / hours_per_tick;
+	public static int hour_leave_work = 16 / hours_per_tick;
+	public static int hour_leave_community = 20 / hours_per_tick;
 	
 	public static int hours_at_work_weekday = 8 / hours_per_tick;
 	public static int hours_sleeping = 8 / hours_per_tick;

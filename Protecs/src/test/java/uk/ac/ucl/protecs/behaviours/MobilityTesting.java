@@ -147,9 +147,9 @@ public class MobilityTesting {
 		
 		// people will go home once the day has ended, therefore we need to run this until the end of the time they will be out in the community.
 		// There are 4 hours per tick, meaning 6 ticks per day. We check they are home after the 5th tick of the simulation.
-		List<String> uniqueNodesInRun = HelperFunctions.getFinalBehaviourNodesInSim(sim, 5.01 / sim.params.ticks_per_day, NodeOption.MovementBehaviour);
+		HashSet<String> uniqueNodesInRun = HelperFunctions.getUniqueNodesOverCourseofSim(sim, 7, NodeOption.MovementBehaviour, 0.0);
 		// only expect people to be at home
-		List<String> expectedNodes = Arrays.asList(mobilityNodeTitle.HOME.key);
+		List<String> expectedNodes = Arrays.asList(mobilityNodeTitle.HOME.key, mobilityNodeTitle.COMMUNITY.key);
 
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun) && uniqueNodesInRun.containsAll(expectedNodes));
 	}
@@ -187,11 +187,12 @@ public class MobilityTesting {
 			// get people who aren't at work, but should be
 			if (!p.isUnemployed() && !p.visitingNow() && !(p.getLocation() instanceof Workplace)) {
 				// if they aren't forced to stay out of their workplace and aren't at work assert false
-				if (!sim.params.OccupationConstraintList.containsKey(p.getEconStatus()))
+				if (!sim.params.OccupationConstraintList.containsKey(p.getEconStatus())) {
 					// force an assertion failure
 					Assert.assertTrue(p.getLocation() instanceof Workplace);
 					Assert.assertTrue(p.getActivityNode().getTitle().equals(mobilityNodeTitle.WORK.key));
 				}
+			}
 		}		
 	}
 	
@@ -214,11 +215,12 @@ public class MobilityTesting {
 			// get people who aren't at work, but should be
 			if (!p.isUnemployed() && !p.visitingNow() && !(p.getLocation() instanceof Workplace)) {
 				// if they aren't forced to stay out of their workplace and aren't at work assert false
-				if (!sim.params.OccupationConstraintList.containsKey(p.getEconStatus()))
+				if (!sim.params.OccupationConstraintList.containsKey(p.getEconStatus())) {
 					// force an assertion failure
 					Assert.assertTrue(p.getLocation() instanceof Workplace);
 					Assert.assertTrue(p.getActivityNode().getTitle().equals(mobilityNodeTitle.WORK.key));
 					}
+				}
 			}
 			// Now rerun the simulation with the same seed making sure that people leave their workplace
 			int numTicksForAfterWork = 5;
@@ -236,6 +238,43 @@ public class MobilityTesting {
 			}
 	}
 	
+	@Test
+	public void peopleAreInTheCommunityAtTickFour() {
+		int numTicksForAfterWork = 4;
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_workplace_bubbles.txt");
+		HelperFunctions.makePeopleLeaveTheHouseEachDay(sim);
+		sim.params.prob_go_to_work = 1.1d;
+		sim.start();
+		// run the simulation until the end of the workday
+		HelperFunctions.runSimulationForTicks(sim, numTicksForAfterWork);
+		// If they are at a workplace or are doing the 'work' behaviour node, fail
+		for (Person p: sim.agents) {
+			// only check if they are alive, no workplace restrained and they haven't been to another community
+			if ((p.isAlive()) && (!sim.params.OccupationConstraintList.containsKey(p.getEconStatus())) && !(p.getWentToCommunityToday())) {
+				Assert.assertTrue(p.getLocation().getId().equals(p.getHomeLocation().getRootSuperLocation().getId()));
+				}
+			}
+
+	}
+	
+	@Test
+	public void peopleAreHomeAtTickFive() {
+		int numTicksForAfterWork = 5;
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_workplace_bubbles.txt");
+		HelperFunctions.makePeopleLeaveTheHouseEachDay(sim);
+		sim.params.prob_go_to_work = 1.1d;
+		sim.start();
+		// run the simulation until the end of the workday
+		HelperFunctions.runSimulationForTicks(sim, numTicksForAfterWork);
+		// If they are at a workplace or are doing the 'work' behaviour node, fail
+		for (Person p: sim.agents) {
+			// only check if they are alive
+			if (p.isAlive()) {
+				Assert.assertTrue(p.getLocation().getId().equals(p.getHomeLocation().getId()));
+				}
+			}
+
+	}
 	
 	@Parameterized.Parameters
 	public static List<String> params() {

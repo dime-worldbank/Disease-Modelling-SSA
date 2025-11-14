@@ -1,8 +1,8 @@
 package uk.ac.ucl.protecs.behaviours;
 
 import uk.ac.ucl.protecs.objects.hosts.Person;
-import uk.ac.ucl.protecs.objects.hosts.Person.SEX;
 import uk.ac.ucl.protecs.objects.locations.Location;
+import uk.ac.ucl.protecs.objects.locations.Location.LocationCategory;
 import uk.ac.ucl.protecs.sim.*;
 import sim.engine.Steppable;
 import uk.ac.ucl.swise.behaviours.BehaviourFramework;
@@ -69,13 +69,26 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 				// determine likelihood of leaving the home today
 				double myEconStatProb = myWorld.params.getEconProbByDay(day, p.getEconStatus());
 				assert (myEconStatProb >= 0.0) & (myEconStatProb <= 1.0) : "Probability not valid " + myEconStatProb;
+				
+				// for Sophie's thesis only
+				myEconStatProb = 1;
+				
 				if(myWorld.random.nextDouble() > myEconStatProb)
 					return myWorld.params.ticks_per_day; // rest until tomorrow
 
 				// if it's morning, go out for the day, reset the number of contacts they will have
-				if(hour >= myWorld.params.hour_start_day_weekday){ 
+				if((hour >= myWorld.params.hour_start_day_weekday) && (hour < myWorld.params.hour_end_day_otherday)){ 
  
 					return determineDailyRoutine(p, hour, day);
+				}
+				// if they have been constrained to a certain location during working hours, after the working day's hours send them to the community for four hours (1 tick)
+				else if ((myWorld.params.OccupationConstraintList.containsKey(p.getEconStatus())) && (hour >= myWorld.params.hour_end_day_weekday)) {
+					p.transferTo(p.getHomeLocation().getRootSuperLocation());
+					p.setActivityNode(communityNode);
+					p.setWentToCommunityToday(true);
+
+					p.setAtWork(false);
+					return 1;
 				}
 				
 				return 1; // otherwise it's not the morning - stay home for now, but check in again later!
@@ -84,8 +97,20 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 			private double determineDailyRoutine(Person p, int hour, int day) {
 				Location target;
 				target = myWorld.params.getTargetMoveAdminZone(p, day, myWorld.random.nextDouble(), myWorld.lockedDown);
+				boolean constrainedToHome = false;
+				try {
+					constrainedToHome = myWorld.params.OccupationConstraintList.get(p.getEconStatus()).equals(LocationCategory.HOME);
+				} catch (NullPointerException e) {
+					// no restrictions placed on this occupation
+				}
+				// if workplace restrictions mean they should be at home enforce that
+				if (constrainedToHome) {
+					target = p.getHomeLocation().getRootSuperLocation();
+					p.setVisiting(false);
+				}
 				// then check if they are supposed to leave the admin zone they are currently in. If so, then they cannot go to work.
 				boolean stayingInHomeDistrict = target.getId().equals(p.getHomeLocation().getRootSuperLocation().getId());
+				
 				// First check if they are visiting another district
 				if (!stayingInHomeDistrict) p.setVisiting(true);
 				if (p.visitingNow() & !stayingInHomeDistrict) {
@@ -112,12 +137,18 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 					// first check if there is any constraints to this occupations movements. Note that if the model is using this code block then 
 					// this person has not been immobilised and if their movement is constrained it will mean that they only go to the community and not to work
 					boolean movementConstrained = myWorld.params.OccupationConstraintList.containsKey(p.getEconStatus());
-						
+					
+					if (movementConstrained) {
+						goToWork = false;
+					}
 					if(myWorld.params.setting_perfectMixing) // in perfect mixing, just go to the community!
 						goToWork = false;
 					
 					if (goToWork & !movementConstrained) target = p.getWorkLocation();
-
+				
+					if (constrainedToHome) {
+						target = p.getHomeLocation();
+					}
 					
 					p.transferTo(target);
 					assert (p.getLocation().equals(target)) : "Transfer to target didn't work, meant to be at " + target.getId() + " but is instead at " + p.getLocation().getId();
@@ -127,8 +158,15 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 						p.setAtWork(true);
 						p.setWentToWorkToday(true);
 						p.setVisiting(false);
-						return 1;
-					}					
+						return myWorld.params.hour_end_day_otherday - hour;
+					}
+					else if (constrainedToHome) {
+						p.setWentToCommunityToday(false);
+						p.setVisiting(false);
+						p.setAtWork(false);
+						p.setActivityNode(homeNode);
+						return myWorld.params.hour_end_day_otherday - hour;
+					}
 					else { // in home district, not working
 						p.setActivityNode(communityNode);
 						p.setAtWork(false);	
@@ -201,7 +239,7 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 				int hour = ((int)time) % Params.ticks_per_day;
 				
 				// if it's too late, go straight home
-				if(hour > myWorld.params.hour_end_day_weekday){
+				if(hour > myWorld.params.hour_leave_community){
 					p.transferTo(p.getHomeLocation());
 					p.setActivityNode(homeNode);
 					p.setAtWork(false);
@@ -210,13 +248,13 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 				}
 				
 				// if there is some time before going home, go out into the community!
-//				else if(hour <= myWorld.params.hour_end_day_weekday) {
-//					p.transferTo(p.getCommunityLocation());
-//					p.setActivityNode(communityNode);
-//					p.setWentToCommunityToday(true);
-//					p.setAtWork(false);
-//					return 1; // 4 hours in the community
-//				}
+				else if(hour >= myWorld.params.hour_leave_work) {
+					p.transferTo(p.getCommunityLocation());
+					p.setActivityNode(communityNode);
+					p.setWentToCommunityToday(true);
+					p.setAtWork(false);
+					return 1; // 4 hours in the community
+				}
 
 				return 1; // otherwise, stay at work
 			}
@@ -240,8 +278,19 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 
 				// extract time info
 				int hour = ((int)time) % Params.ticks_per_day;
-
-				if(hour >= myWorld.params.hour_end_day_otherday) { // late! Go home! Interact with a community water source before leaving
+				// handle visiting other district community spaces, in this case we expect people to only be in the non-home-district community space for 8 hours in total
+				if ((p.visitingNow()) && (hour >= myWorld.params.hour_return_from_visiting)) {
+					p.transferTo(p.getHomeLocation());
+					p.setActivityNode(homeNode);
+					p.setVisiting(false);
+					assert p.getLocation().getId().equals(p.getHomeLocation().getId()) : "person isn't home but should be " + p.getLocation().getId();
+					return myWorld.params.hours_sleeping;
+				}
+				
+				// handle visiting the home district here, after work we expect them to be here for 4 hours after work. If they work here, we expect them to be here for 12 hours
+				// for perfect mixing, we expect people to be here for 12 hours in total
+				if(hour >= myWorld.params.hour_leave_community) {
+					// late! Go home! Interact with a community water source before leaving
 					// this section of code is only used if we are modelling cholera. Put a wrapper around it based on that
 					if (myWorld.choleraFramework != null) {
 						if ((!p.visitingNow()) & p.getWaterGatherer()) {
@@ -254,7 +303,7 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 					assert p.getLocation().getId().equals(p.getHomeLocation().getId()) : "person isn't home but should be " + p.getLocation().getId();
 					return myWorld.params.hours_sleeping;
 				}
-				return 1; // check in again soon, but we have more time!
+				return 1;
 			}
 
 			@Override

@@ -144,22 +144,36 @@ public class WorkplaceTesting{
 	}
 	
 	@Test
-	public void testThoseConstrainedToHomeAreImmobilised() {
+	public void testThoseConstrainedToHomeAreAtHomeDuringTheDayAndAtTheCommunityAfter() {
 		// check the parameters associated with workplace constraints
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_workplace_bubbles_with_constraints.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_wp_all_home.txt");
 		sim.start();
 		// run for three ticks (people leave the house at tick 2 and leave work at tick 4)
-		int numTicks = 3;
+		int numTicks = 2;
 		HelperFunctions.runSimulationForTicks(sim, numTicks);
 		// iterate over the simulation population and check that those who are constrained to home are in fact at home and have had the immobilised property set
 		for (Person p: sim.agents) {
 			if (sim.params.OccupationConstraintList.containsKey(p.getEconStatus())) {
 				if (sim.params.OccupationConstraintList.get(p.getEconStatus()).equals(LocationCategory.HOME)) {
-					Assert.assertTrue(p.isImmobilised() == true);
-					Assert.assertTrue(!(p.getLocation() instanceof Household));
+					Assert.assertTrue((p.getLocation() instanceof Household));
 				}
 			}
 		}	
+		// run up until tick 5 where they should now be in the community
+		sim = HelperFunctions.CreateDummySim(paramsDir + "params_wp_all_home.txt");
+		sim.start();
+		// run for three ticks (people leave the house at tick 2 and leave work at tick 4)
+		numTicks = 4;
+
+		HelperFunctions.runSimulationForTicks(sim, numTicks);
+		for (Person p: sim.agents) {
+			if (sim.params.OccupationConstraintList.containsKey(p.getEconStatus())) {
+				if (sim.params.OccupationConstraintList.get(p.getEconStatus()).equals(LocationCategory.HOME)) {
+					Assert.assertTrue(p.getLocation().getId().equals(p.getHomeLocation().getRootSuperLocation().getId()));
+				}
+			}
+		}	
+
 	}
 	@Test
 	public void testThoseConstrainedToTheCommunityAreNotAtWork() {
