@@ -180,7 +180,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				if (((Person) i.getHost()).isDeadFromOther()) {
 					return Double.MAX_VALUE;
 				}
-				((Person) i.getHost()).infectNeighbours();
+				((Person) i.getHost()).infectNeighbours(i.getDiseaseType().key);
 				// determine when the infection will proceed to symptoms - this is
 				// only a matter of time in this case
 				if(time >= i.time_start_symptomatic){
@@ -220,7 +220,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				if (((Person) i.getHost()).isDeadFromOther()) {
 					return Double.MAX_VALUE;
 				}
-				((Person) i.getHost()).infectNeighbours();
+				((Person) i.getHost()).infectNeighbours(i.getDiseaseType().key);
 				i.setAsympt();
 
 				// determine when the agent will recover - this is
@@ -262,7 +262,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				if (((Person) i.getHost()).isDeadFromOther()) {
 					return Double.MAX_VALUE;
 				}
-				((Person) i.getHost()).infectNeighbours();
+				((Person) i.getHost()).infectNeighbours(i.getDiseaseType().key);
 				i.setSymptomatic();
 				i.setMild();
 				i.setEligibleForTesting();
@@ -348,7 +348,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				if (((Person) i.getHost()).isDeadFromOther()) {
 					return Double.MAX_VALUE;
 				}
-				((Person) i.getHost()).infectNeighbours();
+				((Person) i.getHost()).infectNeighbours(i.getDiseaseType().key);
 				i.setSevere();
 				// if the agent is scheduled to recover, make sure that it
 				// does so
@@ -417,7 +417,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				if (((Person) i.getHost()).isDeadFromOther()) {
 					return Double.MAX_VALUE;
 				}
-				((Person) i.getHost()).infectNeighbours();
+				((Person) i.getHost()).infectNeighbours(i.getDiseaseType().key);
 				i.setCritical();
 				
 				// if the agent is scheduled to recover, make sure that it

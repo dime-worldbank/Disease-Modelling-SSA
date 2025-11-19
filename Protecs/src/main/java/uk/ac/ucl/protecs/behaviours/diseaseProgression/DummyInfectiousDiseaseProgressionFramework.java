@@ -107,7 +107,7 @@ public class DummyInfectiousDiseaseProgressionFramework extends DiseaseProgressi
 			if (!((Person) d.getHost()).isAlive()) {
 				nextStep = nextStepDummy.HAS_DIED;
 				}
-			((Person) d.getHost()).infectNeighbours();
+			((Person) d.getHost()).infectNeighbours(d.getDiseaseType().key);
 
 			// choose to progress the disease or not based on value of nextStep
 			switch (nextStep) {

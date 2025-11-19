@@ -262,7 +262,7 @@ public class Person extends Host {
 			isDead = true;
 			System.out.println(this.toString() + " has DIED from " + cause + " :( ");
 		}
-		if (cause == "Cholera") {
+		else if (cause == "Cholera") {
 			isDead = true;
 			System.out.println(this.toString() + " has DIED from " + cause + " :( ");
 		}
@@ -273,20 +273,56 @@ public class Person extends Host {
 		}
 		isDead = true;
 		transferTo(null);
-		// remove this person from the household storage list
-		getHouseholdAsType().removeDeceasedFromHousehold(this);
-		// if they are responsible for gathering water, reassign the responsibility
-		if (getWaterGatherer()) {
-			this.getHouseholdAsType().determineWaterGathererInHousehold();
+		if (myWorld.choleraFramework != null) {
+			// remove this person from the household storage list
+			getHouseholdAsType().removeDeceasedFromHousehold(this);
+			// if they are responsible for gathering water, reassign the responsibility
+			if (getWaterGatherer()) {
+				this.getHouseholdAsType().determineWaterGathererInHousehold();
+			}
 		}
-
 
 	}
 	
-	public void infectNeighbours(){
-		for (Disease d: this.getDiseaseSet().values()) {
-			d.horizontalTransmission();
-		}
+//	public void ____OLDinfectNeighbours(){
+//		
+//		if (this.isDead) return;
+//		for (Disease d: this.getDiseaseSet().values()) {
+//			d.horizontalTransmission();
+//		}
+////		// if this person is dead, do not try and interact
+////		if (this.isDead) return;
+////		// if not currently in the space, do not try to interact
+////		else if(currentLocation == null) return;
+////		// if they do not have an infection object return out 
+//////		else if(myInfection == null){
+//////			System.out.println("ERROR: " + this.myId + " asked to infect others, but is not infected!");
+//////			return;
+//////		}
+////		else if(!myDiseaseSet.containsKey(DISEASE.COVID.key)){
+////			System.out.println("ERROR: " + this.myId + " asked to infect others, but is not infected!");
+////			return;
+////		}
+////		// if there is no one else other than the individual at the location, save computation time and return out
+////		else if(this.currentLocation.getPersonsHere().length < 2) {
+////			return; 
+////			} 
+////		
+////		if(myWorld.params.setting_perfectMixing) {
+////			
+////			perfectMixingInteractions(); 
+////			return;
+////		}
+////		else {
+////			structuredMixingInteractions();
+////			return;
+////		} 
+//	}
+	
+	public void infectNeighbours(String key){
+		
+		if (this.isDead) return;
+		this.getDiseaseSet().get(key).horizontalTransmission();
 //		// if this person is dead, do not try and interact
 //		if (this.isDead) return;
 //		// if not currently in the space, do not try to interact
@@ -315,7 +351,6 @@ public class Person extends Host {
 //			return;
 //		} 
 	}
-		
  
 //	private void perfectMixingInteractions() {
 //		Object [] peopleHere = this.currentLocation.getPersonsHere();

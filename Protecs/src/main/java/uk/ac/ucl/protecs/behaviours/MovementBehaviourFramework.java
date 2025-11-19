@@ -98,10 +98,8 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 				Location target;
 				target = myWorld.params.getTargetMoveAdminZone(p, day, myWorld.random.nextDouble(), myWorld.lockedDown);
 				boolean constrainedToHome = false;
-				try {
+				if (myWorld.params.OccupationConstraintList.containsKey(p.getEconStatus())) {
 					constrainedToHome = myWorld.params.OccupationConstraintList.get(p.getEconStatus()).equals(LocationCategory.HOME);
-				} catch (NullPointerException e) {
-					// no restrictions placed on this occupation
 				}
 				// if workplace restrictions mean they should be at home enforce that
 				if (constrainedToHome) {
