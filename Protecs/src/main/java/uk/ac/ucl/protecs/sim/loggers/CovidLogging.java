@@ -2,6 +2,8 @@ package uk.ac.ucl.protecs.sim.loggers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -37,14 +39,16 @@ public class CovidLogging {
 			int dayOfSimulation = (int) (arg0.schedule.getTime() / world.params.ticks_per_day);
 			int numberOfTestsPerDay = world.params.number_of_tests_per_day.get(dayOfSimulation);
 			// create a function to group the population by sex, age and whether they gave birth
-			Map<Boolean, Map<Boolean, List<Disease>>> hasTestedPositiveForCovid = (Map<Boolean, Map<Boolean,List<Disease>>>) world.human_infections.stream().collect(
-					Collectors.groupingBy(Disease::hasTestedPositive,
-											Collectors.groupingBy(
-														Disease::getTestLogged,
-														Collectors.toList()
-								)
-						)
-			);
+			
+			Map<Boolean, Map<Boolean, List<Disease>>> hasTestedPositiveForCovid = new HashMap<>();
+			
+			for (Disease d: world.human_infections) {
+				hasTestedPositiveForCovid
+				.computeIfAbsent(d.hasTestedPositive(), k -> new HashMap<>())
+				.computeIfAbsent(d.getTestLogged(), k -> new ArrayList<>())
+				.add(d);
+				
+			}
 			int numberOfPositiveTests = 0;
 			try {
 				numberOfPositiveTests = hasTestedPositiveForCovid.get(true).get(false).size();
@@ -103,157 +107,77 @@ public class CovidLogging {
 				ArrayList<Integer> covidNewDeathCount = new ArrayList<Integer>();
 
 				// create a function to group the population by location, whether they are alive and if they have covid and if this is a new case
-				Map<String, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> location_alive_hasCovid_map = world.human_infections.stream().collect(
-						Collectors.groupingBy(
-								Disease::getCurrentAdminZone, 
-									Collectors.groupingBy(
-											Disease::isHostAlive,
-												Collectors.groupingBy(
-														Disease::getDiseaseType,
-														Collectors.groupingBy(
-																Disease::hasRecovered,
-																Collectors.groupingBy(
-																		Disease::getLogged,
-																		Collectors.counting()
-																		)
-																)
-														)
-												)
-									)
-						);
-					
+				Map<String, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> location_alive_hasCovid_map = new HashMap<>();
+				
 				// create a map to count the number of people who have recovered from covid in that admin zone
-					
-				Map<String, Map<DISEASE, Map<Boolean, Long>>> location_alive_recovered_map = world.human_infections.stream().collect(
-						Collectors.groupingBy(
-								Disease::getCurrentAdminZone,
-								Collectors.groupingBy(
-										Disease::getDiseaseType,
-										Collectors.groupingBy(
-													Disease::hasRecovered,
-										Collectors.counting()
-										)
-									)
-								)
-							);
+				Map<String, Map<DISEASE, Map<Boolean, Long>>> location_alive_recovered_map = new HashMap<>();
+				
+				// create a map to count the number of people who have asymptomatic covid in that admin zone
+				Map<String, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> location_asympt_covid_map = new HashMap<>();
+				
+				// create a map to count the number of people who have mild covid in that admin zone
+				Map<String, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> location_mild_covid_map = new HashMap<>();
+				
+				// create a map to count the number of people who have severe covid in that admin zone
+				Map<String, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> location_severe_covid_map = new HashMap<>();
 
-					
-				Map<String, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> location_asympt_covid_map = world.human_infections.stream().collect(
-						Collectors.groupingBy(
-								Disease::getCurrentAdminZone, 
-									Collectors.groupingBy(
-											Disease::isHostAlive,
-											Collectors.groupingBy(
-														Disease::getDiseaseType,
-															Collectors.groupingBy(
-																	Disease::hasAsympt,
-																		Collectors.groupingBy(
-																				Disease::getAsymptLogged,
-																				Collectors.counting()
-																				)
-																		)
-															)
-											)
-									)
-						);
-
-					
-				Map<String, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> location_mild_covid_map = world.human_infections.stream().collect(
-						Collectors.groupingBy(
-								Disease::getCurrentAdminZone, 
-									Collectors.groupingBy(
-											Disease::isHostAlive,
-												Collectors.groupingBy(
-														Disease::getDiseaseType,
-															Collectors.groupingBy(
-																	Disease::hasMild,
-																		Collectors.groupingBy(
-																				Disease::getMildLogged,
-																				Collectors.counting()
-																				)
-																		)
-															)
-												)
-									)
-						);
-
-				Map<String, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> location_severe_covid_map = world.human_infections.stream().collect(
-						Collectors.groupingBy(
-								Disease::getCurrentAdminZone, 
-									Collectors.groupingBy(
-											Disease::isHostAlive,
-												Collectors.groupingBy(
-														Disease::getDiseaseType,
-															Collectors.groupingBy(
-																	Disease::hasSevere,
-																		Collectors.groupingBy(
-																				Disease::getSevereLogged,
-																				Collectors.counting()
-																				)
-																		)
-															)
-												)
-									)
-						);
-
-				Map<String, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> location_critical_covid_map = world.human_infections.stream().collect(
-						Collectors.groupingBy(
-								Disease::getCurrentAdminZone, 
-									Collectors.groupingBy(
-											Disease::isHostAlive,
-												Collectors.groupingBy(
-														Disease::getDiseaseType,
-															Collectors.groupingBy(
-																	Disease::hasCritical,
-																		Collectors.groupingBy(
-																				Disease::getCriticalLogged,
-																				Collectors.counting()
-																				)
-																		)
-															)
-												)
-									)
-						);
+				// create a map to count the number of people who have critical covid in that admin zone
+				Map<String, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> location_critical_covid_map = new HashMap<>();
+				
 				// create a function to group the population by location and count cumulative deaths
-				Map<String, Map<DISEASE, Map<Boolean, Long>>> location_cumulative_died_map = world.human_infections.stream().collect(
-						Collectors.groupingBy(
-								Disease::getCurrentAdminZone, 
-								Collectors.groupingBy(
-										Disease::getDiseaseType,
-										Collectors.groupingBy(
-												Disease::isCauseOfDeath,
-												Collectors.counting()
-												)
-										)
-								)
-						);
+				Map<String, Map<DISEASE, Map<Boolean, Long>>> location_cumulative_died_map = new HashMap<>();
+				
 				// create a function to group the population by location and count cumulative cases
-				Map<String, Map<DISEASE, Long>> location_cumulative_covid_map = world.human_infections.stream().collect(
-						Collectors.groupingBy(
-								Disease::getCurrentAdminZone, 
-								Collectors.groupingBy(
-										Disease::getDiseaseType,
-										Collectors.counting()
-										)
-								)
-						);
+				Map<String, Map<DISEASE, Long>> location_cumulative_covid_map = new HashMap<>();
+				
 				// create a function to group the population by location and count new deaths
+				Map<String, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>> location_new_deaths_map = new HashMap<>();
+				
+				// generate covid summary statistics by type
+				for (Disease d: world.human_infections) {
+					location_alive_hasCovid_map
+					.computeIfAbsent(d.getCurrentAdminZone(), k -> new HashMap<>())
+					.computeIfAbsent(d.isHostAlive(), k -> new EnumMap<>(DISEASE.class))
+					.computeIfAbsent(d.getDiseaseType(), k -> new HashMap<>())
+					.computeIfAbsent(d.hasRecovered(), k -> new HashMap<>())
+					.merge(d.getLogged(), 1l, Long::sum);
+					
+					location_alive_recovered_map
+					.computeIfAbsent(d.getCurrentAdminZone(), k -> new EnumMap<>(DISEASE.class))
+					.computeIfAbsent(d.getDiseaseType(), k -> new HashMap<>())
+					.merge(d.hasRecovered(), 1l, Long::sum);
+					
+					location_asympt_covid_map
+					.computeIfAbsent(d.getCurrentAdminZone(), k -> new HashMap<>())
+					.computeIfAbsent(d.isHostAlive(), k -> new EnumMap<>(DISEASE.class))
+					.computeIfAbsent(d.getDiseaseType(), k -> new HashMap<>())
+					.computeIfAbsent(d.hasAsympt(), k -> new HashMap<>())
+					.merge(d.getAsymptLogged(), 1l, Long::sum);
+					
+					location_mild_covid_map
+					.computeIfAbsent(d.getCurrentAdminZone(), k -> new HashMap<>())
+					.computeIfAbsent(d.isHostAlive(), k -> new EnumMap<>(DISEASE.class))
+					.computeIfAbsent(d.getDiseaseType(), k -> new HashMap<>())
+					.computeIfAbsent(d.hasCritical(), k -> new HashMap<>())
+					.merge(d.getAsymptLogged(), 1l, Long::sum);
+					
+					location_cumulative_died_map
+					.computeIfAbsent(d.getCurrentAdminZone(), k -> new EnumMap<>(DISEASE.class))
+					.computeIfAbsent(d.getDiseaseType(), k -> new HashMap<>())
+					.merge(d.isCauseOfDeath(), 1l, Long::sum);
+					
+					location_cumulative_covid_map
+					.computeIfAbsent(d.getCurrentAdminZone(), k -> new EnumMap<>(DISEASE.class))
+					.merge(d.getDiseaseType(), 1l, Long::sum);
+					
+					location_new_deaths_map
+					.computeIfAbsent(d.getCurrentAdminZone(), k -> new EnumMap<>(DISEASE.class))
+					.computeIfAbsent(d.getDiseaseType(), k -> new HashMap<>())
+					.computeIfAbsent(d.isCauseOfDeath(), k -> new HashMap<>())
+					.merge(d.getDeathLogged(), 1l, Long::sum);
+				}
 
-				Map<String, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>> location_new_deaths_map = world.human_infections.stream().collect(
-						Collectors.groupingBy(
-								Disease::getCurrentAdminZone,
-								Collectors.groupingBy(
-											Disease::getDiseaseType, 
-												Collectors.groupingBy(
-														Disease::isCauseOfDeath,
-														Collectors.groupingBy(
-																Disease::getDeathLogged,
-																Collectors.counting()
-																)
-														)
-												)
-								)
-						);
+
 				//	We now iterate over the admin zones, to find the current state of the epidemic
 				for (String zone: adminZoneList) {
 					// get the current number of cases in each admin zone
