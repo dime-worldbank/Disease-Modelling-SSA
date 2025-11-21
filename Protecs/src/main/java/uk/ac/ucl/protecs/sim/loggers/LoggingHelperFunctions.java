@@ -1,12 +1,11 @@
 package uk.ac.ucl.protecs.sim.loggers;
 
-import static uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.allPopulationSizes;
-
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import sim.engine.SimState;
 import sim.engine.Steppable;
@@ -31,179 +30,114 @@ public class LoggingHelperFunctions{
 	public final static String tab = "\t";
 	
 	private final static String age_sex_categories = tab + "sex" + tab + age_categories + "\n";
-
-	
-	public static Map<SEX, Map<Integer, Map<Boolean, Long>>> age_sex_alive_map(WorldBankCovid19Sim world) {
-		Map<SEX, Map<Integer, Map<Boolean, Long>>> age_sex_alive_map = world.agents.stream().collect(
-				Collectors.groupingBy(
-						Person::getSex, 
-						Collectors.groupingBy(
-								Person::getAge, 
-								Collectors.groupingBy(
-										Person::isAlive,
-								Collectors.counting()
-								)
-						)
-				)
-				);
-		return age_sex_alive_map;
-	}
-	
-	// get number of those alive of age and sex
-	public static ArrayList <Integer> get_number_of_alive(WorldBankCovid19Sim world, SEX sex) {
-		ArrayList <Integer> alive_ages = new ArrayList<Integer>();
-		Map<SEX, Map<Integer, Map<Boolean, Long>>> age_sex_alive_map_copy = age_sex_alive_map(world);
-		// We now iterate over the age ranges, create a variable to keep track of the iterations
-		Integer idx = 0;
-		for (Integer val: upper_age_range) {
-			// for each age group we begin to count the number of people who fall into each category, create variables
-			// to store this information in
-			Integer count = 0;
-			// iterate over the ages set in the age ranges (lower value from lower_age_range, upper from upper_age_range)
-			for (int age = lower_age_range.get(idx); age < val; age++) {
-				
-				try {
-					// try function necessary as some ages won't be present in the population
-					// use the functions created earlier to calculate the number of people of each age group who fall
-					// into the categories we are interested in (alive, died from covid, died from other)
-					count += age_sex_alive_map_copy.get(sex).get(age).get(true).intValue();
-				}
-					catch (Exception e) {
-						// age wasn't present in the population, skip
-					}	
-			}
-			alive_ages.add(count);
-
-		}
-		return alive_ages;
-	}
-	
-	
 	
 	// get those alive at location
 	public static Map<Boolean, Map<String, List<Person>>> get_alive_at_location(WorldBankCovid19Sim world) {
-		// create a function to group the population by who is alive at this admin zone
-		Map<Boolean, Map<String, List<Person>>> aliveAtLocation = world.agents.stream().collect(
-				Collectors.groupingBy(
-						Person::isAlive,
-						Collectors.groupingBy(
-								Person::getCurrentAdminZone
-								)
-				)
-			);
-		return aliveAtLocation;
+		Map<Boolean, Map<String, List<Person>>> result = new HashMap<>();
+		
+		for (Person p: world.agents) {
+			result
+				.computeIfAbsent(p.isAlive(), k -> new HashMap<>())
+				.computeIfAbsent(p.getCurrentAdminZone(),  k -> new ArrayList<>())
+				.add(p);
+		}
+		
+		return result;
 	}
-	
-	// get those alive with a disease at location
 	public static Map<Boolean, Map<String, Map<DISEASE, Map<Boolean, List<Disease>>>>> get_disease_at_location(WorldBankCovid19Sim world) {
-		Map<Boolean, Map<String, Map<DISEASE, Map<Boolean, List<Disease>>>>> diseaseAtLocation = world.human_infections.stream().collect(
-				Collectors.groupingBy(
-						Disease::isHostAlive,
-						Collectors.groupingBy(
-								Disease::getCurrentAdminZone,
-								Collectors.groupingBy(
-										Disease::getDiseaseType,
-										Collectors.groupingBy(
-												Disease::hasRecovered
-												)
-										)
-								)
-						)
-				);
-		return diseaseAtLocation;
-	} 
+
+	    Map<Boolean, Map<String, Map<DISEASE, Map<Boolean, List<Disease>>>>> result =
+	        new HashMap<>();
+
+	    for (Disease d : world.human_infections) {
+	        result
+	            .computeIfAbsent(d.isHostAlive(), k -> new HashMap<>())
+	            .computeIfAbsent(d.getCurrentAdminZone(), k -> new EnumMap<>(DISEASE.class))
+	            .computeIfAbsent(d.getDiseaseType(), k -> new HashMap<>())
+	            .computeIfAbsent(d.hasRecovered(), k -> new ArrayList<>())
+	            .add(d);
+	    }
+
+	    return result;
+	}
+
 	
 	// get those who died from a disease at location
-	public static Map<String, Map<DISEASE, Map<Boolean, Map<Boolean, List<Disease>>>>> get_dead_from_disease_at_location(
-			WorldBankCovid19Sim world) {
-		Map<String, Map<DISEASE, Map<Boolean, Map<Boolean, List<Disease>>>>> diseaseDeathsAtLocation = world.human_infections.stream().collect(
-				Collectors.groupingBy(
-						Disease::getCurrentAdminZone,
-						Collectors.groupingBy(
-								Disease::getDiseaseType,
-								Collectors.groupingBy(
-										Disease::isCauseOfDeath,
-										Collectors.groupingBy(
-												Disease::getDeathLogged
-								)
-						)
-				)
-			)
-		);
-		return diseaseDeathsAtLocation;
+	public static Map<String, Map<DISEASE, Map<Boolean, Map<Boolean, List<Disease>>>>> get_dead_from_disease_at_location(WorldBankCovid19Sim world) {
+		
+		Map<String, Map<DISEASE, Map<Boolean, Map<Boolean, List<Disease>>>>> result = new HashMap<>();
+		
+		for (Disease d: world.human_infections) {
+			result
+				.computeIfAbsent(d.getCurrentAdminZone(), k -> new EnumMap<>(DISEASE.class))
+				.computeIfAbsent(d.getDiseaseType(), k -> new HashMap<>())
+				.computeIfAbsent(d.isCauseOfDeath(), k -> new HashMap<>())
+				.computeIfAbsent(d.getDeathLogged(), k -> new ArrayList<>())
+				.add(d);
+			
+		}
+		return result;
 	}
 	
-	// get those who died of COVID of age
-	public static ArrayList <Integer> get_disease_death_counts_by_age(WorldBankCovid19Sim world, SEX sex, DISEASE disease) {
-		Integer idx = 0;
-		ArrayList <Integer> disease_death_by_ages = new ArrayList<Integer>();
+	
+	// get those who died of the disease of age
+	public static ArrayList<Integer> get_disease_death_counts_by_age(
+	        WorldBankCovid19Sim world, SEX sex, DISEASE disease) {
 
-		// create a function to group the population by sex, age and whether they have covid
-		Map<SEX, Map<Integer, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> age_sex_map_died_from_disease = world.human_infections.stream().collect(
-				Collectors.groupingBy(
-						Disease::getHostSex, 
-						Collectors.groupingBy(
-								Disease::getHostAge, 
-								Collectors.groupingBy(
-										Disease::getDiseaseType,
-										Collectors.groupingBy(
-												Disease::isCauseOfDeath,
-												Collectors.groupingBy(
-														Disease::getDeathLogged,
-														Collectors.counting()
-														)
-												)
-										)
-								)
-						)
-				);
-					
-		//	We now iterate over the age ranges, create a variable to keep track of the iterations
-		for (Integer val: upper_age_range) {
-			// for each age group we begin to count the number of people who fall into each category, create variables
-			// to store this information in
-			Integer disease_death_count = 0;
-			// iterate over the ages set in the age ranges (lower value from lower_age_range, upper from upper_age_range)
-			for (int age = lower_age_range.get(idx); age < val; age++) {					
-				try {
-					// try function necessary as some ages won't be present in the population
-					// use the functions created earlier to calculate the number of people of each age group who fall
-					// into the categories we are interested in (alive, died from covid, died from other)
-					disease_death_count += age_sex_map_died_from_disease.get(sex).get(age).get(disease).get(true).get(false).intValue();
-					}
-				catch (Exception e) {
-						// age wasn't present in the population, skip
-					}
-			}
-			disease_death_by_ages.add(disease_death_count);
-			// update the idx variable for the next iteration
-			idx++;
-				
-			}
-		return disease_death_by_ages;
+	    ArrayList<Integer> result = new ArrayList<>();
+	    int idx = 0;
+
+	    // Build a simple age → count map (only for selected SEX + DISEASE)
+	    // This avoids allocating massive nested maps.
+	    Map<Integer, Integer> deathCountsByAge = new HashMap<>();
+
+	    for (Disease d : world.human_infections) {
+	        // filter only entries relevant to the requested SEX and DISEASE
+	        if (d.getHostSex() != sex) continue;
+	        if (d.getDiseaseType() != disease) continue;
+
+	        // only count: causeOfDeath = true, deathLogged = false ?
+	        if (!d.isCauseOfDeath()) continue;
+	        if (d.getDeathLogged()) continue;
+
+	        int age = d.getHostAge();
+	        deathCountsByAge.merge(age, 1, Integer::sum);
+	    }
+
+	    // Now sum by requested age ranges
+	    for (int upper : upper_age_range) {
+	        int lower = lower_age_range.get(idx);
+
+	        int total = 0;
+	        for (int age = lower; age < upper; age++) {
+	            total += deathCountsByAge.getOrDefault(age, 0);
+	        }
+
+	        result.add(total);
+	        idx++;
+	    }
+
+	    return result;
 	}
+
 	
 	// get those who alive with a disease of given age and sex
 	public static Map<SEX, Map<Integer, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> age_sex_has_disease_map(WorldBankCovid19Sim world) {
-		Map<SEX, Map<Integer, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> age_sex_map_has_disease = world.human_infections.stream().collect(
-				Collectors.groupingBy(
-						Disease::getHostSex, 
-						Collectors.groupingBy(
-								Disease::getHostAge, 
-								Collectors.groupingBy(
-										Disease::getDiseaseType,
-										Collectors.groupingBy(
-												Disease::hasRecovered,
-										Collectors.groupingBy(
-												Disease::getLogged,
-												Collectors.counting()
-								)
-						)
-				)
-				)
-				)
-				);
-		return age_sex_map_has_disease;
+		
+	    Map<SEX, Map<Integer, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> result =
+	            new EnumMap<>(SEX.class);
+
+	    for (Disease d : world.human_infections) {
+
+	        result
+	            .computeIfAbsent(d.getHostSex(), k -> new HashMap<>())
+	            .computeIfAbsent(d.getHostAge(), k -> new EnumMap<>(DISEASE.class))
+	            .computeIfAbsent(d.getDiseaseType(), k -> new HashMap<>())
+	            .computeIfAbsent(d.hasRecovered(), k -> new HashMap<>())
+	            .merge(d.getLogged(), 1L, Long::sum);
+	    	}
+
+	    return result;
 	}
 	// get those alive with the disease of a given age of age
 	public static ArrayList <Integer> get_disease_counts_by_age(WorldBankCovid19Sim world, SEX sex, DISEASE disease) {
@@ -243,9 +177,9 @@ public class LoggingHelperFunctions{
 			public void step(SimState arg0) {
 
 				Map<Boolean, Map<String, List<Person>>> aliveAtLocation = get_alive_at_location(world);
+
 				// create a function to group the population by who is alive in each admin zone and has the disease
 				Map<Boolean, Map<String, Map<DISEASE, Map<Boolean, List<Disease>>>>> diseaseAtLocation = get_disease_at_location(world);
-
 				// get a list of admin zone to iterate over
 				List <String> adminZones = ((WorldBankCovid19Sim)arg0).params.adminZoneNames;
 		
@@ -588,53 +522,36 @@ public class LoggingHelperFunctions{
 				ArrayList <Integer> status_disease_death_counts = new ArrayList<Integer>();
 				// create a function to group the population by sex, age and whether they are alive
 				
-				// create a function to group the population by occupation, age and whether they have the disease
-				Map<OCCUPATION, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> economic_alive_has_disease = 
-						world.human_infections.stream().collect(
-						Collectors.groupingBy(
-								Disease::getHostEconStatus, 
-								Collectors.groupingBy(
-										Disease::isHostAlive,
-										Collectors.groupingBy(
-												Disease::getDiseaseType,
-												Collectors.groupingBy(
-														Disease::hasRecovered,
-												Collectors.groupingBy(
-														Disease::getLogged,
-														Collectors.counting()
-										)
-								)
-						)
-						)
-						)
-						);
-				Map<OCCUPATION, Map<Boolean, Long>> economic_alive = world.agents.stream().collect(
-						Collectors.groupingBy(
-								Person::getEconStatus, 
-								Collectors.groupingBy(
-										Person::isAlive,
-												Collectors.counting()
-										
-								
-						)
-						)
-						);
-				// create a function to group the population by sex, age and whether they died from the disease
-				Map<OCCUPATION, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>> econ_died_from_disease = world.human_infections.stream().collect(
-						Collectors.groupingBy(
-								Disease::getHostEconStatus, 
-									Collectors.groupingBy(
-											Disease::getDiseaseType,
-											Collectors.groupingBy(
-													Disease::isCauseOfDeath,
-													Collectors.groupingBy(
-															Disease::getDeathLogged,
-															Collectors.counting()
-										)
-									)
-								)
-						)
-						);
+				// create a enum maps to group the population by occupation, age and whether they have the disease and also whether they died from the disease
+				Map<OCCUPATION, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> economic_alive_has_disease = new EnumMap<>(OCCUPATION.class);
+				Map<OCCUPATION, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>> econ_died_from_disease = new EnumMap<>(OCCUPATION.class);
+	   
+				
+				for (Disease d: world.human_infections) {
+					economic_alive_has_disease
+					.computeIfAbsent(d.getHostEconStatus(), k -> new HashMap<>())
+					.computeIfAbsent(d.isHostAlive(), k -> new EnumMap<>(DISEASE.class))
+					.computeIfAbsent(d.getDiseaseType(), k -> new HashMap<>())
+					.computeIfAbsent(d.hasRecovered(), k -> new HashMap<>())
+					.merge(d.getLogged(), 1l, Long::sum);
+					
+					econ_died_from_disease
+					.computeIfAbsent(d.getHostEconStatus(), k -> new EnumMap<>(DISEASE.class))
+					.computeIfAbsent(d.getDiseaseType(), k -> new HashMap<>())
+					.computeIfAbsent(d.isCauseOfDeath(), k -> new HashMap<>())
+					.merge(d.getDeathLogged(), 1l, Long::sum);
+				}
+				
+				
+				// create an enum map to group the population by occupation and whether they are alive
+				Map<OCCUPATION, Map<Boolean, Long>> economic_alive = new EnumMap<>(OCCUPATION.class);
+				
+				for (Person p : world.agents) {
+				    economic_alive
+				        .computeIfAbsent(p.getEconStatus(), k -> new HashMap<>())
+				        .merge(p.isAlive(), 1L, Long::sum);
+				}
+				
 
 				for (OCCUPATION status: world.occupationsInSim) {
 					try {

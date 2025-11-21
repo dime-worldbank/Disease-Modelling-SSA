@@ -43,9 +43,11 @@ public class DemographyLogging {
 			// number of births in each age range.
 			ArrayList <Integer> female_alive_ages = new ArrayList<Integer>();
 			ArrayList <Integer> female_pregnancy_ages = new ArrayList<Integer>();
-			// create a function to group the population by sex, age and whether they are alive
-			Map<SEX, Map<Integer, Map<Boolean, Long>>> age_sex_alive_map_copy = LoggingHelperFunctions.age_sex_alive_map(world);
-			
+
+			for (String group: GeneratePopulationStats.AGE_GROUPS) {
+				female_alive_ages.add(WorldBankCovid19Sim.femalePopulationSizes.get(group));
+
+			}			
 			// create a function to group the population by sex, age and whether they gave birth
 			Map<SEX, Map<Integer, Map<Boolean, Map<Boolean, Long>>>> age_sex_map_gave_birth = world.agents.stream().collect(
 					Collectors.groupingBy(
@@ -67,19 +69,10 @@ public class DemographyLogging {
 			for (Integer val: birthrate_upper_age_range) {
 				// for each age group we begin to count the number of people who fall into each category, create variables
 				// to store this information in
-				Integer female_count = 0;
 				Integer female_gave_birth_count = 0;
 				// iterate over the ages set in the age ranges (lower value from lower_age_range, upper from upper_age_range)
 				for (int age = birthrate_lower_age_range.get(idx); age < val; age++) {
-					try {
-						// try function necessary as some ages won't be present in the population
-						// use the functions created earlier to calculate the number of people of each age group who fall
-						// into the categories we are interested in (female, alive)
-						female_count += age_sex_alive_map_copy.get(SEX.FEMALE).get(age).get(true).intValue();
-					}
-						catch (Exception e) {
-							// age wasn't present in the population, skip
-						}
+
 					try {
 						// try function necessary as some ages won't be present in the population
 						// use the functions created earlier to calculate the number of people of each age group who fall
@@ -90,8 +83,6 @@ public class DemographyLogging {
 							// age wasn't present in the population, skip
 						}
 				}
-				// store what we have found in the lists we created
-				female_alive_ages.add(female_count);
 				female_pregnancy_ages.add(female_gave_birth_count);
 				// update the idx variable for the next iteration
 				idx++;
