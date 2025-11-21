@@ -2,6 +2,8 @@ package uk.ac.ucl.protecs.sim.loggers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -49,21 +51,16 @@ public class DemographyLogging {
 
 			}			
 			// create a function to group the population by sex, age and whether they gave birth
-			Map<SEX, Map<Integer, Map<Boolean, Map<Boolean, Long>>>> age_sex_map_gave_birth = world.agents.stream().collect(
-					Collectors.groupingBy(
-							Person::getSex, 
-							Collectors.groupingBy(
-									Person::getAge, 
-									Collectors.groupingBy(
-											Person::gaveBirthLastYear,
-											Collectors.groupingBy(
-													Person::getBirthLogged,
-													Collectors.counting()
-									)
-							)
-					)
-					)
-					);
+			Map<SEX, Map<Integer, Map<Boolean, Map<Boolean, Long>>>> age_sex_map_gave_birth = new EnumMap<>(SEX.class);
+			
+			for (Person p: world.agents) {
+				age_sex_map_gave_birth
+				.computeIfAbsent(p.getSex(), k -> new HashMap<>())
+				.computeIfAbsent(p.getAge(), k -> new HashMap<>())
+				.computeIfAbsent(p.gaveBirthLastYear(), k -> new HashMap<>())
+				.merge(p.getBirthLogged(), 1l, Long::sum);
+			}
+			
 //			We now iterate over the age ranges, create a variable to keep track of the iterations
 			Integer idx = 0;
 			for (Integer val: birthrate_upper_age_range) {
@@ -201,21 +198,18 @@ public class DemographyLogging {
 
 				}
 
-				// create a function to group the population by sex, age and whether they died from something other than covid
-				Map<SEX, Map<Integer, Map<Boolean, Map<Boolean, Long>>>> age_sex_map_died_from_other = world.agents.stream().collect(
-						Collectors.groupingBy(
-								Person::getSex, 
-								Collectors.groupingBy(
-										Person::getAge, 
-										Collectors.groupingBy(
-												Person::isDeadFromOther,
-												Collectors.groupingBy(Person::getDeathLogged,
-										Collectors.counting()
-										)
-								)
-						)
-					)
-				);
+				// create a function to group the population by sex, age and whether they died from something other than the modelled diseases
+				
+				Map<SEX, Map<Integer, Map<Boolean, Map<Boolean, Long>>>> age_sex_map_died_from_other = new EnumMap<>(SEX.class);
+				
+				for (Person p: world.agents) {
+					age_sex_map_died_from_other
+					.computeIfAbsent(p.getSex(), k -> new HashMap<>())
+					.computeIfAbsent(p.getAge(), k -> new HashMap<>())
+					.computeIfAbsent(p.isDeadFromOther(), k -> new HashMap<>())
+					.merge(p.getDeathLogged(), 1l, Long::sum);
+				}
+				
 				//	We now iterate over the age ranges, create a variable to keep track of the iterations
 				Integer idx = 0;
 				for (Integer val: LoggingHelperFunctions.upper_age_range) {
@@ -342,21 +336,17 @@ public class DemographyLogging {
 			
 			@Override
 			public void step(SimState arg0) {
+				
+				Map<Boolean, Map<String, Map<Integer, Map<SEX, List<Person>>>>> aliveAtLocationAgeSex = new HashMap<>();
+				
+				for (Person p: world.agents) {
+					aliveAtLocationAgeSex
+					.computeIfAbsent(p.isAlive(), k -> new HashMap<>())
+					.computeIfAbsent(p.getCurrentAdminZone(), k -> new HashMap<>())
+					.computeIfAbsent(p.getAge(), k -> new EnumMap<>(SEX.class))
+					.computeIfAbsent(p.getSex(), k -> new ArrayList<>());
+				}
 
-				Map<Boolean, Map<String, Map<Integer, Map<SEX, List<Person>>>>> aliveAtLocationAgeSex = world.agents.stream().collect(
-						Collectors.groupingBy(
-								Person::isAlive,
-								Collectors.groupingBy(
-										Person::getCurrentAdminZone,
-										Collectors.groupingBy(
-												Person::getAge,
-												Collectors.groupingBy(
-														Person::getSex
-										)
-						)
-						)
-						)
-						);
 				// get a list of admin zone to iterate over
 				List <String> adminZones = ((WorldBankCovid19Sim)arg0).params.adminZoneNames;
 				// format the output file for population counts
