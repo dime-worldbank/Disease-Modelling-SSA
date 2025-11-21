@@ -1,5 +1,7 @@
 package uk.ac.ucl.protecs.sim.loggers;
 
+import static uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.allPopulationSizes;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -417,9 +419,14 @@ public class LoggingHelperFunctions{
 				// the number of disease deaths in each age range and the number of 'other' cause deaths in each age range
 				ArrayList <Integer> male_disease_deaths_by_ages = get_disease_death_counts_by_age(world, SEX.MALE, disease);
 				ArrayList <Integer> female_disease_deaths_by_ages = get_disease_death_counts_by_age(world, SEX.FEMALE, disease);
-				ArrayList <Integer> male_alive_ages = get_number_of_alive(world, SEX.MALE);
-				ArrayList <Integer> female_alive_ages = get_number_of_alive(world, SEX.FEMALE);
+				ArrayList <Integer> male_alive_ages = new ArrayList<Integer>();
+				ArrayList <Integer> female_alive_ages = new ArrayList<Integer>();
 
+				for (String group: GeneratePopulationStats.AGE_GROUPS) {
+					male_alive_ages.add(WorldBankCovid19Sim.malePopulationSizes.get(group));
+					female_alive_ages.add(WorldBankCovid19Sim.femalePopulationSizes.get(group));
+
+				}
 				// format log file
 				String disease_inc_death = "";
 
@@ -466,8 +473,14 @@ public class LoggingHelperFunctions{
 				int time = (int) (arg0.schedule.getTime() / world.params.ticks_per_day);
 				// create list to store the counts of the number of males and females alive in each age range, 
 				// the number of disease cases in each age range 
-				ArrayList <Integer> male_alive_ages = get_number_of_alive(world, SEX.MALE);
-				ArrayList <Integer> female_alive_ages = get_number_of_alive(world, SEX.FEMALE);
+				ArrayList <Integer> male_alive_ages = new ArrayList<Integer>();
+				ArrayList <Integer> female_alive_ages = new ArrayList<Integer>();
+
+				for (String group: GeneratePopulationStats.AGE_GROUPS) {
+					male_alive_ages.add(WorldBankCovid19Sim.malePopulationSizes.get(group));
+					female_alive_ages.add(WorldBankCovid19Sim.femalePopulationSizes.get(group));
+
+				}
 				// calculate incidence of disease in each age group
 				//	disease incidence in age groups 0-1, 1-4, 5-9, 10-14, ..., 95+
 				//	create a list to define our age group search ranges
@@ -570,7 +583,6 @@ public class LoggingHelperFunctions{
 			@Override
 			public void step(SimState arg0) {
 				int time = (int) (arg0.schedule.getTime() / world.params.ticks_per_day);
-
 				ArrayList <Integer> status_counts = new ArrayList<Integer>();
 				ArrayList <Integer> status_disease_counts = new ArrayList<Integer>();
 				ArrayList <Integer> status_disease_death_counts = new ArrayList<Integer>();

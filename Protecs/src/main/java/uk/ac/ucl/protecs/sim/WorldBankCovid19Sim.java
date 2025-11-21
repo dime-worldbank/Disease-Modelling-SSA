@@ -26,7 +26,9 @@ import uk.ac.ucl.protecs.objects.locations.Household;
 import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.objects.locations.Workplace;
 import uk.ac.ucl.protecs.sim.loggers.LoggingSetup;
+import uk.ac.ucl.protecs.sim.loggers.SharedLoggingBins;
 import uk.ac.ucl.protecs.sim.loggers.DemographyLogging;
+import uk.ac.ucl.protecs.sim.loggers.GeneratePopulationStats;
 import uk.ac.ucl.protecs.sim.loggers.SocialContactsLogging;
 import uk.ac.ucl.protecs.sim.loggers.CovidLogging;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.SpuriousSymptomDiseaseProgressionFramework;
@@ -106,10 +108,19 @@ public class WorldBankCovid19Sim extends SimState {
 	public static int param_schedule_movement = 1;
 	public static int param_schedule_updating_locations = 5;
 	public static int param_schedule_infecting = 10;
-	public static int param_schedule_reporting = 100;
+	public static int param_schedule_calculate_statistics = 100;
+	public static int param_schedule_reporting = param_schedule_calculate_statistics + 1;
 	public static int param_schedule_COVID_SpuriousSymptoms = 98;
 	public static int param_schedule_COVID_Testing = 99;
 	public static int param_schedule_reporting_reset = param_schedule_reporting + 1;
+	
+	public static HashMap<String, Integer> malePopulationSizes = new HashMap<String, Integer>();
+	public static HashMap<String, Integer> femalePopulationSizes = new HashMap<String, Integer>();
+	public static HashMap<String, Integer> allPopulationSizes = new HashMap<String, Integer>();
+
+	public static GeneratePopulationStats populationStats;
+	public static Map<SEX, SharedLoggingBins> popStatMap;
+
 	
 	// Create a enum list of diseases modelled currently, these will be used to categorise any infections a person may get over the course of the simulation.
 	public enum DISEASE{
@@ -442,7 +453,9 @@ public class WorldBankCovid19Sim extends SimState {
 		LoggingSetup.setupOutputFileNames(this);
 		// schedule the logging for the simulation
 		LoggingSetup.scheduleLoggers(this);
-
+		// =============================== Initialise tracking of population stats =======================================================
+		popStatMap = GeneratePopulationStats.buildStats(this);
+		GeneratePopulationStats.setUpAgeHashMapKeys(this);
 		
 		// SCHEDULE LOCKDOWNS
 		Steppable lockdownTrigger = new Steppable() {
