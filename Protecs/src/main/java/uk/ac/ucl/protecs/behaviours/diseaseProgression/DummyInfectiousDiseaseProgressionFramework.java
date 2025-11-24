@@ -10,6 +10,10 @@ import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
 public class DummyInfectiousDiseaseProgressionFramework extends DiseaseProgressionBehaviourFramework {
 	
+	public double dummy_infectious_beta_horizontal = 0.05;
+	public double dummy_infectious_beta_vertical = 0.05;
+	public double dummy_infectious_recovery_rate = 0.5;
+	
 	public enum DummyInfectiousBehaviourNode{
 		SUSCEPTIBLE("susceptible"), EXPOSED("exposed"), RECOVERED("recovered"), DEAD("dead");
 
@@ -98,7 +102,7 @@ public class DummyInfectiousDiseaseProgressionFramework extends DiseaseProgressi
 			// default next step of progression is no symptoms, check if they will develop symptoms this week
 			
 			nextStep = nextStepDummy.DO_NOTHING;
-			if (myWorld.random.nextDouble() <= world.params.dummy_infectious_recovery_rate) {
+			if (myWorld.random.nextDouble() <= dummy_infectious_recovery_rate) {
 				nextStep = nextStepDummy.RECOVER;
 			}
 			// check if this person has died
@@ -189,5 +193,23 @@ public class DummyInfectiousDiseaseProgressionFramework extends DiseaseProgressi
 	};
 }
 	public BehaviourNode getStandardEntryPoint(){ return this.exposedNode; }
-
+	
+	public double getDummy_infectious_beta_horizontal() {
+		return dummy_infectious_beta_horizontal;
+	}
+	public void setDummy_infectious_beta_horizontal(double dummy_infectious_beta_horizontal) {
+		this.dummy_infectious_beta_horizontal = dummy_infectious_beta_horizontal;
+	}
+	public double getDummy_infectious_beta_vertical() {
+		return dummy_infectious_beta_vertical;
+	}
+	public void setDummy_infectious_beta_vertical(double dummy_infectious_beta_vertical) {
+		this.dummy_infectious_beta_vertical = dummy_infectious_beta_vertical;
+	}
+	public double getDummy_infectious_recovery_rate() {
+		return dummy_infectious_recovery_rate;
+	}
+	public void setDummy_infectious_recovery_rate(double dummy_infectious_recovery_rate) {
+		this.dummy_infectious_recovery_rate = dummy_infectious_recovery_rate;
+	}
 }

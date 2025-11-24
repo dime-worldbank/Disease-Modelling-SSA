@@ -10,6 +10,11 @@ import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
 public class DummyWaterborneDiseaseProgressionFramework extends DiseaseProgressionBehaviourFramework {
 	
+	public double dummy_waterborne_prob_shed_into_water = 0.05;
+	public double dummy_waterborne_initial_fraction_with_inf = 0.1;
+	public double dummy_prob_ingest_dummy_waterborne = 0.1;
+	public double dummy_waterborne_recovery_rate = 0.5;
+	
 	public enum WaterborneBehaviourNodeInHumans{
 		SUSCEPTIBLE("susceptible"), EXPOSED("exposed"), RECOVERED("recovered"), DEAD("dead");
 
@@ -112,7 +117,7 @@ public class DummyWaterborneDiseaseProgressionFramework extends DiseaseProgressi
 		public double next(Steppable s, double time) {
 			// default next step of progression is no symptoms, check if they will develop symptoms this week
 			nextStep = nextStepDummy.DO_NOTHING;
-			if (myWorld.random.nextDouble() <= world.params.dummy_infectious_recovery_rate) {
+			if (myWorld.random.nextDouble() <= dummy_waterborne_recovery_rate) {
 				nextStep = nextStepDummy.RECOVER;
 			}
 			// check if this person has died
@@ -225,6 +230,30 @@ public class DummyWaterborneDiseaseProgressionFramework extends DiseaseProgressi
 	public BehaviourNode getStandardEntryPoint(){ return this.susceptibleNode; }
 	
 	public BehaviourNode getStandardEntryPointForWater(){ return this.contaminatedNode; }
-
+	
+	public double getDummy_waterborne_prob_shed_into_water() {
+		return dummy_waterborne_prob_shed_into_water;
+	}
+	public void setDummy_waterborne_prob_shed_into_water(double dummy_waterborne_prob_shed_into_water) {
+		this.dummy_waterborne_prob_shed_into_water = dummy_waterborne_prob_shed_into_water;
+	}
+	public double getDummy_waterborne_initial_fraction_with_inf() {
+		return dummy_waterborne_initial_fraction_with_inf;
+	}
+	public void setDummy_waterborne_initial_fraction_with_inf(double dummy_waterborne_initial_fraction_with_inf) {
+		this.dummy_waterborne_initial_fraction_with_inf = dummy_waterborne_initial_fraction_with_inf;
+	}
+	public double getDummy_prob_ingest_dummy_waterborne() {
+		return dummy_prob_ingest_dummy_waterborne;
+	}
+	public void setDummy_prob_ingest_dummy_waterborne(double dummy_prob_ingest_dummy_waterborne) {
+		this.dummy_prob_ingest_dummy_waterborne = dummy_prob_ingest_dummy_waterborne;
+	}
+	public double getDummy_waterborne_recovery_rate() {
+		return dummy_waterborne_recovery_rate;
+	}
+	public void setDummy_waterborne_recovery_rate(double dummy_waterborne_recovery_rate) {
+		this.dummy_waterborne_recovery_rate = dummy_waterborne_recovery_rate;
+	}
 
 }

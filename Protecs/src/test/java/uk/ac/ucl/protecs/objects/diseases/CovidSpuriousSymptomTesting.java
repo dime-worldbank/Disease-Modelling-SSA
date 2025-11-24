@@ -34,9 +34,9 @@ public class CovidSpuriousSymptomTesting{
 		HelperFunctions.HaltDiseaseProgressionAtStage(sim, CoronavirusBehaviourNodeTitle.MILD);
 
 		// make sure there are no new Covid infections
-		sim.params.infection_beta = 0.0;
+		HelperFunctions.StopCovidFromSpreading(sim);
 		// make sure that after the initial bout of symptoms, no one develops new spurious symptoms
-		sim.params.rate_of_covid_spurious_symptoms = 0.0;
+		sim.spuriousFramework.setRate_of_covid_spurious_symptoms(0.0);
 		// create a bunch of spurious symptoms for each person
 		giveAFractionASpuriousSymptom(1, sim);
 		// run the simulation
@@ -74,9 +74,10 @@ public class CovidSpuriousSymptomTesting{
 		sim.start();
 		int numDays = 8;
 		// Change the rate of setting Covid spurious symptoms so we have control the number of people who get given symptoms
-		sim.params.rate_of_covid_spurious_symptoms = 0.0;
+		sim.spuriousFramework.setRate_of_covid_spurious_symptoms(0.0);
 		// Stop new Covid infections from developing
-		sim.params.infection_beta = 0.0;
+		HelperFunctions.StopCovidFromSpreading(sim);
+
 		// remove and existing infections from the population and assign half the population spurious symptoms
 		for (Person p: sim.agents) {
 			if (p.getDiseaseSet().containsKey(DISEASE.COVID.key)) {
@@ -97,7 +98,7 @@ public class CovidSpuriousSymptomTesting{
 		sim.start();
 		int numDays = 7;	
 		// Remove the development of new symptoms
-		sim.params.infection_beta = 0.0;
+		HelperFunctions.StopCovidFromSpreading(sim);
 		// remove all people with covid
 		for (Person p: sim.agents) { if (p.getDiseaseSet().containsKey(DISEASE.COVID.key)) {p.die("");}}
 		// create spurious symptoms
@@ -116,9 +117,9 @@ public class CovidSpuriousSymptomTesting{
 		sim.start();
 		int numDays = 7;
 		// Change the rate of setting Covid spurious symptoms so we have control the number of people who get given symptoms
-		sim.params.rate_of_covid_spurious_symptoms = 0.5;		
+		sim.spuriousFramework.setRate_of_covid_spurious_symptoms(0.5);
 		// Remove the development of new symptoms
-		sim.params.infection_beta = 0.0;
+		HelperFunctions.StopCovidFromSpreading(sim);
 		// run the simulation
 		HelperFunctions.runSimulation(sim, numDays);
 		List<Disease> peopleWithPropertiesAssigned = checkSpuriousSymptomAndTestingEligibilityHasBeenAssigned(sim, true);

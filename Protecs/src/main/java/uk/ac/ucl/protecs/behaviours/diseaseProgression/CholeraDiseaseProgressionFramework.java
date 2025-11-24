@@ -8,6 +8,35 @@ import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
 public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehaviourFramework {
 	
+	public double cholera_exposed_to_infectious_mean = 1.4 * myWorld.params.ticks_per_day; // (https://www.sciencedirect.com/science/article/pii/S0163445312003477)
+	public double cholera_exposed_to_infectious_std = 0.0917 *  myWorld.params.ticks_per_day; // (https://www.sciencedirect.com/science/article/pii/S0163445312003477)
+	public double cholera_mean_time_recovery_asympt = 1; // (https://pmc.ncbi.nlm.nih.gov/articles/PMC2554681/)
+	public double cholera_mean_time_recovery_mild = 4.5; // (https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(03)15328-7/fulltext)
+	public double cholera_mean_time_recovery_severe = 3; // TBD
+	public double cholera_mean_time_recovery_critical = 3; // TBD
+	public double cholera_mean_time_death_with_treatment = 1; // TBD
+	public double cholera_mean_time_death_without_treatment = 1; // TBD
+	public double cholera_prob_seek_treatment = 0.8; // TBD
+
+	public double cholera_prob_asymptomatic = 0.75; // (https://ui.adsabs.harvard.edu/abs/2008Natur.454..877K/abstract)
+	public double cholera_prior_asympt_protection_factor = 0.1; // TBD
+	public double cholera_prior_sympt_protection_factor = 0.1; // TBD
+	public double cholera_prob_severe = 0.03; // TBD
+	public double cholera_sufficient_ingestion = 0.95; // probably will be replaced with dose dependence
+	
+	public double cholera_prob_mortality_with_treatment = 0.01;
+	public double cholera_prob_mortality_without_treatment = 0.5;
+	
+	public double cholera_recovered_from_sympt_partial_protection_years = 3;  // https://pmc.ncbi.nlm.nih.gov/articles/PMC8136710/pdf/pntd.0009383.pdf
+	public double cholera_recovered_from_asympt_partial_protection_months = 2;  // https://pmc.ncbi.nlm.nih.gov/articles/PMC8136710/pdf/pntd.0009383.pdf
+	public double cholera_natural_immunity_days_post_infection = 30;
+	
+	public double cholera_prob_shed = 0.1; // TODO: Change to dose dependent
+	public double cholera_prob_ingest = 0.1; // TODO: Change to dose dependent
+	
+	public double cholera_time_hyperinfectious_in_water = 5 / 4; // hyperinfectious state is very short, around 5 hours, 1 tick is 4 hours therefore 5/4 ticks is 5 hours (https://pubmed.ncbi.nlm.nih.gov/12050664/)
+	public double cholera_time_abnc_in_water = 2 *  myWorld.params.ticks_per_week;
+	
 	// set up custom behaviour nodes for choler in water
 	BehaviourNode cleanNode;
 	
@@ -212,7 +241,7 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 				double randToDecideAsymptOrSympt = myWorld.random.nextDouble();
 				// The ratio of asymptomatic to symptomatic cases has been estimated to be 1 : 3 to 1 : 100 (https://ui.adsabs.harvard.edu/abs/2008Natur.454..877K/abstract)
 				// for now assume that 3 out of 4 Cholera cases are asymptomatic
-				if (randToDecideAsymptOrSympt <= myWorld.params.cholera_prob_asymptomatic) {
+				if (randToDecideAsymptOrSympt <= cholera_prob_asymptomatic) {
 					nextStepInHumans = nextStepCholeraInHumans.ASYMPTOMATIC;
 				}
 				else {
@@ -222,7 +251,7 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 					
 					double rand_for_ingesting_large_dose = myWorld.random.nextDouble();
 					// assume that 3% of exposed infections that take will result in a severe infection
-					if (rand_for_ingesting_large_dose < myWorld.params.cholera_prob_severe) { // needs to be calibrated
+					if (rand_for_ingesting_large_dose < cholera_prob_severe) { // needs to be calibrated
 						nextStepInHumans = nextStepCholeraInHumans.SEVERE;
 						choleraInfection.time_start_severe = choleraInfection.time_contagious;
 
@@ -246,21 +275,21 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 				
 				if (prior_asymptomatic_infection) {
 					// if they had a previous asymptomatic infection and this is still offering protection, apply a reductive factor
-					randToRepresentSufficientIngestion *= myWorld.params.cholera_prior_asympt_protection_factor;
+					randToRepresentSufficientIngestion *= cholera_prior_asympt_protection_factor;
 				}
 				else if (prior_symptomatic_infection) {
 					// if they had a previous symptomatic infection and this is still offering protection, apply a reductive factor
-					randToRepresentSufficientIngestion *= myWorld.params.cholera_prior_sympt_protection_factor;
+					randToRepresentSufficientIngestion *= cholera_prior_sympt_protection_factor;
 				}
 
-				if (randToRepresentSufficientIngestion < myWorld.params.cholera_sufficient_ingestion) {
+				if (randToRepresentSufficientIngestion < cholera_sufficient_ingestion) {
 					// Note that this is an established Cholera infection
 					choleraInfection.time_infected = time;
 					// Schedule a time in the future where this person will start shedding the Cholera infection, mean time is 1.4 days (https://www.sciencedirect.com/science/article/pii/S0163445312003477)
 					// Standard deviation is 0.0917.
 					choleraInfection.time_contagious = time + myWorld.nextRandomLognormal(
-							myWorld.params.cholera_exposed_to_infectious_mean,
-							myWorld.params.cholera_exposed_to_infectious_std);
+							cholera_exposed_to_infectious_mean,
+							cholera_exposed_to_infectious_std);
 					// scheduled the next step to occur, do nothing until then
 				}
 				else {
@@ -343,7 +372,7 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 			
 			else {
 				// If I find any detail to shedding time in asymptomatic infections I will improve
-				choleraInfection.time_recovered = time + myWorld.params.cholera_mean_time_recovery_asympt * myWorld.params.ticks_per_day;
+				choleraInfection.time_recovered = time + cholera_mean_time_recovery_asympt * myWorld.params.ticks_per_day;
 			}
 			// ================================================================================================================================================
 			// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= MAKE NEXT STEP HAPPEN -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -400,7 +429,7 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 						
 			else {
 				// If I find any detail to shedding time in mild infections I will improve
-				choleraInfection.time_recovered = time + myWorld.params.cholera_mean_time_recovery_mild * myWorld.params.ticks_per_day; // with treatment this will go down to 2-3 days
+				choleraInfection.time_recovered = time + cholera_mean_time_recovery_mild * myWorld.params.ticks_per_day; // with treatment this will go down to 2-3 days
 			}
 			// ================================================================================================================================================
 			// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= MAKE NEXT STEP HAPPEN -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -472,16 +501,16 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 				// Does this person seek treatment? Use a flat probability for now
 				double rand_for_seeking_treatment = myWorld.random.nextDouble();
 				// Assume that 80% of people seek treatment
-				if (rand_for_seeking_treatment < myWorld.params.cholera_prob_seek_treatment) {
+				if (rand_for_seeking_treatment < cholera_prob_seek_treatment) {
 					nextStepInHumans = nextStepCholeraInHumans.TREATMENT;
 					// even with treatment a small percentage of people will still die
 					double rand_for_determining_mortality = myWorld.random.nextDouble();
-					if (rand_for_determining_mortality < myWorld.params.cholera_prob_mortality_with_treatment) { // 1% CFR for those in treatment, assume mortality occurs within a day
-						choleraInfection.time_died = time + myWorld.params.cholera_mean_time_death_with_treatment *  myWorld.params.ticks_per_day;
+					if (rand_for_determining_mortality < cholera_prob_mortality_with_treatment) { // 1% CFR for those in treatment, assume mortality occurs within a day
+						choleraInfection.time_died = time + cholera_mean_time_death_with_treatment *  myWorld.params.ticks_per_day;
 					}
 					// schedule a recovery time
 					else {
-						choleraInfection.time_recovered = time + myWorld.params.cholera_mean_time_recovery_severe * myWorld.params.ticks_per_day; // made up
+						choleraInfection.time_recovered = time + cholera_mean_time_recovery_severe * myWorld.params.ticks_per_day; // made up
 					}
 					
 				}
@@ -565,12 +594,12 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 
 				// without treatment, a large portion of those infected will die
 				double rand_for_determining_mortality = myWorld.random.nextDouble();
-				if (rand_for_determining_mortality <= myWorld.params.cholera_prob_mortality_without_treatment) { // 50% CFR for those untreated
-						choleraInfection.time_died = time + myWorld.params.cholera_mean_time_death_without_treatment * myWorld.params.ticks_per_day;
+				if (rand_for_determining_mortality <= cholera_prob_mortality_without_treatment) { // 50% CFR for those untreated
+						choleraInfection.time_died = time + cholera_mean_time_death_without_treatment * myWorld.params.ticks_per_day;
 					}
 					// schedule a recovery time
 					else {
-					choleraInfection.time_recovered = time + myWorld.params.cholera_mean_time_recovery_critical * myWorld.params.ticks_per_day; // made up
+					choleraInfection.time_recovered = time + cholera_mean_time_recovery_critical * myWorld.params.ticks_per_day; // made up
 					}
 					
 			}
@@ -624,16 +653,16 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 					// if this infection was symptomatic or not
 					if (choleraInfection.getHadSymptCholera()) {
 						// protection from cholera for the next three years based on persistence studies (https://pmc.ncbi.nlm.nih.gov/articles/PMC8136710/pdf/pntd.0009383.pdf)
-						choleraInfection.time_protection_from_symptomatic_ends = time + myWorld.params.cholera_recovered_from_sympt_partial_protection_years * myWorld.params.ticks_per_year;
+						choleraInfection.time_protection_from_symptomatic_ends = time + cholera_recovered_from_sympt_partial_protection_years * myWorld.params.ticks_per_year;
 					}
 					if (choleraInfection.getHadAsymptCholera()) {
 						// evidence to suggest that reinfection from asymptomatic infection can occur from as little as three months from initial infection
-						choleraInfection.time_protection_from_asymptomatic_ends = time + myWorld.params.cholera_recovered_from_asympt_partial_protection_months * myWorld.params.ticks_per_month;
+						choleraInfection.time_protection_from_asymptomatic_ends = time + cholera_recovered_from_asympt_partial_protection_months * myWorld.params.ticks_per_month;
 					}
 				}
 			}
 			else {
-				choleraInfection.time_susceptible = time + myWorld.params.cholera_natural_immunity_days_post_infection * myWorld.params.ticks_per_day; 
+				choleraInfection.time_susceptible = time + cholera_natural_immunity_days_post_infection * myWorld.params.ticks_per_day; 
 				return 1;
 				
 			}
@@ -727,7 +756,7 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 			}
 			else {
 				// hyperinfectious state is very short, around 5 hours, 1 tick is 4 hours therefore 5/4 ticks is 5 hours (https://pubmed.ncbi.nlm.nih.gov/12050664/)
-				choleraInfection.time_abnc_in_water = choleraInfection.time_hyperinfectious_in_water + myWorld.params.cholera_time_hyperinfectious_in_water;
+				choleraInfection.time_abnc_in_water = choleraInfection.time_hyperinfectious_in_water + cholera_time_hyperinfectious_in_water;
 			}
 			switch (nextStepInWater) {
 			case DO_NOTHING:{
@@ -767,7 +796,7 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 			}
 			else {
 				// Little information on how long cholera can remain in non-oceanic water... assume this is a month
-				choleraInfection.time_clean_in_water = choleraInfection.time_abnc_in_water +  myWorld.params.cholera_time_abnc_in_water;
+				choleraInfection.time_clean_in_water = choleraInfection.time_abnc_in_water +  cholera_time_abnc_in_water;
 			}
 			switch (nextStepInWater) {
 			case DO_NOTHING:{
@@ -835,5 +864,97 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 			
 		return toreturn;
 	}
+	public double getCholera_prob_shed() {
+		return cholera_prob_shed;
+	}
+	public void setCholera_prob_shed(double cholera_prob_shed) {
+		this.cholera_prob_shed = cholera_prob_shed;
+	}
+	public double getCholera_prob_ingest() {
+		return cholera_prob_ingest;
+	}
+	public void setCholera_prob_ingest(double cholera_prob_ingest) {
+		this.cholera_prob_ingest = cholera_prob_ingest;
+	}
 
+	
+	public double getCholera_sufficient_ingestion() {
+		return cholera_sufficient_ingestion;
+	}
+	public void setCholera_sufficient_ingestion(double cholera_sufficient_ingestion) {
+		this.cholera_sufficient_ingestion = cholera_sufficient_ingestion;
+	}
+	
+	public double getCholera_prob_seek_treatment() {
+		return cholera_prob_seek_treatment;
+	}
+	public void setCholera_prob_seek_treatment(double cholera_prob_seek_treatment) {
+		this.cholera_prob_seek_treatment = cholera_prob_seek_treatment;
+	}
+	public double getCholera_prob_asymptomatic() {
+		return cholera_prob_asymptomatic;
+	}
+	public void setCholera_prob_asymptomatic(double cholera_prob_asymptomatic) {
+		this.cholera_prob_asymptomatic = cholera_prob_asymptomatic;
+	}
+	public double getCholera_prob_severe() {
+		return cholera_prob_severe;
+	}
+	public void setCholera_prob_severe(double cholera_prob_severe) {
+		this.cholera_prob_severe = cholera_prob_severe;
+	}
+	public double getCholera_prob_mortality_with_treatment() {
+		return cholera_prob_mortality_with_treatment;
+	}
+	public void setCholera_prob_mortality_with_treatment(double cholera_prob_mortality_with_treatment) {
+		this.cholera_prob_mortality_with_treatment = cholera_prob_mortality_with_treatment;
+	}
+	public double getCholera_prob_mortality_without_treatment() {
+		return cholera_prob_mortality_without_treatment;
+	}
+	public void setCholera_prob_mortality_without_treatment(double cholera_prob_mortality_without_treatment) {
+		this.cholera_prob_mortality_without_treatment = cholera_prob_mortality_without_treatment;
+	}
+	public double getCholera_mean_time_recovery_asympt() {
+		return cholera_mean_time_recovery_asympt;
+	}
+	public void setCholera_mean_time_recovery_asympt(double cholera_mean_time_recovery_asympt) {
+		this.cholera_mean_time_recovery_asympt = cholera_mean_time_recovery_asympt;
+	}
+	public double getCholera_mean_time_recovery_mild() {
+		return cholera_mean_time_recovery_mild;
+	}
+	public void setCholera_mean_time_recovery_mild(double cholera_mean_time_recovery_mild) {
+		this.cholera_mean_time_recovery_mild = cholera_mean_time_recovery_mild;
+	}
+	public double getCholera_mean_time_recovery_severe() {
+		return cholera_mean_time_recovery_severe;
+	}
+	public void setCholera_mean_time_recovery_severe(double cholera_mean_time_recovery_severe) {
+		this.cholera_mean_time_recovery_severe = cholera_mean_time_recovery_severe;
+	}
+	public double getCholera_mean_time_recovery_critical() {
+		return cholera_mean_time_recovery_critical;
+	}
+	public void setCholera_mean_time_recovery_critical(double cholera_mean_time_recovery_critical) {
+		this.cholera_mean_time_recovery_critical = cholera_mean_time_recovery_critical;
+	}
+	public double getCholera_mean_time_death_with_treatment() {
+		return cholera_mean_time_death_with_treatment;
+	}
+	public void setCholera_mean_time_death_with_treatment(double cholera_mean_time_death_with_treatment) {
+		this.cholera_mean_time_death_with_treatment = cholera_mean_time_death_with_treatment;
+	}
+	public double getCholera_mean_time_death_without_treatment() {
+		return cholera_mean_time_death_without_treatment;
+	}
+	public void setCholera_mean_time_death_without_treatment(double cholera_mean_time_death_without_treatment) {
+		this.cholera_mean_time_death_without_treatment = cholera_mean_time_death_without_treatment;
+	}
+	public double getCholera_natural_immunity_days_post_infection() {
+		return cholera_natural_immunity_days_post_infection;
+	}
+	public void setCholera_natural_immunity_days_post_infection(double cholera_natural_immunity_days_post_infection) {
+		this.cholera_natural_immunity_days_post_infection = cholera_natural_immunity_days_post_infection;
+	}
 }

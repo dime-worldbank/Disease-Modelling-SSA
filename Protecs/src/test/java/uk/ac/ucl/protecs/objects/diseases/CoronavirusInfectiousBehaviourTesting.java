@@ -31,7 +31,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		sim.start();
 		loadInfectiousBehaviour(sim);
 		// Make sure there are no new infections
-		sim.params.infection_beta = 0;
+		HelperFunctions.StopCovidFromSpreading(sim);
 		// seed a number of the specific node to the run
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.covidInfectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.SUSCEPTIBLE), 
 				NodeOption.CoronavirusInfectiousBehaviour);
@@ -65,7 +65,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// make sure no one recovers from their infection
 		HelperFunctions.StopRecoveryHappening(sim);
 		// Make sure there are no new infections
-		sim.params.infection_beta = 0;
+		HelperFunctions.StopCovidFromSpreading(sim);
 		// seed a number of the specific node to the run
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.covidInfectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.EXPOSED), 
 				NodeOption.CoronavirusInfectiousBehaviour);		// Set up a duration to run the simulation
@@ -94,7 +94,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		loadInfectiousBehaviour(sim);
 
 		// Make sure there are no new infections
-		sim.params.infection_beta = 0;
+		HelperFunctions.StopCovidFromSpreading(sim);
 		// Make everyone have a critical infection
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.covidInfectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.PRESYMPTOMATIC), 
 				NodeOption.CoronavirusInfectiousBehaviour);		// Make Sure no one's disease progresses beyond a Mild infection
@@ -124,7 +124,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		loadInfectiousBehaviour(sim);
 
 		// Make sure there are no new infections
-		sim.params.infection_beta = 0;
+		HelperFunctions.StopCovidFromSpreading(sim);
 		// Make everyone have a critical infection
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.covidInfectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.ASYMPTOMATIC), 
 				NodeOption.CoronavirusInfectiousBehaviour);
@@ -151,7 +151,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		loadInfectiousBehaviour(sim);
 
 		// Make sure there are no new infections
-		sim.params.infection_beta = 0;
+		HelperFunctions.StopCovidFromSpreading(sim);
 		// Make everyone have a critical infection
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.covidInfectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD), 
 				NodeOption.CoronavirusInfectiousBehaviour);		// Ensure that no one disease progression occurs beyond the severe stage
@@ -182,7 +182,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Ensure that no one disease progression occurs beyond the exposed stage
 		HelperFunctions.HaltDiseaseProgressionAtStage(sim, CoronavirusBehaviourNodeTitle.SEVERE);
 		// Make sure there are no new infections
-		sim.params.infection_beta = 0;
+		HelperFunctions.StopCovidFromSpreading(sim);
 		// seed a number of the specific node to the run
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.covidInfectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD), 
 				NodeOption.CoronavirusInfectiousBehaviour);		// Set up a duration to run the simulation
@@ -208,7 +208,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		loadInfectiousBehaviour(sim);
 
 		// Make sure there are no new infections
-		sim.params.infection_beta = 0;
+		HelperFunctions.StopCovidFromSpreading(sim);
 		// Make everyone have a critical infection
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.covidInfectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.SEVERE), 
 				NodeOption.CoronavirusInfectiousBehaviour);		// Ensure that no one disease progression occurs beyond the critical stage
@@ -241,7 +241,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Ensure that no one disease progression occurs beyond the exposed stage
 		HelperFunctions.HaltDiseaseProgressionAtStage(sim, CoronavirusBehaviourNodeTitle.CRITICAL);
 		// Make sure there are no new infections
-		sim.params.infection_beta = 0;
+		HelperFunctions.StopCovidFromSpreading(sim);
 		// seed a number of the specific node to the run
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.covidInfectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.SEVERE), 
 				NodeOption.CoronavirusInfectiousBehaviour);		// Set up a duration to run the simulation
@@ -269,7 +269,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		loadInfectiousBehaviour(sim);
 
 		// Make sure there are no new infections
-		sim.params.infection_beta = 0;
+		HelperFunctions.StopCovidFromSpreading(sim);
 		// Make everyone have a critical infection
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.covidInfectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.CRITICAL), 
 				NodeOption.CoronavirusInfectiousBehaviour);		// Set up a duration to run the simulation
@@ -299,7 +299,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Ensure that no one disease progression occurs beyond the exposed stage
 		HelperFunctions.HaltDiseaseProgressionAtStage(sim, CoronavirusBehaviourNodeTitle.CRITICAL);
 		// Make sure there are no new infections
-		sim.params.infection_beta = 0;
+		HelperFunctions.StopCovidFromSpreading(sim);
 		// seed a number of the specific node to the run
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.covidInfectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.CRITICAL), 
 				NodeOption.CoronavirusInfectiousBehaviour);		// Set up a duration to run the simulation
@@ -325,7 +325,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		loadInfectiousBehaviour(sim);
 
 		// Make sure there are no new infections
-		sim.params.infection_beta = 0;
+		HelperFunctions.StopCovidFromSpreading(sim);
 		// seed a number of the specific node to the run
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.covidInfectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.RECOVERED), 
 				NodeOption.CoronavirusInfectiousBehaviour);		// Set up a duration to run the simulation
@@ -354,7 +354,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		loadInfectiousBehaviour(sim);
 
 		// Make sure there are no new infections
-		sim.params.infection_beta = 0;
+		HelperFunctions.StopCovidFromSpreading(sim);
 		// seed a number of the specific node to the run
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.covidInfectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.DEAD), 
 				NodeOption.CoronavirusInfectiousBehaviour);		// Set up a duration to run the simulation
@@ -380,7 +380,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		loadInfectiousBehaviour(sim);
 
 		// Make sure there are no new infections
-		sim.params.infection_beta = 0;
+		HelperFunctions.StopCovidFromSpreading(sim);
 		// Make sure that people exposed don't revert back to being susceptible
 		ForceExposedInfectionsCauseDisease(sim);
 		// seed a number of the specific node to the run
@@ -408,7 +408,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		loadInfectiousBehaviour(sim);
 
 		// Make beta large
-		sim.params.infection_beta = 10;
+		sim.covidInfectiousFramework.setCovid_infectious_beta(10);
 		// Make sure that people exposed don't revert back to being susceptible
 		ForceExposedInfectionsCauseDisease(sim);
 		HelperFunctions.StopRecoveryHappening(sim);
@@ -437,12 +437,13 @@ public class CoronavirusInfectiousBehaviourTesting {
 	
 	private void loadInfectiousBehaviour(WorldBankCovid19Sim sim) {
 		sim.covidInfectiousFramework = new CoronavirusDiseaseProgressionFramework(sim);
+		sim.covidInfectiousFramework.load_infection_params(sim.params.dataDir + sim.params.infection_transition_params_filename);
 	}
 	
 	private void ForceExposedInfectionsCauseDisease(WorldBankCovid19Sim world) {
 		int idx = 0;
-		for (double val: world.params.covid_infection_p_sym_by_age) {
-			world.params.covid_infection_r_sus_by_age.set(idx, 1.0);
+		for (double val: world.covidInfectiousFramework.getCovid_infection_p_sym_by_age()) {
+			world.covidInfectiousFramework.getCovid_infection_r_sus_by_age().set(idx, 1.0);
 			idx ++;
 		}
 	}
