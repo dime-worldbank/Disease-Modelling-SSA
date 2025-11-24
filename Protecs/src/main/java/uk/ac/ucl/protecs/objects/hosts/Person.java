@@ -512,7 +512,7 @@ public class Person extends Host {
 
 	// ATTRIBUTES
 
-	public double getSusceptibility(){ return myWorld.params.getSuspectabilityByAge(age); } // TODO make more nuanced
+	public double getSusceptibility(){ return myWorld.covidInfectiousFramework.getSuspectabilityByAge(age); } // TODO make more nuanced
 	
 	public void setActivityNode(BehaviourNode bn){ currentActivityNode = bn; }
 	public BehaviourNode getActivityNode(){ return currentActivityNode; }
@@ -691,7 +691,7 @@ public class Person extends Host {
 		// potentially contaminate the water source
 		if (this.getDiseaseSet().containsKey(DISEASE.CHOLERA.key)) {
 			double rand_to_shed = myWorld.random.nextDouble();
-			if (rand_to_shed < myWorld.params.cholera_prob_shed) {
+			if (rand_to_shed < myWorld.choleraFramework.getCholera_prob_shed()) {
 				// check if the water source already has cholera
 				if (waterFrom.getDiseaseSet().containsKey(DISEASE.CHOLERA.key)){
 					// already cholera object here, change it to the entry point for water from humans

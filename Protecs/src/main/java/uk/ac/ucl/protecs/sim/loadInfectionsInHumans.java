@@ -73,6 +73,9 @@ public class loadInfectionsInHumans{
 						if (world.covidInfectiousFramework == null) {
 							world.covidInfectiousFramework = new CoronavirusDiseaseProgressionFramework(world);
 						}
+						if (world.covidInfectiousFramework.covid_infection_age_params == null) {
+							world.covidInfectiousFramework.load_infection_params(world.params.dataDir  + world.params.infection_transition_params_filename);
+						}
 						CoronavirusInfection inf = new CoronavirusInfection(p, null, world.covidInfectiousFramework.getInfectedEntryPoint(l), world, 0);						
 						if (inf.getBehaviourName().equals("asymptomatic")) {
 							inf.setAsympt();

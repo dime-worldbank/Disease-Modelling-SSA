@@ -9,7 +9,8 @@ import uk.ac.ucl.swise.behaviours.BehaviourNode;
 public class SpuriousSymptomDiseaseProgressionFramework extends DiseaseProgressionBehaviourFramework{
 
 	
-	
+	public double rate_of_covid_spurious_symptoms = 0.004;
+
 	// create an enum title for each of the spurious symptom behaviour nodes, susceptible (no symptoms), exposed (has symptoms), 
 	// dead (has passed away so can't have symptoms), setup (for initialising) and recover for removing symptoms
 	public enum SpuriousSymptomBehaviourNode{
@@ -77,7 +78,7 @@ public class SpuriousSymptomDiseaseProgressionFramework extends DiseaseProgressi
 				CoronavirusSpuriousSymptom symptom = (CoronavirusSpuriousSymptom) s;
 				// default next step of progression is no symptoms, check if they will develop symptoms this week
 				nextStep = nextStepSpurious.NO_SYMPTOMS;
-				if (myWorld.random.nextDouble() <= myWorld.params.rate_of_covid_spurious_symptoms) {
+				if (myWorld.random.nextDouble() <= rate_of_covid_spurious_symptoms) {
 					nextStep = nextStepSpurious.CAUSE_SYMPTOMS;
 				}
 				// need to check that those who died don't do anything, do this here
@@ -222,5 +223,14 @@ public class SpuriousSymptomDiseaseProgressionFramework extends DiseaseProgressi
 
 		}
 		public BehaviourNode getStandardEntryPoint(){ return this.exposedNode; }
+		
+		public double getRate_of_covid_spurious_symptoms() {
+			return rate_of_covid_spurious_symptoms;
+		}
+
+
+		public void setRate_of_covid_spurious_symptoms(double rate_of_covid_spurious_symptoms) {
+			this.rate_of_covid_spurious_symptoms = rate_of_covid_spurious_symptoms;
+		}
 
 }

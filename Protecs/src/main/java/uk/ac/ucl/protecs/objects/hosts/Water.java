@@ -43,7 +43,7 @@ public class Water extends Host {
 		double time = myWorld.schedule.getTime(); 
 		for (Person p: this.getLocation().getPeople()) {
 			double randomToInteractWithWater = myWorld.random.nextDouble();
-			if (randomToInteractWithWater < myWorld.params.dummy_prob_interact_with_water) {
+			if (randomToInteractWithWater < myWorld.params.prob_interact_with_water) {
 				// determine if the dummy waterborne disease will spread
 				determineSpreadOfDummyWaterborneDisease(time, p);
 				// determine if cholera will spread between water and person
@@ -78,7 +78,7 @@ public class Water extends Host {
 		if (personIsEligibleToShed & !waterIsContaminatedByCholera) {
 			double randomToShedIntoWater = myWorld.random.nextDouble();
 			// check if the person interacts and sheds into water
-			if (randomToShedIntoWater < myWorld.params.cholera_prob_shed) {
+			if (randomToShedIntoWater < myWorld.choleraFramework.getCholera_prob_shed()) {
 				if (infectionAlreadyExistsInWater) {
 					this.getDiseaseSet().get(DISEASE.CHOLERA.key).setBehaviourNode(myWorld.choleraFramework.getStandardEntryPointForWater());
 				}
@@ -97,7 +97,7 @@ public class Water extends Host {
 			// in animal studies this is reduced by two orders of magnitude in animal studies (https://wwwnc.cdc.gov/eid/article/17/11/11-1109_article)
 			
 			// check if the person interacts and ingests sufficient amounts of cholera to get an infection
-			if (randomToIngestInfection < myWorld.params.cholera_prob_ingest) {
+			if (randomToIngestInfection < myWorld.choleraFramework.getCholera_prob_ingest()) {
 				if (!thisPersonHasCholera) {
 				Cholera inf = new Cholera(p, this, myWorld.choleraFramework.getStandardEntryPoint(), myWorld);
 				myWorld.schedule.scheduleOnce(time, myWorld.param_schedule_infecting, inf);
@@ -122,7 +122,7 @@ public class Water extends Host {
 		if (thisPersonHasDummyWaterborne & !waterIsContaminatedByDummy) {
 			double randomToShedIntoWater = myWorld.random.nextDouble();
 			// check if the person interacts and sheds into water
-			if (randomToShedIntoWater < myWorld.params.dummy_waterborne_prob_shed_into_water) {
+			if (randomToShedIntoWater < myWorld.dummyWaterborneFramework.getDummy_waterborne_prob_shed_into_water()) {
 				
 				DummyWaterborneDisease inf = new DummyWaterborneDisease(this, p, myWorld.dummyWaterborneFramework.getStandardEntryPointForWater(), myWorld);
 				myWorld.schedule.scheduleOnce(time, myWorld.param_schedule_infecting, inf);
@@ -133,7 +133,7 @@ public class Water extends Host {
 		if (!thisPersonHasDummyWaterborne & waterIsContaminatedByDummy) {
 			double randomToIngestInfection = myWorld.random.nextDouble();
 			// check if the person interacts and ingests sufficient amounts of cholera to get an infection
-			if (randomToIngestInfection < myWorld.params.dummy_prob_ingest_dummy_waterborne) {
+			if (randomToIngestInfection < myWorld.dummyWaterborneFramework.getDummy_prob_ingest_dummy_waterborne()) {
 				DummyWaterborneDisease inf = new DummyWaterborneDisease(p, this, myWorld.dummyWaterborneFramework.getStandardEntryPoint(), myWorld);
 				myWorld.schedule.scheduleOnce(time, myWorld.param_schedule_infecting, inf);
 				
