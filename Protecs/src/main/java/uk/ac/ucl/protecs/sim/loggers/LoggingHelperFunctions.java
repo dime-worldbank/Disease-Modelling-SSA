@@ -93,8 +93,8 @@ public class LoggingHelperFunctions{
 	}
 	
 	// get those alive with a disease at location
-	public static Map<Boolean, Map<String, Map<DISEASE, Map<Boolean, List<Disease>>>>> get_disease_at_location(WorldBankCovid19Sim world) {
-		Map<Boolean, Map<String, Map<DISEASE, Map<Boolean, List<Disease>>>>> diseaseAtLocation = world.human_infections.stream().collect(
+	public static Map<Boolean, Map<String, Map<DISEASE, Map<Boolean, Map<Boolean, List<Disease>>>>>> get_disease_at_location(WorldBankCovid19Sim world) {
+		Map<Boolean, Map<String, Map<DISEASE, Map<Boolean, Map<Boolean, List<Disease>>>>>> diseaseAtLocation = world.human_infections.stream().collect(
 				Collectors.groupingBy(
 						Disease::isHostAlive,
 						Collectors.groupingBy(
@@ -102,7 +102,8 @@ public class LoggingHelperFunctions{
 								Collectors.groupingBy(
 										Disease::getDiseaseType,
 										Collectors.groupingBy(
-												Disease::hasRecovered
+												Disease::hasRecovered,
+												Collectors.groupingBy(Disease::isCauseOfDeath)
 												)
 										)
 								)
@@ -242,7 +243,7 @@ public class LoggingHelperFunctions{
 
 				Map<Boolean, Map<String, List<Person>>> aliveAtLocation = get_alive_at_location(world);
 				// create a function to group the population by who is alive in each admin zone and has the disease
-				Map<Boolean, Map<String, Map<DISEASE, Map<Boolean, List<Disease>>>>> diseaseAtLocation = get_disease_at_location(world);
+				Map<Boolean, Map<String, Map<DISEASE, Map<Boolean, Map<Boolean, List<Disease>>>>>> diseaseAtLocation = get_disease_at_location(world);
 
 				// get a list of admin zone to iterate over
 				List <String> adminZones = ((WorldBankCovid19Sim)arg0).params.adminZoneNames;
@@ -262,7 +263,7 @@ public class LoggingHelperFunctions{
 						}
 					// get disease counts in each admin zone
 					try {
-						adminZoneDiseaseCounts.add(diseaseAtLocation.get(true).get(place).get(disease).get(false).size());
+						adminZoneDiseaseCounts.add(diseaseAtLocation.get(true).get(place).get(disease).get(false).get(false).size());
 						}
 					catch (Exception e) {
 						// age wasn't present in the population, skip
@@ -304,7 +305,7 @@ public class LoggingHelperFunctions{
 			@Override
 			public void step(SimState arg0) {
 				// create a function to group the population by who is alive in each admin zone and has the disease
-				Map<Boolean, Map<String, Map<DISEASE, Map<Boolean, List<Disease>>>>> diseaseAtLocation = get_disease_at_location(world);
+				Map<Boolean, Map<String, Map<DISEASE, Map<Boolean, Map<Boolean, List<Disease>>>>>> diseaseAtLocation = get_disease_at_location(world);
 				Map<String, Map<DISEASE, Map<Boolean, Map<Boolean, List<Disease>>>>> diseaseDeathsAtLocation = get_dead_from_disease_at_location(world);
 				// get a list of admin zone to iterate over
 				List <String> adminZones = ((WorldBankCovid19Sim)arg0).params.adminZoneNames;
@@ -319,7 +320,7 @@ public class LoggingHelperFunctions{
 						// numerator = number of people at location who have died from the disease, but have not had their deaths recorded
 						int numerator = diseaseDeathsAtLocation.get(place).get(disease).get(true).get(false).size();
 						// denominator = number of people at location who currently are alive with the disease plus those at location who have died from the disease but not had their deaths recorded
-						int denominator = diseaseAtLocation.get(true).get(place).get(disease).get(false).size() + numerator;
+						int denominator = diseaseAtLocation.get(true).get(place).get(disease).get(false).get(false).size() + numerator;
 						adminZonePercentDiseaseCasesFatal.add((float) numerator / denominator);
 					}
 					catch (Exception e) {
