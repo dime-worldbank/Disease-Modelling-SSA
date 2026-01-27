@@ -79,9 +79,11 @@ public class loadInfectionsInHumans{
 						CoronavirusInfection inf = new CoronavirusInfection(p, null, world.covidInfectiousFramework.getInfectedEntryPoint(l), world, 0);						
 						if (inf.getBehaviourName().equals("asymptomatic")) {
 							inf.setAsympt();
+							inf.setInfectionActive(true);
 						}
 						else {
 							inf.setMild();
+							inf.setInfectionActive(true);
 						}
 						world.schedule.scheduleOnce(1, world.param_schedule_infecting, inf);
 						break;
