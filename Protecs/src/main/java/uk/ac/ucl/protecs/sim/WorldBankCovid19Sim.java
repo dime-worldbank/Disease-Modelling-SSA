@@ -1,22 +1,15 @@
 package uk.ac.ucl.protecs.sim;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 import uk.ac.ucl.protecs.behaviours.*;
-import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.DummyWaterborneDiseaseProgressionFramework;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.DummyNonCommunicableDiseaseProgressionFramework;
-import uk.ac.ucl.protecs.objects.diseases.DummyNonCommunicableDisease;
-import uk.ac.ucl.protecs.objects.diseases.DummyWaterborneDisease;
 import uk.ac.ucl.protecs.objects.diseases.Disease;
-import uk.ac.ucl.protecs.objects.diseases.DummyInfectiousDisease;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.objects.hosts.Person.OCCUPATION;
 import uk.ac.ucl.protecs.objects.hosts.Person.SEX;
@@ -27,12 +20,9 @@ import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.objects.locations.Workplace;
 import uk.ac.ucl.protecs.sim.loggers.LoggingSetup;
 import uk.ac.ucl.protecs.sim.loggers.SharedLoggingBins;
-import uk.ac.ucl.protecs.sim.loggers.DemographyLogging;
 import uk.ac.ucl.protecs.sim.loggers.GeneratePopulationStats;
-import uk.ac.ucl.protecs.sim.loggers.SocialContactsLogging;
 import uk.ac.ucl.protecs.sim.loggers.CovidLogging;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.SpuriousSymptomDiseaseProgressionFramework;
-import uk.ac.ucl.protecs.behaviours.diseaseSpread.DummyNCDOnset;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.CholeraDiseaseProgressionFramework;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgressionFramework;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.DummyInfectiousDiseaseProgressionFramework;

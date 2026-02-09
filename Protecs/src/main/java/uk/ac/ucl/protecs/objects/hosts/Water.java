@@ -1,7 +1,6 @@
 package uk.ac.ucl.protecs.objects.hosts;
 
 import java.util.HashMap;
-import java.util.HashSet;
 
 import sim.engine.SimState;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.CholeraDiseaseProgressionFramework.CholeraBehaviourNodeInHumans;
