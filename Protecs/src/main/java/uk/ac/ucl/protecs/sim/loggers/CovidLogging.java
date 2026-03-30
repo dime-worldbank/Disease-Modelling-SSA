@@ -112,7 +112,15 @@ public class CovidLogging {
 				        .add(d);
 				}
 				// apply the filter
-				ArrayList<Disease> filtered_covid_cases = active_covid_cases_in_zone.get(true).get(DISEASE.COVID).get(true);
+				ArrayList<Disease> filtered_covid_cases = new ArrayList<Disease>();
+
+				try {
+					// if there are covid cases then filter them out
+					filtered_covid_cases = active_covid_cases_in_zone.get(true).get(DISEASE.COVID).get(true);
+				}
+				catch (Exception e) {
+					// otherwise do nothing
+				}
 				
 				// create a function to group the covid cases by location and if this is a new case
 				Map<String, Map<Boolean, Map<Boolean, Long>>> location_hasCovid_map = new HashMap<>();
