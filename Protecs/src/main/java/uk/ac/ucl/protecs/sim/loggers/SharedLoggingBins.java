@@ -5,6 +5,6 @@ public class SharedLoggingBins {
 	
     long[] alive;      // indexed by age
     long[] dead;       // indexed by age
-    long[] alivePrefix;
-    long[] deadPrefix;
+    long[] aliveCumulative;
+    long[] deadCumulative;
 }

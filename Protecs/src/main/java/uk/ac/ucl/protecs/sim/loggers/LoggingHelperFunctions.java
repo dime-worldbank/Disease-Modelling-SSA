@@ -89,35 +89,35 @@ public class LoggingHelperFunctions{
 	    ArrayList<Integer> result = new ArrayList<>();
 	    int idx = 0;
 
-	    // Build a simple age → count map (only for selected SEX + DISEASE)
-	    // This avoids allocating massive nested maps.
-	    Map<Integer, Integer> deathCountsByAge = new HashMap<>();
+		Map<Integer, Map<SEX, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>>> newdeathCountsByAge = new HashMap<>();
+		
+		for (Disease d : world.human_infections) {
+			newdeathCountsByAge
+			.computeIfAbsent(d.getHostAge(), k -> new HashMap<>())
+			.computeIfAbsent(d.getHostSex(), k -> new HashMap<>())
+			.computeIfAbsent(d.getDiseaseType(),  k -> new HashMap<>())
+			.computeIfAbsent(d.isCauseOfDeath(), k -> new HashMap<>())
+			.merge(d.getDeathLogged(), 1l, Long::sum);
+		}
 
-	    for (Disease d : world.human_infections) {
-	        // filter only entries relevant to the requested SEX and DISEASE
-	        if (d.getHostSex() != sex) continue;
-	        if (d.getDiseaseType() != disease) continue;
-
-	        // only count: causeOfDeath = true, deathLogged = false ?
-	        if (!d.isCauseOfDeath()) continue;
-	        if (d.getDeathLogged()) continue;
-
-	        int age = d.getHostAge();
-	        deathCountsByAge.merge(age, 1, Integer::sum);
-	    }
-
-	    // Now sum by requested age ranges
+		 // Now sum by requested age ranges
 	    for (int upper : upper_age_range) {
 	        int lower = lower_age_range.get(idx);
 
 	        int total = 0;
 	        for (int age = lower; age < upper; age++) {
-	            total += deathCountsByAge.getOrDefault(age, 0);
+	        	try {
+	            total += newdeathCountsByAge.get(age).get(sex).get(disease).get(true).get(false);
+	            }
+	        	catch (Exception e) {
+	        		// no corresponding categories, do nothing
+	        	}
 	        }
 
 	        result.add(total);
 	        idx++;
 	    }
+	   
 
 	    return result;
 	}

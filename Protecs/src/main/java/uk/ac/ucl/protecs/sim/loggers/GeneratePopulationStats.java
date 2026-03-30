@@ -56,11 +56,14 @@ public class GeneratePopulationStats {
 
 	    // Build prefix sums
 	    for (SharedLoggingBins s : result.values()) {
-	        s.alivePrefix = new long[max_age + 1];
-	        s.deadPrefix = new long[max_age + 1];
+	        s.aliveCumulative = new long[max_age + 1];
+	        s.deadCumulative = new long[max_age + 1];
+	        s.aliveCumulative[0] = s.alive[0];
+	        s.deadCumulative[0] = s.dead[0];
+
 	        for (int i = 1; i <= max_age; i++) {
-	            s.alivePrefix[i] = s.alivePrefix[i - 1] + s.alive[i];
-	            s.deadPrefix[i] = s.deadPrefix[i - 1] + s.dead[i];
+	            s.aliveCumulative[i] = s.aliveCumulative[i - 1] + s.alive[i];
+	            s.deadCumulative[i] = s.deadCumulative[i - 1] + s.dead[i];
 	        }
 	    }
 
@@ -82,12 +85,12 @@ public class GeneratePopulationStats {
 					int idx = 0;
 					for (int age: upper_age_range) {
 						// update female age bins
-						long femaleAliveBetween = WorldBankCovid19Sim.popStatMap.get(SEX.FEMALE).alivePrefix[age] 
-				                  - WorldBankCovid19Sim.popStatMap.get(SEX.FEMALE).alivePrefix[lower_age_range.get(idx)];
+						long femaleAliveBetween = WorldBankCovid19Sim.popStatMap.get(SEX.FEMALE).aliveCumulative[age] 
+				                  - WorldBankCovid19Sim.popStatMap.get(SEX.FEMALE).aliveCumulative[lower_age_range.get(idx)];
 						WorldBankCovid19Sim.femalePopulationSizes.put(AGE_GROUPS[idx], (int) femaleAliveBetween);
 						// update male age bins
-						long maleAliveBetween = WorldBankCovid19Sim.popStatMap.get(SEX.MALE).alivePrefix[age] 
-				                  - WorldBankCovid19Sim.popStatMap.get(SEX.MALE).alivePrefix[lower_age_range.get(idx)];
+						long maleAliveBetween = WorldBankCovid19Sim.popStatMap.get(SEX.MALE).aliveCumulative[age] 
+				                  - WorldBankCovid19Sim.popStatMap.get(SEX.MALE).aliveCumulative[lower_age_range.get(idx)];
 						WorldBankCovid19Sim.malePopulationSizes.put(AGE_GROUPS[idx], (int) maleAliveBetween);
 						
 						long totalAliveBetween = femaleAliveBetween + maleAliveBetween;
