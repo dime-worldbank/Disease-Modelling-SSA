@@ -262,7 +262,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				}
 				((Person) i.getHost()).infectNeighbours();
 				i.setAsympt();
-
+				i.setInfectionActive(true);
 				// determine when the agent will recover - this is
 				// only a matter of time in this case
 				if(time >= i.time_recovered){
@@ -306,6 +306,8 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				i.setSymptomatic();
 				i.setMild();
 				i.setEligibleForTesting();
+				i.setInfectionActive(true);
+
 				if (i.getHost().getDiseaseSet().containsKey(DISEASE.COVIDSPURIOUSSYMPTOM.key)) {
 					i.getHost().getDiseaseSet().get(DISEASE.COVIDSPURIOUSSYMPTOM.key).setAsympt();
 				}

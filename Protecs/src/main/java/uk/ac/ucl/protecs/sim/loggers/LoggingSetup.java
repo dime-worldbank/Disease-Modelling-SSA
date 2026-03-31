@@ -57,6 +57,11 @@ public class LoggingSetup{
 	public static void scheduleLoggers(WorldBankCovid19Sim world){
 		// set up always used logging
 		
+		// initialise the population statistic bins
+		world.populationStats = new GeneratePopulationStats(world);
+		// schedule calculation of population statistics
+		world.schedule.scheduleRepeating(GeneratePopulationStats.updateAgeSexMaps(world), world.param_schedule_calculate_statistics, world.params.ticks_per_day);
+		
 		// Report on the age sex breakdown of the population (populationOutputFilename)
 		world.schedule.scheduleRepeating(DemographyLogging.ReportPopStructure(world), world.param_schedule_reporting, world.params.ticks_per_day);
 		

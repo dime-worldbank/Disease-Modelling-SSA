@@ -2,9 +2,10 @@ package uk.ac.ucl.protecs.sim.loggers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import sim.engine.SimState;
 import sim.engine.Steppable;
@@ -43,43 +44,31 @@ public class DemographyLogging {
 			// number of births in each age range.
 			ArrayList <Integer> female_alive_ages = new ArrayList<Integer>();
 			ArrayList <Integer> female_pregnancy_ages = new ArrayList<Integer>();
-			// create a function to group the population by sex, age and whether they are alive
-			Map<SEX, Map<Integer, Map<Boolean, Long>>> age_sex_alive_map_copy = LoggingHelperFunctions.age_sex_alive_map(world);
-			
+
+			for (String group: GeneratePopulationStats.AGE_GROUPS) {
+				female_alive_ages.add(WorldBankCovid19Sim.femalePopulationSizes.get(group));
+
+			}			
 			// create a function to group the population by sex, age and whether they gave birth
-			Map<SEX, Map<Integer, Map<Boolean, Map<Boolean, Long>>>> age_sex_map_gave_birth = world.agents.stream().collect(
-					Collectors.groupingBy(
-							Person::getSex, 
-							Collectors.groupingBy(
-									Person::getAge, 
-									Collectors.groupingBy(
-											Person::gaveBirthLastYear,
-											Collectors.groupingBy(
-													Person::getBirthLogged,
-													Collectors.counting()
-									)
-							)
-					)
-					)
-					);
+			Map<SEX, Map<Integer, Map<Boolean, Map<Boolean, Long>>>> age_sex_map_gave_birth = new EnumMap<>(SEX.class);
+			
+			for (Person p: world.agents) {
+				age_sex_map_gave_birth
+				.computeIfAbsent(p.getSex(), k -> new HashMap<>())
+				.computeIfAbsent(p.getAge(), k -> new HashMap<>())
+				.computeIfAbsent(p.gaveBirthLastYear(), k -> new HashMap<>())
+				.merge(p.getBirthLogged(), 1l, Long::sum);
+			}
+			
 //			We now iterate over the age ranges, create a variable to keep track of the iterations
 			Integer idx = 0;
 			for (Integer val: birthrate_upper_age_range) {
 				// for each age group we begin to count the number of people who fall into each category, create variables
 				// to store this information in
-				Integer female_count = 0;
 				Integer female_gave_birth_count = 0;
 				// iterate over the ages set in the age ranges (lower value from lower_age_range, upper from upper_age_range)
 				for (int age = birthrate_lower_age_range.get(idx); age < val; age++) {
-					try {
-						// try function necessary as some ages won't be present in the population
-						// use the functions created earlier to calculate the number of people of each age group who fall
-						// into the categories we are interested in (female, alive)
-						female_count += age_sex_alive_map_copy.get(SEX.FEMALE).get(age).get(true).intValue();
-					}
-						catch (Exception e) {
-							// age wasn't present in the population, skip
-						}
+
 					try {
 						// try function necessary as some ages won't be present in the population
 						// use the functions created earlier to calculate the number of people of each age group who fall
@@ -90,8 +79,6 @@ public class DemographyLogging {
 							// age wasn't present in the population, skip
 						}
 				}
-				// store what we have found in the lists we created
-				female_alive_ages.add(female_count);
 				female_pregnancy_ages.add(female_gave_birth_count);
 				// update the idx variable for the next iteration
 				idx++;
@@ -144,43 +131,11 @@ public class DemographyLogging {
 					// create list to store the counts of the number of males and females alive in each age range in each admin zone
 					ArrayList <Integer> male_alive_ages = new ArrayList<Integer>();
 					ArrayList <Integer> female_alive_ages = new ArrayList<Integer>();
-					// create a function to group the population by sex, age and whether they are alive
-					Map<SEX, Map<Integer, Map<Boolean, Long>>> age_sex_alive_map_copy = LoggingHelperFunctions.age_sex_alive_map(world);
-					//	We now iterate over the age ranges, create a variable to keep track of the iterations						
-					Integer idx = 0;
-					Integer male_count = null;
-					Integer female_count = null;
-					for (Integer val: LoggingHelperFunctions.upper_age_range) {
-						// for each age group we begin to count the number of people who fall into each category, create variables
-						// to store this information in
-						male_count = 0;
-						female_count = 0;
-						// iterate over the ages set in the age ranges (lower value from lower_age_range, upper from upper_age_range)
-						for (int age = LoggingHelperFunctions.lower_age_range.get(idx); age < val; age++) {
-							try {
-								// try function necessary as some ages won't be present in the population
-								// use the functions created earlier to calculate the number of people of each age group
-								male_count += age_sex_alive_map_copy.get(SEX.MALE).get(age).get(true).intValue();
-							}
-							catch (Exception e) {
-								// age wasn't present in the population, skip
-							}
-							try {
-								// try function necessary as some ages won't be present in the population
-								// use the functions created earlier to calculate the number of people of each age group
-								female_count += age_sex_alive_map_copy.get(SEX.FEMALE).get(age).get(true).intValue();
-							}
-							catch (Exception e) {
-								// age wasn't present in the population, skip
-							}
-						}
-								
-						// store what we have found in the lists we created
-						male_alive_ages.add(male_count);
-						female_alive_ages.add(female_count);
-						// update the idx variable for the next iteration
-						idx++;
-							
+
+					for (String group: GeneratePopulationStats.AGE_GROUPS) {
+						male_alive_ages.add(WorldBankCovid19Sim.malePopulationSizes.get(group));
+						female_alive_ages.add(WorldBankCovid19Sim.femalePopulationSizes.get(group));
+
 					}
 					// format the output file
 					int time = (int) (arg0.schedule.getTime() / world.params.ticks_per_day);
@@ -233,24 +188,27 @@ public class DemographyLogging {
 				// the number of covid deaths in each age range and the number of 'other' cause deaths in each age range
 				ArrayList <Integer> male_other_deaths_by_ages = new ArrayList<Integer>();
 				ArrayList <Integer> female_other_deaths_by_ages = new ArrayList<Integer>();
-				ArrayList <Integer> male_alive_ages = LoggingHelperFunctions.get_number_of_alive(world, SEX.MALE);
-				ArrayList <Integer> female_alive_ages = LoggingHelperFunctions.get_number_of_alive(world, SEX.FEMALE);
+				ArrayList <Integer> male_alive_ages = new ArrayList<Integer>();
+				ArrayList <Integer> female_alive_ages = new ArrayList<Integer>();
 
-				// create a function to group the population by sex, age and whether they died from something other than covid
-				Map<SEX, Map<Integer, Map<Boolean, Map<Boolean, Long>>>> age_sex_map_died_from_other = world.agents.stream().collect(
-						Collectors.groupingBy(
-								Person::getSex, 
-								Collectors.groupingBy(
-										Person::getAge, 
-										Collectors.groupingBy(
-												Person::isDeadFromOther,
-												Collectors.groupingBy(Person::getDeathLogged,
-										Collectors.counting()
-										)
-								)
-						)
-					)
-				);
+				for (String group: GeneratePopulationStats.AGE_GROUPS) {
+					male_alive_ages.add(WorldBankCovid19Sim.malePopulationSizes.get(group));
+					female_alive_ages.add(WorldBankCovid19Sim.femalePopulationSizes.get(group));
+
+				}
+
+				// create a function to group the population by sex, age and whether they died from something other than the modelled diseases
+				
+				Map<SEX, Map<Integer, Map<Boolean, Map<Boolean, Long>>>> age_sex_map_died_from_other = new EnumMap<>(SEX.class);
+				
+				for (Person p: world.agents) {
+					age_sex_map_died_from_other
+					.computeIfAbsent(p.getSex(), k -> new HashMap<>())
+					.computeIfAbsent(p.getAge(), k -> new HashMap<>())
+					.computeIfAbsent(p.isDeadFromOther(), k -> new HashMap<>())
+					.merge(p.getDeathLogged(), 1l, Long::sum);
+				}
+				
 				//	We now iterate over the age ranges, create a variable to keep track of the iterations
 				Integer idx = 0;
 				for (Integer val: LoggingHelperFunctions.upper_age_range) {
@@ -377,21 +335,17 @@ public class DemographyLogging {
 			
 			@Override
 			public void step(SimState arg0) {
+				
+				Map<Boolean, Map<String, Map<Integer, Map<SEX, List<Person>>>>> aliveAtLocationAgeSex = new HashMap<>();
+				
+				for (Person p: world.agents) {
+					aliveAtLocationAgeSex
+					.computeIfAbsent(p.isAlive(), k -> new HashMap<>())
+					.computeIfAbsent(p.getCurrentAdminZone(), k -> new HashMap<>())
+					.computeIfAbsent(p.getAge(), k -> new EnumMap<>(SEX.class))
+					.computeIfAbsent(p.getSex(), k -> new ArrayList<>());
+				}
 
-				Map<Boolean, Map<String, Map<Integer, Map<SEX, List<Person>>>>> aliveAtLocationAgeSex = world.agents.stream().collect(
-						Collectors.groupingBy(
-								Person::isAlive,
-								Collectors.groupingBy(
-										Person::getCurrentAdminZone,
-										Collectors.groupingBy(
-												Person::getAge,
-												Collectors.groupingBy(
-														Person::getSex
-										)
-						)
-						)
-						)
-						);
 				// get a list of admin zone to iterate over
 				List <String> adminZones = ((WorldBankCovid19Sim)arg0).params.adminZoneNames;
 				// format the output file for population counts

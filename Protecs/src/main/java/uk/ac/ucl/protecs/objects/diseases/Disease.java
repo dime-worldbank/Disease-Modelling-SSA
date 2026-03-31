@@ -59,8 +59,9 @@ public abstract class Disease implements Steppable {
 	boolean hasRecoveredLogged = false;
 	boolean hasSusceptibleLogged = false;
 	boolean hasLogged = false;
-	
-	
+	boolean isInfectionActive = false;
+
+
 	// =============================================== relevant information on the host ==============================================================
 	public Host getHost() {return this.host;}
 	
@@ -274,6 +275,15 @@ public abstract class Disease implements Steppable {
 	}
 	
 	public abstract String writeOut();
+	
+	
+	public boolean isInfectionActive() {
+		return isInfectionActive;
+	}
+
+	public void setInfectionActive(boolean isActive) {
+		this.isInfectionActive = isActive;
+	}
 
 	// =============================================== Disease testing ====================================================================================
 	public boolean isEligibleForTesting() {
