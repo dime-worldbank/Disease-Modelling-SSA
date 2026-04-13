@@ -18,6 +18,7 @@ import uk.ac.ucl.protecs.objects.locations.Location.LocationCategory;
 import uk.ac.ucl.protecs.sim.Params;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
+import uk.ac.ucl.protecs.objects.diseases.Disease.DISEASESTAGE;
 import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
 public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBehaviourFramework {
@@ -101,6 +102,9 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 
 			@Override
 			public double next(Steppable s, double time) {
+				CoronavirusInfection i = (CoronavirusInfection) s;
+				i.setDiseaseStage(DISEASESTAGE.SUSCEPTIBLE);
+
 				return Double.MAX_VALUE;
 			}
 
@@ -133,8 +137,9 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				if(i.time_contagious < Double.MAX_VALUE){ // if less, it has been changed from default value
 					
 					// maybe we have been triggered too soon - in that case, don't activate again until it is time!
-					if(time < i.time_contagious)
+					if(time < i.time_contagious) 
 						return i.time_contagious - time;
+						
 					// update the person's properties to show they have covid
 					// The infected agent will either show symptoms or be asymptomatic - choose which at this time
 
@@ -183,6 +188,8 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 							covid_exposedToInfectious_std);
 					assert (timeUntilInfectious > 0): "Something has gone wrong in deciding when a person will become infectious, time is not in future: " + timeUntilInfectious;
 					i.time_contagious = time + timeUntilInfectious;
+					// update the disease object to show that it hasn't been assigned a behaviour yet
+					i.setDiseaseStage(DISEASESTAGE.NA);
 					// update the person's properties to show they have covid
 
 					return timeUntilInfectious;
@@ -261,7 +268,10 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 					return Double.MAX_VALUE;
 				}
 				((Person) i.getHost()).infectNeighbours();
+				// Update the disease property
 				i.setAsympt();
+				i.setDiseaseStage(DISEASESTAGE.ASYMPTOMATIC);
+
 				i.setInfectionActive(true);
 				// determine when the agent will recover - this is
 				// only a matter of time in this case
@@ -303,10 +313,12 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 					return Double.MAX_VALUE;
 				}
 				((Person) i.getHost()).infectNeighbours();
+				// update the disease property
 				i.setSymptomatic();
 				i.setMild();
 				i.setEligibleForTesting();
 				i.setInfectionActive(true);
+				i.setDiseaseStage(DISEASESTAGE.MILD);
 
 				if (i.getHost().getDiseaseSet().containsKey(DISEASE.COVIDSPURIOUSSYMPTOM.key)) {
 					i.getHost().getDiseaseSet().get(DISEASE.COVIDSPURIOUSSYMPTOM.key).setAsympt();
@@ -391,7 +403,9 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 					return Double.MAX_VALUE;
 				}
 				((Person) i.getHost()).infectNeighbours();
+				// Update the disease property
 				i.setSevere();
+				i.setDiseaseStage(DISEASESTAGE.SEVERE);
 				// if the agent is scheduled to recover, make sure that it
 				// does so
 				if(time >= i.time_recovered){
@@ -460,8 +474,10 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 					return Double.MAX_VALUE;
 				}
 				((Person) i.getHost()).infectNeighbours();
+				// Update the disease property
 				i.setCritical();
-				
+				i.setDiseaseStage(DISEASESTAGE.CRITICAL);
+
 				// if the agent is scheduled to recover, make sure that it
 				// does so
 				if(time >= i.time_recovered ){
@@ -554,7 +570,10 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				}
 				// if they have had symptomatic covid, make them no longer have symptoms of covid
 				if (i.isSymptomatic()) i.setSymptomatic();
+				// Update the disease property
 				i.setRecovered();
+				i.setDiseaseStage(DISEASESTAGE.RECOVERED);
+
 				// no need to update again!
 				return Double.MAX_VALUE;
 			}
@@ -576,7 +595,10 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				CoronavirusInfection i = (CoronavirusInfection) s;
 				// remove covid from person object
 				((Person) i.getHost()).die("COVID-19");
+				// Update the disease property
 				i.setAsCauseOfDeath();
+				i.setDiseaseStage(DISEASESTAGE.CAUSEOFDEATH);
+
 				i.time_died = time;
 								
 				return Double.MAX_VALUE; // no need to run ever again

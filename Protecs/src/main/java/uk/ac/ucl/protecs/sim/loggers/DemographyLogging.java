@@ -343,7 +343,8 @@ public class DemographyLogging {
 					.computeIfAbsent(p.isAlive(), k -> new HashMap<>())
 					.computeIfAbsent(p.getCurrentAdminZone(), k -> new HashMap<>())
 					.computeIfAbsent(p.getAge(), k -> new EnumMap<>(SEX.class))
-					.computeIfAbsent(p.getSex(), k -> new ArrayList<>());
+					.computeIfAbsent(p.getSex(), k -> new ArrayList<>())
+					.add(p);
 				}
 
 				// get a list of admin zone to iterate over

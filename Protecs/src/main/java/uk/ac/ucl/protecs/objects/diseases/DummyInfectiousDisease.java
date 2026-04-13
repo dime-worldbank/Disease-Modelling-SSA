@@ -29,7 +29,7 @@ public class DummyInfectiousDisease extends Disease{
 		
 		host.addDisease(this);
 		
-		this.hasAsympt = true;
+		this.diseaseStage = DISEASESTAGE.ASYMPTOMATIC;
 			
 		// store the time when it is infected!
 		time_infected = time;		
@@ -211,14 +211,13 @@ public class DummyInfectiousDisease extends Disease{
 
 	@Override
 	public void setAsympt() {
-		this.hasRecovered = false;
-		this.hasAsympt = true;
+		this.diseaseStage = DISEASESTAGE.ASYMPTOMATIC;
 	}
 
 	@Override
 	public void setRecovered() {
-		this.hasAsympt = false;
-		this.hasRecovered = true;
+		this.diseaseStage = DISEASESTAGE.RECOVERED;
+
 	}
 
 	@Override
