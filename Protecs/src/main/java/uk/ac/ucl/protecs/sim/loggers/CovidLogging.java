@@ -117,7 +117,9 @@ public class CovidLogging {
 
 				try {
 					// if there are covid cases then filter them out
-					filtered_covid_cases = active_covid_cases_in_zone.get(true).get(DISEASE.COVID).get(true);
+					if (active_covid_cases_in_zone.get(true).get(DISEASE.COVID).get(true) != null) {
+						filtered_covid_cases = active_covid_cases_in_zone.get(true).get(DISEASE.COVID).get(true);
+					}
 				}
 				catch (Exception e) {
 					// otherwise do nothing

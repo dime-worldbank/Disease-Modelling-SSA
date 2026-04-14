@@ -171,7 +171,8 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				//
 				// another case: the agent is newly exposed! Determine whether the infection will take
 				//
-				
+				i.setDiseaseStage(DISEASESTAGE.NA);
+
 				double mySusceptLikelihood = myWorld.params.getLikelihoodByAge(
 						covid_infection_r_sus_by_age, covid_infection_age_params, ((Person) i.getHost()).getAge());
 				if(myWorld.random.nextDouble() < mySusceptLikelihood){
@@ -190,7 +191,6 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 					i.time_contagious = time + timeUntilInfectious;
 					// update the disease object to show that it hasn't been assigned a behaviour yet
 					// update the person's properties to show they have covid
-					i.setDiseaseStage(DISEASESTAGE.NA);
 
 					return timeUntilInfectious;
 				}

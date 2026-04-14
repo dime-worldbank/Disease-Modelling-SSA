@@ -37,36 +37,7 @@ public abstract class Disease implements Steppable {
 	
 	// infection stages
 	public enum DISEASESTAGE{
-		
-		ASYMPTOMATIC("asymptomatic"), MILD("mild"), SEVERE("severe"), CRITICAL("critical"), RECOVERED("recovered"), SUSCEPTIBLE("susceptible"), CAUSEOFDEATH("cause_of_death"),
-		NA("not_assigned");
-		public String key;
-		     
-		DISEASESTAGE(String key) { this.key = key; }
-			
-		public static DISEASESTAGE getValue(String x) {
-	       	switch (x) {
-	       	case "asymptomatic":
-	       		return ASYMPTOMATIC;
-	       	case "mild":
-	       		return MILD;
-	       	case "severe":
-	       		return SEVERE;
-	       	case "critical":
-	       		return CRITICAL;
-	       	case "recovered":
-	       		return RECOVERED;
-	       	case "susceptible":
-	       		return SUSCEPTIBLE;
-	       	case "cause_of_death":
-	       		return CAUSEOFDEATH;
-	       	case "not_assigned":
-	       		return NA;
-	        default:
-	        	throw new IllegalArgumentException();
-	       	}
-		
-		}
+		ASYMPTOMATIC, MILD, SEVERE, CRITICAL, RECOVERED, SUSCEPTIBLE, CAUSEOFDEATH, NA;
 	};
 	DISEASESTAGE diseaseStage;
 	// symptom manager
