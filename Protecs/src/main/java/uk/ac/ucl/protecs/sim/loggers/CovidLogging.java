@@ -9,6 +9,7 @@ import java.util.Map;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 import uk.ac.ucl.protecs.objects.diseases.Disease;
+import uk.ac.ucl.protecs.objects.diseases.Disease.DISEASESTAGE;
 import uk.ac.ucl.protecs.sim.ImportExport;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
@@ -151,37 +152,37 @@ public class CovidLogging {
 				for (Disease d: filtered_covid_cases) {
 					location_hasCovid_map
 					.computeIfAbsent(d.getCurrentAdminZone(),  k -> new HashMap<>())
-					.computeIfAbsent(d.hasRecovered(), k -> new HashMap<>())
-					.merge(d.getLogged(), 1l, Long::sum);
+					.computeIfAbsent(d.hasDiseaseStage(DISEASESTAGE.RECOVERED), k -> new HashMap<>())
+					.merge(d.getStageLogged(), 1l, Long::sum);
 					
 					location_recovered_map
 					.computeIfAbsent(d.getCurrentAdminZone(), k -> new HashMap<>())
-					.computeIfAbsent(d.hasRecovered(), k -> new HashMap<>())
-					.merge(d.getRecoveredLogged(), 1l, Long::sum);
+					.computeIfAbsent(d.hasDiseaseStage(DISEASESTAGE.RECOVERED), k -> new HashMap<>())
+					.merge(d.getStageLogged(), 1l, Long::sum);
 					
 					location_asympt_map
 					.computeIfAbsent(d.getCurrentAdminZone(), k -> new HashMap<>())
-					.computeIfAbsent(d.hasAsympt(), k -> new HashMap<>())
-					.merge(d.getAsymptLogged(), 1l, Long::sum);
+					.computeIfAbsent(d.hasDiseaseStage(DISEASESTAGE.ASYMPTOMATIC), k -> new HashMap<>())
+					.merge(d.getStageLogged(), 1l, Long::sum);
 					
 					location_mild_map
 					.computeIfAbsent(d.getCurrentAdminZone(), k -> new HashMap<>())
-					.computeIfAbsent(d.hasMild(), k -> new HashMap<>())
-					.merge(d.getMildLogged(), 1l, Long::sum);
+					.computeIfAbsent(d.hasDiseaseStage(DISEASESTAGE.MILD), k -> new HashMap<>())
+					.merge(d.getStageLogged(), 1l, Long::sum);
 					
 					location_severe_map
 					.computeIfAbsent(d.getCurrentAdminZone(), k -> new HashMap<>())
-					.computeIfAbsent(d.hasSevere(), k -> new HashMap<>())
-					.merge(d.getSevereLogged(), 1l, Long::sum);
+					.computeIfAbsent(d.hasDiseaseStage(DISEASESTAGE.SEVERE), k -> new HashMap<>())
+					.merge(d.getStageLogged(), 1l, Long::sum);
 
 					location_critical_map
 					.computeIfAbsent(d.getCurrentAdminZone(), k -> new HashMap<>())
-					.computeIfAbsent(d.hasCritical(), k -> new HashMap<>())
-					.merge(d.getCriticalLogged(), 1l, Long::sum);
+					.computeIfAbsent(d.hasDiseaseStage(DISEASESTAGE.CRITICAL), k -> new HashMap<>())
+					.merge(d.getStageLogged(), 1l, Long::sum);
 
 					location_cumulative_died_map
 					.computeIfAbsent(d.getCurrentAdminZone(), k -> new HashMap<>())
-					.merge(d.isCauseOfDeath(), 1l, Long::sum);
+					.merge(d.hasDiseaseStage(DISEASESTAGE.CAUSEOFDEATH), 1l, Long::sum);
 					
 					location_cumulative_map
 					.computeIfAbsent(d.getCurrentAdminZone(), k -> new HashMap<>())
@@ -189,8 +190,8 @@ public class CovidLogging {
 					
 					location_new_deaths_map
 					.computeIfAbsent(d.getCurrentAdminZone(), k -> new HashMap<>())
-					.computeIfAbsent(d.isCauseOfDeath(), k -> new HashMap<>())
-					.merge(d.getDeathLogged(), 1l, Long::sum);
+					.computeIfAbsent(d.hasDiseaseStage(DISEASESTAGE.CAUSEOFDEATH), k -> new HashMap<>())
+					.merge(d.getStageLogged(), 1l, Long::sum);
 				}
 				// alternate logging
 //				// create a function to group the population by location, whether they are alive and if they have covid and if this is a new case
@@ -473,26 +474,10 @@ public class CovidLogging {
 			public void step(SimState arg0) {
 					// to make sure deaths and cases aren't counted multiple times, update this person's properties
 					for (Disease i: world.human_infections) {
+						
 							if ((i.isOfType(DISEASE.COVID)) & (i.isInfectionActive())) {
-							if(!i.isHostAlive()) {
-								i.confirmDeathLogged();
-							}
-							if(i.hasAsympt() & !i.getAsymptLogged()) {
-								i.confirmAsymptLogged();
-							}
-							if(i.hasMild() & !i.getMildLogged()) {
-								i.confirmMildLogged();
-							}
-							if(i.hasSevere() & !i.getSevereLogged()) {
-								i.confirmSevereLogged();
-							}
-							if(i.hasCritical() & !i.getCriticalLogged()) {
-								i.confirmCriticalLogged();
-							}
-							if(i.hasRecovered() & !i.getRecoveredLogged()) {
-								i.confirmCriticalLogged();
-							}
-							i.confirmLogged();
+								i.confirmStageLogged();
+								i.confirmLogged();
 						}
 					} 
 				}

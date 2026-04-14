@@ -78,13 +78,7 @@ public abstract class Disease implements Steppable {
 	boolean eligibleForTesting = false;
 	// loggers
 	boolean hasStageLogged = false;
-	boolean hasDeathLogged = false;
-	boolean hasAsymptLogged = false;
-	boolean hasMildLogged = false;
-	boolean hasSevereLogged = false;
-	boolean hasCriticalLogged = false;
-	boolean hasRecoveredLogged = false;
-	boolean hasSusceptibleLogged = false;
+	boolean stageLogged = false;
 	boolean hasLogged = false;
 	boolean isInfectionActive = false;
 
@@ -148,14 +142,19 @@ public abstract class Disease implements Steppable {
 	}
 	public void setDiseaseStage(DISEASESTAGE stage) {
 		this.diseaseStage = stage;
+		if (stage == DISEASESTAGE.ASYMPTOMATIC) {
+			this.isSymptomatic = false;
+		}
+		if ((stage == DISEASESTAGE.SUSCEPTIBLE) || (stage == DISEASESTAGE.NA)) {
+			setInfectionActive(false);
+		}
+		resetStageLogged();
 	}
 	
-	public void setAsympt() {
-		this.diseaseStage = DISEASESTAGE.ASYMPTOMATIC;
-		this.isSymptomatic = false;
+	public boolean hasDiseaseStage(DISEASESTAGE stage) {
+		
+		return stage.equals(this.getDiseaseStage());
 	}
-	
-	public boolean hasAsympt() {return DISEASESTAGE.ASYMPTOMATIC.equals(this.diseaseStage);}
 	
 	public void setSymptomatic() {
 		this.isSymptomatic = !this.isSymptomatic;
@@ -163,126 +162,30 @@ public abstract class Disease implements Steppable {
 	}
 	
 	public boolean isSymptomatic() {return this.isSymptomatic;}
-	
-	public void setMild() {
-		this.diseaseStage = DISEASESTAGE.MILD;
-	}
-	
-	public boolean hasMild() {
-			return DISEASESTAGE.MILD.equals(this.diseaseStage);
-	}
-	
-	public void setSevere() {
-		this.diseaseStage = DISEASESTAGE.SEVERE;
 
-	}
-	
-	public boolean hasSevere() {
-		return DISEASESTAGE.SEVERE.equals(this.diseaseStage);
-	}
-	
-	public void setCritical() {
-		this.diseaseStage = DISEASESTAGE.CRITICAL;
-	}
-	
-	public boolean hasCritical() {
-		return DISEASESTAGE.CRITICAL.equals(this.diseaseStage);
-	}
-	
-	public void setRecovered() {
-		this.diseaseStage = DISEASESTAGE.RECOVERED;
-		
-	}
-	
-	public boolean hasRecovered() {
-		return DISEASESTAGE.RECOVERED.equals(this.diseaseStage);
-	}
-
-	
-	public boolean hasSusceptible() {
-		return DISEASESTAGE.SUSCEPTIBLE.equals(this.diseaseStage);
-	}
-	
-	public void setAsCauseOfDeath() {
-		this.diseaseStage = DISEASESTAGE.CAUSEOFDEATH;
-	};
-	
-	public boolean isCauseOfDeath() {
-		return DISEASESTAGE.CAUSEOFDEATH.equals(this.diseaseStage);
-	};
 	// =============================================== Disease logging ====================================================================================
-	
 	public boolean getStageLogged() {
-		return this.hasStageLogged;
+		return hasStageLogged;
 	}
 	
-	public void setStageLogged(boolean val) {
-		this.hasStageLogged = val;
+	public void confirmStageLogged() {
+		this.hasStageLogged = true;
 	}
 	
-	public boolean getAsymptLogged() {
-		return this.hasAsymptLogged;
+	public void resetStageLogged() {
+		this.hasStageLogged = false;
 	}
 	
-	public void confirmAsymptLogged() {
-		this.hasAsymptLogged = true; 
-	}
-
-	public boolean getMildLogged() {
-		return this.hasMildLogged;
-	}
-
-	public void confirmMildLogged() {
-		this.hasMildLogged = true; 
-		
-	}
-
-	public boolean getSevereLogged() {
-		return this.hasSevereLogged;
-	}
-
-	public void confirmSevereLogged() {
-		this.hasSevereLogged = true;
-	}
-
-	public boolean getCriticalLogged() {
-		return this.hasCriticalLogged;
-	}
-
-	public void confirmCriticalLogged() {
-		this.hasCriticalLogged = true;
-	}
-
-	public void confirmDeathLogged() {
-		this.hasDeathLogged = true;
-	}
-
-	public boolean getDeathLogged() {
-		return this.hasDeathLogged ;
-	}
-	
-	public boolean getRecoveredLogged() {
-		return this.hasRecoveredLogged;
-	}
-	
-	public void confirmRecoveredLogged() {
-		this.hasRecoveredLogged = true;
-	}
-	
-	public boolean getSusceptibleLogged() {
-		return this.hasSusceptibleLogged;
-	}
-	
-	public void confirmSusceptibleLogged() {
-		this.hasSusceptibleLogged = true;
-	}
-
 	public boolean getLogged() {
 		return hasLogged;
 	}
 	
 	public void confirmLogged() {
 		this.hasLogged = true;
+	}
+	
+	public void resetLogged() {
+		this.hasLogged = false;
 	}
 	
 	public abstract String writeOut();
@@ -358,11 +261,7 @@ public abstract class Disease implements Steppable {
 		this.testLogged = false;
 		this.eligibleForTesting = false;
 		// reset loggers
-		this.hasDeathLogged = false;
-		this.hasAsymptLogged = false;
-		this.hasMildLogged = false;
-		this.hasSevereLogged = false;
-		this.hasCriticalLogged = false;
+		this.hasStageLogged = false;
 		this.hasLogged = false;		
 	}
 }

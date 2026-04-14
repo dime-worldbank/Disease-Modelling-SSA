@@ -207,30 +207,7 @@ public class DummyInfectiousDisease extends Disease{
 		// TODO Auto-generated method stub
 		return DISEASE.DUMMY_INFECTIOUS.key;
 	}
-	// =============================================== Disease progression ====================================================================================
 
-	@Override
-	public void setAsympt() {
-		this.diseaseStage = DISEASESTAGE.ASYMPTOMATIC;
-	}
-
-	@Override
-	public void setRecovered() {
-		this.diseaseStage = DISEASESTAGE.RECOVERED;
-
-	}
-
-	@Override
-	public void setAsCauseOfDeath() {
-		// NA
-		
-	}
-
-	@Override
-	public boolean isCauseOfDeath() {
-		// NA	
-		return false;
-	}
 	// =============================================== Disease logging ====================================================================================
 
 	@Override
