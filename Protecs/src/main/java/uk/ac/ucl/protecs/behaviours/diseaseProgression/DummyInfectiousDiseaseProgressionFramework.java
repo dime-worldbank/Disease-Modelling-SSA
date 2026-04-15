@@ -38,28 +38,8 @@ public class DummyInfectiousDiseaseProgressionFramework extends DiseaseProgressi
 	}
 	
 	public enum nextStepDummy{
-		NO_SYMPTOMS("noSymptoms"), CAUSE_SYMPTOMS("causeSymptoms"), DO_NOTHING("doNothing"), RECOVER("recover"), HAS_DIED("hasDied");
-		public String key;
-	     
-		nextStepDummy(String key) { this.key = key; }
+		NO_SYMPTOMS, CAUSE_SYMPTOMS, DO_NOTHING, RECOVER, HAS_DIED;
 		
-		public static nextStepDummy getValue(String x) {
-        	switch (x) {
-        	case "noSymptoms":
-        		return NO_SYMPTOMS;
-        	case "causeSymptoms":
-        		return CAUSE_SYMPTOMS;
-        	case "doNothing":
-        		return CAUSE_SYMPTOMS;
-        	case "recover":
-        		return RECOVER;	
-        	case "hasDied":
-        		return HAS_DIED;
-        	default:
-        		throw new IllegalArgumentException();
-        	}
-		
-		}
 	} 
 	private nextStepDummy nextStep;
 
