@@ -18,9 +18,6 @@ import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 public class DemographyLogging {
 	
 	static String t = LoggingHelperFunctions.tab;
-	// age sex breakdown header
-	private final static String age_sex_categories = t + "sex" + t + LoggingHelperFunctions.age_categories + "\n";
-
 	// create specific age ranges for birthrate logging
 	public final static List <Integer> birthrate_upper_age_range = Arrays.asList(20, 25, 30, 35, 40, 45, 50);
 	public final static List <Integer> birthrate_lower_age_range = Arrays.asList(15, 20, 25, 30, 35, 40, 45);
@@ -141,7 +138,7 @@ public class DemographyLogging {
 					int time = (int) (arg0.schedule.getTime() / world.params.ticks_per_day);
 					String population = "";
 
-					String age_sex_categories = t + "sex" + t + LoggingHelperFunctions.age_categories + "\n";
+					String age_sex_categories = t + "sex" + t +  world.params.age_categories + "\n";
 					if (time == 0) {
 						population += "day" + age_sex_categories + String.valueOf(time);
 					}
@@ -211,13 +208,13 @@ public class DemographyLogging {
 				
 				//	We now iterate over the age ranges, create a variable to keep track of the iterations
 				Integer idx = 0;
-				for (Integer val: LoggingHelperFunctions.upper_age_range) {
+				for (Integer val:  world.params.upper_age_range) {
 					// for each age group we begin to count the number of people who fall into each category, create variables
 					// to store this information in
 					Integer male_other_death_count = 0;
 					Integer female_other_death_count = 0;
 					// iterate over the ages set in the age ranges (lower value from lower_age_range, upper from upper_age_range)
-					for (int age = LoggingHelperFunctions.lower_age_range.get(idx); age < val; age++) {
+					for (int age =  world.params.lower_age_range.get(idx); age < val; age++) {
 
 						try {
 							// try function necessary as some ages won't be present in the population
@@ -248,7 +245,7 @@ public class DemographyLogging {
 				String other_inc_death = "";
 
 				if (time == 0) {
-					other_inc_death += "day" + age_sex_categories + String.valueOf(time);
+					other_inc_death += "day" +  world.params.age_sex_categories + String.valueOf(time);
 				}
 				else {
 					other_inc_death += String.valueOf(time);
@@ -355,7 +352,7 @@ public class DemographyLogging {
 				// export the file
 				String adminZoneLevelPopBreakdown = "";
 				
-				String admin_zone_age_sex_categories = t + "admin_zone" + t + "sex" + t + LoggingHelperFunctions.age_categories + "\n";
+				String admin_zone_age_sex_categories = t + "admin_zone" + t + "sex" + t +  world.params.age_categories + "\n";
 				if (time == 0) {
 					adminZoneLevelPopBreakdown += "day" + admin_zone_age_sex_categories;
 				}
@@ -365,12 +362,12 @@ public class DemographyLogging {
 					ArrayList <Integer> male_alive_ages = new ArrayList<Integer>();
 					ArrayList <Integer> female_alive_ages = new ArrayList<Integer>();
 					idx = 0;
-					for (Integer val: LoggingHelperFunctions.upper_age_range) {
+					for (Integer val:  world.params.upper_age_range) {
 						// for each age group we begin to count the number of people who fall into each category, create variables
 						// to store this information in
 						Integer male_count = 0;
 						Integer female_count = 0;
-						for (int age = LoggingHelperFunctions.lower_age_range.get(idx); age < val; age++) {
+						for (int age =  world.params.lower_age_range.get(idx); age < val; age++) {
 							try {
 								// try function necessary as some ages won't be present in the population
 								// use the functions created earlier to calculate the number of people of each age group who fall

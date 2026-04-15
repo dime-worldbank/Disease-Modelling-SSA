@@ -16,8 +16,6 @@ import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 public class CovidLogging {
 	// tab shortcut
 	static String t = LoggingHelperFunctions.tab;
-	// age sex breakdown header
-	private final static String age_sex_categories = t + "sex" + t + LoggingHelperFunctions.age_categories + "\n";
 	
 	public class CovidTestReporter implements Steppable{
 		

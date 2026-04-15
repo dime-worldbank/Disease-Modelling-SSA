@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -126,7 +127,7 @@ public class Params {
 	public String testLocationFilename = null;
 	
 	public String communityLocationFilename = null;
-
+	public String loggingAgeBoundaryFile = null;
 	
 	// time
 	public static int hours_per_tick = 4; // the number of hours each tick represents
@@ -144,6 +145,16 @@ public class Params {
 	public static int hours_at_work_weekday = 8 / hours_per_tick;
 	public static int hours_sleeping = 8 / hours_per_tick;
 	
+	
+	// Load in default age range boundaries for logging, change if others are specified with a parameter file
+	public ArrayList<Integer> upper_age_range = new ArrayList<>(Arrays.asList(1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 120));
+	public ArrayList <Integer> lower_age_range = new ArrayList<>(Arrays.asList(0, 1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95));
+
+	public static String age_categories = "<1" + "\t" + "1_4" + "\t" + "5_9" + "\t" + "10_14" + "\t" + "15_19" + "\t" + "20_24" + "\t" + "25_29" + 
+			"\t" + "30_34" + "\t" + "35_39" + "\t" + "40_44" + "\t" + "45_49" + "\t" + "50_54" + "\t" + "55_59" + "\t" + "60_64" + "\t" + "65_69" + "\t" + 
+			"70_74" + "\t" + "75_79" + "\t" + "80_84" + "\t" + "85_89" + "\t" + "90_94" + "\t" + "95<";
+	
+	public static String age_sex_categories = "";
 	
 	public Params(String paramsFilename, boolean isVerbose){
 		this.verbose = isVerbose;
@@ -188,6 +199,11 @@ public class Params {
 		if (!(communityLocationFilename == null)) {
 			load_community_locations(dataDir + communityLocationFilename);
 		}
+		// load in logging age boundaries
+		if (!(loggingAgeBoundaryFile == null)) {
+			load_age_boundaries(dataDir + loggingAgeBoundaryFile);
+		}
+		
 	}
 	//
 	// DATA IMPORT UTILITIES
@@ -875,7 +891,58 @@ public class Params {
 			}
 		}
 	};
+	
+	public void load_age_boundaries(String loggingAgeBoundaryFile) {
+		if (loggingAgeBoundaryFile != null) {
+		try {
+			// Reset the age boundaries from the default category
+			age_categories = "";
+			upper_age_range.clear();
+			lower_age_range.clear();
+			// Open the tracts file
+			FileInputStream fstream = new FileInputStream(loggingAgeBoundaryFile);
 
+			// Convert our input stream to a BufferedReader
+			BufferedReader age_boundaries = new BufferedReader(new InputStreamReader(fstream));
+			String s;
+
+			// extract the header
+			s = age_boundaries.readLine();
+
+			// map the header into column names relative to location
+			String [] header = splitRawCSVString(s);
+			HashMap <String, Integer> rawColumnNames = new HashMap <String, Integer> ();
+			for(int i = 0; i < header.length; i++){
+				rawColumnNames.put(header[i], new Integer(i));
+			}
+			
+			int boundaryIndex = rawColumnNames.get("boundary_name");
+			int lowerAgeRangeIndex = rawColumnNames.get("lower_age_range");
+			int upperAgeRangeIndex = rawColumnNames.get("upper_age_range");
+			// count the number of boundaries
+			int boundary_count = 0;
+			// read in the raw data
+			while ((s = age_boundaries.readLine()) != null) {
+				String [] bits = splitRawCSVString(s);
+				age_categories += bits[boundaryIndex] + "\t";
+				upper_age_range.add(Integer.parseInt(bits[lowerAgeRangeIndex]));
+				lower_age_range.add(Integer.parseInt(bits[upperAgeRangeIndex]));
+				boundary_count++;
+			}
+			
+			if ((lower_age_range.size() != boundary_count) || (upper_age_range.size() != boundary_count)) {
+				fail();
+			}
+			
+		} 
+		catch (Exception e) {
+			System.err.println("File input error: " + loggingAgeBoundaryFile);
+			fail();
+			}
+		}
+	};
+
+	
 	/**
 	 * 
 	 * @param econFilename
