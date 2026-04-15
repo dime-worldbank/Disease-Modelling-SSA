@@ -1,1 +1,3 @@
-
+boundary_name, lower_age_range, upper_age_range
+<50, 0, 50
+50<, 51, 120

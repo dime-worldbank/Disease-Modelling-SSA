@@ -359,7 +359,7 @@ public class LoggingHelperFunctions{
 				ArrayList <Integer> male_alive_ages = new ArrayList<Integer>();
 				ArrayList <Integer> female_alive_ages = new ArrayList<Integer>();
 
-				for (String group: GeneratePopulationStats.AGE_GROUPS) {
+				for (String group: world.params.age_category_list) {
 					male_alive_ages.add(WorldBankCovid19Sim.malePopulationSizes.get(group));
 					female_alive_ages.add(WorldBankCovid19Sim.femalePopulationSizes.get(group));
 
@@ -413,7 +413,7 @@ public class LoggingHelperFunctions{
 				ArrayList <Integer> male_alive_ages = new ArrayList<Integer>();
 				ArrayList <Integer> female_alive_ages = new ArrayList<Integer>();
 
-				for (String group: GeneratePopulationStats.AGE_GROUPS) {
+				for (String group: world.params.age_category_list) {
 					male_alive_ages.add(WorldBankCovid19Sim.malePopulationSizes.get(group));
 					female_alive_ages.add(WorldBankCovid19Sim.femalePopulationSizes.get(group));
 

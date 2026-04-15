@@ -42,7 +42,7 @@ public class DemographyLogging {
 			ArrayList <Integer> female_alive_ages = new ArrayList<Integer>();
 			ArrayList <Integer> female_pregnancy_ages = new ArrayList<Integer>();
 
-			for (String group: GeneratePopulationStats.AGE_GROUPS) {
+			for (String group: world.params.age_category_list) {
 				female_alive_ages.add(WorldBankCovid19Sim.femalePopulationSizes.get(group));
 
 			}			
@@ -129,7 +129,7 @@ public class DemographyLogging {
 					ArrayList <Integer> male_alive_ages = new ArrayList<Integer>();
 					ArrayList <Integer> female_alive_ages = new ArrayList<Integer>();
 
-					for (String group: GeneratePopulationStats.AGE_GROUPS) {
+					for (String group: world.params.age_category_list) {
 						male_alive_ages.add(WorldBankCovid19Sim.malePopulationSizes.get(group));
 						female_alive_ages.add(WorldBankCovid19Sim.femalePopulationSizes.get(group));
 
@@ -188,7 +188,7 @@ public class DemographyLogging {
 				ArrayList <Integer> male_alive_ages = new ArrayList<Integer>();
 				ArrayList <Integer> female_alive_ages = new ArrayList<Integer>();
 
-				for (String group: GeneratePopulationStats.AGE_GROUPS) {
+				for (String group: world.params.age_category_list) {
 					male_alive_ages.add(WorldBankCovid19Sim.malePopulationSizes.get(group));
 					female_alive_ages.add(WorldBankCovid19Sim.femalePopulationSizes.get(group));
 
@@ -340,7 +340,8 @@ public class DemographyLogging {
 					.computeIfAbsent(p.isAlive(), k -> new HashMap<>())
 					.computeIfAbsent(p.getCurrentAdminZone(), k -> new HashMap<>())
 					.computeIfAbsent(p.getAge(), k -> new EnumMap<>(SEX.class))
-					.computeIfAbsent(p.getSex(), k -> new ArrayList<>());
+					.computeIfAbsent(p.getSex(), k -> new ArrayList<>())
+					.add(p);
 				}
 
 				// get a list of admin zone to iterate over

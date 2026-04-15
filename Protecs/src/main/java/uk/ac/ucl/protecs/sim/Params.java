@@ -127,7 +127,7 @@ public class Params {
 	public String testLocationFilename = null;
 	
 	public String communityLocationFilename = null;
-	public String loggingAgeBoundaryFile = null;
+	public String loggingAgeBoundaryFilename = null;
 	
 	// time
 	public static int hours_per_tick = 4; // the number of hours each tick represents
@@ -153,6 +153,14 @@ public class Params {
 	public static String age_categories = "<1" + "\t" + "1_4" + "\t" + "5_9" + "\t" + "10_14" + "\t" + "15_19" + "\t" + "20_24" + "\t" + "25_29" + 
 			"\t" + "30_34" + "\t" + "35_39" + "\t" + "40_44" + "\t" + "45_49" + "\t" + "50_54" + "\t" + "55_59" + "\t" + "60_64" + "\t" + "65_69" + "\t" + 
 			"70_74" + "\t" + "75_79" + "\t" + "80_84" + "\t" + "85_89" + "\t" + "90_94" + "\t" + "95<";
+	
+	public ArrayList<String> age_category_list = new ArrayList<>(Arrays.asList(
+		        "<1", "1_4", "5-9", "10-14", "15-19", "20-24", "25-29",
+		        "30-44", "35-49", "40-44", "45-49", "50-54", "55-59",
+		        "60-64", "65-69", "70-74", "75-79", "80-84",
+		        "85-89", "90-94", "95+"
+		    )
+		);
 	
 	public static String age_sex_categories = "";
 	
@@ -200,8 +208,8 @@ public class Params {
 			load_community_locations(dataDir + communityLocationFilename);
 		}
 		// load in logging age boundaries
-		if (!(loggingAgeBoundaryFile == null)) {
-			load_age_boundaries(dataDir + loggingAgeBoundaryFile);
+		if (!(loggingAgeBoundaryFilename == null)) {
+			load_age_boundaries(dataDir + loggingAgeBoundaryFilename);
 		}
 		
 	}
@@ -899,6 +907,7 @@ public class Params {
 			age_categories = "";
 			upper_age_range.clear();
 			lower_age_range.clear();
+			age_category_list.clear();
 			// Open the tracts file
 			FileInputStream fstream = new FileInputStream(loggingAgeBoundaryFile);
 
@@ -925,8 +934,10 @@ public class Params {
 			while ((s = age_boundaries.readLine()) != null) {
 				String [] bits = splitRawCSVString(s);
 				age_categories += bits[boundaryIndex] + "\t";
-				upper_age_range.add(Integer.parseInt(bits[lowerAgeRangeIndex]));
-				lower_age_range.add(Integer.parseInt(bits[upperAgeRangeIndex]));
+				age_category_list.add(bits[boundaryIndex]);
+				lower_age_range.add(Integer.parseInt(bits[lowerAgeRangeIndex]));
+				upper_age_range.add(Integer.parseInt(bits[upperAgeRangeIndex]));
+
 				boundary_count++;
 			}
 			
