@@ -147,22 +147,14 @@ public class Params {
 	
 	
 	// Load in default age range boundaries for logging, change if others are specified with a parameter file
-	public ArrayList<Integer> upper_age_range = new ArrayList<>(Arrays.asList(1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 120));
-	public ArrayList <Integer> lower_age_range = new ArrayList<>(Arrays.asList(0, 1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95));
+	public ArrayList<Integer> upper_age_range;
+	public ArrayList <Integer> lower_age_range;
 
-	public static String age_categories = "<1" + "\t" + "1_4" + "\t" + "5_9" + "\t" + "10_14" + "\t" + "15_19" + "\t" + "20_24" + "\t" + "25_29" + 
-			"\t" + "30_34" + "\t" + "35_39" + "\t" + "40_44" + "\t" + "45_49" + "\t" + "50_54" + "\t" + "55_59" + "\t" + "60_64" + "\t" + "65_69" + "\t" + 
-			"70_74" + "\t" + "75_79" + "\t" + "80_84" + "\t" + "85_89" + "\t" + "90_94" + "\t" + "95<";
+	public static String age_categories;
 	
-	public ArrayList<String> age_category_list = new ArrayList<>(Arrays.asList(
-		        "<1", "1_4", "5-9", "10-14", "15-19", "20-24", "25-29",
-		        "30-44", "35-49", "40-44", "45-49", "50-54", "55-59",
-		        "60-64", "65-69", "70-74", "75-79", "80-84",
-		        "85-89", "90-94", "95+"
-		    )
-		);
+	public ArrayList<String> age_category_list;
 	
-	public static String age_sex_categories = "";
+	public static String age_sex_categories;
 	
 	public Params(String paramsFilename, boolean isVerbose){
 		this.verbose = isVerbose;

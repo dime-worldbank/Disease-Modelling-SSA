@@ -21,3 +21,4 @@ covidTesting: true
 testDataFilename: dummy_n_tests.txt
 testLocationFilename: most_travelled_from_testing.txt
 
+loggingAgeBoundaryFilename: logging_age_boundaries.txt
