@@ -25,20 +25,6 @@ public class MovementBehaviourFramework implements BehaviourFramework {
         public String key; 
      
         mobilityNodeTitle(String key) { this.key = key; }
-    
-        static mobilityNodeTitle getValue(String x) {
-        	
-        	switch (x) {
-        	case "home":
-        		return HOME;
-        	case "work":
-        		return WORK;
-        	case "community":
-        		return COMMUNITY;
-        	default:
-        		throw new IllegalArgumentException();
-        	}
-        }
    }
 	public MovementBehaviourFramework(WorldBankCovid19Sim model){
 		myWorld = model;
@@ -54,11 +40,14 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 
 				// the Person may have been sent home immobilised: update everything and don't schedule
 				// to run again until it has been un-immobilised!
-				if(p.isImmobilised()) {
-					p.setVisiting(false);
-					p.setAtWork(false);
-					return Double.MAX_VALUE; 
-				}
+				
+				// This section of code isn't reached as in the step function of the person object, 
+				// if a person is immobilised then no movement step decisions are scheduled
+//				if(p.isImmobilised()) {
+//					p.setVisiting(false);
+//					p.setAtWork(false);
+//					return Double.MAX_VALUE; 
+//				}
 				
 				// extract time info
 				int hour = ((int)time) % Params.ticks_per_day;

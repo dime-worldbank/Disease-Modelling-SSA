@@ -44,6 +44,30 @@ public class MobilityTesting {
 	
 	private final static String paramsDir = "src/test/resources/";
 
+	
+	@Test
+	public void peopleWhoAreImmobilisedDoNotVisitOrGoToWork() {
+		// set up the simulation
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(params + ".txt");
+		sim.start();
+		for (Person p: sim.agents) {
+			p.setMobility(false);
+		}
+		// make everyone go to the community
+		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.movementFramework.setMobilityNodeForTesting(mobilityNodeTitle.HOME), 
+				NodeOption.MovementBehaviour);
+
+		// people will leave home at the start of the day, run to tick 3 to check they are at home
+		int numTicksToBeAtWork = 3;
+		HelperFunctions.runSimulationForTicks(sim, numTicksToBeAtWork);		// only expect people to be at home
+
+		for (Person p: sim.agents) {
+			if (p.visitingNow()) Assert.fail();
+			if (p.atWorkNow()) Assert.fail();
+		}
+		
+	}
+
 	@Test
 	public void PeopleDoingTheCommunityNodeBehaviourSwitchToTheHomeNodeBehviourAtTheEndOfDay() {
 		// set up the simulation
