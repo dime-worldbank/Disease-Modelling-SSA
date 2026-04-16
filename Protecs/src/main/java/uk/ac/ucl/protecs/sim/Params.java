@@ -897,9 +897,9 @@ public class Params {
 		try {
 			// Reset the age boundaries from the default category
 			age_categories = "";
-			upper_age_range.clear();
-			lower_age_range.clear();
-			age_category_list.clear();
+			upper_age_range = new ArrayList<Integer>();
+			lower_age_range = new ArrayList<Integer>();
+			age_category_list = new ArrayList<String>();
 			// Open the tracts file
 			FileInputStream fstream = new FileInputStream(loggingAgeBoundaryFile);
 
