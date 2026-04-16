@@ -157,7 +157,8 @@ public class ParamsTesting {
 	// params_w_faulty_inf_transitions.txt
 	// params_w_faulty_covid_test_numbers.txt
 	// params_w_faulty_covid_test_locations.txt
-	
+	// params_w_faulty_all_cause_mortality.txt
+	// params_w_faulty_birthrate.txt
 	@Test
 	public void testParamsWillRejectFaultyInputData() {	
 		// create a boolean to indicate if an error was found whilst running the simulation, we expect this to change to false
