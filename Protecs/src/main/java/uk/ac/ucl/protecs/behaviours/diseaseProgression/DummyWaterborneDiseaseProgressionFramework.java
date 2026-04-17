@@ -29,17 +29,6 @@ public class DummyWaterborneDiseaseProgressionFramework extends DiseaseProgressi
         String key;
      
         WaterborneBehaviourNodeInWater(String key) { this.key = key; }
-    
-        static WaterborneBehaviourNodeInWater getValue(String x) {
-        	switch (x) {
-        	case "clean":
-        		return CLEAN;
-        	case "contaminated":
-        		return CONTAMINATED;
-        	default:
-        		throw new IllegalArgumentException();
-        	}
-        }
 	}
 	
 	public enum nextStepDummy{
