@@ -19,3 +19,4 @@ lockdown_changeList_filename: lockdownChangelistDefault.txt
 lineListWeightingFactor: 1
 
 communityLocationFilename: dev_community_loc.txt
+communityContactCountsFilename: community_contact_distribution.csv

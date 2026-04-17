@@ -19,6 +19,14 @@ import uk.ac.ucl.protecs.objects.locations.Workplace;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.TestName;
+
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @RunWith(Parameterized.class)
 public class MobilityTesting {
@@ -38,8 +46,31 @@ public class MobilityTesting {
 	
 	private final String params;
 	
+	@Rule
+	public TestName testName = new TestName();
+
+	protected long seed;
+	protected Random random;
+	
 	public MobilityTesting(String fileName) {
 		this.params = fileName;
+	}
+	
+	@Before
+	public void setupSeed() throws IOException {
+	    seed = Long.getLong("test.seed", System.currentTimeMillis());
+	    random = new Random(seed);
+	    // Create timestamp
+	    String timestamp = LocalDateTime.now()
+	        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+	    try (FileWriter writer = new FileWriter("src/test/java/uk/ac/ucl/protecs/behaviours/mobility-test-seeds.log", true)) {
+	        writer.write(
+	        	timestamp + 
+	            " | Test: " + testName.getMethodName() +
+	            " | Params: " + params + ".txt" + 
+	            " | Seed: " + seed + "\n"
+	        );
+	    }
 	}
 	
 	private final static String paramsDir = "src/test/resources/";
@@ -47,8 +78,10 @@ public class MobilityTesting {
 	
 	@Test
 	public void peopleWhoAreImmobilisedDoNotVisitOrGoToWork() {
+		int seed = (int) this.seed;		
+
 		// set up the simulation
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(params + ".txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, params + ".txt");
 		sim.start();
 		for (Person p: sim.agents) {
 			p.setMobility(false);
@@ -70,8 +103,10 @@ public class MobilityTesting {
 
 	@Test
 	public void PeopleDoingTheCommunityNodeBehaviourSwitchToTheHomeNodeBehviourAtTheEndOfDay() {
+		int seed = (int) this.seed;		
+
 		// set up the simulation
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(params + ".txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, params + ".txt");
 		sim.start();
 
 		// make everyone go to the community
@@ -89,8 +124,10 @@ public class MobilityTesting {
 	
 	@Test
 	public void PeopleWithinTheCommunityLocationGoBackToHomeLocationAtTheEndOfDay() {
+		int seed = (int) this.seed;		
+
 		// set up the simulation
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(params + ".txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, params + ".txt");
 		sim.start();
 		// make everyone go to the community
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.movementFramework.setMobilityNodeForTesting(mobilityNodeTitle.COMMUNITY), 
@@ -113,8 +150,10 @@ public class MobilityTesting {
 	}
 	@Test
 	public void PeopleDoingTheHomeNodeSwitchToCommunityNodeBehaviourAtTheStartOfDay() {
+		int seed = (int) this.seed;		
+
 		// set up the simulation
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(params + ".txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, params + ".txt");
 		sim.start();
 		HelperFunctions.makePeopleAlwaysLeaveHome(sim);
 		// people start at home and then go to the community afterwards
@@ -126,8 +165,10 @@ public class MobilityTesting {
 	}
 	@Test
 	public void PeopleWithinTheHomeLocationGoToTheCommunityLocationAtTheStartOfDay() {
+		int seed = (int) this.seed;		
+
 		// set up the simulation
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_no_district_movement.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_no_district_movement.txt");
 		sim.start();
 		// people start at home and then go to the community afterwards
 		HelperFunctions.makePeopleAlwaysLeaveHome(sim);
@@ -144,8 +185,10 @@ public class MobilityTesting {
 	
 	@Test
 	public void MakeSureThatPeopleOnlyDoTheCommunityAndHomeNodeBehavioursWithPerfectMixing() {
+		int seed = (int) this.seed;		
+
 		//Arrange
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(params + ".txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, params + ".txt");
 		sim.start();
 		// ensure that perfect mixing is turned on
 		sim.params.setting_perfectMixing = true;
@@ -161,8 +204,9 @@ public class MobilityTesting {
 	@Test
 	public void MakeSureThatPeopleOnlyGoToTheCommunityAndHomeLocationsWithPerfectMixing() {
 		//Arrange
+		int seed = (int) this.seed;		
 
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(params + ".txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, params + ".txt");
 		sim.start();
 		// make everyone go to the community
 		sim.params.setting_perfectMixing = true;		
@@ -181,12 +225,14 @@ public class MobilityTesting {
 
 	@Test
 	public void LockdownReducesTheNumberOfVisitsToOtherAdminZones() {
-		WorldBankCovid19Sim sim_no_lockdown = HelperFunctions.CreateDummySim(params + ".txt");
+		int seed = (int) this.seed;		
+
+		WorldBankCovid19Sim sim_no_lockdown = HelperFunctions.CreateDummySimWithSeed(seed, params + ".txt");
 		sim_no_lockdown.start();
 		
 		int noLockdownOutboundTripCounts = outboundTripCountInSim(sim_no_lockdown, 100);
 		
-		WorldBankCovid19Sim sim_with_lockdown = HelperFunctions.CreateDummySim(params + "_with_lockdown.txt");
+		WorldBankCovid19Sim sim_with_lockdown = HelperFunctions.CreateDummySimWithSeed(seed, params + "_with_lockdown.txt");
 		sim_with_lockdown.start();
 
 		int lockdownOutboundTripCounts = outboundTripCountInSim(sim_with_lockdown, 100);
@@ -196,8 +242,10 @@ public class MobilityTesting {
 	// TESTS FOR IMPERFECT MIXING
 	@Test
 	public void checkPeopleGoToTheirWorkplace() {
+		int seed = (int) this.seed;		
+
 		// check the movement of the population to their workplaces
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_workplace_bubbles.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_workplace_bubbles.txt");
 		HelperFunctions.makePeopleLeaveTheHouseEachDay(sim);
 		// make everyone decide to go to their workplace
 		sim.params.prob_go_to_work = 1.1d;
@@ -221,8 +269,8 @@ public class MobilityTesting {
 	
 	@Test
 	public void PeopleAtWorkGoToTheCommunityOrHomeAfterwards() {
-		Random rand = new Random();
-		int seed = rand.nextInt(1000000000);
+		int seed = (int) this.seed;		
+		
 		// check the movement of the population to their workplaces
 		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_workplace_bubbles.txt");
 		HelperFunctions.makePeopleLeaveTheHouseEachDay(sim);
