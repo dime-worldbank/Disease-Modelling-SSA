@@ -503,10 +503,12 @@ public class Person extends Host {
 	public HashSet <Person> getWorkBubble(){ return workBubble; }
 	public String checkWorkplaceID() { return myWorkplace.getId(); } 
 	public void setWorkBubble(HashSet <Person> newBubble) { workBubble = newBubble; }
-
-	public void addToCommunityBubble(Collection <Person> newPeople){ communityBubble.addAll(newPeople);}
-	public HashSet <Person> getCommunityBubble(){ return communityBubble; }
-	public void setCommunityBubble(HashSet <Person> newBubble) { communityBubble = newBubble; }
+	
+	
+//	Community bubbles not implemented
+//	public void addToCommunityBubble(Collection <Person> newPeople){ communityBubble.addAll(newPeople);}
+//	public HashSet <Person> getCommunityBubble(){ return communityBubble; }
+//	public void setCommunityBubble(HashSet <Person> newBubble) { communityBubble = newBubble; }
 	
 
 

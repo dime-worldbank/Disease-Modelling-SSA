@@ -20,21 +20,6 @@ public class DummyInfectiousDiseaseProgressionFramework extends DiseaseProgressi
         String key;
      
         DummyInfectiousBehaviourNode(String key) { this.key = key; }
-    
-        static DummyInfectiousBehaviourNode getValue(String x) {
-        	switch (x) {
-        	case "susceptible":
-        		return SUSCEPTIBLE;
-        	case "exposed":
-        		return EXPOSED;
-        	case "recover":
-        		return RECOVERED;
-        	case "dead":
-        		return DEAD;
-        	default:
-        		throw new IllegalArgumentException();
-        	}
-        }
 	}
 	
 	public enum nextStepDummy{
@@ -42,24 +27,6 @@ public class DummyInfectiousDiseaseProgressionFramework extends DiseaseProgressi
 		public String key;
 	     
 		nextStepDummy(String key) { this.key = key; }
-		
-		public static nextStepDummy getValue(String x) {
-        	switch (x) {
-        	case "noSymptoms":
-        		return NO_SYMPTOMS;
-        	case "causeSymptoms":
-        		return CAUSE_SYMPTOMS;
-        	case "doNothing":
-        		return CAUSE_SYMPTOMS;
-        	case "recover":
-        		return RECOVER;	
-        	case "hasDied":
-        		return HAS_DIED;
-        	default:
-        		throw new IllegalArgumentException();
-        	}
-		
-		}
 	} 
 	private nextStepDummy nextStep;
 

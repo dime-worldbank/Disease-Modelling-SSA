@@ -20,22 +20,6 @@ public class SpuriousSymptomDiseaseProgressionFramework extends DiseaseProgressi
      
         SpuriousSymptomBehaviourNode(String key) { this.key = key; }
     
-        static SpuriousSymptomBehaviourNode getValue(String x) {
-        	switch (x) {
-        	case "susceptible":
-        		return SUSCEPTIBLE;
-        	case "exposed":
-        		return EXPOSED;
-        	case "dead":
-        		return DEAD;
-        	case "initialSetUp":
-        		return SETUP;
-        	case "recover":
-        		return RECOVER;
-        	default:
-        		throw new IllegalArgumentException();
-        	}
-        }
 	}
 	// create an enum title to progress the onset of symptoms step-wise
 
@@ -45,19 +29,6 @@ public class SpuriousSymptomDiseaseProgressionFramework extends DiseaseProgressi
 	     
 		nextStepSpurious(String key) { this.key = key; }
 		
-		public static nextStepSpurious getValue(String x) {
-        	switch (x) {
-        	case "noSymptoms":
-        		return NO_SYMPTOMS;
-        	case "causeSymptoms":
-        		return CAUSE_SYMPTOMS;
-        	case "hasDied":
-        		return HAS_DIED;
-        	default:
-        		throw new IllegalArgumentException();
-        	}
-		
-		}
 	} 
 	private nextStepSpurious nextStep;
 

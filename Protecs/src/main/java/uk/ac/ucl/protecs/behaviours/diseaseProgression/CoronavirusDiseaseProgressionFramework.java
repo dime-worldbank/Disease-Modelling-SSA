@@ -61,31 +61,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
         public String key;
      
         CoronavirusBehaviourNodeTitle(String key) { this.key = key; }
-    
-        static CoronavirusBehaviourNodeTitle getValue(String x) {
-        	switch (x) {
-        	case "susceptible":
-        		return SUSCEPTIBLE;
-        	case "exposed":
-        		return EXPOSED;
-        	case "presymptomatic":
-        		return PRESYMPTOMATIC;
-        	case "asymptomatic":
-        		return ASYMPTOMATIC;
-        	case "mild":
-        		return MILD;	
-        	case "severe":
-        		return SEVERE;	
-        	case "critical":
-        		return CRITICAL;
-        	case "recovered":
-        		return RECOVERED;
-        	case "dead":
-        		return DEAD;
-        	default:
-        		throw new IllegalArgumentException();
-        	}
-        }
+
 	}
 	
 	// PARAMS to control development of disease

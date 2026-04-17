@@ -52,31 +52,6 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
         public String key;
      
         CholeraBehaviourNodeInHumans(String key) { this.key = key; }
-    
-        static CholeraBehaviourNodeInHumans getValue(String x) {
-        	switch (x) {
-        	case "susceptible":
-        		return SUSCEPTIBLE;
-        	case "exposed":
-        		return EXPOSED;
-        	case "presymptomatic":
-        		return PRESYMPTOMATIC;
-        	case "asymptomatic":
-        		return ASYMPTOMATIC;
-        	case "mild":
-        		return MILD;	
-        	case "severe":
-        		return SEVERE;	
-        	case "critical":
-        		return CRITICAL;
-        	case "recovered":
-        		return RECOVERED;
-        	case "dead":
-        		return DEAD;
-        	default:
-        		throw new IllegalArgumentException();
-        	}
-        }
 	}
 	
 	public enum CholeraBehaviourNodeInWater{
@@ -87,19 +62,6 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
         public String key;
      
         CholeraBehaviourNodeInWater(String key) { this.key = key; }
-    
-        static CholeraBehaviourNodeInWater getValue(String x) {
-        	switch (x) {
-        	case "clean":
-        		return CLEAN;
-        	case "ABNC":
-        		return ABNC;
-        	case "hyperinfectious":
-        		return HYPERINFECTIOUS;
-        	default:
-        		throw new IllegalArgumentException();
-        	}
-        }
 	}
 	
 	public enum nextStepCholeraInHumans{
