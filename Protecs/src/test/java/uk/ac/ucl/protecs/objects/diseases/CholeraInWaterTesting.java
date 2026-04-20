@@ -1,9 +1,17 @@
 package uk.ac.ucl.protecs.objects.diseases;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Random;
 
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
@@ -29,11 +37,47 @@ public class CholeraInWaterTesting {
 	// ============================================================================================================================================================
 	private final static String paramsDir = "src/test/resources/";
 	
+	private String params;
+
+	
+	@Rule
+	public TestName testName = new TestName();
+	
+
+	protected long seed;
+	protected Random random;
+	
+	
+	
+	@Before
+	public void setupSeed() throws IOException {
+	    seed = Long.getLong("test.seed", System.currentTimeMillis());
+	    random = new Random(seed);
+	    params = "";
+    	if (testName.getMethodName().equals("seedingInCommunityLocationsLeadsToSpreadToOtherLocations"))
+    		params = "params_cholera_no_cases_in_water";
+    	else
+    		params = "params_cholera_in_water";
+	    // Create timestamp
+	    String timestamp = LocalDateTime.now()
+	        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+	    try (FileWriter writer = new FileWriter("cholera-in-water-test-seeds.log", true)) {
+	        writer.write(
+	        	timestamp + 
+	            " | Test: " + testName.getMethodName() +
+	            " | Params: " + params + ".txt" + 
+	            " | Seed: " + seed + "\n"
+	        );
+	    }
+	}
+	
 	@Test
 	public void householdsAreLinkedToCommunityWaterSources() {
+		int seed = (int) this.seed;		
+
 		// Test that cholera infections are created and loaded in via the line list
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_water.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_water.txt");
 		sim.start();
 		// assume all houses are linked to water sources
 		boolean housesLinkedToWatersource = true;
@@ -53,9 +97,11 @@ public class CholeraInWaterTesting {
 	
 	@Test
 	public void choleraCanBeSeededIntoWaterSources() {
+		int seed = (int) this.seed;		
+
 		// Test that cholera infections are created and loaded in via the line list
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_water.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_water.txt");
 		sim.start();
 		// assume no cases have been loaded in the the water objects
 		boolean choleraSeededInWater = false;
@@ -73,9 +119,11 @@ public class CholeraInWaterTesting {
 	
 	@Test
 	public void checkThatCholeraInWaterStartsAtTheHyperinfectiousNode() {
+		int seed = (int) this.seed;		
+
 		// Test that cholera infections are created and loaded in via the line list
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_water.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_water.txt");
 		sim.start();
 		// assume cholera in water does not exhibit the contagious node
 		boolean choleraInWaterIsContaminated = true;
@@ -92,7 +140,9 @@ public class CholeraInWaterTesting {
 	
 	@Test
 	public void checkCholeraIsSpreadToWater() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_water.txt");
+		int seed = (int) this.seed;		
+
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_water.txt");
 		sim.start();
 		int number_of_initial_infections_in_water = 0;
 
@@ -113,7 +163,9 @@ public class CholeraInWaterTesting {
 	
 	@Test
 	public void checkCholeraIsPickedUpFromWater() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_water.txt");
+		int seed = (int) this.seed;		
+
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_water.txt");
 		sim.start();
 		sim.choleraFramework.setCholera_prob_ingest(1);
 		int number_of_initial_infections_in_humans = 0;
@@ -135,7 +187,9 @@ public class CholeraInWaterTesting {
 	
 	@Test
 	public void checkContagiousWaterRevertsToActiveButNonCulturableInTheShortTerm() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_water.txt");
+		int seed = (int) this.seed;		
+
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_water.txt");
 		sim.start();
 		// get initial set of water
 		ArrayList<Water> originalContaminatedWater = new ArrayList<Water>();
@@ -162,7 +216,9 @@ public class CholeraInWaterTesting {
 	
 	@Test
 	public void checkContagiousWaterRevertsToCleanInTheLongTerm() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_water.txt");
+		int seed = (int) this.seed;		
+
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_water.txt");
 		sim.start();
 		// get initial set of water
 		ArrayList<Water> originalContaminatedWater = new ArrayList<Water>();
@@ -190,8 +246,10 @@ public class CholeraInWaterTesting {
 	
 	@Test
 	public void seedingInCommunityLocationsLeadsToSpreadToOtherLocations() {
+		int seed = (int) this.seed;		
+
 		// create a simulation without any cases being seeded in
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_no_cases_in_water.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_no_cases_in_water.txt");
 		sim.start();
 		// remove the one person with cholera from sim
 		// Make everyone go to their community
@@ -228,7 +286,9 @@ public class CholeraInWaterTesting {
 	
 	@Test
 	public void peopleCanContaminateCommunityWaterSources() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_water.txt");
+		int seed = (int) this.seed;		
+
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_water.txt");
 		sim.start();
 		// if any community locations have had cholera seeded in them, clear it
 		for (Water w: sim.waterInSim) {

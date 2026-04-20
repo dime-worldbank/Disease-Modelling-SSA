@@ -1,11 +1,19 @@
 package uk.ac.ucl.protecs.objects.diseases;
 
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.CholeraDiseaseProgressionFramework;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.CholeraDiseaseProgressionFramework.CholeraBehaviourNodeInHumans;
@@ -15,6 +23,7 @@ import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import uk.ac.ucl.protecs.helperFunctions.*;
 import uk.ac.ucl.protecs.helperFunctions.HelperFunctions.NodeOption;
 import uk.ac.ucl.protecs.objects.hosts.Person;
+
 
 public class CholeraInHumansTesting {
 	// ============================================== Cholera in humans testing suit ==============================================================================
@@ -32,11 +41,42 @@ public class CholeraInHumansTesting {
 	// ============================================================================================================================================================
 	private final static String paramsDir = "src/test/resources/";
 	
+	@Rule
+	public TestName testName = new TestName();
+
+	private String params;
+
+	
+	protected long seed;
+	protected Random random;
+	
+	
+	
+	@Before
+	public void setupSeed() throws IOException {
+	    seed = Long.getLong("test.seed", System.currentTimeMillis());
+	    random = new Random(seed);
+	    params = "params_cholera_in_humans";
+	    // Create timestamp
+	    String timestamp = LocalDateTime.now()
+	        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+	    try (FileWriter writer = new FileWriter("cholera-in-humans-test-seeds.log", true)) {
+	        writer.write(
+	        	timestamp + 
+	            " | Test: " + testName.getMethodName() +
+	            " | Params: " + params + ".txt" + 
+	            " | Seed: " + seed + "\n"
+	        );
+	    }
+	}
+	
 	@Test
 	public void choleraCasesAreLoadedInViaLineList() {
+		int seed = (int) this.seed;		
+
 		// Test that cholera infections are created and loaded in via the line list
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_humans.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_humans.txt");
 		sim.start();
 		// assume no cases have been loaded in the the person objects
 		boolean choleraLoadedIn = false;
@@ -54,9 +94,11 @@ public class CholeraInHumansTesting {
 	
 	@Test
 	public void choleraCasesAreInitiallySetToExposedNode() {
+		int seed = (int) this.seed;		
+
 		// Test that cholera infections are initially load in with the exposed behaviour node
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_humans.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_humans.txt");
 		sim.start();
 		// assume every cholera case starts with the exposed behaviour node
 		boolean startsAsExposed = true;
@@ -78,9 +120,12 @@ public class CholeraInHumansTesting {
 	
 	@Test
 	public void exposedNodeLeadsToSusceptibleAsymptomaticMildAndSevere() {
+		int seed = (int) this.seed;		
+
+
 		// Test that the exposed node leads to susceptible, asymptomatic, mild and critical states only
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_humans.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_humans.txt");
 		sim.start();
 		int num_days = 7;
 		// adjust probability of outcomes to (hopefully) make sure that all options are explored from the exposed node
@@ -116,9 +161,11 @@ public class CholeraInHumansTesting {
 	}
 	@Test
 	public void asymptomaticLeadsToRecoveredOnly() {
+		int seed = (int) this.seed;		
+
 		// Test that the asymptomatic node leads to the recovered state only
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_humans.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_humans.txt");
 		sim.start();
 		int num_days = 7;
 		for (Disease d: sim.human_infections) {
@@ -144,9 +191,11 @@ public class CholeraInHumansTesting {
 	}
 	@Test
 	public void mildLeadsToRecoveredOnly() {
+		int seed = (int) this.seed;		
+
 		// Test that the mild node leads to the recovered state only
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_humans.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_humans.txt");
 		sim.start();
 		int num_days = 7;
 		for (Disease d: sim.human_infections) {
@@ -173,9 +222,11 @@ public class CholeraInHumansTesting {
 	}
 	@Test
 	public void severeLeadsToCriticalDeadAndRecoveredOnly() {
+		int seed = (int) this.seed;		
+
 		// Test that the severe node leads to the critical, dead and recovered states only
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_humans.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_humans.txt");
 		sim.start();
 		int num_days = 7;
 		for (Disease d: sim.human_infections) {
@@ -204,9 +255,11 @@ public class CholeraInHumansTesting {
 	
 	@Test
 	public void criticalLeadsToDeadAndRecoveredOnly() {
+		int seed = (int) this.seed;		
+
 		// Test that the critical node leads to the dead and recovered states only
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_humans.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_humans.txt");
 		sim.start();
 		int num_days = 7;
 		for (Disease d: sim.human_infections) {
@@ -234,9 +287,11 @@ public class CholeraInHumansTesting {
 	
 	@Test
 	public void deadLeadsToDeadOnly() {
+		int seed = (int) this.seed;		
+
 		// Test that the dead node does not change
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_humans.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_humans.txt");
 		sim.start();
 		int num_days = 7;
 		for (Disease d: sim.human_infections) {
@@ -264,9 +319,11 @@ public class CholeraInHumansTesting {
 	
 	@Test
 	public void recoveredLeadsToSusceptible() {
+		int seed = (int) this.seed;		
+
 		// Test that the recovered node goes to susceptible
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_humans.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_humans.txt");
 		sim.start();
 		int num_days = 7;
 		for (Disease d: sim.human_infections) {
@@ -293,8 +350,10 @@ public class CholeraInHumansTesting {
 	
 	@Test
 	public void ifWeGiveEveryoneAnInfectionEventuallyTheyWillRecoverOrDie() {
+		int seed = (int) this.seed;		
+
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_humans.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_humans.txt");
 		sim.choleraFramework = new CholeraDiseaseProgressionFramework(sim);
 
 		sim.start();

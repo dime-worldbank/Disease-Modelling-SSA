@@ -63,7 +63,7 @@ public class MobilityTesting {
 	    // Create timestamp
 	    String timestamp = LocalDateTime.now()
 	        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-	    try (FileWriter writer = new FileWriter("src/test/java/uk/ac/ucl/protecs/behaviours/mobility-test-seeds.log", true)) {
+	    try (FileWriter writer = new FileWriter("mobility-test-seeds.log", true)) {
 	        writer.write(
 	        	timestamp + 
 	            " | Test: " + testName.getMethodName() +
