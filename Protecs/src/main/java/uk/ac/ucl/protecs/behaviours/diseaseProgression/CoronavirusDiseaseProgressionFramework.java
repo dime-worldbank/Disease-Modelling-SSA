@@ -234,7 +234,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 					i.setBehaviourNode(setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD));
 				}
 				else if(i.time_start_symptomatic == Double.MAX_VALUE ){
-					i.setDiseaseStage(DISEASESTAGE.NA);
+					i.setDiseaseStage(DISEASESTAGE.PRESYMPTOMATIC);
 					double time_until_symptoms = myWorld.nextRandomLognormal(
 							covid_infectiousToSymptomatic_mean, 
 							covid_infectiousToSymptomatic_std);
@@ -269,8 +269,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 					return Double.MAX_VALUE;
 				}
 				((Person) i.getHost()).infectNeighbours();
-				// Update the disease property
-				i.setInfectionActive(true);
+
 				// determine when the agent will recover - this is
 				// only a matter of time in this case
 				if(time >= i.time_recovered){
@@ -278,7 +277,8 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				}
 				else if(i.time_recovered == Double.MAX_VALUE){ // has not been set
 					i.setDiseaseStage(DISEASESTAGE.ASYMPTOMATIC);
-
+					// Update the disease property
+					i.setInfectionActive(true);
 					double time_until_recovered = myWorld.nextRandomLognormal(
 							covid_asymptomaticToRecovery_mean, 
 							covid_asymptomaticToRecovery_std);

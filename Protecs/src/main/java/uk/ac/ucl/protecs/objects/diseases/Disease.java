@@ -37,7 +37,7 @@ public abstract class Disease implements Steppable {
 	
 	// infection stages
 	public enum DISEASESTAGE{
-		ASYMPTOMATIC, MILD, SEVERE, CRITICAL, RECOVERED, SUSCEPTIBLE, CAUSEOFDEATH, NA;
+		PRESYMPTOMATIC, ASYMPTOMATIC, MILD, SEVERE, CRITICAL, RECOVERED, SUSCEPTIBLE, CAUSEOFDEATH, NA;
 	};
 	DISEASESTAGE diseaseStage;
 	// symptom manager
@@ -116,7 +116,7 @@ public abstract class Disease implements Steppable {
 		if (stage == DISEASESTAGE.ASYMPTOMATIC) {
 			this.isSymptomatic = false;
 		}
-		if ((stage == DISEASESTAGE.SUSCEPTIBLE) || (stage == DISEASESTAGE.NA)) {
+		if ((stage == DISEASESTAGE.SUSCEPTIBLE) || (stage == DISEASESTAGE.PRESYMPTOMATIC) || (stage == DISEASESTAGE.NA)) {
 			setInfectionActive(false);
 		}
 		resetStageLogged();

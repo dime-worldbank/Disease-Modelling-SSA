@@ -79,7 +79,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		
 		for (Disease d: sim.human_infections) {
-			if (!(d.hasDiseaseStage(DISEASESTAGE.ASYMPTOMATIC) || d.hasDiseaseStage(DISEASESTAGE.SUSCEPTIBLE) || d.hasDiseaseStage(DISEASESTAGE.NA))) {
+			if (!(d.hasDiseaseStage(DISEASESTAGE.ASYMPTOMATIC) || d.hasDiseaseStage(DISEASESTAGE.SUSCEPTIBLE) || d.hasDiseaseStage(DISEASESTAGE.PRESYMPTOMATIC) || d.hasDiseaseStage(DISEASESTAGE.NA))) {
 				Assert.fail();
 			}
 		}

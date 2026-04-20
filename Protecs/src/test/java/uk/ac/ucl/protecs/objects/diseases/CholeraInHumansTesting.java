@@ -317,7 +317,7 @@ public class CholeraInHumansTesting {
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 				
 		for (Disease d: sim.human_infections) {
-			if (!(d.hasDiseaseStage(DISEASESTAGE.RECOVERED) || d.hasDiseaseStage(DISEASESTAGE.CAUSEOFDEATH) || d.hasDiseaseStage(DISEASESTAGE.NA))) {
+			if (!(d.hasDiseaseStage(DISEASESTAGE.RECOVERED) || d.hasDiseaseStage(DISEASESTAGE.CAUSEOFDEATH) || d.hasDiseaseStage(DISEASESTAGE.PRESYMPTOMATIC) || d.hasDiseaseStage(DISEASESTAGE.NA))) {
 				Assert.fail();
 			}
 		}
