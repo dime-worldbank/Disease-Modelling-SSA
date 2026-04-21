@@ -1,15 +1,22 @@
 package uk.ac.ucl.protecs.objects.diseases;
 
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgressionFramework;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgressionFramework.CoronavirusBehaviourNodeTitle;
-import uk.ac.ucl.protecs.sim.Params;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import uk.ac.ucl.protecs.helperFunctions.*;
@@ -22,6 +29,35 @@ public class CoronavirusInfectiousBehaviourTesting {
 	// === infectious behaviour nodes that are meant to be transitioned to via the model's inner workings are checked =
 	// === against the infectious behaviour nodes that were activated by the simulation. ==============================
 	private final static String paramsDir = "src/test/resources/";
+	
+	
+	@Rule
+	public TestName testName = new TestName();
+	
+
+	protected int seed;
+	protected Random random;
+	
+	private String params;
+
+	
+	@Before
+	public void setupSeed() throws IOException {
+		seed = new java.util.Random().nextInt();	    
+		random = new Random(seed);
+	    params = "params_InfectiousBehaviourTest";
+	    // Create timestamp
+	    String timestamp = LocalDateTime.now()
+	        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+	    try (FileWriter writer = new FileWriter("coronavirus-infectious-behaviour-test-seeds.log", true)) {
+	        writer.write(
+	        	timestamp + 
+	            " | Test: " + testName.getMethodName() +
+	            " | Params: " + params + ".txt" + 
+	            " | Seed: " + seed + "\n"
+	        );
+	    }
+	}
 
 	@Test
 	public void ifThereAreNoCovidInfectionsPeopleStaySusceptible() {

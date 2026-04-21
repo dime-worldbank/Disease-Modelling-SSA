@@ -44,14 +44,14 @@ public class CholeraInWaterTesting {
 	public TestName testName = new TestName();
 	
 
-	protected long seed;
+	protected int seed;
 	protected Random random;
 	
 	
 	
 	@Before
 	public void setupSeed() throws IOException {
-	    seed = Long.getLong("test.seed", System.currentTimeMillis());
+	    seed = new java.util.Random().nextInt();
 	    random = new Random(seed);
 	    params = "";
     	if (testName.getMethodName().equals("seedingInCommunityLocationsLeadsToSpreadToOtherLocations"))

@@ -13,6 +13,7 @@ import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.behaviours.MovementBehaviourFramework.mobilityNodeTitle;
 import uk.ac.ucl.protecs.helperFunctions.*;
 import uk.ac.ucl.protecs.helperFunctions.HelperFunctions.NodeOption;
+import uk.ac.ucl.protecs.helperFunctions.HelperFunctions.birthsOrDeaths;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.objects.locations.Workplace;
 
@@ -49,7 +50,7 @@ public class MobilityTesting {
 	@Rule
 	public TestName testName = new TestName();
 
-	protected long seed;
+	protected int seed;
 	protected Random random;
 	
 	public MobilityTesting(String fileName) {
@@ -58,7 +59,8 @@ public class MobilityTesting {
 	
 	@Before
 	public void setupSeed() throws IOException {
-	    seed = Long.getLong("test.seed", System.currentTimeMillis());
+		seed = new java.util.Random().nextInt();;
+
 	    random = new Random(seed);
 	    // Create timestamp
 	    String timestamp = LocalDateTime.now()
@@ -151,17 +153,18 @@ public class MobilityTesting {
 	@Test
 	public void PeopleDoingTheHomeNodeSwitchToCommunityNodeBehaviourAtTheStartOfDay() {
 		int seed = (int) this.seed;		
-
 		// set up the simulation
 		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, params + ".txt");
 		sim.start();
 		HelperFunctions.makePeopleAlwaysLeaveHome(sim);
+		// when new people are born, they are sent to their home. Remove chances of birth to prevent this happening
+		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.births);
 		// people start at home and then go to the community afterwards
-		List<String> uniqueNodesInRun = HelperFunctions.getFinalBehaviourNodesInSim(sim, 2.01 / sim.params.ticks_per_day, NodeOption.MovementBehaviour);
+		List<String> finalNodesInRun = HelperFunctions.getFinalBehaviourNodesInSim(sim, 2.01 / sim.params.ticks_per_day, NodeOption.MovementBehaviour);
 		// only expect people to be at home
 		List<String> expectedNodes = Arrays.asList(mobilityNodeTitle.COMMUNITY.key);
-
-		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun) && uniqueNodesInRun.containsAll(expectedNodes));
+		System.out.println(finalNodesInRun);
+		Assert.assertTrue(expectedNodes.containsAll(finalNodesInRun) && finalNodesInRun.containsAll(expectedNodes));
 	}
 	@Test
 	public void PeopleWithinTheHomeLocationGoToTheCommunityLocationAtTheStartOfDay() {

@@ -47,14 +47,14 @@ public class CholeraInHumansTesting {
 	private String params;
 
 	
-	protected long seed;
+	protected int seed;
 	protected Random random;
 	
 	
 	
 	@Before
 	public void setupSeed() throws IOException {
-	    seed = Long.getLong("test.seed", System.currentTimeMillis());
+	    seed = new java.util.Random().nextInt();;
 	    random = new Random(seed);
 	    params = "params_cholera_in_humans";
 	    // Create timestamp
