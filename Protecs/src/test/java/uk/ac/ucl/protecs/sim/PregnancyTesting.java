@@ -1,26 +1,86 @@
 package uk.ac.ucl.protecs.sim;
 
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+
 import uk.ac.ucl.protecs.helperFunctions.*;
 import uk.ac.ucl.protecs.helperFunctions.HelperFunctions.birthsOrDeaths;
 
 import org.junit.Test;
+import org.junit.rules.TestName;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 
 import uk.ac.ucl.protecs.objects.hosts.Person;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 public class PregnancyTesting {
 	
 	private final static String paramsDir = "src/test/resources/";
 	
+private String params = "params_demography";
+	
+	@Rule
+	public TestName testName = new TestName();
 
+	protected int seed;
+	protected Random random;
+	@Rule
+	public TestWatcher watcher = new TestWatcher() {
+
+	    private String timestamp() {
+	        return LocalDateTime.now()
+	            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
+	    }
+
+	    private void logResult(String result, String extra) {
+	        try (FileWriter writer = new FileWriter("pregnancy-test-seeds.log", true)) {
+	            writer.write(
+	                timestamp() +
+	                " | Test: " + testName.getMethodName() +
+	                " | Params: " + params + ".txt" +
+	                " | Seed: " + seed +
+	                " | RESULT: " + result +
+	                (extra != null ? " | " + extra : "") +
+	                "\n"
+	            );
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
+	    }
+
+	    @Override
+	    protected void succeeded(Description description) {
+	        logResult("PASSED", null);
+	    }
+
+	    @Override
+	    protected void failed(Throwable e, Description description) {
+	        logResult("FAILED", "Error: " + e.getMessage());
+	    }
+	};
+	
+	@Before
+	public void setupSeed() throws IOException {
+		seed = new java.util.Random().nextInt();;
+
+	    random = new Random(seed);
+	}
 	@Test
 	public void testPregnancyIsReset() {
-		// Create the simulation object
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_demography.txt");
+		int seed = (int) this.seed;		
+
+		// set up the simulation
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_demography.txt");
 		sim.start();
 		// turn off deaths
 		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
@@ -54,8 +114,10 @@ public class PregnancyTesting {
 	
 	@Test
 	public void testPregnancyLastsNineMonths() {
-		// Create the simulation object
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_demography.txt");
+		int seed = (int) this.seed;		
+
+		// set up the simulation
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_demography.txt");
 		sim.start();
 		// turn off deaths
 		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
@@ -80,8 +142,10 @@ public class PregnancyTesting {
 	
 	@Test
 	public void pregnantPeopleDoNotImmediatelyGetPregnantAgain() {
-		// Create the simulation object
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_demography.txt");
+		int seed = (int) this.seed;		
+
+		// set up the simulation
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_demography.txt");
 		sim.start();
 		// turn off deaths
 		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
@@ -105,8 +169,10 @@ public class PregnancyTesting {
 	
 	@Test
 	public void whenWeTurnTheBirthRateOffThereAreNoBirths() {
-		// Create the simulation object
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_demography.txt");
+		int seed = (int) this.seed;		
+
+		// set up the simulation
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_demography.txt");
 		sim.start();
 		int initialNumberOfPeople = HelperFunctions.GetNumberAlive(sim);
 		// turn off deaths

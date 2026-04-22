@@ -5,6 +5,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -51,23 +53,46 @@ public class CholeraInHumansTesting {
 	protected Random random;
 	
 	
-	
+	@Rule
+	public TestWatcher watcher = new TestWatcher() {
+
+	    private String timestamp() {
+	        return LocalDateTime.now()
+	            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
+	    }
+
+	    private void logResult(String result, String extra) {
+		    params = "params_cholera_in_humans";
+	        try (FileWriter writer = new FileWriter("cholera-in-humans-test-seeds.log", true)) {
+	            writer.write(
+	                timestamp() +
+	                " | Test: " + testName.getMethodName() +
+	                " | Params: " + params + ".txt" +
+	                " | Seed: " + seed +
+	                " | RESULT: " + result +
+	                (extra != null ? " | " + extra : "") +
+	                "\n"
+	            );
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
+	    }
+
+	    @Override
+	    protected void succeeded(Description description) {
+	        logResult("PASSED", null);
+	    }
+
+	    @Override
+	    protected void failed(Throwable e, Description description) {
+	        logResult("=========== FAILED ===========", "Error: " + e.getMessage());
+	    }
+	};
 	@Before
 	public void setupSeed() throws IOException {
 	    seed = new java.util.Random().nextInt();;
 	    random = new Random(seed);
-	    params = "params_cholera_in_humans";
-	    // Create timestamp
-	    String timestamp = LocalDateTime.now()
-	        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-	    try (FileWriter writer = new FileWriter("cholera-in-humans-test-seeds.log", true)) {
-	        writer.write(
-	        	timestamp + 
-	            " | Test: " + testName.getMethodName() +
-	            " | Params: " + params + ".txt" + 
-	            " | Seed: " + seed + "\n"
-	        );
-	    }
+	   
 	}
 	
 	@Test

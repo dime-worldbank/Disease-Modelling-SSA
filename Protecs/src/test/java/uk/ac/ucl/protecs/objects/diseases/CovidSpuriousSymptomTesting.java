@@ -1,6 +1,9 @@
 package uk.ac.ucl.protecs.objects.diseases;
 
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+
 import uk.ac.ucl.protecs.helperFunctions.*;
 import uk.ac.ucl.protecs.helperFunctions.HelperFunctions.NodeOption;
 import uk.ac.ucl.protecs.objects.hosts.Person;
@@ -11,19 +14,80 @@ import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgres
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
+
+
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
+import org.junit.rules.TestName;
 
 public class CovidSpuriousSymptomTesting{
 	
 	private final static String paramsDir = "src/test/resources/";
 
+	private String params = "params_covid_testing";
+
+	protected int seed;
+	protected Random random;
+	
+	@Rule
+	public TestName testName = new TestName();
+	
+	@Rule
+	public TestWatcher watcher = new TestWatcher() {
+
+	    private String timestamp() {
+	        return LocalDateTime.now()
+	            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
+	    }
+
+	    private void logResult(String result, String extra) {
+	        try (FileWriter writer = new FileWriter("coronavirus-spurious-symptoms-test-seeds.log", true)) {
+	            writer.write(
+	                timestamp() +
+	                " | Test: " + testName.getMethodName() +
+	                " | Params: " + params + ".txt" +
+	                " | Seed: " + seed +
+	                " | RESULT: " + result +
+	                (extra != null ? " | " + extra : "") +
+	                "\n"
+	            );
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
+	    }
+
+	    @Override
+	    protected void succeeded(Description description) {
+	        logResult("PASSED", null);
+	    }
+
+	    @Override
+	    protected void failed(Throwable e, Description description) {
+	        logResult("FAILED", "Error: " + e.getMessage());
+	    }
+	};
+	
+	@Before
+	public void setupSeed() throws IOException {
+		seed = new java.util.Random().nextInt();;
+
+	    random = new Random(seed);
+	}
 	
 	@Test
 	public void CheckPeopleWithSymptomaticCovidDoNotGetSpuriousSymptoms() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_covid_testing.txt");
+		int seed = (int) this.seed;		
+
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_covid_testing.txt");
 		sim.start();
 		int numDays = 8;
 		// Give the population mild Covid and spurious symptoms to see if those with mild covid have their spurious symptoms resolved 
@@ -53,8 +117,9 @@ public class CovidSpuriousSymptomTesting{
 	
 	@Test
 	public void CheckPeopleCanHaveAsymptomaticCovidAndSpuriousSymptoms() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_covid_testing.txt");
-		sim.start();
+		int seed = (int) this.seed;		
+
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_covid_testing.txt");		sim.start();
 		int numDays = 1;
 		giveAFractionASpuriousSymptom(1, sim);
 		// Give everyone asymptomatic Covid
@@ -70,8 +135,9 @@ public class CovidSpuriousSymptomTesting{
 	
 	@Test
 	public void CheckSettingCovidSpuriousSymptomAndTestingEligibilityPropertiesAreBeingRemovedAfterAWeek() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_covid_testing.txt");
-		sim.start();
+		int seed = (int) this.seed;		
+
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_covid_testing.txt");		sim.start();
 		int numDays = 8;
 		// Change the rate of setting Covid spurious symptoms so we have control the number of people who get given symptoms
 		sim.spuriousFramework.setRate_of_covid_spurious_symptoms(0.0);
@@ -94,8 +160,9 @@ public class CovidSpuriousSymptomTesting{
 	
 	@Test
 	public void CheckCovidSpuriousSymptomAndTestingEligibilityPropertiesAreBeingSetWhenCreated() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_covid_testing.txt");
-		sim.start();
+		int seed = (int) this.seed;		
+
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_covid_testing.txt");		sim.start();
 		int numDays = 7;	
 		// Remove the development of new symptoms
 		HelperFunctions.StopCovidFromSpreading(sim);
@@ -113,8 +180,9 @@ public class CovidSpuriousSymptomTesting{
 
 	@Test
 	public void CheckSpuriousObjectsAreCreated() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_covid_testing.txt");
-		sim.start();
+		int seed = (int) this.seed;		
+
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_covid_testing.txt");		sim.start();
 		int numDays = 7;
 		// Change the rate of setting Covid spurious symptoms so we have control the number of people who get given symptoms
 		sim.spuriousFramework.setRate_of_covid_spurious_symptoms(0.5);

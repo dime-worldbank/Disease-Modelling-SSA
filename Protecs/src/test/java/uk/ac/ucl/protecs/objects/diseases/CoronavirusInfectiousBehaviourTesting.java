@@ -22,6 +22,10 @@ import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import uk.ac.ucl.protecs.helperFunctions.*;
 import uk.ac.ucl.protecs.helperFunctions.HelperFunctions.NodeOption;
 
+
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
+
 public class CoronavirusInfectiousBehaviourTesting {
 	// ==================================== Testing ==================================================================
 	// === These tests are designed to ensure that the transition between different infectious behaviour nodes are ===
@@ -40,23 +44,46 @@ public class CoronavirusInfectiousBehaviourTesting {
 	
 	private String params;
 
-	
+	@Rule
+	public TestWatcher watcher = new TestWatcher() {
+
+	    private String timestamp() {
+	        return LocalDateTime.now()
+	            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
+	    }
+
+	    private void logResult(String result, String extra) {
+		    params = "params_InfectiousBehaviourTest";
+
+	        try (FileWriter writer = new FileWriter("coronavirus-infectious-behaviour-test-seeds.log", true)) {
+	            writer.write(
+	                timestamp() +
+	                " | Test: " + testName.getMethodName() +
+	                " | Params: " + params + ".txt" +
+	                " | Seed: " + seed +
+	                " | RESULT: " + result +
+	                (extra != null ? " | " + extra : "") +
+	                "\n"
+	            );
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
+	    }
+
+	    @Override
+	    protected void succeeded(Description description) {
+	        logResult("PASSED", null);
+	    }
+
+	    @Override
+	    protected void failed(Throwable e, Description description) {
+	        logResult("FAILED", "Error: " + e.getMessage());
+	    }
+	};
 	@Before
 	public void setupSeed() throws IOException {
 		seed = new java.util.Random().nextInt();	    
 		random = new Random(seed);
-	    params = "params_InfectiousBehaviourTest";
-	    // Create timestamp
-	    String timestamp = LocalDateTime.now()
-	        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-	    try (FileWriter writer = new FileWriter("coronavirus-infectious-behaviour-test-seeds.log", true)) {
-	        writer.write(
-	        	timestamp + 
-	            " | Test: " + testName.getMethodName() +
-	            " | Params: " + params + ".txt" + 
-	            " | Seed: " + seed + "\n"
-	        );
-	    }
 	}
 
 	@Test

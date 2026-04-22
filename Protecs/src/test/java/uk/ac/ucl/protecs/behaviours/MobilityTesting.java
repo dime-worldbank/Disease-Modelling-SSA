@@ -29,6 +29,9 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
+
 @RunWith(Parameterized.class)
 public class MobilityTesting {
 	// ==================================== Testing ==========================================================================
@@ -57,22 +60,46 @@ public class MobilityTesting {
 		this.params = fileName;
 	}
 	
+	@Rule
+	public TestWatcher watcher = new TestWatcher() {
+
+	    private String timestamp() {
+	        return LocalDateTime.now()
+	            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
+	    }
+
+	    private void logResult(String result, String extra) {
+	        try (FileWriter writer = new FileWriter("mobility-test-seeds.log", true)) {
+	            writer.write(
+	                timestamp() +
+	                " | Test: " + testName.getMethodName() +
+	                " | Params: " + params + ".txt" +
+	                " | Seed: " + seed +
+	                " | RESULT: " + result +
+	                (extra != null ? " | " + extra : "") +
+	                "\n"
+	            );
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
+	    }
+
+	    @Override
+	    protected void succeeded(Description description) {
+	        logResult("PASSED", null);
+	    }
+
+	    @Override
+	    protected void failed(Throwable e, Description description) {
+	        logResult("FAILED", "Error: " + e.getMessage());
+	    }
+	};
+	
 	@Before
 	public void setupSeed() throws IOException {
 		seed = new java.util.Random().nextInt();;
 
 	    random = new Random(seed);
-	    // Create timestamp
-	    String timestamp = LocalDateTime.now()
-	        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-	    try (FileWriter writer = new FileWriter("mobility-test-seeds.log", true)) {
-	        writer.write(
-	        	timestamp + 
-	            " | Test: " + testName.getMethodName() +
-	            " | Params: " + params + ".txt" + 
-	            " | Seed: " + seed + "\n"
-	        );
-	    }
 	}
 	
 	private final static String paramsDir = "src/test/resources/";

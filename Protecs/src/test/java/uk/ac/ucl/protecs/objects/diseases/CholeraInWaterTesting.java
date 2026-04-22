@@ -12,6 +12,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
@@ -47,28 +49,50 @@ public class CholeraInWaterTesting {
 	protected int seed;
 	protected Random random;
 	
-	
+	@Rule
+	public TestWatcher watcher = new TestWatcher() {
+
+	    private String timestamp() {
+	        return LocalDateTime.now()
+	            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
+	    }
+
+	    private void logResult(String result, String extra) {
+		    params = "";
+	    	if (testName.getMethodName().equals("seedingInCommunityLocationsLeadsToSpreadToOtherLocations"))
+	    		params = "params_cholera_no_cases_in_water";
+	    	else
+	    		params = "params_cholera_in_water";
+	        try (FileWriter writer = new FileWriter("cholera-in-water-test-seeds.log", true)) {
+	            writer.write(
+	                timestamp() +
+	                " | Test: " + testName.getMethodName() +
+	                " | Params: " + params + ".txt" +
+	                " | Seed: " + seed +
+	                " | RESULT: " + result +
+	                (extra != null ? " | " + extra : "") +
+	                "\n"
+	            );
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
+	    }
+
+	    @Override
+	    protected void succeeded(Description description) {
+	        logResult("PASSED", null);
+	    }
+
+	    @Override
+	    protected void failed(Throwable e, Description description) {
+	        logResult("=========== FAILED ===========", "Error: " + e.getMessage());
+	    }
+	};
 	
 	@Before
 	public void setupSeed() throws IOException {
 	    seed = new java.util.Random().nextInt();
 	    random = new Random(seed);
-	    params = "";
-    	if (testName.getMethodName().equals("seedingInCommunityLocationsLeadsToSpreadToOtherLocations"))
-    		params = "params_cholera_no_cases_in_water";
-    	else
-    		params = "params_cholera_in_water";
-	    // Create timestamp
-	    String timestamp = LocalDateTime.now()
-	        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-	    try (FileWriter writer = new FileWriter("cholera-in-water-test-seeds.log", true)) {
-	        writer.write(
-	        	timestamp + 
-	            " | Test: " + testName.getMethodName() +
-	            " | Params: " + params + ".txt" + 
-	            " | Seed: " + seed + "\n"
-	        );
-	    }
 	}
 	
 	@Test
