@@ -413,29 +413,22 @@ public class DummyDiseaseTesting{
 		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_dummy_disease.txt");
 		sim.params.prob_interact_with_water = 0;
 		sim.start();
-		int number_of_initial_infections_in_both_hosts = 0;
+		int number_of_initial_infections_in_people = 0;
 
 		for (Person p: sim.agents) {
-			if (p.getDiseaseSet().containsKey(DISEASE.DUMMY_WATERBORNE.key)) number_of_initial_infections_in_both_hosts ++;
+			if (p.getDiseaseSet().containsKey(DISEASE.DUMMY_WATERBORNE.key)) number_of_initial_infections_in_people ++;
 
 		}
-		for (Water w: sim.waterInSim) {
-			if (w.getDiseaseSet().containsKey(DISEASE.DUMMY_WATERBORNE.key)) number_of_initial_infections_in_both_hosts ++;
 
-		}
 		int numDays = 50;
 		HelperFunctions.runSimulation(sim, numDays);
-		int number_of_new_infections_in_both_hosts = 0;
+		int number_of_new_infections_in_people = 0;
 
 		for (Person p: sim.agents) {
-			if (p.getDiseaseSet().containsKey(DISEASE.DUMMY_WATERBORNE.key)) number_of_new_infections_in_both_hosts ++;
+			if (p.getDiseaseSet().containsKey(DISEASE.DUMMY_WATERBORNE.key)) number_of_new_infections_in_people ++;
 
 		}
-		for (Water w: sim.waterInSim) {
-			if (w.getDiseaseSet().containsKey(DISEASE.DUMMY_WATERBORNE.key)) number_of_new_infections_in_both_hosts ++;
-
-		}
-		Assert.assertTrue(number_of_initial_infections_in_both_hosts == number_of_new_infections_in_both_hosts);
+		Assert.assertTrue(number_of_initial_infections_in_people == number_of_new_infections_in_people);
 		}
 	
 	@Test

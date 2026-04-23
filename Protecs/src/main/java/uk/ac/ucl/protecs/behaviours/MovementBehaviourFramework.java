@@ -231,7 +231,7 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 
 				if(hour >= myWorld.params.hour_end_day_otherday) { // late! Go home! Interact with a community water source before leaving
 					// this section of code is only used if we are modelling cholera. Put a wrapper around it based on that
-					if (myWorld.choleraFramework != null) {
+					if ((myWorld.choleraFramework != null) || (myWorld.dummyWaterborneFramework != null)) {
 						if ((!p.visitingNow()) & p.getWaterGatherer()) {
 							p.fetchWater(p.getHouseholdAsType().getWater().getSource().getWater(), p.getHouseholdAsType().getWater());
 						}

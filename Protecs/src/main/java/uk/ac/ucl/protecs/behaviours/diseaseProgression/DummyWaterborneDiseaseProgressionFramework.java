@@ -184,7 +184,7 @@ public class DummyWaterborneDiseaseProgressionFramework extends DiseaseProgressi
 		
 	};
 }
-	public BehaviourNode getStandardEntryPoint(){ return this.susceptibleNode; }
+	public BehaviourNode getStandardEntryPoint(){ return this.exposedNode; }
 	
 	public BehaviourNode getStandardEntryPointForWater(){ return this.contaminatedNode; }
 	

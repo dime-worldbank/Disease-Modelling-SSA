@@ -17,6 +17,8 @@ import uk.ac.ucl.protecs.objects.diseases.Cholera;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.objects.diseases.Disease;
 import uk.ac.ucl.protecs.objects.diseases.DummyInfectiousDisease;
+import uk.ac.ucl.protecs.objects.diseases.DummyWaterborneDisease;
+
 import uk.ac.ucl.protecs.objects.locations.Household;
 import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.objects.locations.Workplace;
@@ -684,8 +686,14 @@ public class Person extends Host {
 					// tick
 					else {					
 						double time = myWorld.schedule.getTime(); 
-						Cholera inf = new Cholera(waterTo, waterFrom, waterFrom.getDiseaseSet().get(diseaseName).getCurrentBehaviourNode(), myWorld);
-						myWorld.schedule.scheduleOnce(time + 1, myWorld.param_schedule_infecting, inf);
+						if (diseaseName.equals(DISEASE.CHOLERA.key)) {
+							Cholera inf = new Cholera(waterTo, waterFrom, waterFrom.getDiseaseSet().get(diseaseName).getCurrentBehaviourNode(), myWorld);
+							myWorld.schedule.scheduleOnce(time + 1, myWorld.param_schedule_infecting, inf);
+						}
+						else if (diseaseName.equals(DISEASE.DUMMY_WATERBORNE.key)) {
+							DummyWaterborneDisease inf = new DummyWaterborneDisease(waterTo, waterFrom, waterFrom.getDiseaseSet().get(diseaseName).getCurrentBehaviourNode(), myWorld);
+							myWorld.schedule.scheduleOnce(time + 1, myWorld.param_schedule_infecting, inf);
+						}
 					}
 				}
 			}
@@ -707,6 +715,23 @@ public class Person extends Host {
 				}
 			}
 		}
+		// potentially contaminate the water source
+				if (this.getDiseaseSet().containsKey(DISEASE.DUMMY_WATERBORNE.key)) {
+					double rand_to_shed = myWorld.random.nextDouble();
+					if (rand_to_shed < myWorld.dummyWaterborneFramework.getDummy_waterborne_prob_shed_into_water()) {
+						// check if the water source already has cholera
+						if (waterFrom.getDiseaseSet().containsKey(DISEASE.DUMMY_WATERBORNE.key)){
+							// already cholera object here, change it to the entry point for water from humans
+							waterFrom.getDiseaseSet().get(DISEASE.DUMMY_WATERBORNE.key).setBehaviourNode(myWorld.dummyWaterborneFramework.getStandardEntryPointForWater());
+						}
+						else {
+							double time = myWorld.schedule.getTime(); 
+							// create a new cholera object in the water source
+							DummyWaterborneDisease inf = new DummyWaterborneDisease(waterFrom, this, myWorld.dummyWaterborneFramework.getStandardEntryPointForWater(), myWorld);
+							myWorld.schedule.scheduleOnce(time, myWorld.param_schedule_infecting, inf);
+						}
+					}
+				}
 		
 	}
 }
