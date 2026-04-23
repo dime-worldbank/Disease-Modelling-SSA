@@ -32,8 +32,6 @@ import sim.engine.Steppable;
 
 
 public class WorldBankCovid19Sim extends SimState {
-	// Create a boolean for developing disease modularity
-	public boolean developingModularity = false;
 
 	// the objects which make up the system
 	public ArrayList <Person> agents = null;
@@ -192,11 +190,7 @@ public class WorldBankCovid19Sim extends SimState {
 		// set up the behavioural framework
 		movementFramework = new MovementBehaviourFramework(this);
 		spuriousFramework = new SpuriousSymptomDiseaseProgressionFramework(this);
-		if (developingModularity) {
-			dummyNCDFramework = new DummyNonCommunicableDiseaseProgressionFramework(this);
-			dummyInfectiousFramework = new DummyInfectiousDiseaseProgressionFramework(this);
-			dummyWaterborneFramework = new DummyWaterborneDiseaseProgressionFramework(this);
-		}
+		
 		
 		// RESET SEED
 		random = new Random(this.seed());
@@ -347,66 +341,6 @@ public class WorldBankCovid19Sim extends SimState {
 		};
 		
 		schedule.scheduleRepeating(0, this.param_schedule_updating_locations, updateLocationLists);
-		
-		if (developingModularity) {
-			SetupDummyDisease.SetupDummyDiseases(this);
-			
-//			DummyNCDOnset myDummyNCD = new DummyNCDOnset();
-//			double num_to_seed = agents.size() * this.params.dummy_ncd_initial_fraction_with_ncd;
-//			double i = 0.0;
-//			for (Person a: agents) {
-//				if (i < num_to_seed) {
-//				DummyNonCommunicableDisease inf = new DummyNonCommunicableDisease(a, a, dummyNCDFramework.getStandardEntryPoint(), this, 0);
-//				schedule.scheduleOnce(1, param_schedule_infecting, inf);
-//				i ++ ;
-//				}
-//				else break;
-//			}
-//			DummyNCDOnset.causeDummyNCDs dummyNCDtrigger = myDummyNCD.new causeDummyNCDs(this);
-//			// shuffle the agents so that the first n people won't also get an NCD
-//			Collections.shuffle(agents);
-//			schedule.scheduleRepeating(dummyNCDtrigger, this.param_schedule_infecting, params.ticks_per_month);
-//			i = 0.0;
-//			for (Person a: agents) {
-//				if (i < num_to_seed) {
-//				DummyInfectiousDisease inf = new DummyInfectiousDisease(a, null, dummyInfectiousFramework.getStandardEntryPoint(), this, 0);
-//				schedule.scheduleOnce(1, param_schedule_infecting, inf);
-//				i ++ ;
-//				}
-//				else break;
-//			}
-//			double num_hh_to_seed = households.size() * this.params.dummy_waterborne_initial_fraction_with_inf;
-//			i = 0.0;
-//			for (Household h : this.households) {
-//				// for purposes of development we will set every household to be a source of water
-//				h.setWaterSource(true);
-//				// create a new water source
-//				Water householdWater = new Water(h, h.getRootSuperLocation(), this);
-//				waterInSim.add(householdWater);
-//				h.setWaterHere(householdWater);
-//				// schedule the water to activate in the simulation
-//				this.schedule.scheduleOnce(0, this.param_schedule_movement, householdWater);
-//
-//				// create a new infection in the water for some households
-//				if (i < num_hh_to_seed) {
-//					DummyWaterborneDisease diseaseInWater = new DummyWaterborneDisease(householdWater, null, dummyWaterborneFramework.getStandardEntryPointForWater(), this, 0);
-//					schedule.scheduleOnce(1, param_schedule_infecting, diseaseInWater);
-//					i ++ ;
-//				}
-//			}
-//			// shuffle the agents so that the first n people won't also get a waterborne infection
-//			Collections.shuffle(agents);
-//			i = 0.0;
-//			for (Person a: agents) {
-//				if (i < num_to_seed) {
-//					DummyWaterborneDisease inf = new DummyWaterborneDisease(a, null, dummyWaterborneFramework.getStandardEntryPoint(), this, 0);
-//				schedule.scheduleOnce(1, param_schedule_infecting, inf);
-//				i ++ ;
-//				}
-//				else break;
-//			}
-			
-		}
 		// Set up disease testing
 		SetupDiseaseTesting.scheduleDiseaseTesting(this);
 
