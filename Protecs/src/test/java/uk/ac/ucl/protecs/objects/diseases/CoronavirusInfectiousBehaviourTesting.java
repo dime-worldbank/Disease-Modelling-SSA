@@ -488,7 +488,12 @@ public class CoronavirusInfectiousBehaviourTesting {
 		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.RECOVERED.key, CoronavirusBehaviourNodeTitle.DEAD.key);
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
+		// test the DALY calculations run
 		ImportExport.exportInfections("covid_infections.txt", sim.human_infections);
+		// test the export sim information works
+		ImportExport.exportSimInformation(sim, "sim_info_test.txt", seed, sim.agents.size(), numDays);
+		// test the reportOnInfected function works
+		ImportExport.reportOnInfected(sim.agents);
 
 		for (Disease d: sim.human_infections) {
 			if (d.hasAsympt() || d.hasMild() || d.hasSevere() || d.hasCritical()) {
