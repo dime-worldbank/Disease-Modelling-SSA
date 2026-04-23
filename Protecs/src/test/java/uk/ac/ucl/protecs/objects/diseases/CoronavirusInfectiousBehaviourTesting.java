@@ -17,6 +17,7 @@ import java.util.Random;
 
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgressionFramework;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgressionFramework.CoronavirusBehaviourNodeTitle;
+import uk.ac.ucl.protecs.sim.ImportExport;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import uk.ac.ucl.protecs.helperFunctions.*;
@@ -487,7 +488,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.RECOVERED.key, CoronavirusBehaviourNodeTitle.DEAD.key);
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
-		
+		ImportExport.exportInfections("covid_infections.txt", sim.human_infections);
+
 		for (Disease d: sim.human_infections) {
 			if (d.hasAsympt() || d.hasMild() || d.hasSevere() || d.hasCritical()) {
 				Assert.fail();

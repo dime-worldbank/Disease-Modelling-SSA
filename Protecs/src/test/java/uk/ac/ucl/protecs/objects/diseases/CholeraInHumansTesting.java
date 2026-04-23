@@ -20,6 +20,7 @@ import java.util.Random;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.CholeraDiseaseProgressionFramework;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.CholeraDiseaseProgressionFramework.CholeraBehaviourNodeInHumans;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgressionFramework.CoronavirusBehaviourNodeTitle;
+import uk.ac.ucl.protecs.sim.ImportExport;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import uk.ac.ucl.protecs.helperFunctions.*;
@@ -396,6 +397,8 @@ public class CholeraInHumansTesting {
 		List<String> uniqueNodesInRun = HelperFunctions.getFinalNodesInHumans(sim, numDays);
 		// we would expect only the recovered or dead node to appear at the end of simulation
 		List<String> expectedNodes = Arrays.asList(CholeraBehaviourNodeInHumans.SUSCEPTIBLE.key, CholeraBehaviourNodeInHumans.RECOVERED.key, CholeraBehaviourNodeInHumans.DEAD.key);
+		// write out the infection to test that things work without error
+		ImportExport.exportInfections("cholera_human_infections.txt", sim.human_infections);
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 				
