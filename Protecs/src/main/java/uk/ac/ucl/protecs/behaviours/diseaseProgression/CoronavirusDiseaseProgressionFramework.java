@@ -18,6 +18,7 @@ import uk.ac.ucl.protecs.objects.locations.Location.LocationCategory;
 import uk.ac.ucl.protecs.sim.Params;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
+import uk.ac.ucl.protecs.objects.diseases.Disease.DISEASESTAGE;
 import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
 public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBehaviourFramework {
@@ -101,6 +102,9 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 
 			@Override
 			public double next(Steppable s, double time) {
+				CoronavirusInfection i = (CoronavirusInfection) s;
+				i.setDiseaseStage(DISEASESTAGE.SUSCEPTIBLE);
+
 				return Double.MAX_VALUE;
 			}
 
@@ -133,8 +137,9 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				if(i.time_contagious < Double.MAX_VALUE){ // if less, it has been changed from default value
 					
 					// maybe we have been triggered too soon - in that case, don't activate again until it is time!
-					if(time < i.time_contagious)
+					if(time < i.time_contagious) 
 						return i.time_contagious - time;
+						
 					// update the person's properties to show they have covid
 					// The infected agent will either show symptoms or be asymptomatic - choose which at this time
 
@@ -166,7 +171,8 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				//
 				// another case: the agent is newly exposed! Determine whether the infection will take
 				//
-				
+				i.setDiseaseStage(DISEASESTAGE.NA);
+
 				double mySusceptLikelihood = myWorld.params.getLikelihoodByAge(
 						covid_infection_r_sus_by_age, covid_infection_age_params, ((Person) i.getHost()).getAge());
 				if(myWorld.random.nextDouble() < mySusceptLikelihood){
@@ -183,6 +189,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 							covid_exposedToInfectious_std);
 					assert (timeUntilInfectious > 0): "Something has gone wrong in deciding when a person will become infectious, time is not in future: " + timeUntilInfectious;
 					i.time_contagious = time + timeUntilInfectious;
+					// update the disease object to show that it hasn't been assigned a behaviour yet
 					// update the person's properties to show they have covid
 
 					return timeUntilInfectious;
@@ -227,6 +234,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 					i.setBehaviourNode(setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD));
 				}
 				else if(i.time_start_symptomatic == Double.MAX_VALUE ){
+					i.setDiseaseStage(DISEASESTAGE.PRESYMPTOMATIC);
 					double time_until_symptoms = myWorld.nextRandomLognormal(
 							covid_infectiousToSymptomatic_mean, 
 							covid_infectiousToSymptomatic_std);
@@ -261,15 +269,16 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 					return Double.MAX_VALUE;
 				}
 				((Person) i.getHost()).infectNeighbours();
-				i.setAsympt();
-				i.setInfectionActive(true);
+
 				// determine when the agent will recover - this is
 				// only a matter of time in this case
 				if(time >= i.time_recovered){
 					i.setBehaviourNode(setNodeForTesting(CoronavirusBehaviourNodeTitle.RECOVERED));
 				}
 				else if(i.time_recovered == Double.MAX_VALUE){ // has not been set
-					
+					i.setDiseaseStage(DISEASESTAGE.ASYMPTOMATIC);
+					// Update the disease property
+					i.setInfectionActive(true);
 					double time_until_recovered = myWorld.nextRandomLognormal(
 							covid_asymptomaticToRecovery_mean, 
 							covid_asymptomaticToRecovery_std);
@@ -303,13 +312,13 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 					return Double.MAX_VALUE;
 				}
 				((Person) i.getHost()).infectNeighbours();
-				i.setSymptomatic();
-				i.setMild();
+				// update the disease property
+				i.setSymptomatic(true);
 				i.setEligibleForTesting();
 				i.setInfectionActive(true);
 
 				if (i.getHost().getDiseaseSet().containsKey(DISEASE.COVIDSPURIOUSSYMPTOM.key)) {
-					i.getHost().getDiseaseSet().get(DISEASE.COVIDSPURIOUSSYMPTOM.key).setAsympt();
+					i.getHost().getDiseaseSet().get(DISEASE.COVIDSPURIOUSSYMPTOM.key).setDiseaseStage(DISEASESTAGE.ASYMPTOMATIC);
 				}
 				
 				// if the agent is scheduled to recover, make sure that it
@@ -335,6 +344,8 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				
 				// finally, if the next step has not yet been decided, schedule it
 				else if(i.time_recovered == Double.MAX_VALUE && i.time_start_severe == Double.MAX_VALUE){
+					i.setDiseaseStage(DISEASESTAGE.MILD);
+
 					double myImmobilisedLikelihood = myWorld.random.nextDouble();
 
 					if (myImmobilisedLikelihood < covid_prob_stay_at_home_mild) {
@@ -391,7 +402,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 					return Double.MAX_VALUE;
 				}
 				((Person) i.getHost()).infectNeighbours();
-				i.setSevere();
+				
 				// if the agent is scheduled to recover, make sure that it
 				// does so
 				if(time >= i.time_recovered){
@@ -407,7 +418,8 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				
 				// finally, if the next step has not yet been decided, schedule it
 				else if(i.time_recovered == Double.MAX_VALUE && i.time_start_critical == Double.MAX_VALUE){
-
+					// Update the disease property
+					i.setDiseaseStage(DISEASESTAGE.SEVERE);
 					double myCriticalLikelihood = myWorld.params.getLikelihoodByAge(
 							covid_infection_p_cri_by_age, covid_infection_age_params, ((Person) i.getHost()).getAge());
 					assert (myCriticalLikelihood >= 0.0) & (myCriticalLikelihood <= 1.0) : "probablilty not valid " + myCriticalLikelihood;
@@ -460,8 +472,8 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 					return Double.MAX_VALUE;
 				}
 				((Person) i.getHost()).infectNeighbours();
-				i.setCritical();
 				
+
 				// if the agent is scheduled to recover, make sure that it
 				// does so
 				if(time >= i.time_recovered ){
@@ -480,7 +492,8 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				
 				// finally, if the next step has not yet been decided, schedule it
 				else if(i.time_recovered == Double.MAX_VALUE && i.time_died == Double.MAX_VALUE ){
-
+					// Update the disease property
+					i.setDiseaseStage(DISEASESTAGE.CRITICAL);
 					double myDeathLikelihood = myWorld.params.getLikelihoodByAge(
 							covid_infection_p_dea_by_age, covid_infection_age_params, ((Person) i.getHost()).getAge());
 					
@@ -553,8 +566,10 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 					}
 				}
 				// if they have had symptomatic covid, make them no longer have symptoms of covid
-				if (i.isSymptomatic()) i.setSymptomatic();
-				i.setRecovered();
+				if (i.isSymptomatic()) i.setSymptomatic(false);
+				// Update the disease property
+				i.setDiseaseStage(DISEASESTAGE.RECOVERED);
+
 				// no need to update again!
 				return Double.MAX_VALUE;
 			}
@@ -576,7 +591,9 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				CoronavirusInfection i = (CoronavirusInfection) s;
 				// remove covid from person object
 				((Person) i.getHost()).die("COVID-19");
-				i.setAsCauseOfDeath();
+				// Update the disease property
+				i.setDiseaseStage(DISEASESTAGE.CAUSEOFDEATH);
+
 				i.time_died = time;
 								
 				return Double.MAX_VALUE; // no need to run ever again

@@ -12,6 +12,7 @@ import uk.ac.ucl.protecs.behaviours.diseaseProgression.DummyWaterborneDiseasePro
 import uk.ac.ucl.protecs.behaviours.diseaseSpread.DummyNCDOnset;
 import uk.ac.ucl.protecs.objects.diseases.Cholera;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
+import uk.ac.ucl.protecs.objects.diseases.Disease.DISEASESTAGE;
 import uk.ac.ucl.protecs.objects.diseases.DummyInfectiousDisease;
 import uk.ac.ucl.protecs.objects.diseases.DummyNonCommunicableDisease;
 import uk.ac.ucl.protecs.objects.diseases.DummyWaterborneDisease;
@@ -75,11 +76,11 @@ public class loadInfectionsInHumans{
 						}
 						CoronavirusInfection inf = new CoronavirusInfection(p, null, world.covidInfectiousFramework.getInfectedEntryPoint(l), world, 0);						
 						if (inf.getBehaviourName().equals("asymptomatic")) {
-							inf.setAsympt();
+							inf.setDiseaseStage(DISEASESTAGE.ASYMPTOMATIC);
 							inf.setInfectionActive(true);
 						}
 						else {
-							inf.setMild();
+							inf.setDiseaseStage(DISEASESTAGE.MILD);
 							inf.setInfectionActive(true);
 						}
 						world.schedule.scheduleOnce(1, world.param_schedule_infecting, inf);
