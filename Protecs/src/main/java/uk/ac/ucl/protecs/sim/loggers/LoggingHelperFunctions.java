@@ -10,6 +10,7 @@ import java.util.Map;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 import uk.ac.ucl.protecs.objects.diseases.Disease;
+import uk.ac.ucl.protecs.objects.diseases.Disease.DISEASESTAGE;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.objects.hosts.Person.OCCUPATION;
 import uk.ac.ucl.protecs.objects.hosts.Person.SEX;
@@ -55,7 +56,7 @@ public class LoggingHelperFunctions{
 	            .computeIfAbsent(d.getCurrentAdminZone(), k -> new EnumMap<>(DISEASE.class))
 	            .computeIfAbsent(d.getDiseaseType(), k -> new HashMap<>())
 	            .computeIfAbsent(d.isInfectionActive(), k-> new HashMap<>())
-	            .computeIfAbsent(d.hasRecovered(), k -> new ArrayList<>())
+	            .computeIfAbsent(d.hasDiseaseStage(DISEASESTAGE.RECOVERED), k -> new ArrayList<>())
 	            .add(d);
 	    }
 
@@ -72,9 +73,9 @@ public class LoggingHelperFunctions{
 			result
 				.computeIfAbsent(d.getCurrentAdminZone(), k -> new EnumMap<>(DISEASE.class))
 				.computeIfAbsent(d.getDiseaseType(), k -> new HashMap<>())
-				.computeIfAbsent(d.isCauseOfDeath(), k -> new HashMap<>())
+				.computeIfAbsent(d.hasDiseaseStage(DISEASESTAGE.CAUSEOFDEATH), k -> new HashMap<>())
 	            .computeIfAbsent(d.isInfectionActive(), k-> new HashMap<>())
-				.computeIfAbsent(d.getDeathLogged(), k -> new ArrayList<>())
+				.computeIfAbsent(d.getStageLogged(), k -> new ArrayList<>())
 				.add(d);
 			
 		}
@@ -96,8 +97,8 @@ public class LoggingHelperFunctions{
 			.computeIfAbsent(d.getHostAge(), k -> new HashMap<>())
 			.computeIfAbsent(d.getHostSex(), k -> new HashMap<>())
 			.computeIfAbsent(d.getDiseaseType(),  k -> new HashMap<>())
-			.computeIfAbsent(d.isCauseOfDeath(), k -> new HashMap<>())
-			.merge(d.getDeathLogged(), 1l, Long::sum);
+			.computeIfAbsent(d.hasDiseaseStage(DISEASESTAGE.CAUSEOFDEATH), k -> new HashMap<>())
+			.merge(d.getStageLogged(), 1l, Long::sum);
 		}
 
 		 // Now sum by requested age ranges
@@ -135,8 +136,8 @@ public class LoggingHelperFunctions{
 	            .computeIfAbsent(d.getHostSex(), k -> new HashMap<>())
 	            .computeIfAbsent(d.getHostAge(), k -> new EnumMap<>(DISEASE.class))
 	            .computeIfAbsent(d.getDiseaseType(), k -> new HashMap<>())
-	            .computeIfAbsent(d.hasRecovered(), k -> new HashMap<>())
-	            .merge(d.getLogged(), 1L, Long::sum);
+	            .computeIfAbsent(d.hasDiseaseStage(DISEASESTAGE.RECOVERED), k -> new HashMap<>())
+	            .merge(d.getStageLogged(), 1L, Long::sum);
 	    	}
 
 	    return result;
@@ -534,14 +535,14 @@ public class LoggingHelperFunctions{
 					.computeIfAbsent(d.getHostEconStatus(), k -> new HashMap<>())
 					.computeIfAbsent(d.isHostAlive(), k -> new EnumMap<>(DISEASE.class))
 					.computeIfAbsent(d.getDiseaseType(), k -> new HashMap<>())
-					.computeIfAbsent(d.hasRecovered(), k -> new HashMap<>())
-					.merge(d.getLogged(), 1l, Long::sum);
+					.computeIfAbsent(d.hasDiseaseStage(DISEASESTAGE.RECOVERED), k -> new HashMap<>())
+					.merge(d.getStageLogged(), 1l, Long::sum);
 					
 					econ_died_from_disease
 					.computeIfAbsent(d.getHostEconStatus(), k -> new EnumMap<>(DISEASE.class))
 					.computeIfAbsent(d.getDiseaseType(), k -> new HashMap<>())
-					.computeIfAbsent(d.isCauseOfDeath(), k -> new HashMap<>())
-					.merge(d.getDeathLogged(), 1l, Long::sum);
+					.computeIfAbsent(d.hasDiseaseStage(DISEASESTAGE.CAUSEOFDEATH), k -> new HashMap<>())
+					.merge(d.getStageLogged(), 1l, Long::sum);
 				}
 				
 				
