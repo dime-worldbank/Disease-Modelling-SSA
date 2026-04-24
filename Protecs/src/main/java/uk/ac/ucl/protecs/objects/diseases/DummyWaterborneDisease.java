@@ -22,7 +22,7 @@ public class DummyWaterborneDisease extends Disease{
 		
 		host.addDisease(this);
 		
-		this.hasAsympt = true;
+		this.diseaseStage = DISEASESTAGE.ASYMPTOMATIC;
 			
 		// store the time when it is infected!
 		time_infected = time;		

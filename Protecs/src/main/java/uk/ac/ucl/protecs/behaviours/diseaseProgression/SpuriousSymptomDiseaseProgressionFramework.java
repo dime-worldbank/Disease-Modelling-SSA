@@ -2,6 +2,7 @@ package uk.ac.ucl.protecs.behaviours.diseaseProgression;
 
 import sim.engine.Steppable;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusSpuriousSymptom;
+import uk.ac.ucl.protecs.objects.diseases.Disease.DISEASESTAGE;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.swise.behaviours.BehaviourNode;
@@ -125,13 +126,13 @@ public class SpuriousSymptomDiseaseProgressionFramework extends DiseaseProgressi
 				switch (action) {
 					case SETUP:{
 						symptom.timeLastTriggered = time;
-						symptom.setSymptomatic();
+						symptom.setSymptomatic(true);
 						symptom.setEligibleForTesting();
 						symptom.time_recovered = symptom.timeLastTriggered + myWorld.params.ticks_per_week;
 						return 1;
 						}
 					case RECOVER:{
-						symptom.setAsympt();
+						symptom.setDiseaseStage(DISEASESTAGE.ASYMPTOMATIC);
 						symptom.removeEligibilityForTesting();
 						symptom.timeLastTriggered = Double.MAX_VALUE;
 						symptom.time_recovered = Double.MAX_VALUE;
@@ -160,7 +161,7 @@ public class SpuriousSymptomDiseaseProgressionFramework extends DiseaseProgressi
 			public double next(Steppable s, double time) {
 				CoronavirusSpuriousSymptom symptom = (CoronavirusSpuriousSymptom) s;
 				// remove covid from person object
-				symptom.setAsympt();
+				symptom.setDiseaseStage(DISEASESTAGE.ASYMPTOMATIC);
 				return Double.MAX_VALUE; // no need to run ever again
 			}
 

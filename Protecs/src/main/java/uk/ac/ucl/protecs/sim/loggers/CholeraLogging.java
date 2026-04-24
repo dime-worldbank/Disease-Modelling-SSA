@@ -16,27 +16,6 @@ public class CholeraLogging {
 					// to make sure deaths and cases aren't counted multiple times, update this person's properties
 					for (Disease i: world.human_infections) {
 							if (i.isOfType(DISEASE.CHOLERA)) {
-							if(!i.isHostAlive()) {
-								i.confirmDeathLogged();
-							}
-							if(i.hasAsympt() & !i.getAsymptLogged()) {
-								i.confirmAsymptLogged();
-							}
-							if(i.hasMild() & !i.getMildLogged()) {
-								i.confirmMildLogged();
-							}
-							if(i.hasSevere() & !i.getSevereLogged()) {
-								i.confirmSevereLogged();
-							}
-							if(i.hasCritical() & !i.getCriticalLogged()) {
-								i.confirmCriticalLogged();
-							}
-							if (i.hasRecovered() & !i.getRecoveredLogged()) {
-								i.confirmRecoveredLogged();
-							}
-							if (i.hasSusceptible() & !i.getSusceptibleLogged()) {
-								i.confirmSusceptibleLogged();
-							}
 							i.confirmLogged();
 						}
 					} 

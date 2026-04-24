@@ -29,7 +29,7 @@ public class DummyInfectiousDisease extends Disease{
 		
 		host.addDisease(this);
 		
-		this.hasAsympt = true;
+		this.diseaseStage = DISEASESTAGE.ASYMPTOMATIC;
 			
 		// store the time when it is infected!
 		time_infected = time;		
@@ -136,31 +136,7 @@ public class DummyInfectiousDisease extends Disease{
 		// TODO Auto-generated method stub
 		return DISEASE.DUMMY_INFECTIOUS.key;
 	}
-	// =============================================== Disease progression ====================================================================================
 
-	@Override
-	public void setAsympt() {
-		this.hasRecovered = false;
-		this.hasAsympt = true;
-	}
-
-	@Override
-	public void setRecovered() {
-		this.hasAsympt = false;
-		this.hasRecovered = true;
-	}
-
-	@Override
-	public void setAsCauseOfDeath() {
-		// NA
-		
-	}
-
-	@Override
-	public boolean isCauseOfDeath() {
-		// NA	
-		return false;
-	}
 	// =============================================== Disease logging ====================================================================================
 
 	@Override

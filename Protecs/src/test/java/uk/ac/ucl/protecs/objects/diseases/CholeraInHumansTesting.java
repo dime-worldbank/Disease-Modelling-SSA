@@ -25,6 +25,7 @@ import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import uk.ac.ucl.protecs.helperFunctions.*;
 import uk.ac.ucl.protecs.helperFunctions.HelperFunctions.NodeOption;
+import uk.ac.ucl.protecs.objects.diseases.Disease.DISEASESTAGE;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 
 
@@ -403,7 +404,7 @@ public class CholeraInHumansTesting {
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 				
 		for (Disease d: sim.human_infections) {
-			if (d.hasAsympt() || d.hasMild() || d.hasSevere() || d.hasCritical()) {
+			if (!(d.hasDiseaseStage(DISEASESTAGE.RECOVERED) || d.hasDiseaseStage(DISEASESTAGE.CAUSEOFDEATH) || d.hasDiseaseStage(DISEASESTAGE.PRESYMPTOMATIC) || d.hasDiseaseStage(DISEASESTAGE.NA))) {
 				Assert.fail();
 			}
 		}

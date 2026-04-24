@@ -56,13 +56,7 @@ public class CoronavirusSpuriousSymptom extends Disease{
 		// TODO Auto-generated method stub
 		return this.getDiseaseType().equals(disease);
 	}
-	
-	// =============================================== Disease progression ====================================================================================
-	@Override
-	public boolean hasAsympt() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+
 
 	// =============================================== Disease logging ====================================================================================
 	@Override

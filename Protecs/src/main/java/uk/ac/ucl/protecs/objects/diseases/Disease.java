@@ -36,13 +36,10 @@ public abstract class Disease implements Steppable {
 	double time_end_hospitalised = Double.MAX_VALUE;
 	
 	// infection stages
-	boolean hasAsympt = false;
-	boolean hasMild = false;
-	boolean hasSevere = false;
-	boolean hasCritical = false;
-	boolean hasRecovered = false;
-	boolean hasSusceptible = false;
-	boolean isTheCauseOfDeath = false;
+	public enum DISEASESTAGE{
+		PRESYMPTOMATIC, ASYMPTOMATIC, MILD, SEVERE, CRITICAL, RECOVERED, SUSCEPTIBLE, CAUSEOFDEATH, NA;
+	};
+	DISEASESTAGE diseaseStage;
 	// symptom manager
 	boolean isSymptomatic = false;
 	// test manager
@@ -51,13 +48,8 @@ public abstract class Disease implements Steppable {
 	boolean testLogged = false;
 	boolean eligibleForTesting = false;
 	// loggers
-	boolean hasDeathLogged = false;
-	boolean hasAsymptLogged = false;
-	boolean hasMildLogged = false;
-	boolean hasSevereLogged = false;
-	boolean hasCriticalLogged = false;
-	boolean hasRecoveredLogged = false;
-	boolean hasSusceptibleLogged = false;
+	boolean hasStageLogged = false;
+	boolean stageLogged = false;
 	boolean hasLogged = false;
 	boolean isInfectionActive = false;
 
@@ -115,163 +107,56 @@ public abstract class Disease implements Steppable {
 	public abstract String getDiseaseName();
 
 	// =============================================== Disease progression ====================================================================================
-
-	public void setAsympt() {
-		this.hasAsympt = true;
-		this.hasMild = false;
-		this.hasSevere = false;
-		this.hasCritical = false;
-		this.hasRecovered = false;
-		this.hasSusceptible = false;
-		this.isSymptomatic = false;
+	
+	public DISEASESTAGE getDiseaseStage() {
+		return this.diseaseStage;
+	}
+	public void setDiseaseStage(DISEASESTAGE stage) {
+		this.diseaseStage = stage;
+		if (stage == DISEASESTAGE.ASYMPTOMATIC) {
+			this.isSymptomatic = false;
+		}
+		if ((stage == DISEASESTAGE.SUSCEPTIBLE) || (stage == DISEASESTAGE.PRESYMPTOMATIC) || (stage == DISEASESTAGE.NA)) {
+			setInfectionActive(false);
+		}
+		resetStageLogged();
 	}
 	
-	public boolean hasAsympt() {return this.hasAsympt;}
+	public boolean hasDiseaseStage(DISEASESTAGE stage) {
+		
+		return stage.equals(this.getDiseaseStage());
+	}
 	
-	public void setSymptomatic() {
-		this.isSymptomatic = !this.isSymptomatic;
+	public void setSymptomatic(Boolean value) {
+		this.isSymptomatic = value;
 		
 	}
 	
 	public boolean isSymptomatic() {return this.isSymptomatic;}
-	
-	public void setMild() {
-		this.hasAsympt = false;
-		this.hasMild = true;
-		this.hasSevere = false;
-		this.hasCritical = false;
-		this.hasRecovered = false;
-		this.hasSusceptible = false;
-	}
-	
-	public boolean hasMild() {
-			return this.hasMild;
-	}
-	
-	public void setSevere() {
-		this.hasAsympt = false;
-		this.hasMild = false;
-		this.hasSevere = true;
-		this.hasCritical = false;
-		this.hasRecovered = false;
-		this.hasSusceptible = false;
 
-	}
-	
-	public boolean hasSevere() {
-		return this.hasSevere;
-	}
-	
-	public void setCritical() {
-		this.hasAsympt = false;
-		this.hasMild = false;
-		this.hasSevere = false;
-		this.hasCritical = true;
-		this.hasRecovered = false;
-		this.hasSusceptible = false;
-	}
-	
-	public boolean hasCritical() {
-		return this.hasCritical;
-	}
-	
-	public void setRecovered() {
-		this.hasAsympt = false;
-		this.hasMild = false;
-		this.hasSevere = false;
-		this.hasCritical = false;
-		this.hasRecovered = true;
-		this.hasSusceptible = false;
-		
-	}
-	
-	public boolean hasRecovered() {
-		return this.hasRecovered;
-	}
-
-	
-	public boolean hasSusceptible() {
-		return this.hasSusceptible;
-	}
-	
-	public void setAsCauseOfDeath() {
-		this.isTheCauseOfDeath = true;
-		this.hasAsympt = false;
-		this.hasMild = false;
-		this.hasSevere = false;
-		this.hasCritical = false;
-		this.hasRecovered = false;
-		this.hasSusceptible = false;
-	};
-	
-	public boolean isCauseOfDeath() {
-		return this.isTheCauseOfDeath;
-	};
 	// =============================================== Disease logging ====================================================================================
-	
-	public boolean getAsymptLogged() {
-		return this.hasAsymptLogged;
+	public boolean getStageLogged() {
+		return hasStageLogged;
 	}
 	
-	public void confirmAsymptLogged() {
-		this.hasAsymptLogged = true; 
-	}
-
-	public boolean getMildLogged() {
-		return this.hasMildLogged;
-	}
-
-	public void confirmMildLogged() {
-		this.hasMildLogged = true; 
-		
-	}
-
-	public boolean getSevereLogged() {
-		return this.hasSevereLogged;
-	}
-
-	public void confirmSevereLogged() {
-		this.hasSevereLogged = true;
-	}
-
-	public boolean getCriticalLogged() {
-		return this.hasCriticalLogged;
-	}
-
-	public void confirmCriticalLogged() {
-		this.hasCriticalLogged = true;
-	}
-
-	public void confirmDeathLogged() {
-		this.hasDeathLogged = true;
-	}
-
-	public boolean getDeathLogged() {
-		return this.hasDeathLogged ;
+	public void confirmStageLogged() {
+		this.hasStageLogged = true;
 	}
 	
-	public boolean getRecoveredLogged() {
-		return this.hasRecoveredLogged;
+	public void resetStageLogged() {
+		this.hasStageLogged = false;
 	}
 	
-	public void confirmRecoveredLogged() {
-		this.hasRecoveredLogged = true;
-	}
-	
-	public boolean getSusceptibleLogged() {
-		return this.hasSusceptibleLogged;
-	}
-	
-	public void confirmSusceptibleLogged() {
-		this.hasSusceptibleLogged = true;
-	}
-
 	public boolean getLogged() {
 		return hasLogged;
 	}
 	
 	public void confirmLogged() {
 		this.hasLogged = true;
+	}
+	
+	public void resetLogged() {
+		this.hasLogged = false;
 	}
 	
 	public abstract String writeOut();
@@ -337,13 +222,8 @@ public abstract class Disease implements Steppable {
 		this.time_start_hospitalised = Double.MAX_VALUE;
 		this.time_end_hospitalised = Double.MAX_VALUE;
 		// reset generic infection stages
-		this.hasAsympt = false;
-		this.hasMild = false;
-		this.hasSevere = false;
-		this.hasCritical = false;
-		this.hasRecovered = false;
-		this.hasSusceptible = true;
-		this.isTheCauseOfDeath = false;
+		this.diseaseStage = DISEASESTAGE.NA;
+		this.setInfectionActive(false);
 		// reset symptom manager
 		this.isSymptomatic = false;
 		// reset test manager
@@ -352,11 +232,7 @@ public abstract class Disease implements Steppable {
 		this.testLogged = false;
 		this.eligibleForTesting = false;
 		// reset loggers
-		this.hasDeathLogged = false;
-		this.hasAsymptLogged = false;
-		this.hasMildLogged = false;
-		this.hasSevereLogged = false;
-		this.hasCriticalLogged = false;
+		this.hasStageLogged = false;
 		this.hasLogged = false;		
 	}
 }

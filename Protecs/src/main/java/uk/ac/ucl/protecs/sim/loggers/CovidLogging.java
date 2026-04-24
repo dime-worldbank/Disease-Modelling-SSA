@@ -9,6 +9,7 @@ import java.util.Map;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 import uk.ac.ucl.protecs.objects.diseases.Disease;
+import uk.ac.ucl.protecs.objects.diseases.Disease.DISEASESTAGE;
 import uk.ac.ucl.protecs.sim.ImportExport;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
@@ -103,6 +104,7 @@ public class CovidLogging {
 				
 				// first filter out diseases where the host is still alive, that are covid and the infection is active
 				Map<Boolean, Map<DISEASE, Map<Boolean, ArrayList<Disease>>>> active_covid_cases_in_zone = new HashMap<>();
+				
 
 				for (Disease d : world.human_infections) {
 				    active_covid_cases_in_zone
@@ -116,7 +118,9 @@ public class CovidLogging {
 
 				try {
 					// if there are covid cases then filter them out
-					filtered_covid_cases = active_covid_cases_in_zone.get(true).get(DISEASE.COVID).get(true);
+					if (active_covid_cases_in_zone.get(true).get(DISEASE.COVID).get(true) != null) {
+						filtered_covid_cases = active_covid_cases_in_zone.get(true).get(DISEASE.COVID).get(true);
+					}
 				}
 				catch (Exception e) {
 					// otherwise do nothing
@@ -125,179 +129,46 @@ public class CovidLogging {
 				// create a function to group the covid cases by location and if this is a new case
 				Map<String, Map<Boolean, Map<Boolean, Long>>> location_hasCovid_map = new HashMap<>();
 				
-				// create a map to count the number of people who have recovered from covid in that admin zone
-				Map<String, Map<Boolean,  Map<Boolean, Long>>> location_recovered_map = new HashMap<>();
-				
-				// create a map to count the number of people who have asymptomatic covid in that admin zone
-				Map<String,  Map<Boolean, Map<Boolean, Long>>> location_asympt_map = new HashMap<>();
-				
-				// create a map to count the number of people who have mild covid in that admin zone
-				Map<String, Map<Boolean,  Map<Boolean,Long>>> location_mild_map = new HashMap<>();
-				
-				// create a map to count the number of people who have severe covid in that admin zone
-				Map<String, Map<Boolean,  Map<Boolean,Long>>> location_severe_map = new HashMap<>();
-				
-				// create a map to count the number of people who have critical covid in that admin zone
-				Map<String, Map<Boolean,  Map<Boolean,Long>>> location_critical_map = new HashMap<>();
-				
 				// create a function to group the population by location and count cumulative deaths
 				Map<String, Map<Boolean, Long>> location_cumulative_died_map = new HashMap<>();
 				
 				// create a function to group the population by location and count cumulative cases
 				Map<String, Map<Boolean, Long>> location_cumulative_map = new HashMap<>();
 				
-				// create a function to group the population by location and count new deaths
-				Map<String, Map<Boolean,  Map<Boolean,Long>>> location_new_deaths_map = new HashMap<>();
+				// Create a hash map for the specific disease stages 
+				Map<String, Map<Boolean, Map<DISEASESTAGE, Map<Boolean, Map<Boolean, Long>>>>> new_active_covid_cases_in_zone = new HashMap<>();
+
 				for (Disease d: filtered_covid_cases) {
+					
+				    new_active_covid_cases_in_zone
+			    	.computeIfAbsent(d.getCurrentAdminZone(),  k -> new HashMap<>())
+			    	.computeIfAbsent(d.isHostAlive(), k -> new EnumMap<>(DISEASESTAGE.class))
+			    	.computeIfAbsent(d.getDiseaseStage(), k -> new HashMap<>())
+			    	.computeIfAbsent(d.isInfectionActive(), k -> new HashMap<>())
+			    	.merge(d.getStageLogged(), 1l, Long::sum);
+				    
 					location_hasCovid_map
 					.computeIfAbsent(d.getCurrentAdminZone(),  k -> new HashMap<>())
-					.computeIfAbsent(d.hasRecovered(), k -> new HashMap<>())
-					.merge(d.getLogged(), 1l, Long::sum);
+					.computeIfAbsent(d.hasDiseaseStage(DISEASESTAGE.RECOVERED), k -> new HashMap<>())
+					.merge(d.getStageLogged(), 1l, Long::sum);
 					
-					location_recovered_map
-					.computeIfAbsent(d.getCurrentAdminZone(), k -> new HashMap<>())
-					.computeIfAbsent(d.hasRecovered(), k -> new HashMap<>())
-					.merge(d.getRecoveredLogged(), 1l, Long::sum);
-					
-					location_asympt_map
-					.computeIfAbsent(d.getCurrentAdminZone(), k -> new HashMap<>())
-					.computeIfAbsent(d.hasAsympt(), k -> new HashMap<>())
-					.merge(d.getAsymptLogged(), 1l, Long::sum);
-					
-					location_mild_map
-					.computeIfAbsent(d.getCurrentAdminZone(), k -> new HashMap<>())
-					.computeIfAbsent(d.hasMild(), k -> new HashMap<>())
-					.merge(d.getMildLogged(), 1l, Long::sum);
-					
-					location_severe_map
-					.computeIfAbsent(d.getCurrentAdminZone(), k -> new HashMap<>())
-					.computeIfAbsent(d.hasSevere(), k -> new HashMap<>())
-					.merge(d.getSevereLogged(), 1l, Long::sum);
-
-					location_critical_map
-					.computeIfAbsent(d.getCurrentAdminZone(), k -> new HashMap<>())
-					.computeIfAbsent(d.hasCritical(), k -> new HashMap<>())
-					.merge(d.getCriticalLogged(), 1l, Long::sum);
 
 					location_cumulative_died_map
 					.computeIfAbsent(d.getCurrentAdminZone(), k -> new HashMap<>())
-					.merge(d.isCauseOfDeath(), 1l, Long::sum);
+					.merge(d.hasDiseaseStage(DISEASESTAGE.CAUSEOFDEATH), 1l, Long::sum);
 					
 					location_cumulative_map
 					.computeIfAbsent(d.getCurrentAdminZone(), k -> new HashMap<>())
 					.merge(d.isInfectionActive(), 1l, Long::sum);
 					
-					location_new_deaths_map
-					.computeIfAbsent(d.getCurrentAdminZone(), k -> new HashMap<>())
-					.computeIfAbsent(d.isCauseOfDeath(), k -> new HashMap<>())
-					.merge(d.getDeathLogged(), 1l, Long::sum);
 				}
-				// alternate logging
-//				// create a function to group the population by location, whether they are alive and if they have covid and if this is a new case
-//				Map<String, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>>>> location_alive_hasCovid_map = new HashMap<>();
-//				
-//				// create a map to count the number of people who have recovered from covid in that admin zone
-//				Map<String, Map<DISEASE, Map<Boolean,  Map<Boolean, Map<Boolean, Long>>>>> location_alive_recovered_covid_map = new HashMap<>();
-//				
-//				// create a map to count the number of people who have asymptomatic covid in that admin zone
-//				Map<String, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>>>> location_asympt_covid_map = new HashMap<>();
-//				
-//				// create a map to count the number of people who have mild covid in that admin zone
-//				Map<String, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean,  Map<Boolean,Long>>>>>> location_mild_covid_map = new HashMap<>();
-//				
-//				// create a map to count the number of people who have severe covid in that admin zone
-//				Map<String, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean,  Map<Boolean,Long>>>>>> location_severe_covid_map = new HashMap<>();
-//
-//				// create a map to count the number of people who have critical covid in that admin zone
-//				Map<String, Map<Boolean, Map<DISEASE, Map<Boolean, Map<Boolean, Map<Boolean, Long>>>>>> location_critical_covid_map = new HashMap<>();
-//				
-//				// create a function to group the population by location and count cumulative deaths
-//				Map<String, Map<DISEASE, Map<Boolean, Map<Boolean, Long>>>> location_cumulative_died_covid_map = new HashMap<>();
-//				
-//				// create a function to group the population by location and count cumulative cases
-//				Map<String, Map<DISEASE, Map<Boolean, Long>>> location_cumulative_covid_map = new HashMap<>();
-//				
-//				// create a function to group the population by location and count new deaths
-//				Map<String, Map<DISEASE, Map<Boolean, Map<Boolean,  Map<Boolean,Long>>>>> location_new_covid_deaths_map = new HashMap<>();
-				
-//				// generate covid summary statistics by type
-//				for (Disease d: world.human_infections) {
-//					location_alive_hasCovid_map
-//					.computeIfAbsent(d.getCurrentAdminZone(), k -> new HashMap<>())
-//					.computeIfAbsent(d.isHostAlive(), k -> new EnumMap<>(DISEASE.class))
-//					.computeIfAbsent(d.getDiseaseType(), k -> new HashMap<>())
-//					.computeIfAbsent(d.hasRecovered(), k -> new HashMap<>())
-//					.computeIfAbsent(d.isInfectionActive(), k -> new HashMap<>())
-//					.merge(d.getLogged(), 1l, Long::sum);
-//					
-//					location_alive_recovered_covid_map
-//					.computeIfAbsent(d.getCurrentAdminZone(), k -> new EnumMap<>(DISEASE.class))
-//					.computeIfAbsent(d.getDiseaseType(), k -> new HashMap<>())
-//					.computeIfAbsent(d.isInfectionActive(), k -> new HashMap<>())
-//					.computeIfAbsent(d.hasRecovered(), k -> new HashMap<>())
-//					.merge(d.getRecoveredLogged(), 1l, Long::sum);
-//					
-//					location_asympt_covid_map
-//					.computeIfAbsent(d.getCurrentAdminZone(), k -> new HashMap<>())
-//					.computeIfAbsent(d.isHostAlive(), k -> new EnumMap<>(DISEASE.class))
-//					.computeIfAbsent(d.getDiseaseType(), k -> new HashMap<>())
-//					.computeIfAbsent(d.hasAsympt(), k -> new HashMap<>())
-//					.computeIfAbsent(d.isInfectionActive(), k -> new HashMap<>())
-//					.merge(d.getAsymptLogged(), 1l, Long::sum);
-//					
-//					location_mild_covid_map
-//					.computeIfAbsent(d.getCurrentAdminZone(), k -> new HashMap<>())
-//					.computeIfAbsent(d.isHostAlive(), k -> new EnumMap<>(DISEASE.class))
-//					.computeIfAbsent(d.getDiseaseType(), k -> new HashMap<>())
-//					.computeIfAbsent(d.hasMild(), k -> new HashMap<>())
-//					.computeIfAbsent(d.isInfectionActive(), k -> new HashMap<>())
-//					.merge(d.getMildLogged(), 1l, Long::sum);
-//					
-//					location_severe_covid_map
-//					.computeIfAbsent(d.getCurrentAdminZone(), k -> new HashMap<>())
-//					.computeIfAbsent(d.isHostAlive(), k -> new EnumMap<>(DISEASE.class))
-//					.computeIfAbsent(d.getDiseaseType(), k -> new HashMap<>())
-//					.computeIfAbsent(d.hasSevere(), k -> new HashMap<>())
-//					.computeIfAbsent(d.isInfectionActive(), k -> new HashMap<>())
-//					.merge(d.getSevereLogged(), 1l, Long::sum);
-//					
-//					location_critical_covid_map
-//					.computeIfAbsent(d.getCurrentAdminZone(), k -> new HashMap<>())
-//					.computeIfAbsent(d.isHostAlive(), k -> new EnumMap<>(DISEASE.class))
-//					.computeIfAbsent(d.getDiseaseType(), k -> new HashMap<>())
-//					.computeIfAbsent(d.hasCritical(), k -> new HashMap<>())
-//					.computeIfAbsent(d.isInfectionActive(), k -> new HashMap<>())
-//					.merge(d.getCriticalLogged(), 1l, Long::sum);
-//					
-//					location_cumulative_died_covid_map
-//					.computeIfAbsent(d.getCurrentAdminZone(), k -> new EnumMap<>(DISEASE.class))
-//					.computeIfAbsent(d.getDiseaseType(), k -> new HashMap<>())
-//					.computeIfAbsent(d.isInfectionActive(), k -> new HashMap<>())
-//					.merge(d.isCauseOfDeath(), 1l, Long::sum);
-//					
-//					location_cumulative_covid_map
-//					.computeIfAbsent(d.getCurrentAdminZone(), k -> new EnumMap<>(DISEASE.class))
-//					.computeIfAbsent(d.getDiseaseType(), k -> new HashMap<>())
-//					.merge(d.isInfectionActive(), 1l, Long::sum);
-//					
-//					location_new_covid_deaths_map
-//					.computeIfAbsent(d.getCurrentAdminZone(), k -> new EnumMap<>(DISEASE.class))
-//					.computeIfAbsent(d.getDiseaseType(), k -> new HashMap<>())
-//					.computeIfAbsent(d.isCauseOfDeath(), k -> new HashMap<>())
-//					.computeIfAbsent(d.isInfectionActive(), k -> new HashMap<>())
-//					.merge(d.getDeathLogged(), 1l, Long::sum);
-//				}
 
 
 				//	We now iterate over the admin zones, to find the current state of the epidemic
 				for (String zone: adminZoneList) {
 					// get the current number of cases in each admin zone
 					try {
-					// old
-					// covidCountArray.add(location_alive_hasCovid_map.get(zone).get(true).get(DISEASE.COVID).get(false).get(true).get(false).intValue());	
-					// new
-					covidCountArray.add(location_hasCovid_map.get(zone).get(false).get(false).intValue());						
-
+						covidCountArray.add(location_hasCovid_map.get(zone).get(false).get(false).intValue());	
 					} 
 					catch (Exception e) {
 						// No one in population met criteria
@@ -305,9 +176,7 @@ public class CovidLogging {
 					}
 					// get the cumulative number of covid cases in the admin zone
 					try {
-						// old
-						// cumCovidCountArray.add(location_cumulative_covid_map.get(zone).get(DISEASE.COVID).get(true).intValue());
-						// new 
+
 						cumCovidCountArray.add(location_cumulative_map.get(zone).get(true).intValue());
 					} 
 					catch (Exception e) {
@@ -316,10 +185,8 @@ public class CovidLogging {
 					}
 					// get the number of asymptomatic covid cases in the admin zone
 					try {
-						// old
-						// asymptCovidCountArray.add(location_asympt_covid_map.get(zone).get(true).get(DISEASE.COVID).get(true).get(true).get(false).intValue());
-						// new
-						asymptCovidCountArray.add(location_asympt_map.get(zone).get(true).get(false).intValue());
+						asymptCovidCountArray.add(new_active_covid_cases_in_zone.get(zone).get(true).get(DISEASESTAGE.ASYMPTOMATIC).get(true).get(false).intValue());
+
 					} 
 					catch (Exception e) {
 						// No one in population met criteria
@@ -327,10 +194,8 @@ public class CovidLogging {
 					}
 					// get the number of mild covid cases in the admin zone
 					try {
-						// old
-						// mildCovidCountArray.add(location_mild_covid_map.get(zone).get(true).get(DISEASE.COVID).get(true).get(true).get(false).intValue());
-						// new
-						mildCovidCountArray.add(location_mild_map.get(zone).get(true).get(false).intValue());
+
+						mildCovidCountArray.add(new_active_covid_cases_in_zone.get(zone).get(true).get(DISEASESTAGE.MILD).get(true).get(false).intValue());
 					} 
 					catch (Exception e) {
 						// No one in population met criteria
@@ -338,10 +203,8 @@ public class CovidLogging {
 					}
 						// get the number of severe covid cases in the admin zone
 					try {
-						// old
-						// severeCovidCountArray.add(location_severe_covid_map.get(zone).get(true).get(DISEASE.COVID).get(true).get(true).get(false).intValue());
-						// new
-						severeCovidCountArray.add(location_severe_map.get(zone).get(true).get(false).intValue());
+
+						severeCovidCountArray.add(new_active_covid_cases_in_zone.get(zone).get(true).get(DISEASESTAGE.SEVERE).get(true).get(false).intValue());
 					} 
 					catch (Exception e) {
 						// No one in population met criteria
@@ -349,10 +212,8 @@ public class CovidLogging {
 					}
 					// get the number of critical covid cases in the admin zone
 					try {
-						// old
-						// criticalCovidCountArray.add(location_critical_covid_map.get(zone).get(true).get(DISEASE.COVID).get(true).get(true).get(false).intValue());
-						// new
-						criticalCovidCountArray.add(location_critical_map.get(zone).get(true).get(false).intValue());
+
+						criticalCovidCountArray.add(new_active_covid_cases_in_zone.get(zone).get(true).get(DISEASESTAGE.CRITICAL).get(true).get(false).intValue());
 					} 
 					catch (Exception e) {
 						// No one in population met criteria
@@ -360,10 +221,8 @@ public class CovidLogging {
 					}
 					// get the number of recoveries  in the admin zone
 					try {
-						// old
-						// recoveredCountArray.add(location_alive_recovered_covid_map.get(zone).get(DISEASE.COVID).get(true).get(true).get(false).intValue());
-						// new
-						recoveredCountArray.add(location_recovered_map.get(zone).get(true).get(false).intValue());
+
+						recoveredCountArray.add(new_active_covid_cases_in_zone.get(zone).get(true).get(DISEASESTAGE.RECOVERED).get(true).get(false).intValue());
 					} 
 					catch (Exception e) {
 						// No one in population met criteria
@@ -371,9 +230,7 @@ public class CovidLogging {
 					}
 					// get the cumultative number of covid deaths in the admin zone
 					try {
-						// old
-						// covidCumulativeDeathCount.add(location_cumulative_died_covid_map.get(zone).get(DISEASE.COVID).get(true).get(true).intValue());
-						// new
+
 						covidCumulativeDeathCount.add(location_cumulative_died_map.get(zone).get(true).intValue());
 					} 
 					catch (Exception e) {
@@ -382,10 +239,8 @@ public class CovidLogging {
 					}
 					// get the number of new covid deaths in the admin zone
 					try {
-						// old
-						// covidNewDeathCount.add(location_new_covid_deaths_map.get(zone).get(DISEASE.COVID).get(true).get(true).get(false).intValue());
-						// new
-						covidNewDeathCount.add(location_new_deaths_map.get(zone).get(true).get(false).intValue());
+
+						covidNewDeathCount.add(new_active_covid_cases_in_zone.get(zone).get(true).get(DISEASESTAGE.CAUSEOFDEATH).get(true).get(false).intValue());
 					} 
 					catch (Exception e) {
 						// No one in population met criteria
@@ -473,26 +328,10 @@ public class CovidLogging {
 			public void step(SimState arg0) {
 					// to make sure deaths and cases aren't counted multiple times, update this person's properties
 					for (Disease i: world.human_infections) {
+						
 							if ((i.isOfType(DISEASE.COVID)) & (i.isInfectionActive())) {
-							if(!i.isHostAlive()) {
-								i.confirmDeathLogged();
-							}
-							if(i.hasAsympt() & !i.getAsymptLogged()) {
-								i.confirmAsymptLogged();
-							}
-							if(i.hasMild() & !i.getMildLogged()) {
-								i.confirmMildLogged();
-							}
-							if(i.hasSevere() & !i.getSevereLogged()) {
-								i.confirmSevereLogged();
-							}
-							if(i.hasCritical() & !i.getCriticalLogged()) {
-								i.confirmCriticalLogged();
-							}
-							if(i.hasRecovered() & !i.getRecoveredLogged()) {
-								i.confirmCriticalLogged();
-							}
-							i.confirmLogged();
+								i.confirmStageLogged();
+								i.confirmLogged();
 						}
 					} 
 				}
