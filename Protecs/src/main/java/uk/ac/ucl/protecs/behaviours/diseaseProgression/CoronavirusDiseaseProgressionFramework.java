@@ -313,7 +313,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				}
 				((Person) i.getHost()).infectNeighbours();
 				// update the disease property
-				i.setSymptomatic();
+				i.setSymptomatic(true);
 				i.setEligibleForTesting();
 				i.setInfectionActive(true);
 
@@ -566,7 +566,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 					}
 				}
 				// if they have had symptomatic covid, make them no longer have symptoms of covid
-				if (i.isSymptomatic()) i.setSymptomatic();
+				if (i.isSymptomatic()) i.setSymptomatic(false);
 				// Update the disease property
 				i.setDiseaseStage(DISEASESTAGE.RECOVERED);
 

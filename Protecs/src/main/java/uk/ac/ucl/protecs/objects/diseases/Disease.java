@@ -127,8 +127,8 @@ public abstract class Disease implements Steppable {
 		return stage.equals(this.getDiseaseStage());
 	}
 	
-	public void setSymptomatic() {
-		this.isSymptomatic = !this.isSymptomatic;
+	public void setSymptomatic(Boolean value) {
+		this.isSymptomatic = value;
 		
 	}
 	

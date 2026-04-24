@@ -155,7 +155,7 @@ public class SpuriousSymptomDiseaseProgressionFramework extends DiseaseProgressi
 				switch (action) {
 					case SETUP:{
 						symptom.timeLastTriggered = time;
-						symptom.setSymptomatic();
+						symptom.setSymptomatic(true);
 						symptom.setEligibleForTesting();
 						symptom.time_recovered = symptom.timeLastTriggered + myWorld.params.ticks_per_week;
 						return 1;
