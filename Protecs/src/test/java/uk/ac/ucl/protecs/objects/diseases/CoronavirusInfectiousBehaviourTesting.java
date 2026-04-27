@@ -142,7 +142,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		
 		for (Disease d: sim.human_infections) {
-			if (d.hasMild() || d.hasSevere() || d.hasCritical() || d.isCauseOfDeath() || d.hasRecovered()) {
+			if (!d.hasDiseaseStage(DISEASESTAGE.SUSCEPTIBLE)) {
 				Assert.fail();
 			}
 		}

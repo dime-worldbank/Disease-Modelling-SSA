@@ -178,7 +178,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 				i.time_recovered = time;
 				// update the person's properties to show they don't have covid
 				i.setBehaviourNode(setNodeForTesting(CoronavirusBehaviourNodeTitle.SUSCEPTIBLE));
-				return Double.MAX_VALUE;
+				return 1;
 			}
 
 			@Override
