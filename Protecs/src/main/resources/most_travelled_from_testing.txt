@@ -1,2 +1,0 @@
-name,number
-A,2

@@ -1,0 +1,5 @@
+,person_id,age,sex,household_id,district_id,economic_status,economic_activity_location_id,school_goers,manufacturing_workers
+0,0,27,female,1146000,d_1,ag_estates,1.0,0,0.0
+1,1,27,female,1146001,d_1,ag_estates,1.0,0,0.0
+2,2,27,female,1146002,d_2,ag_estates,1.0,0,0.0
+3,3,27,female,1146003,d_2,ag_estates,1.0,0,0.0
