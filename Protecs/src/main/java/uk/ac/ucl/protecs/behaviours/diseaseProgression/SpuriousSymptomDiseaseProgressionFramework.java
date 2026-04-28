@@ -41,24 +41,7 @@ public class SpuriousSymptomDiseaseProgressionFramework extends DiseaseProgressi
 	// create an enum title to progress the onset of symptoms step-wise
 
 	public enum nextStepSpurious{
-		NO_SYMPTOMS("noSymptoms"), CAUSE_SYMPTOMS("causeSymptoms"), HAS_DIED("hasDied");
-		public String key;
-	     
-		nextStepSpurious(String key) { this.key = key; }
-		
-		public static nextStepSpurious getValue(String x) {
-        	switch (x) {
-        	case "noSymptoms":
-        		return NO_SYMPTOMS;
-        	case "causeSymptoms":
-        		return CAUSE_SYMPTOMS;
-        	case "hasDied":
-        		return HAS_DIED;
-        	default:
-        		throw new IllegalArgumentException();
-        	}
-		
-		}
+		NO_SYMPTOMS, CAUSE_SYMPTOMS, HAS_DIED;
 	} 
 	private nextStepSpurious nextStep;
 

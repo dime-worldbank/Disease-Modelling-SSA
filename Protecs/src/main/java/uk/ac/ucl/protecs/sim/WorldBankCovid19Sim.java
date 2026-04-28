@@ -28,6 +28,7 @@ import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgres
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.DummyInfectiousDiseaseProgressionFramework;
 import sim.engine.SimState;
 import sim.engine.Steppable;
+import sim.util.Proxiable;
 
 
 
