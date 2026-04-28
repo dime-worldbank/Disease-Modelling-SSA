@@ -66,61 +66,13 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 	}
 	
 	public enum nextStepCholeraInHumans{
-		DO_NOTHING("doNothing"), ASYMPTOMATIC("asymptomatic"), MILD("mild"), SEVERE("severe"), TREATMENT("treatment"), CRITICAL("critical"),
-		RECOVER("recover"), HAS_DIED("hasDied"), SUSCEPTIBLE("susceptible");
-		public String key;
-	     
-		nextStepCholeraInHumans(String key) { this.key = key; }
-		
-		public static nextStepCholeraInHumans getValue(String x) {
-        	switch (x) {
-        	case "doNothing":
-        		return DO_NOTHING;
-        	case "asymptomatic":
-        		return ASYMPTOMATIC;
-        	case "mild":
-        		return MILD;
-        	case "severe":
-        		return SEVERE;
-        	case "treatment":
-        		return TREATMENT;
-        	case "critical":
-        		return CRITICAL;
-        	case "recover":
-        		return RECOVER;	
-        	case "hasDied":
-        		return HAS_DIED;
-        	case "susceptible":
-        		return SUSCEPTIBLE;
-        	default:
-        		throw new IllegalArgumentException();
-        	}
-		
-		}
+		DO_NOTHING, ASYMPTOMATIC, MILD, SEVERE, TREATMENT, CRITICAL,
+		RECOVER, HAS_DIED, SUSCEPTIBLE;
 	} 
 	private nextStepCholeraInHumans nextStepInHumans;
 	
 	public enum nextStepCholeraInWater{
-		DO_NOTHING("doNothing"), HYPERINFECTIOUS("hyperinfectious"), ABNC("abnc"), CLEAN("clean");
-		public String key;
-	     
-		nextStepCholeraInWater(String key) { this.key = key; }
-		
-		public static nextStepCholeraInWater getValue(String x) {
-        	switch (x) {
-        	case "doNothing":
-        		return DO_NOTHING;
-        	case "hyperinfectious":
-        		return HYPERINFECTIOUS;
-        	case "abnc":
-        		return ABNC;
-        	case "clean":
-        		return CLEAN;
-        	default:
-        		throw new IllegalArgumentException();
-        	}
-		
-		}
+		DO_NOTHING, HYPERINFECTIOUS, ABNC, CLEAN;
 	} 
 	private nextStepCholeraInWater nextStepInWater;
 
