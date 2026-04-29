@@ -104,7 +104,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
 		HashSet<String> uniqueNodesInRun = HelperFunctions.getUniqueNodesOverCourseofSim(sim, numDays, NodeOption.CoronavirusInfectiousBehaviour, 1);
 		// we would expect only the susceptible node to appear as there is no COVID seeded in this simulation
-		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.SUSCEPTIBLE.key);
+		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.SUSCEPTIBLE.name());
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		// double check by testing the infection properties
@@ -137,7 +137,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
 		HashSet<String> uniqueNodesInRun = HelperFunctions.getUniqueNodesOverCourseofSim(sim, numDays, NodeOption.CoronavirusInfectiousBehaviour, 1);
 		// we would expect only the exposed, presymptomatic, asymptomatic and susceptible nodes to be present in the run
-		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.EXPOSED.key, CoronavirusBehaviourNodeTitle.SUSCEPTIBLE.key);
+		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.EXPOSED.name(), CoronavirusBehaviourNodeTitle.SUSCEPTIBLE.name());
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		
@@ -169,8 +169,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
 		HashSet<String> uniqueNodesInRun = HelperFunctions.getUniqueNodesOverCourseofSim(sim, numDays, NodeOption.CoronavirusInfectiousBehaviour, 1);
 		// we would expect only the exposed, presymptomatic, asymptomatic and susceptible nodes to be present in the run
-		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.EXPOSED.key, CoronavirusBehaviourNodeTitle.PRESYMPTOMATIC.key, 
-				CoronavirusBehaviourNodeTitle.ASYMPTOMATIC.key, CoronavirusBehaviourNodeTitle.SUSCEPTIBLE.key);
+		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.EXPOSED.name(), CoronavirusBehaviourNodeTitle.PRESYMPTOMATIC.name(), 
+				CoronavirusBehaviourNodeTitle.ASYMPTOMATIC.name(), CoronavirusBehaviourNodeTitle.SUSCEPTIBLE.name());
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		
@@ -202,7 +202,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Run the simulation and record the infectious behaviour nodes activated in this simulation
 		HashSet<String> uniqueNodesInRun = HelperFunctions.getUniqueNodesOverCourseofSim(sim, numDays, NodeOption.CoronavirusInfectiousBehaviour, 1);
 		// we would expect only the presymptomatic and mild node to show up in this run
-		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.PRESYMPTOMATIC.key, CoronavirusBehaviourNodeTitle.MILD.key);
+		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.PRESYMPTOMATIC.name(), CoronavirusBehaviourNodeTitle.MILD.name());
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		for (Disease d: sim.human_infections) {
@@ -229,7 +229,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Run the simulation and record the infectious behaviour nodes activated in this simulation
 		HashSet<String> uniqueNodesInRun = HelperFunctions.getUniqueNodesOverCourseofSim(sim, numDays, NodeOption.CoronavirusInfectiousBehaviour, 1);
 		// we would expect only the asymptomatic and recovered nodes to show up in this run
-		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.ASYMPTOMATIC.key, CoronavirusBehaviourNodeTitle.RECOVERED.key);
+		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.ASYMPTOMATIC.name(), CoronavirusBehaviourNodeTitle.RECOVERED.name());
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		for (Disease d: sim.human_infections) {
@@ -257,8 +257,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Run the simulation and record the infectious behaviour nodes activated in this simulation
 		HashSet<String> uniqueNodesInRun = HelperFunctions.getUniqueNodesOverCourseofSim(sim, numDays, NodeOption.CoronavirusInfectiousBehaviour, 1);
 		// we would expect only the severe, critical and recovered nodes to show up in this run
-		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.MILD.key, CoronavirusBehaviourNodeTitle.SEVERE.key, 
-				CoronavirusBehaviourNodeTitle.RECOVERED.key);
+		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.MILD.name(), CoronavirusBehaviourNodeTitle.SEVERE.name(), 
+				CoronavirusBehaviourNodeTitle.RECOVERED.name());
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		for (Disease d: sim.human_infections) {
@@ -286,7 +286,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
 		List<String> uniqueNodesInRun = HelperFunctions.getFinalBehaviourNodesInSim(sim, numDays, NodeOption.CoronavirusInfectiousBehaviour);
 		// we would expect only the recovered behaviour node at the end of the simulation
-		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.RECOVERED.key);
+		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.RECOVERED.name());
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		for (Disease d: sim.human_infections) {
@@ -314,8 +314,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Run the simulation and record the infectious behaviour nodes activated in this simulation
 		HashSet<String> uniqueNodesInRun = HelperFunctions.getUniqueNodesOverCourseofSim(sim, numDays, NodeOption.CoronavirusInfectiousBehaviour, 1);
 		// we would expect only the severe, critical and recovered nodes to show up in this run
-		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.SEVERE.key, CoronavirusBehaviourNodeTitle.CRITICAL.key, 
-				CoronavirusBehaviourNodeTitle.RECOVERED.key);
+		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.SEVERE.name(), CoronavirusBehaviourNodeTitle.CRITICAL.name(), 
+				CoronavirusBehaviourNodeTitle.RECOVERED.name());
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		
@@ -345,7 +345,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
 		List<String> uniqueNodesInRun = HelperFunctions.getFinalBehaviourNodesInSim(sim, numDays, NodeOption.CoronavirusInfectiousBehaviour);
 		// we would expect only the recovered node as the final behaviour node in the run
-		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.RECOVERED.key);
+		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.RECOVERED.name());
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		
@@ -373,8 +373,8 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Run the simulation and record the infectious behaviour nodes activated in this simulation
 		HashSet<String> uniqueNodesInRun = HelperFunctions.getUniqueNodesOverCourseofSim(sim, numDays, NodeOption.CoronavirusInfectiousBehaviour, 1);
 		// we would expect only the Critical, dead and recovered nodes to show up in this run
-		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.CRITICAL.key, CoronavirusBehaviourNodeTitle.DEAD.key, 
-				CoronavirusBehaviourNodeTitle.RECOVERED.key);
+		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.CRITICAL.name(), CoronavirusBehaviourNodeTitle.DEAD.name(), 
+				CoronavirusBehaviourNodeTitle.RECOVERED.name());
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		
@@ -403,7 +403,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
 		List<String> uniqueNodesInRun = HelperFunctions.getFinalBehaviourNodesInSim(sim, numDays, NodeOption.CoronavirusInfectiousBehaviour);
 		// we would expect only the recovered behaviour node at the end of the simulation
-		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.RECOVERED.key);
+		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.RECOVERED.name());
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		
@@ -429,7 +429,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
 		HashSet<String> uniqueNodesInRun = HelperFunctions.getUniqueNodesOverCourseofSim(sim, numDays, NodeOption.CoronavirusInfectiousBehaviour, 1);
 		// we would expect only the recovered node to appear as there is no COVID seeded in this simulation
-		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.RECOVERED.key);
+		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.RECOVERED.name());
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		
@@ -458,7 +458,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
 		HashSet<String> uniqueNodesInRun = HelperFunctions.getUniqueNodesOverCourseofSim(sim, numDays, NodeOption.CoronavirusInfectiousBehaviour, 1);
 		// we would expect only the recovered node to appear as there is no COVID seeded in this simulation
-		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.DEAD.key);
+		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.DEAD.name());
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		
@@ -486,7 +486,7 @@ public class CoronavirusInfectiousBehaviourTesting {
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
 		List<String> uniqueNodesInRun = HelperFunctions.getFinalBehaviourNodesInSim(sim, numDays, NodeOption.CoronavirusInfectiousBehaviour);
 		// we would expect only the recovered or dead node to appear at the end of simulation
-		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.RECOVERED.key, CoronavirusBehaviourNodeTitle.DEAD.key);
+		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.RECOVERED.name(), CoronavirusBehaviourNodeTitle.DEAD.name());
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 		// test the DALY calculations run

@@ -676,7 +676,7 @@ public class Person extends Host {
 		if (waterFrom.getDiseaseSet().size() > 0) {
 			for (String diseaseName: waterFrom.getDiseaseSet().keySet()) {
 				// check if this water is clean:
-				boolean cleanWater = waterFrom.getDiseaseSet().get(diseaseName).getCurrentBehaviourNode().getTitle().equals(CholeraBehaviourNodeInWater.CLEAN.key);
+				boolean cleanWater = waterFrom.getDiseaseSet().get(diseaseName).getCurrentBehaviourNode().getTitle().equals(CholeraBehaviourNodeInWater.CLEAN.name());
 				if (!cleanWater) {
 					// if a cholera infection exists in the other watersource, transfer over the behaviour node to represent transferring water over
 					if (waterTo.getDiseaseSet().containsKey(diseaseName)) {

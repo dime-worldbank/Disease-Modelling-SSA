@@ -146,7 +146,7 @@ public class MobilityTesting {
 		// There are 4 hours per tick, meaning 6 ticks per day. We check they are home after the 5th tick of the simulation.
 		List<String> uniqueNodesInRun = HelperFunctions.getFinalBehaviourNodesInSim(sim, 5.01 / sim.params.ticks_per_day, NodeOption.MovementBehaviour);
 		// only expect people to be at home
-		List<String> expectedNodes = Arrays.asList(mobilityNodeTitle.HOME.key);
+		List<String> expectedNodes = Arrays.asList(mobilityNodeTitle.HOME.name());
 
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun) && uniqueNodesInRun.containsAll(expectedNodes));
 	}
@@ -189,7 +189,7 @@ public class MobilityTesting {
 		// people start at home and then go to the community afterwards
 		List<String> finalNodesInRun = HelperFunctions.getFinalBehaviourNodesInSim(sim, 2.01 / sim.params.ticks_per_day, NodeOption.MovementBehaviour);
 		// only expect people to be at home
-		List<String> expectedNodes = Arrays.asList(mobilityNodeTitle.COMMUNITY.key);
+		List<String> expectedNodes = Arrays.asList(mobilityNodeTitle.COMMUNITY.name());
 		System.out.println(finalNodesInRun);
 		Assert.assertTrue(expectedNodes.containsAll(finalNodesInRun) && finalNodesInRun.containsAll(expectedNodes));
 	}
@@ -226,7 +226,7 @@ public class MobilityTesting {
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
 		HashSet<String> uniqueNodesInRun = HelperFunctions.getUniqueNodesOverCourseofSim(sim, numDays, NodeOption.MovementBehaviour, 0.0);
 		// we would expect only the home and community node to appear in the simulation
-		List<String> expectedNodes = Arrays.asList(mobilityNodeTitle.HOME.key, mobilityNodeTitle.COMMUNITY.key);
+		List<String> expectedNodes = Arrays.asList(mobilityNodeTitle.HOME.name(), mobilityNodeTitle.COMMUNITY.name());
 		// Make sure than no other movement behaviour nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun) && uniqueNodesInRun.containsAll(expectedNodes));
 	}
@@ -247,7 +247,7 @@ public class MobilityTesting {
 		// There are 4 hours per tick, meaning 6 ticks per day. We check they are home after the 5th tick of the simulation.
 		List<String> uniqueNodesInRun = HelperFunctions.getFinalBehaviourNodesInSim(sim, 5.01 / sim.params.ticks_per_day, NodeOption.MovementBehaviour);
 		// only expect people to be at home
-		List<String> expectedNodes = Arrays.asList(mobilityNodeTitle.HOME.key);
+		List<String> expectedNodes = Arrays.asList(mobilityNodeTitle.HOME.name());
 
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun) && uniqueNodesInRun.containsAll(expectedNodes));
 	}
@@ -292,7 +292,7 @@ public class MobilityTesting {
 				if (!sim.params.OccupationConstraintList.containsKey(p.getEconStatus()))
 					// force an assertion failure
 					Assert.assertTrue(p.getLocation() instanceof Workplace);
-					Assert.assertTrue(p.getActivityNode().getTitle().equals(mobilityNodeTitle.WORK.key));
+					Assert.assertTrue(p.getActivityNode().getTitle().equals(mobilityNodeTitle.WORK.name()));
 				}
 		}		
 	}
@@ -319,7 +319,7 @@ public class MobilityTesting {
 				if (!sim.params.OccupationConstraintList.containsKey(p.getEconStatus()))
 					// force an assertion failure
 					Assert.assertTrue(p.getLocation() instanceof Workplace);
-					Assert.assertTrue(p.getActivityNode().getTitle().equals(mobilityNodeTitle.WORK.key));
+					Assert.assertTrue(p.getActivityNode().getTitle().equals(mobilityNodeTitle.WORK.name()));
 					}
 			}
 			// Now rerun the simulation with the same seed making sure that people leave their workplace
@@ -333,7 +333,7 @@ public class MobilityTesting {
 			// If they are at a workplace or are doing the 'work' behaviour node, fail
 			for (Person p: sim.agents) {
 				Assert.assertTrue(!(p.getLocation() instanceof Workplace));
-				Assert.assertTrue(!(p.getActivityNode().getTitle().equals(mobilityNodeTitle.WORK.key)));
+				Assert.assertTrue(!(p.getActivityNode().getTitle().equals(mobilityNodeTitle.WORK.name())));
 
 			}
 	}

@@ -56,12 +56,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 	// probability of staying at home if having covid taken from Makinde et al. 2021 https://genus.springeropen.com/articles/10.1186/s41118-021-00130-w
 	public double covid_prob_stay_at_home_mild = 0.707;
 	public enum CoronavirusBehaviourNodeTitle{
-		SUSCEPTIBLE("susceptible"), EXPOSED("exposed"), PRESYMPTOMATIC("presymptomatic"), ASYMPTOMATIC("asymptomatic"), 
-		MILD("mild"), SEVERE("severe"), CRITICAL("critical"), RECOVERED("recovered"), DEAD("dead");
-         
-        public String key;
-     
-        CoronavirusBehaviourNodeTitle(String key) { this.key = key; }
+		SUSCEPTIBLE, EXPOSED, PRESYMPTOMATIC, ASYMPTOMATIC, MILD, SEVERE, CRITICAL, RECOVERED, DEAD;
 
 	}
 	
@@ -74,7 +69,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 		this.susceptibleNode = new BehaviourNode(){
 			
 			@Override
-			public String getTitle() { return CoronavirusBehaviourNodeTitle.SUSCEPTIBLE.key; }
+			public String getTitle() { return CoronavirusBehaviourNodeTitle.SUSCEPTIBLE.name(); }
 
 			@Override
 			public double next(Steppable s, double time) {
@@ -95,7 +90,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 		this.exposedNode = new BehaviourNode(){
 			
 			@Override
-			public String getTitle() { return CoronavirusBehaviourNodeTitle.EXPOSED.key; }
+			public String getTitle() { return CoronavirusBehaviourNodeTitle.EXPOSED.name(); }
 
 			/**
 			 * After being exposed, the disease may develop in a number of ways.
@@ -193,7 +188,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 			
 			
 			@Override
-			public String getTitle() { return CoronavirusBehaviourNodeTitle.PRESYMPTOMATIC.key; }
+			public String getTitle() { return CoronavirusBehaviourNodeTitle.PRESYMPTOMATIC.name(); }
 
 			@Override
 			public double next(Steppable s, double time) {
@@ -234,7 +229,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 			
 
 			@Override
-			public String getTitle() { return CoronavirusBehaviourNodeTitle.ASYMPTOMATIC.key; }
+			public String getTitle() { return CoronavirusBehaviourNodeTitle.ASYMPTOMATIC.name(); }
 
 			@Override
 			public double next(Steppable s, double time) {
@@ -277,7 +272,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 		this.mildNode = new BehaviourNode(){
 
 			@Override
-			public String getTitle() { return CoronavirusBehaviourNodeTitle.MILD.key; }
+			public String getTitle() { return CoronavirusBehaviourNodeTitle.MILD.name(); }
 
 			@Override
 			public double next(Steppable s, double time) {
@@ -367,7 +362,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 		this.severeNode = new BehaviourNode(){
 
 			@Override
-			public String getTitle() { return CoronavirusBehaviourNodeTitle.SEVERE.key; }
+			public String getTitle() { return CoronavirusBehaviourNodeTitle.SEVERE.name(); }
 
 			@Override
 			public double next(Steppable s, double time) {
@@ -437,7 +432,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 		this.criticalNode = new BehaviourNode(){
 			
 			@Override
-			public String getTitle() { return CoronavirusBehaviourNodeTitle.CRITICAL.key; }
+			public String getTitle() { return CoronavirusBehaviourNodeTitle.CRITICAL.name(); }
 
 			@Override
 			public double next(Steppable s, double time) {
@@ -512,7 +507,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 		this.recoveredNode = new BehaviourNode(){
 
 			@Override
-			public String getTitle() { return CoronavirusBehaviourNodeTitle.RECOVERED.key; }
+			public String getTitle() { return CoronavirusBehaviourNodeTitle.RECOVERED.name(); }
 
 			@Override
 			public double next(Steppable s, double time) {
@@ -560,7 +555,7 @@ public class CoronavirusDiseaseProgressionFramework extends DiseaseProgressionBe
 		this.deadNode = new BehaviourNode(){
 
 			@Override
-			public String getTitle() { return CoronavirusBehaviourNodeTitle.DEAD.key; }
+			public String getTitle() { return CoronavirusBehaviourNodeTitle.DEAD.name(); }
 
 			@Override
 			public double next(Steppable s, double time) {

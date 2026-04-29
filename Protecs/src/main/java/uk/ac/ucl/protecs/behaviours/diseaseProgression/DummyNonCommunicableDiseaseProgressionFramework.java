@@ -17,19 +17,12 @@ public class DummyNonCommunicableDiseaseProgressionFramework extends DiseaseProg
 	public double dummy_ncd_initial_fraction_with_ncd = 0.1;
 	
 	public enum DummyNonCommunicableBehaviourNode{
-		SUSCEPTIBLE("susceptible"), EXPOSED("exposed"), RECOVERED("recovered"), DEAD("dead");
-
-        String key;
-     
-        DummyNonCommunicableBehaviourNode(String key) { this.key = key; }
+		SUSCEPTIBLE, EXPOSED, RECOVERED, DEAD;
     
 	}
 	
 	public enum nextStepDummy{
-		NO_SYMPTOMS("noSymptoms"), CAUSE_SYMPTOMS("causeSymptoms"), DO_NOTHING("doNothing"), RECOVER("recover"), HAS_DIED("hasDied");
-		public String key;
-	     
-		nextStepDummy(String key) { this.key = key; }
+		NO_SYMPTOMS, CAUSE_SYMPTOMS, DO_NOTHING, RECOVER, HAS_DIED;
 
 	} 
 	private nextStepDummy nextStep;
@@ -44,7 +37,7 @@ public class DummyNonCommunicableDiseaseProgressionFramework extends DiseaseProg
 			@Override
 			public String getTitle() {
 				// TODO Auto-generated method stub
-				return DummyNonCommunicableBehaviourNode.SUSCEPTIBLE.key;
+				return DummyNonCommunicableBehaviourNode.SUSCEPTIBLE.name();
 			}
 
 			@Override
@@ -93,7 +86,7 @@ public class DummyNonCommunicableDiseaseProgressionFramework extends DiseaseProg
 		@Override
 		public String getTitle() {
 			// TODO Auto-generated method stub
-			return DummyNonCommunicableBehaviourNode.EXPOSED.key;
+			return DummyNonCommunicableBehaviourNode.EXPOSED.name();
 		}
 
 		@Override
@@ -141,7 +134,7 @@ public class DummyNonCommunicableDiseaseProgressionFramework extends DiseaseProg
 		@Override
 		public String getTitle() {
 			// TODO Auto-generated method stub
-			return DummyNonCommunicableBehaviourNode.RECOVERED.key;
+			return DummyNonCommunicableBehaviourNode.RECOVERED.name();
 		}
 
 		@Override
@@ -169,7 +162,7 @@ public class DummyNonCommunicableDiseaseProgressionFramework extends DiseaseProg
 		@Override
 		public String getTitle() {
 			// TODO Auto-generated method stub
-			return DummyNonCommunicableBehaviourNode.DEAD.key;
+			return DummyNonCommunicableBehaviourNode.DEAD.name();
 		}
 
 		@Override

@@ -109,7 +109,7 @@ public class CholeraInHumansTesting {
 		boolean choleraLoadedIn = false;
 		// iterate over the population to try and find a cholera infection via their disease set
 		for (Person p: sim.agents) {
-			if (p.getDiseaseSet().containsKey(DISEASE.CHOLERA.key)) {
+			if (p.getDiseaseSet().containsKey(DISEASE.CHOLERA.name())) {
 				// if we found a cholera case, alter our assumption that none have been loaded in and stop the search
 				choleraLoadedIn = true;
 				break;
@@ -131,11 +131,11 @@ public class CholeraInHumansTesting {
 		boolean startsAsExposed = true;
 		// iterate over the population to try and find a cholera infection via their disease set
 		for (Person p: sim.agents) {
-			if (p.getDiseaseSet().containsKey(DISEASE.CHOLERA.key)) {
+			if (p.getDiseaseSet().containsKey(DISEASE.CHOLERA.name())) {
 				// get this infection's current behaviour
 				String currentBehaviourName = sim.choleraFramework.setNodeForTesting(CholeraBehaviourNodeInHumans.EXPOSED).getTitle();
 				// check this is the exposed node behaviour, break for loop if not
-				if (!p.getDiseaseSet().get(DISEASE.CHOLERA.key).getBehaviourName().equals(currentBehaviourName)) {
+				if (!p.getDiseaseSet().get(DISEASE.CHOLERA.name()).getBehaviourName().equals(currentBehaviourName)) {
 					startsAsExposed = false;
 					break;
 				}
@@ -179,8 +179,8 @@ public class CholeraInHumansTesting {
 		HashSet<String> uniqueNodesInRun = HelperFunctions.getUniqueNodesOverCourseofSim(sim, num_days, NodeOption.Cholera, 1);
 		
 		// list the expected nodes
-		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.EXPOSED.key, CoronavirusBehaviourNodeTitle.SUSCEPTIBLE.key, CoronavirusBehaviourNodeTitle.ASYMPTOMATIC.key, 
-				CoronavirusBehaviourNodeTitle.MILD.key, CoronavirusBehaviourNodeTitle.SEVERE.key);
+		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.EXPOSED.name(), CoronavirusBehaviourNodeTitle.SUSCEPTIBLE.name(), CoronavirusBehaviourNodeTitle.ASYMPTOMATIC.name(), 
+				CoronavirusBehaviourNodeTitle.MILD.name(), CoronavirusBehaviourNodeTitle.SEVERE.name());
 
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
@@ -210,7 +210,7 @@ public class CholeraInHumansTesting {
 		HashSet<String> uniqueNodesInRun = HelperFunctions.getUniqueNodesOverCourseofSim(sim, num_days, NodeOption.Cholera, 1);
 		
 		// list the expected nodes
-		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.ASYMPTOMATIC.key, CoronavirusBehaviourNodeTitle.RECOVERED.key);
+		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.ASYMPTOMATIC.name(), CoronavirusBehaviourNodeTitle.RECOVERED.name());
 
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
@@ -241,7 +241,7 @@ public class CholeraInHumansTesting {
 		HashSet<String> uniqueNodesInRun = HelperFunctions.getUniqueNodesOverCourseofSim(sim, num_days, NodeOption.Cholera, 1);
 		
 		// list the expected nodes
-		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.MILD.key, CoronavirusBehaviourNodeTitle.RECOVERED.key);
+		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.MILD.name(), CoronavirusBehaviourNodeTitle.RECOVERED.name());
 
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
@@ -273,7 +273,7 @@ public class CholeraInHumansTesting {
 		HashSet<String> uniqueNodesInRun = HelperFunctions.getUniqueNodesOverCourseofSim(sim, num_days, NodeOption.Cholera, 1);
 		
 		// list the expected nodes
-		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.SEVERE.key, CoronavirusBehaviourNodeTitle.CRITICAL.key, CoronavirusBehaviourNodeTitle.DEAD.key, CoronavirusBehaviourNodeTitle.RECOVERED.key);
+		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.SEVERE.name(), CoronavirusBehaviourNodeTitle.CRITICAL.name(), CoronavirusBehaviourNodeTitle.DEAD.name(), CoronavirusBehaviourNodeTitle.RECOVERED.name());
 
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
@@ -305,7 +305,7 @@ public class CholeraInHumansTesting {
 		HashSet<String> uniqueNodesInRun = HelperFunctions.getUniqueNodesOverCourseofSim(sim, num_days, NodeOption.Cholera, 1);
 		
 		// list the expected nodes
-		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.CRITICAL.key, CoronavirusBehaviourNodeTitle.DEAD.key, CoronavirusBehaviourNodeTitle.RECOVERED.key);
+		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.CRITICAL.name(), CoronavirusBehaviourNodeTitle.DEAD.name(), CoronavirusBehaviourNodeTitle.RECOVERED.name());
 
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
@@ -337,7 +337,7 @@ public class CholeraInHumansTesting {
 		HashSet<String> uniqueNodesInRun = HelperFunctions.getUniqueNodesOverCourseofSim(sim, num_days, NodeOption.Cholera, 1);
 		
 		// list the expected nodes
-		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.DEAD.key);
+		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.DEAD.name());
 
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
@@ -368,7 +368,7 @@ public class CholeraInHumansTesting {
 		HashSet<String> uniqueNodesInRun = HelperFunctions.getUniqueNodesOverCourseofSim(sim, num_days, NodeOption.Cholera, 1);
 		
 		// list the expected nodes
-		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.RECOVERED.key, CoronavirusBehaviourNodeTitle.SUSCEPTIBLE.key);
+		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.RECOVERED.name(), CoronavirusBehaviourNodeTitle.SUSCEPTIBLE.name());
 
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
@@ -397,7 +397,7 @@ public class CholeraInHumansTesting {
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
 		List<String> uniqueNodesInRun = HelperFunctions.getFinalNodesInHumans(sim, numDays);
 		// we would expect only the recovered or dead node to appear at the end of simulation
-		List<String> expectedNodes = Arrays.asList(CholeraBehaviourNodeInHumans.SUSCEPTIBLE.key, CholeraBehaviourNodeInHumans.RECOVERED.key, CholeraBehaviourNodeInHumans.DEAD.key);
+		List<String> expectedNodes = Arrays.asList(CholeraBehaviourNodeInHumans.SUSCEPTIBLE.name(), CholeraBehaviourNodeInHumans.RECOVERED.name(), CholeraBehaviourNodeInHumans.DEAD.name());
 		// write out the infection to test that things work without error
 		ImportExport.exportInfections("cholera_human_infections.txt", sim.human_infections);
 		// Make sure than no other nodes are reaching in the simulation

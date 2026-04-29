@@ -20,11 +20,7 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 	BehaviourNode workNode = null, communityNode = null, homeNode = null;
 	
 	public enum mobilityNodeTitle{
-        HOME("home"), WORK("work"), COMMUNITY("community");
-         
-        public String key; 
-     
-        mobilityNodeTitle(String key) { this.key = key; }
+        HOME, WORK, COMMUNITY;
    }
 	public MovementBehaviourFramework(WorldBankCovid19Sim model){
 		myWorld = model;
@@ -32,7 +28,7 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 		homeNode = new BehaviourNode(){
 			
 			@Override
-			public String getTitle() {return mobilityNodeTitle.HOME.key;}
+			public String getTitle() {return mobilityNodeTitle.HOME.name();}
 
 			@Override
 			public double next(Steppable s, double time) {
@@ -178,7 +174,7 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 		workNode = new BehaviourNode(){
 			
 			@Override
-			public String getTitle() { return mobilityNodeTitle.WORK.key; }
+			public String getTitle() { return mobilityNodeTitle.WORK.name(); }
 
 			@Override
 			public double next(Steppable s, double time) {
@@ -219,7 +215,7 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 		communityNode = new BehaviourNode(){
 						
 			@Override
-			public String getTitle() { return mobilityNodeTitle.COMMUNITY.key; }
+			public String getTitle() { return mobilityNodeTitle.COMMUNITY.name(); }
 
 			@Override
 			public double next(Steppable s, double time) {

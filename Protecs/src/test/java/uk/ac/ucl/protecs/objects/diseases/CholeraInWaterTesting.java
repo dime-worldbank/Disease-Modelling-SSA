@@ -131,7 +131,7 @@ public class CholeraInWaterTesting {
 		boolean choleraSeededInWater = false;
 		// iterate over the population to try and find a cholera infection via their disease set
 		for (Water w: sim.waterInSim) {
-			if (w.getDiseaseSet().containsKey(DISEASE.CHOLERA.key)) {
+			if (w.getDiseaseSet().containsKey(DISEASE.CHOLERA.name())) {
 				// if we found a cholera case, alter our assumption that none have been loaded in and stop the search
 				choleraSeededInWater = true;
 				break;
@@ -153,7 +153,7 @@ public class CholeraInWaterTesting {
 		boolean choleraInWaterIsContaminated = true;
 		// iterate over the diseases in water to try and find a cholera infection that isn't doing the contaminated behaviour
 		for (Disease d: sim.other_infections) {
-			if (!((d.isOfType(DISEASE.CHOLERA)) & (d.getCurrentBehaviourNode().getTitle().equals(CholeraBehaviourNodeInWater.HYPERINFECTIOUS.key)))) {
+			if (!((d.isOfType(DISEASE.CHOLERA)) & (d.getCurrentBehaviourNode().getTitle().equals(CholeraBehaviourNodeInWater.HYPERINFECTIOUS.name())))) {
 				choleraInWaterIsContaminated = false;
 				break;
 			}
@@ -171,7 +171,7 @@ public class CholeraInWaterTesting {
 		int number_of_initial_infections_in_water = 0;
 
 		for (Water w: sim.waterInSim) {
-			if (w.getDiseaseSet().containsKey(DISEASE.CHOLERA.key)) number_of_initial_infections_in_water ++;
+			if (w.getDiseaseSet().containsKey(DISEASE.CHOLERA.name())) number_of_initial_infections_in_water ++;
 
 		}
 		int numDays = 50;
@@ -179,7 +179,7 @@ public class CholeraInWaterTesting {
 		int number_of_new_infections_in_water = 0;
 
 		for (Water w: sim.waterInSim) {
-			if (w.getDiseaseSet().containsKey(DISEASE.CHOLERA.key)) number_of_new_infections_in_water ++;
+			if (w.getDiseaseSet().containsKey(DISEASE.CHOLERA.name())) number_of_new_infections_in_water ++;
 
 		}
 		Assert.assertTrue(number_of_new_infections_in_water > number_of_initial_infections_in_water);
@@ -195,7 +195,7 @@ public class CholeraInWaterTesting {
 		int number_of_initial_infections_in_humans = 0;
 
 		for (Person p: sim.agents) {
-			if (p.getDiseaseSet().containsKey(DISEASE.CHOLERA.key)) number_of_initial_infections_in_humans ++;
+			if (p.getDiseaseSet().containsKey(DISEASE.CHOLERA.name())) number_of_initial_infections_in_humans ++;
 
 		}
 		int numDays = 50;
@@ -203,7 +203,7 @@ public class CholeraInWaterTesting {
 		int number_of_new_infections_in_humans = 0;
 
 		for (Person p: sim.agents) {
-			if (p.getDiseaseSet().containsKey(DISEASE.CHOLERA.key)) number_of_new_infections_in_humans ++;
+			if (p.getDiseaseSet().containsKey(DISEASE.CHOLERA.name())) number_of_new_infections_in_humans ++;
 
 		}
 		Assert.assertTrue(number_of_new_infections_in_humans > number_of_initial_infections_in_humans);
@@ -218,7 +218,7 @@ public class CholeraInWaterTesting {
 		// get initial set of water
 		ArrayList<Water> originalContaminatedWater = new ArrayList<Water>();
 		for (Water w: sim.waterInSim) {
-			if (w.getDiseaseSet().containsKey(DISEASE.CHOLERA.key)) originalContaminatedWater.add(w);
+			if (w.getDiseaseSet().containsKey(DISEASE.CHOLERA.name())) originalContaminatedWater.add(w);
 
 		}
 		// make sure there are no new contamination events from shedding
@@ -229,7 +229,7 @@ public class CholeraInWaterTesting {
 		// check that all of the initial set of water infections are ABNC
 		boolean all_abnc = true;
 		for (Water w: originalContaminatedWater) {
-			if (!w.getDiseaseSet().get(DISEASE.CHOLERA.key).getCurrentBehaviourNode().getTitle().equals(CholeraBehaviourNodeInWater.ABNC.key)) {
+			if (!w.getDiseaseSet().get(DISEASE.CHOLERA.name()).getCurrentBehaviourNode().getTitle().equals(CholeraBehaviourNodeInWater.ABNC.name())) {
 				// if we find one that isn't active but non culturable break the loop
 				all_abnc = false;
 				break;
@@ -247,7 +247,7 @@ public class CholeraInWaterTesting {
 		// get initial set of water
 		ArrayList<Water> originalContaminatedWater = new ArrayList<Water>();
 		for (Water w: sim.waterInSim) {
-			if (w.getDiseaseSet().containsKey(DISEASE.CHOLERA.key)) originalContaminatedWater.add(w);
+			if (w.getDiseaseSet().containsKey(DISEASE.CHOLERA.name())) originalContaminatedWater.add(w);
 
 		}
 		// make sure there are no new contamination events from shedding
@@ -259,7 +259,7 @@ public class CholeraInWaterTesting {
 		// check that all of the initial set of water infections are ABNC
 		boolean all_clean = true;
 		for (Water w: originalContaminatedWater) {
-			if (!w.getDiseaseSet().get(DISEASE.CHOLERA.key).getCurrentBehaviourNode().getTitle().equals(CholeraBehaviourNodeInWater.CLEAN.key)) {					
+			if (!w.getDiseaseSet().get(DISEASE.CHOLERA.name()).getCurrentBehaviourNode().getTitle().equals(CholeraBehaviourNodeInWater.CLEAN.name())) {					
 				// if we find one that isn't clean break the loop
 				all_clean = false;
 				break;
@@ -316,7 +316,7 @@ public class CholeraInWaterTesting {
 		sim.start();
 		// if any community locations have had cholera seeded in them, clear it
 		for (Water w: sim.waterInSim) {
-			if ((w.getDiseaseSet().containsKey(DISEASE.CHOLERA.key)) & (w.getLocation().getLocationType().equals(LocationCategory.COMMUNITY))) {
+			if ((w.getDiseaseSet().containsKey(DISEASE.CHOLERA.name())) & (w.getLocation().getLocationType().equals(LocationCategory.COMMUNITY))) {
 				w.getDiseaseSet().clear();
 			}
 
