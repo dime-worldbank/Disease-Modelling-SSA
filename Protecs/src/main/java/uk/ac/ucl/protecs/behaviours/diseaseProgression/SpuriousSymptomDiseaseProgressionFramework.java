@@ -15,28 +15,8 @@ public class SpuriousSymptomDiseaseProgressionFramework extends DiseaseProgressi
 	// create an enum title for each of the spurious symptom behaviour nodes, susceptible (no symptoms), exposed (has symptoms), 
 	// dead (has passed away so can't have symptoms), setup (for initialising) and recover for removing symptoms
 	public enum SpuriousSymptomBehaviourNode{
-		SUSCEPTIBLE("susceptible"), EXPOSED("exposed"), DEAD("dead"), SETUP("initialSetUp"), RECOVER("recover");
-
-        String key;
-     
-        SpuriousSymptomBehaviourNode(String key) { this.key = key; }
+		SUSCEPTIBLE, EXPOSED, DEAD, SETUP, RECOVER;
     
-        static SpuriousSymptomBehaviourNode getValue(String x) {
-        	switch (x) {
-        	case "susceptible":
-        		return SUSCEPTIBLE;
-        	case "exposed":
-        		return EXPOSED;
-        	case "dead":
-        		return DEAD;
-        	case "initialSetUp":
-        		return SETUP;
-        	case "recover":
-        		return RECOVER;
-        	default:
-        		throw new IllegalArgumentException();
-        	}
-        }
 	}
 	// create an enum title to progress the onset of symptoms step-wise
 
@@ -54,7 +34,7 @@ public class SpuriousSymptomDiseaseProgressionFramework extends DiseaseProgressi
 		this.susceptibleNode = new BehaviourNode(){
 
 			@Override
-			public String getTitle() { return SpuriousSymptomBehaviourNode.SUSCEPTIBLE.key; }
+			public String getTitle() { return SpuriousSymptomBehaviourNode.SUSCEPTIBLE.name(); }
 
 			@Override
 			public double next(Steppable s, double time) {
@@ -103,7 +83,7 @@ public class SpuriousSymptomDiseaseProgressionFramework extends DiseaseProgressi
 		this.exposedNode = new BehaviourNode(){
 
 			@Override
-			public String getTitle() { return SpuriousSymptomBehaviourNode.EXPOSED.key; }
+			public String getTitle() { return SpuriousSymptomBehaviourNode.EXPOSED.name(); }
 
 			/**
 			 * After being exposed, the disease may develop in a number of ways.
@@ -167,7 +147,7 @@ public class SpuriousSymptomDiseaseProgressionFramework extends DiseaseProgressi
 		this.deadNode = new BehaviourNode(){
 
 			@Override
-			public String getTitle() { return SpuriousSymptomBehaviourNode.DEAD.key; }
+			public String getTitle() { return SpuriousSymptomBehaviourNode.DEAD.name(); }
 
 			@Override
 			public double next(Steppable s, double time) {

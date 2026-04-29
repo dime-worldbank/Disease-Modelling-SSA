@@ -16,49 +16,16 @@ public class DummyWaterborneDiseaseProgressionFramework extends DiseaseProgressi
 	public double dummy_waterborne_recovery_rate = 0.5;
 	
 	public enum WaterborneBehaviourNodeInHumans{
-		SUSCEPTIBLE("susceptible"), EXPOSED("exposed"), RECOVERED("recovered"), DEAD("dead");
-
-        String key;
-     
-        WaterborneBehaviourNodeInHumans(String key) { this.key = key; }
-    
-        static WaterborneBehaviourNodeInHumans getValue(String x) {
-        	switch (x) {
-        	case "susceptible":
-        		return SUSCEPTIBLE;
-        	case "exposed":
-        		return EXPOSED;
-        	case "recover":
-        		return RECOVERED;
-        	case "dead":
-        		return DEAD;
-        	default:
-        		throw new IllegalArgumentException();
-        	}
-        }
+		SUSCEPTIBLE, EXPOSED, RECOVERED, DEAD;
 	}
 	
 	public enum WaterborneBehaviourNodeInWater{
-		CLEAN("clean"), CONTAMINATED("contaminated");
-
-        String key;
-     
-        WaterborneBehaviourNodeInWater(String key) { this.key = key; }
-    
-        static WaterborneBehaviourNodeInWater getValue(String x) {
-        	switch (x) {
-        	case "clean":
-        		return CLEAN;
-        	case "contaminated":
-        		return CONTAMINATED;
-        	default:
-        		throw new IllegalArgumentException();
-        	}
-        }
+		CLEAN, CONTAMINATED;
 	}
 	
 	public enum nextStepDummy{
 		NO_SYMPTOMS, CAUSE_SYMPTOMS, DO_NOTHING, RECOVER, HAS_DIED;
+		
 	} 
 	private nextStepDummy nextStep;
 
@@ -70,7 +37,7 @@ public class DummyWaterborneDiseaseProgressionFramework extends DiseaseProgressi
 		this.susceptibleNode = new BehaviourNode(){
 			
 			@Override
-			public String getTitle() { return WaterborneBehaviourNodeInHumans.SUSCEPTIBLE.key; }
+			public String getTitle() { return WaterborneBehaviourNodeInHumans.SUSCEPTIBLE.name(); }
 
 			@Override
 			public double next(Steppable s, double time) {
@@ -89,7 +56,7 @@ public class DummyWaterborneDiseaseProgressionFramework extends DiseaseProgressi
 		@Override
 		public String getTitle() {
 			// TODO Auto-generated method stub
-			return WaterborneBehaviourNodeInHumans.EXPOSED.key;
+			return WaterborneBehaviourNodeInHumans.EXPOSED.name();
 		}
 
 		@Override
@@ -137,7 +104,7 @@ public class DummyWaterborneDiseaseProgressionFramework extends DiseaseProgressi
 		@Override
 		public String getTitle() {
 			// TODO Auto-generated method stub
-			return WaterborneBehaviourNodeInHumans.RECOVERED.key;
+			return WaterborneBehaviourNodeInHumans.RECOVERED.name();
 		}
 
 		@Override
@@ -165,7 +132,7 @@ public class DummyWaterborneDiseaseProgressionFramework extends DiseaseProgressi
 		@Override
 		public String getTitle() {
 			// TODO Auto-generated method stub
-			return WaterborneBehaviourNodeInHumans.DEAD.key;
+			return WaterborneBehaviourNodeInHumans.DEAD.name();
 		}
 
 		@Override
@@ -189,7 +156,7 @@ public class DummyWaterborneDiseaseProgressionFramework extends DiseaseProgressi
 		@Override
 		public String getTitle() {
 			// TODO Auto-generated method stub
-			return WaterborneBehaviourNodeInWater.CONTAMINATED.key;
+			return WaterborneBehaviourNodeInWater.CONTAMINATED.name();
 		}
 
 		@Override
@@ -206,7 +173,7 @@ public class DummyWaterborneDiseaseProgressionFramework extends DiseaseProgressi
 		
 	};
 }
-	public BehaviourNode getStandardEntryPoint(){ return this.susceptibleNode; }
+	public BehaviourNode getStandardEntryPoint(){ return this.exposedNode; }
 	
 	public BehaviourNode getStandardEntryPointForWater(){ return this.contaminatedNode; }
 	

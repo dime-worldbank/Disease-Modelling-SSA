@@ -616,60 +616,6 @@ public class Params {
 		}
 	}
 	
-	public void load_all_cause_mortality_params(String filename) {
-		try {
-			
-			if(verbose)
-				System.out.println("Reading in all cause mortality data from " + filename);
-			
-			// Open the tracts file
-			FileInputStream fstream = new FileInputStream(filename);
-
-			// Convert our input stream to a BufferedReader
-			BufferedReader lineListDataFile = new BufferedReader(new InputStreamReader(fstream));
-			String s;
-
-			// extract the header
-			s = lineListDataFile.readLine();
-
-			// map the header into column names relative to location
-			String [] header = splitRawCSVString(s);
-			HashMap <String, Integer> columnNames = parseHeader(header);
-			
-			// set up data container
-			
-			all_cause_death_age_params = new ArrayList<Integer> ();
-			prob_death_by_age_male = new ArrayList <Double> ();
-			prob_death_by_age_female = new ArrayList <Double> ();
-
-			
-			// read in the raw data
-			while ((s = lineListDataFile.readLine()) != null) {
-				String [] bits = splitRawCSVString(s);
-				
-				// assemble the age data
-				String [] ageRange = bits[0].split("-");
-				int maxAge = Integer.MAX_VALUE;
-				if(ageRange.length > 1){
-					maxAge = Integer.parseInt(ageRange[1]); // take the maximum
-				}
-				all_cause_death_age_params.add(maxAge);
-				
-				double male_prob_death  = Double.parseDouble(bits[1]),
-						female_prob_death = Double.parseDouble(bits[2]);
-				
-				// store the values
-				prob_death_by_age_male.add(male_prob_death);
-				prob_death_by_age_female.add(female_prob_death);
-
-			}
-			lineListDataFile.close();
-			} catch (Exception e) {
-				System.err.println("File input error: " + filename);
-				fail();
-			}
-	}
-	
 
 	// Economic
 	// ------------------- This form of including workplace bubbles in the model has been replaced ------------------------------

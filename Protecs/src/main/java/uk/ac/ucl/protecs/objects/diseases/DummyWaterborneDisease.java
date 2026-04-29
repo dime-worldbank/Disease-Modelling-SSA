@@ -38,9 +38,11 @@ public class DummyWaterborneDisease extends Disease{
 	}
 	
 	@Override
-	public void step(SimState arg0) {
+	public void step(SimState world) {
 		// TODO Auto-generated method stub
-		
+		double time = world.schedule.getTime(); // find the current time
+		double myDelta = this.currentBehaviourNode.next(this, time);
+		world.schedule.scheduleOnce(time + myDelta, myWorld.param_schedule_infecting, this);
 	}
 
 	@Override
