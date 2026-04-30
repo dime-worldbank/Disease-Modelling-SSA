@@ -9,6 +9,7 @@ import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgres
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.DummyInfectiousDiseaseProgressionFramework;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.DummyNonCommunicableDiseaseProgressionFramework;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.DummyWaterborneDiseaseProgressionFramework;
+import uk.ac.ucl.protecs.behaviours.diseaseProgression.HIVDiseaseProgressionFramework;
 import uk.ac.ucl.protecs.behaviours.diseaseSpread.DummyNCDOnset;
 import uk.ac.ucl.protecs.objects.diseases.Cholera;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
@@ -16,6 +17,7 @@ import uk.ac.ucl.protecs.objects.diseases.Disease.DISEASESTAGE;
 import uk.ac.ucl.protecs.objects.diseases.DummyInfectiousDisease;
 import uk.ac.ucl.protecs.objects.diseases.DummyNonCommunicableDisease;
 import uk.ac.ucl.protecs.objects.diseases.DummyWaterborneDisease;
+import uk.ac.ucl.protecs.objects.diseases.HIV;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
@@ -118,6 +120,13 @@ public class loadInfectionsInHumans{
 						Cholera inf = new Cholera(p, null, world.choleraFramework.getStandardEntryPoint(), world, 0);
 						world.schedule.scheduleOnce(1, world.param_schedule_infecting, inf);
 						}
+					case HIV:{
+						if (world.hivFramework == null) {
+							world.hivFramework = new HIVDiseaseProgressionFramework(world);
+							}
+						HIV inf = new HIV(p, null, world.hivFramework.getStandardEntryPoint(), world, 0);
+						world.schedule.scheduleOnce(1, world.param_schedule_infecting, inf);
+					}
 						default:
 							break;
 						}

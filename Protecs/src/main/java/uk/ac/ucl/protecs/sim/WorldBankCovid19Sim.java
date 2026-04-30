@@ -8,6 +8,7 @@ import java.util.Random;
 
 import uk.ac.ucl.protecs.behaviours.*;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.DummyWaterborneDiseaseProgressionFramework;
+import uk.ac.ucl.protecs.behaviours.diseaseProgression.HIVDiseaseProgressionFramework;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.DummyNonCommunicableDiseaseProgressionFramework;
 import uk.ac.ucl.protecs.objects.diseases.Disease;
 import uk.ac.ucl.protecs.objects.hosts.Person;
@@ -62,6 +63,8 @@ public class WorldBankCovid19Sim extends SimState {
 	public DummyWaterborneDiseaseProgressionFramework dummyWaterborneFramework = null;
 	public DummyInfectiousDiseaseProgressionFramework dummyInfectiousFramework = null;
 	public CholeraDiseaseProgressionFramework choleraFramework = null;
+	public HIVDiseaseProgressionFramework hivFramework = null;
+	
 	public Demography demographyFramework = null;
 	public Params params = null;
 	public boolean lockedDown = false;
@@ -116,7 +119,7 @@ public class WorldBankCovid19Sim extends SimState {
 	// Create a enum list of diseases modelled currently, these will be used to categorise any infections a person may get over the course of the simulation.
 	public enum DISEASE{
 		DUMMY_NCD("DUMMY_NCD"), DUMMY_INFECTIOUS("DUMMY_INFECTIOUS"), DUMMY_WATERBORNE("DUMMY_WATERBORNE"), COVID("COVID-19"), COVIDSPURIOUSSYMPTOM("COVID-19_SPURIOUS_SYMPTOM"),
-		CHOLERA("CHOLERA");
+		CHOLERA("CHOLERA"), HIV("HIV");
 
         public String key;
      
@@ -136,6 +139,8 @@ public class WorldBankCovid19Sim extends SimState {
         		return COVIDSPURIOUSSYMPTOM;
         	case "CHOLERA":
         		return CHOLERA;
+        	case "HIV":
+        		return HIV;
         	default:
         		throw new IllegalArgumentException();
         	}

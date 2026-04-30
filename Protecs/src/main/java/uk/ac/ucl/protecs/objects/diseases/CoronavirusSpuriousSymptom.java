@@ -42,7 +42,7 @@ public class CoronavirusSpuriousSymptom extends Disease{
 	@Override
 	public String getDiseaseName() {
 		// TODO Auto-generated method stub
-		return "COVID-19_SPURIOUS_SYMPTOM";
+		return DISEASE.COVIDSPURIOUSSYMPTOM.key;
 	}
 	
 	@Override
