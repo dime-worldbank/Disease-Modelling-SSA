@@ -14,6 +14,7 @@ community_num_interaction_perTick: 5
 setting_perfectMixing: true
 
 line_list_filename: line_list_dummy.txt
+prevalence_line_list_filename: GBD_South_Sudan_HIV_Prevalence_2023.csv
 infection_transition_params_filename: covasim_infect_transitions.txt
 lockdown_changeList_filename: lockdownChangelistDefault.txt
 lineListWeightingFactor: 1

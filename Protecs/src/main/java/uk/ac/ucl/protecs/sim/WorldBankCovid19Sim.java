@@ -141,6 +141,8 @@ public class WorldBankCovid19Sim extends SimState {
         		return CHOLERA;
         	case "HIV":
         		return HIV;
+        	case "HIV/AIDS":
+        		return HIV;
         	default:
         		throw new IllegalArgumentException();
         	}
@@ -239,6 +241,8 @@ public class WorldBankCovid19Sim extends SimState {
 		other_infections = new ArrayList <Disease> ();
 		// load in the infections in humans
 		loadInfectionsInHumans.seed_infections_in_humans(this);
+		// load in infections by prevalence
+		loadEndemicInfections.seed_endemic_infections(this);
 		
 		// ======================================================= cholera set up ====================================================================
 		// set up things needed to model water

@@ -13,6 +13,7 @@ import java.util.Map;
 
 import uk.ac.ucl.protecs.objects.hosts.Person;
 import uk.ac.ucl.protecs.objects.hosts.Person.OCCUPATION;
+import uk.ac.ucl.protecs.objects.hosts.Person.SEX;
 import uk.ac.ucl.protecs.objects.locations.CommunityLocation;
 import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.objects.locations.Location.LocationCategory;
@@ -73,6 +74,8 @@ public class Params {
 	
 	HashMap <DISEASE, HashMap<Location, Integer>> lineList;
 	HashMap <DISEASE, HashMap<Location, Integer>> lineListInOther;
+	
+	HashMap <DISEASE, HashMap<SEX,  HashMap<String, Double>>> prevalenceLineList;
 
 	ArrayList <Double> lockdownChangeList = new ArrayList <Double>();
 	
@@ -112,6 +115,8 @@ public class Params {
 	public String econ_interaction_distrib_filename = null;
 	
 	public String line_list_filename = null;
+	public String prevalence_line_list_filename = null;
+
 	public String infection_transition_params_filename = null;
 	public String lockdown_changeList_filename = null;
 	public String all_cause_mortality_filename = null;
@@ -163,6 +168,10 @@ public class Params {
 		assert (economic_status_otherday_movement_prob.size() == economic_status_weekday_movement_prob.size()): "Inconsistent data for ecom movement prob between weekday and otherday";
 		// Load in where you want COVID cases to be initialised
 		load_line_list(dataDir  + line_list_filename);		
+		// Load in prevalence of diseases
+		if (!(prevalence_line_list_filename == null)) {
+			load_prevalence_line_list(dataDir + prevalence_line_list_filename);
+		}
 		// Load in workplace contact parameters if setting_perfectMixing is false
 		if (!this.setting_perfectMixing) { 
 			// load the workplace contacts data
@@ -309,6 +318,60 @@ public class Params {
 			
 		} catch (Exception e) {
 			System.err.println("File input error: " + lineListFilename);
+			fail();
+		}
+	}
+	
+
+	public void load_prevalence_line_list(String prevalence_line_list_filename){
+		try {
+			
+			if(verbose)
+				System.out.println("Reading in data from " + prevalence_line_list_filename);
+			
+			// Open the tracts file
+			FileInputStream fstream = new FileInputStream(prevalence_line_list_filename);
+
+			// Convert our input stream to a BufferedReader
+			BufferedReader lineListDataFile = new BufferedReader(new InputStreamReader(fstream));
+			String s;
+
+			// extract the header
+			s = lineListDataFile.readLine();
+			// GBD column names: population_group, measure, location, sex, age, cause, metric, year, val, upper, lower
+			// Structure of hashmap HashMap <DISEASE, HashMap<SEX,  HashMap<String, Double>>> prevalenceLineList;
+
+			// map the header into column names relative to location
+			String [] header = splitRawCSVString(s);
+			HashMap <String, Integer> columnNames = parseHeader(header);
+			int diseaseKeyIndex = columnNames.get("cause");
+			int sexIndex = columnNames.get("sex");
+			int ageIndex = columnNames.get("age");
+			int prevalenceIndex = columnNames.get("val");
+			
+			// set up data container for each disease prevalence being seeded in, one container for each sex, age and prevalence value
+			prevalenceLineList = new HashMap<>();
+
+			// read in the raw data
+			while ((s = lineListDataFile.readLine()) != null) {
+				// split the string between commas
+				String [] bits = splitRawCSVString(s);
+				DISEASE myDisease = DISEASE.getValue(bits[diseaseKeyIndex]);
+				// get the sex category
+				SEX mySex = SEX.getValue(bits[sexIndex].toLowerCase());
+				// get the string age boundary
+				String myAgeRange = bits[ageIndex];
+				// get the prevalence of disease in that age-sex demographic
+				double myPrevalence = Double.parseDouble(bits[prevalenceIndex]);
+				
+				prevalenceLineList
+			    .computeIfAbsent(myDisease, d -> new HashMap<>())
+			    .computeIfAbsent(mySex, sex -> new HashMap<>())
+			    .put(myAgeRange, myPrevalence);
+			}
+			
+		} catch (Exception e) {
+			System.err.println("File input error: " + prevalence_line_list_filename);
 			fail();
 		}
 	}

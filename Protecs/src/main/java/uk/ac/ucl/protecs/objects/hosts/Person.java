@@ -641,6 +641,10 @@ public class Person extends Host {
 	public SEX getSex() {
 		return sex;
 	}
+	
+	public boolean isOfSex(SEX sex) {
+		return this.getSex() == sex;
+	}
 
 	public int getAge() {
 		return age;
@@ -667,6 +671,15 @@ public class Person extends Host {
 		return this.age > 18;
 	}
 
+	public boolean inAgeRange(int[] range) {
+		boolean toReturn = false;
+		if ((range[0] <= this.getAge()) && (this.getAge() <= range[1])) {
+			toReturn = true;
+		}
+		
+		return toReturn;
+	}
+	
 	public void fetchWater(Water waterFrom, Water waterTo) {
 		// fetch the water, assume that this is only collection of water and not consuming it.
 		if (waterFrom.getDiseaseSet().size() > 0) {
