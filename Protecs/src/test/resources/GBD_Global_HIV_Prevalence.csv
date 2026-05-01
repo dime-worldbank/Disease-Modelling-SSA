@@ -1,0 +1,3 @@
+population_group,measure,location,sex,age,cause,metric,year,val,upper,lower
+All Population,Prevalence,Global,Male,All ages,HIV/AIDS,Percent,2023,0.0049016348849368,0.005268692845595,0.004516769731788
+All Population,Prevalence,Global,Female,All ages,HIV/AIDS,Percent,2023,0.0059490868518953,0.0062737212193156,0.0056453367544382
