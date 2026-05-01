@@ -1,0 +1,2 @@
+population_group_id,population_group_name,measure_id,measure_name,location_id,location_name,sex_id,sex_name,age_id,age_name,cause_id,cause_name,metric_id,metric_name,year,val,upper,lower
+1,All Population,5,Prevalence,1,Global,3,Both,22,All ages,298,HIV/AIDS,2,Percent,2023,0.0054280072300062,0.0056789957528486,0.0051548451199457
