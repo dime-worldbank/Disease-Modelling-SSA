@@ -153,11 +153,11 @@ public class ParamsTesting {
 	@Test
 	public void testDifferentAgeRangesInEndemicInfectionsWorks() {
 		// Create the simulation object without loading in lockdown triggering related filenames
-		WorldBankCovid19Sim sim_unknown_disease_in_line_list = HelperFunctions.CreateDummySim(paramsDir + "params_pop_level_endemic_disease.txt");
+		WorldBankCovid19Sim sim_all_age_prevalence = HelperFunctions.CreateDummySim(paramsDir + "params_all_ages_prevalence.txt");
 		// wrap simulation running in a try catch statement
 		try {
-			sim_unknown_disease_in_line_list.start();
-			HelperFunctions.runSimulation(sim_unknown_disease_in_line_list, 10);
+			sim_all_age_prevalence.start();
+			HelperFunctions.runSimulation(sim_all_age_prevalence, 10);
 		}
 		catch (Exception e) {
 			Assert.fail();

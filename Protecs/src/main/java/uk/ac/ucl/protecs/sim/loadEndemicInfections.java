@@ -78,7 +78,10 @@ public class loadEndemicInfections{
 	        int lower = Integer.parseInt(ageRange.replaceAll("[^0-9]", ""));
 	        return new int[]{lower, 120}; // or Integer.MAX_VALUE if you prefer
 	    }
+	    if (ageRange.equals("All ages")) {
+	        return new int[]{0, 120}; // or Integer.MAX_VALUE if you prefer
 
+	    }
 	    // Case: "X-Y years"
 	    String[] parts = ageRange.replace(" years", "").split("-");
 	    int lower = Integer.parseInt(parts[0]);
