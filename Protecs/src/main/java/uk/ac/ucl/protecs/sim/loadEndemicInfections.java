@@ -36,6 +36,8 @@ public class loadEndemicInfections{
 	            for (Entry<String, Double> ageEntry : ageMap.entrySet()) {
 	                String age_range = ageEntry.getKey();
 	                double prevalence = ageEntry.getValue();
+	                // convert this percentage (between 0 and 100) to decimal
+	                prevalence /= 100;
 
 	                int[] bounds = convert_GBD_boundary_to_int(age_range);
 	                List<Person> eligible = get_demographic(world, bounds, sex);

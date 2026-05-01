@@ -20,6 +20,23 @@ public class HIVTesting {
 	public void prevalenceSeedingCreatesCases() {
 		// create a simulation and start
 		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_hiv.txt");
+		// using GBD South Sudan data as an example, increase prevalence of HIV as only 1% in total population, random chance may have this test fail
+		for (Entry<DISEASE, HashMap<SEX, HashMap<String, Double>>> diseaseEntry : sim.params.prevalenceLineList.entrySet()) {
+	        DISEASE disease = diseaseEntry.getKey();
+	        HashMap<SEX, HashMap<String, Double>> sexMap = diseaseEntry.getValue();
+
+	        for (Entry<SEX, HashMap<String, Double>> sexEntry : sexMap.entrySet()) {
+	            SEX sex = sexEntry.getKey();
+	            HashMap<String, Double> ageMap = sexEntry.getValue();
+
+	            for (Entry<String, Double> ageEntry : ageMap.entrySet()) {
+	                double prevalence = ageEntry.getValue();
+	                prevalence *= 100;
+	                ageEntry.setValue(prevalence);
+
+	            	}
+	            }
+		}
 		sim.start();
 		Assert.assertTrue(sim.human_infections.size() > 0);
 	}
@@ -38,7 +55,7 @@ public class HIVTesting {
 	            HashMap<String, Double> ageMap = sexEntry.getValue();
 
 	            for (Entry<String, Double> ageEntry : ageMap.entrySet()) {
-	                ageEntry.setValue(1.0);
+	                ageEntry.setValue(100.0);
 
 	            	}
 	            }
@@ -69,6 +86,22 @@ public class HIVTesting {
 		
 		// create a simulation and start
 		WorldBankCovid19Sim simWithPartialPrevalence = HelperFunctions.CreateDummySim(paramsDir + "params_hiv.txt");
+		for (Entry<DISEASE, HashMap<SEX, HashMap<String, Double>>> diseaseEntry : simWithPartialPrevalence.params.prevalenceLineList.entrySet()) {
+	        DISEASE disease = diseaseEntry.getKey();
+	        HashMap<SEX, HashMap<String, Double>> sexMap = diseaseEntry.getValue();
+
+	        for (Entry<SEX, HashMap<String, Double>> sexEntry : sexMap.entrySet()) {
+	            SEX sex = sexEntry.getKey();
+	            HashMap<String, Double> ageMap = sexEntry.getValue();
+
+	            for (Entry<String, Double> ageEntry : ageMap.entrySet()) {
+	                double prevalence = ageEntry.getValue();
+	                prevalence *= 100;
+	                ageEntry.setValue(prevalence);
+
+	            	}
+	            }
+		}
 		simWithPartialPrevalence.start();
 		Assert.assertTrue((simWithPartialPrevalence.human_infections.size() < simWithTotalPrevalence.human_infections.size()) && 
 				(simWithNoPrevalence.human_infections.size() < simWithPartialPrevalence.human_infections.size()));
