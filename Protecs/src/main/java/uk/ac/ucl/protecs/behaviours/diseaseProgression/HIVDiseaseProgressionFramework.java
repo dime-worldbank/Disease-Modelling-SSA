@@ -1,8 +1,7 @@
 package uk.ac.ucl.protecs.behaviours.diseaseProgression;
 
 import sim.engine.Steppable;
-import uk.ac.ucl.protecs.objects.diseases.Disease.DISEASESTAGE;
-import uk.ac.ucl.protecs.objects.hosts.Person;
+import uk.ac.ucl.protecs.objects.diseases.HIV;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
@@ -53,9 +52,11 @@ public class HIVDiseaseProgressionFramework extends DiseaseProgressionBehaviourF
 			}
 
 			@Override
-			public double next(Steppable arg0, double arg1) {
-				// TODO Auto-generated method stub
-				return 0;
+			public double next(Steppable s, double arg1) {
+				HIV i = (HIV) s;
+
+				i.setBehaviourNode(mildNode);
+				return 1;
 			}
 			
 		};
@@ -76,8 +77,8 @@ public class HIVDiseaseProgressionFramework extends DiseaseProgressionBehaviourF
 
 			@Override
 			public double next(Steppable arg0, double arg1) {
-				// TODO Auto-generated method stub
-				return 0;
+				// We are just using HIV as a property temporarily return max for now
+				return Double.MAX_VALUE;
 			}
 			
 		};

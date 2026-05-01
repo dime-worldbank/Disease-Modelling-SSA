@@ -75,7 +75,7 @@ public class Params {
 	HashMap <DISEASE, HashMap<Location, Integer>> lineList;
 	HashMap <DISEASE, HashMap<Location, Integer>> lineListInOther;
 	
-	HashMap <DISEASE, HashMap<SEX,  HashMap<String, Double>>> prevalenceLineList;
+	public HashMap <DISEASE, HashMap<SEX,  HashMap<String, Double>>> prevalenceLineList;
 
 	ArrayList <Double> lockdownChangeList = new ArrayList <Double>();
 	

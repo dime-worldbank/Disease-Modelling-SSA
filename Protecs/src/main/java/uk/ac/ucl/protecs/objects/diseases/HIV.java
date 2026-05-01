@@ -56,11 +56,13 @@ public class HIV extends Disease {
 
 	@Override
 	public void verticalTransmission(Person baby) {
-		double myProb = myWorld.random.nextDouble();
-		if (!baby.getDiseaseSet().containsKey(DISEASE.HIV.key) && myProb < myWorld.hivFramework.getHIV_vertical_transmission()) {
-			HIV inf = new HIV(baby, ((Person) this.getHost()), myWorld.hivFramework.getEntryPoint(), myWorld);
-			myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting); 
-		}
+		// ------------ this code can be used later, but for now let's not allow HIV to spread beyond the initial instantiation -----------------------------------
+		
+//		double myProb = myWorld.random.nextDouble();
+//		if (!baby.getDiseaseSet().containsKey(DISEASE.HIV.key) && myProb < myWorld.hivFramework.getHIV_vertical_transmission()) {
+//			HIV inf = new HIV(baby, ((Person) this.getHost()), myWorld.hivFramework.getEntryPoint(), myWorld);
+//			myWorld.schedule.scheduleOnce(inf, myWorld.param_schedule_infecting); 
+//		}
 		
 	}
 
