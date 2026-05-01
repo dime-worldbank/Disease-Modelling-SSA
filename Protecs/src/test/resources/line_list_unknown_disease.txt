@@ -1,0 +1,3 @@
+admin_zone, count, disease, host
+d_1, 10, UTERINE_CANCER, PERSON
+d_2, 10, UTERINE_CANCER, PERSON
