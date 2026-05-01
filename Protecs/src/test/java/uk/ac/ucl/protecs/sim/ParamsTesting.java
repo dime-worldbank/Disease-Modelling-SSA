@@ -150,6 +150,21 @@ public class ParamsTesting {
 		
 	}
 	
+	@Test
+	public void testDifferentAgeRangesInEndemicInfectionsWorks() {
+		// Create the simulation object without loading in lockdown triggering related filenames
+		WorldBankCovid19Sim sim_unknown_disease_in_line_list = HelperFunctions.CreateDummySim(paramsDir + "params_pop_level_endemic_disease.txt");
+		// wrap simulation running in a try catch statement
+		try {
+			sim_unknown_disease_in_line_list.start();
+			HelperFunctions.runSimulation(sim_unknown_disease_in_line_list, 10);
+		}
+		catch (Exception e) {
+			Assert.fail();
+		}
+		
+	}
+	
 	// run reject faulty files in bulk
 	// params_w_faulty_ODM.txt
 	// params_w_faulty_econ_status_movement_prob.txt
@@ -182,7 +197,8 @@ public class ParamsTesting {
 	    return Arrays.asList(
 	            new String[]{paramsDir + "params_w_faulty_ODM.txt", paramsDir + "params_w_faulty_econ_status_movement_prob.txt",  
 	            		paramsDir + "params_w_faulty_linelist.txt", paramsDir + "params_w_faulty_inf_transitions.txt", 
-	            		paramsDir + "params_w_faulty_covid_test_numbers.txt", paramsDir + "params_w_faulty_covid_test_locations.txt"
+	            		paramsDir + "params_w_faulty_covid_test_numbers.txt", paramsDir + "params_w_faulty_covid_test_locations.txt",
+	            		paramsDir + "params_unknown_disease_in_line_list", paramsDir + "params_unknown_disease_in_prevalence_line_list"
 	            		}
 	    
 	    );
