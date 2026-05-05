@@ -1,2 +1,2 @@
 population_group,measure,location,sex,age,cause,metric,year,val,upper,lower
-All Population,Prevalence,Number,HIV/AIDS,South Sudan,All ages,Both sexes,2023,111302.44,161682.00,66626.77
+All Population,Prevalence,South Sudan,Both,All ages,HIV/AIDS,Number,2023,1.15,1.67,0.69
