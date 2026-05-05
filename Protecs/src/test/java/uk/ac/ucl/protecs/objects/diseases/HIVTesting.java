@@ -106,4 +106,43 @@ public class HIVTesting {
 		Assert.assertTrue((simWithPartialPrevalence.human_infections.size() < simWithTotalPrevalence.human_infections.size()) && 
 				(simWithNoPrevalence.human_infections.size() < simWithPartialPrevalence.human_infections.size()));
 	}
+	
+	
+	
+	// Future tests --------- these are commented out as the actual epidemiology of HIV is yet to be developed -------------------------------------
+	
+//	@Test
+//	public void verticalTransmissionWorks() {
+//		// TODO: When horizontal transmission is created, adjust this test to include a way to block horizontal transmission from occurring
+//		
+//		// create a simulation and start
+//		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_hiv.txt");
+//		// using GBD South Sudan data as an example, increase prevalence of HIV as only 1% in total population, random chance may have this test fail
+//		for (Entry<DISEASE, HashMap<String, HashMap<String, Double>>> diseaseEntry : sim.params.prevalenceLineList.entrySet()) {
+//	        DISEASE disease = diseaseEntry.getKey();
+//	        HashMap<String, HashMap<String, Double>> sexMap = diseaseEntry.getValue();
+//
+//	        for (Entry<String, HashMap<String, Double>> sexEntry : sexMap.entrySet()) {
+//	        	String sex = sexEntry.getKey();
+//	            HashMap<String, Double> ageMap = sexEntry.getValue();
+//
+//	            for (Entry<String, Double> ageEntry : ageMap.entrySet()) {
+//	                double prevalence = ageEntry.getValue();
+//	                prevalence *= 1000;
+//	                ageEntry.setValue(prevalence);
+//
+//	            	}
+//	            }
+//		}
+//		sim.start();
+//		int initial_number_of_cases = sim.human_infections.size();
+//		// run the simulation for 150 days
+//		HelperFunctions.runSimulation(sim, 150);
+//		int final_number_of_cases = sim.human_infections.size();
+//		Assert.assertTrue(initial_number_of_cases < final_number_of_cases);
+//	}
+	
+//	@Test
+//	public void horizontalTransmissionWorks() {}
+	
 }
