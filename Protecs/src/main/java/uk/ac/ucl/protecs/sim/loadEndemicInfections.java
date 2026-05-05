@@ -16,21 +16,28 @@ import java.util.stream.Collectors;
 public class loadEndemicInfections{
 	
 
-	public static List<Person> get_demographic(WorldBankCovid19Sim world, int[] age_range, SEX sex) {
-	    return world.agents.stream()
-	            .filter(p -> p.inAgeRange(age_range))
-	            .filter(p -> p.isOfSex(sex))
-	            .collect(Collectors.toList());
+	public static List<Person> get_demographic(WorldBankCovid19Sim world, int[] age_range, String sex) {
+		if (sex.equals("both")) {
+			return world.agents.stream()
+		            .filter(p -> p.inAgeRange(age_range))
+		            .collect(Collectors.toList());
+		}
+		else {
+		    return world.agents.stream()
+		            .filter(p -> p.inAgeRange(age_range))
+		            .filter(p -> p.isOfSex(SEX.getValue(sex)))
+		            .collect(Collectors.toList());
+	    }
 	}
 	
 	static void seed_endemic_infections(WorldBankCovid19Sim world) {
 
-	    for (Entry<DISEASE, HashMap<SEX, HashMap<String, Double>>> diseaseEntry : world.params.prevalenceLineList.entrySet()) {
+	    for (Entry<DISEASE, HashMap<String, HashMap<String, Double>>> diseaseEntry : world.params.prevalenceLineList.entrySet()) {
 	        DISEASE disease = diseaseEntry.getKey();
-	        HashMap<SEX, HashMap<String, Double>> sexMap = diseaseEntry.getValue();
+	        HashMap<String, HashMap<String, Double>> sexMap = diseaseEntry.getValue();
 
-	        for (Entry<SEX, HashMap<String, Double>> sexEntry : sexMap.entrySet()) {
-	            SEX sex = sexEntry.getKey();
+	        for (Entry<String, HashMap<String, Double>> sexEntry : sexMap.entrySet()) {
+	        	String sex = sexEntry.getKey();
 	            HashMap<String, Double> ageMap = sexEntry.getValue();
 
 	            for (Entry<String, Double> ageEntry : ageMap.entrySet()) {

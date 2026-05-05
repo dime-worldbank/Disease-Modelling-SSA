@@ -165,6 +165,21 @@ public class ParamsTesting {
 		
 	}
 	
+	@Test
+	public void testBothSexCategoryLoadsInEndemicInfectionsWorks() {
+		// Create the simulation object without loading in lockdown triggering related filenames
+		WorldBankCovid19Sim sim_both_sex_prevalence = HelperFunctions.CreateDummySim(paramsDir + "params_both_sex_prevalence.txt");
+		// wrap simulation running in a try catch statement
+		try {
+			sim_both_sex_prevalence.start();
+			HelperFunctions.runSimulation(sim_both_sex_prevalence, 10);
+		}
+		catch (Exception e) {
+			Assert.fail();
+		}
+		
+	}
+	
 	// run reject faulty files in bulk
 	// params_w_faulty_ODM.txt
 	// params_w_faulty_econ_status_movement_prob.txt

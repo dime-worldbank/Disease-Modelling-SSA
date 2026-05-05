@@ -75,7 +75,7 @@ public class Params {
 	HashMap <DISEASE, HashMap<Location, Integer>> lineList;
 	HashMap <DISEASE, HashMap<Location, Integer>> lineListInOther;
 	
-	public HashMap <DISEASE, HashMap<SEX,  HashMap<String, Double>>> prevalenceLineList;
+	public HashMap <DISEASE, HashMap<String,  HashMap<String, Double>>> prevalenceLineList;
 
 	ArrayList <Double> lockdownChangeList = new ArrayList <Double>();
 	
@@ -358,7 +358,7 @@ public class Params {
 				String [] bits = splitRawCSVString(s);
 				DISEASE myDisease = DISEASE.getValue(bits[diseaseKeyIndex]);
 				// get the sex category
-				SEX mySex = SEX.getValue(bits[sexIndex].toLowerCase());
+				String mySex = bits[sexIndex].toLowerCase();
 				// get the string age boundary
 				String myAgeRange = bits[ageIndex];
 				// get the prevalence of disease in that age-sex demographic

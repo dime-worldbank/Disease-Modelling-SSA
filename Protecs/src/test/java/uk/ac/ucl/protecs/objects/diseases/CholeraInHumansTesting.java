@@ -314,10 +314,12 @@ public class CholeraInHumansTesting {
 		// we would expect only the recovered or dead node to appear at the end of simulation
 		List<String> expectedNodes = Arrays.asList(CholeraBehaviourNodeInHumans.SUSCEPTIBLE.key, CholeraBehaviourNodeInHumans.RECOVERED.key, CholeraBehaviourNodeInHumans.DEAD.key);
 		// Make sure than no other nodes are reaching in the simulation
+
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 				
 		for (Disease d: sim.human_infections) {
 			if (!(d.hasDiseaseStage(DISEASESTAGE.RECOVERED) || d.hasDiseaseStage(DISEASESTAGE.CAUSEOFDEATH) || d.hasDiseaseStage(DISEASESTAGE.PRESYMPTOMATIC) || d.hasDiseaseStage(DISEASESTAGE.NA))) {
+				System.out.println(d.getDiseaseStage());
 				Assert.fail();
 			}
 		}

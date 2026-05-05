@@ -119,6 +119,7 @@ public class loadInfectionsInHumans{
 							}
 						Cholera inf = new Cholera(p, null, world.choleraFramework.getStandardEntryPoint(), world, 0);
 						world.schedule.scheduleOnce(1, world.param_schedule_infecting, inf);
+						break;
 						}
 					case HIV:{
 						if (world.hivFramework == null) {
@@ -126,6 +127,7 @@ public class loadInfectionsInHumans{
 							}
 						HIV inf = new HIV(p, null, world.hivFramework.getStandardEntryPoint(), world, 0);
 						world.schedule.scheduleOnce(1, world.param_schedule_infecting, inf);
+						break;
 					}
 						default:
 							break;
