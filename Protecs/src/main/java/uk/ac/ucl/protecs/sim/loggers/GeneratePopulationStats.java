@@ -14,24 +14,14 @@ import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 public class GeneratePopulationStats {
 	WorldBankCovid19Sim myWorld;
 
-	public static final String[] AGE_GROUPS = {
-		    "<1", "1_4", "5-9", "10-14", "15-19", "20-24", "25-29",
-		    "30-44", "35-49", "40-44", "45-49", "50-54", "55-59",
-		    "60-64", "65-69", "70-74", "75-79", "80-84",
-		    "85-89", "90-94", "95+"
-		};
-	public final static List <Integer> upper_age_range = Arrays.asList(1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 120);
-	public final static List <Integer> lower_age_range = Arrays.asList(0, 1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95);
-
-	
 	public static void setUpAgeHashMapKeys(WorldBankCovid19Sim world) {
-	    initializeMap(world.malePopulationSizes);
-	    initializeMap(world.femalePopulationSizes);
-	    initializeMap(world.allPopulationSizes);
+	    initializeMap(world, world.malePopulationSizes);
+	    initializeMap(world, world.femalePopulationSizes);
+	    initializeMap(world, world.allPopulationSizes);
 	}
 
-	private static void initializeMap(Map<String, Integer> map) {
-	    for (String age : AGE_GROUPS) {
+	private static void initializeMap(WorldBankCovid19Sim world, Map<String, Integer> map) {
+	    for (String age : world.params.age_category_list) {
 	        map.put(age, 0);
 	    }
 	}
@@ -83,18 +73,18 @@ public class GeneratePopulationStats {
 					WorldBankCovid19Sim.popStatMap = GeneratePopulationStats.buildStats(world);
 
 					int idx = 0;
-					for (int age: upper_age_range) {
+					for (int age: world.params.upper_age_range) {
 						// update female age bins
 						long femaleAliveBetween = WorldBankCovid19Sim.popStatMap.get(SEX.FEMALE).aliveCumulative[age] 
-				                  - WorldBankCovid19Sim.popStatMap.get(SEX.FEMALE).aliveCumulative[lower_age_range.get(idx)];
-						WorldBankCovid19Sim.femalePopulationSizes.put(AGE_GROUPS[idx], (int) femaleAliveBetween);
+				                  - WorldBankCovid19Sim.popStatMap.get(SEX.FEMALE).aliveCumulative[world.params.lower_age_range.get(idx)];
+						WorldBankCovid19Sim.femalePopulationSizes.put(world.params.age_category_list.get(idx), (int) femaleAliveBetween);
 						// update male age bins
 						long maleAliveBetween = WorldBankCovid19Sim.popStatMap.get(SEX.MALE).aliveCumulative[age] 
-				                  - WorldBankCovid19Sim.popStatMap.get(SEX.MALE).aliveCumulative[lower_age_range.get(idx)];
-						WorldBankCovid19Sim.malePopulationSizes.put(AGE_GROUPS[idx], (int) maleAliveBetween);
+				                  - WorldBankCovid19Sim.popStatMap.get(SEX.MALE).aliveCumulative[world.params.lower_age_range.get(idx)];
+						WorldBankCovid19Sim.malePopulationSizes.put(world.params.age_category_list.get(idx), (int) maleAliveBetween);
 						
 						long totalAliveBetween = femaleAliveBetween + maleAliveBetween;
-						WorldBankCovid19Sim.allPopulationSizes.put(AGE_GROUPS[idx], (int) totalAliveBetween);
+						WorldBankCovid19Sim.allPopulationSizes.put(world.params.age_category_list.get(idx), (int) totalAliveBetween);
 						idx ++;
 					}
 				}
