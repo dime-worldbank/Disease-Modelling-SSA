@@ -28,7 +28,6 @@ import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgres
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.DummyInfectiousDiseaseProgressionFramework;
 import sim.engine.SimState;
 import sim.engine.Steppable;
-import sim.util.Proxiable;
 
 
 
@@ -143,7 +142,7 @@ public class WorldBankCovid19Sim extends SimState {
 	}
 
 	public enum HOST{
-		PERSON("PERSON"), WATER("WATER");
+		PERSON("PERSON"), WATER("WATER"), VECTOR("VECTOR");
 		
         public String key;
 
@@ -154,6 +153,8 @@ public class WorldBankCovid19Sim extends SimState {
         		return PERSON;
         	case "WATER":
         		return WATER;
+        	case "VECTOR":
+        		return VECTOR;
         	default:
         		throw new IllegalArgumentException();
         	}

@@ -149,6 +149,11 @@ public class DummyNonCommunicableDisease extends Disease {
 	public boolean isWaterborne() {return false;}
 
 	@Override
+	public boolean isVectorBorne() {
+		return false;
+	}
+	
+	@Override
 	public void horizontalTransmission() {
 		// TODO Auto-generated method stub
 		

@@ -89,6 +89,8 @@ public abstract class Disease implements Steppable {
 	
 	public abstract boolean isWaterborne();
 	
+	public abstract boolean isVectorBorne();
+	
 	public boolean isInHumanHost() {
 		return this.getHost().isOfType(HOST.PERSON);
 	}

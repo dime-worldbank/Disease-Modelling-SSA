@@ -72,6 +72,11 @@ public class Cholera extends Disease{
 
 		return true;
 	}
+	
+	@Override
+	public boolean isVectorBorne() {
+		return false;
+	}
 
 	@Override
 	public void horizontalTransmission() {

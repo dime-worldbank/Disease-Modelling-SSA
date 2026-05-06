@@ -238,6 +238,10 @@ public class CoronavirusInfection extends Disease {
 	@Override
 	public boolean isWaterborne() {return false;}
 
+	@Override
+	public boolean isVectorBorne() {
+		return false;
+	}
 	
 	// =============================================== Disease type classification ===========================================================================
 	@Override

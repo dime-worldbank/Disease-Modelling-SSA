@@ -8,22 +8,20 @@ import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.HOST;
 import uk.ac.ucl.swise.behaviours.BehaviourNode;
 
-public class DummyWaterborneDisease extends Disease{
+public class Leishmaniasis extends Disease{
 	
-	public DummyWaterborneDisease(Host myHost, Host mySource, BehaviourNode initNode, WorldBankCovid19Sim sim){
+	public Leishmaniasis(Host myHost, Host mySource, BehaviourNode initNode, WorldBankCovid19Sim sim){
 		this(myHost, mySource, initNode, sim, (int) sim.schedule.getTime());
 	}
 
-	public DummyWaterborneDisease(Host myHost, Host mySource, BehaviourNode initNode, WorldBankCovid19Sim sim, int time){
+	public Leishmaniasis(Host myHost, Host mySource, BehaviourNode initNode, WorldBankCovid19Sim sim, int time){
 		
 		host = myHost;
 		
 		source = mySource;
 		
 		host.addDisease(this);
-		
-		this.diseaseStage = DISEASESTAGE.ASYMPTOMATIC;
-			
+					
 		// store the time when it is infected!
 		time_infected = time;		
 		infectedAtLocation = myHost.getLocation();
@@ -32,9 +30,7 @@ public class DummyWaterborneDisease extends Disease{
 		if (myHost.isOfType(HOST.PERSON)){
 		myWorld.human_infections.add(this);
 		}
-		else {
-			myWorld.other_infections.add(this);
-		}
+
 	}
 	
 	@Override
@@ -45,44 +41,46 @@ public class DummyWaterborneDisease extends Disease{
 
 	@Override
 	public boolean isInfectious() {
-		return true;
+		return false;
 	}
+
 	@Override
 	public boolean isWaterborne() {
-		return true;
+		return false;
 	}
-	
+
 	@Override
 	public boolean isVectorBorne() {
-		return false;
+		return true;
 	}
 	
 	@Override
 	public void horizontalTransmission() {
-				
-	}
-
-	@Override
-	public void verticalTransmission(Person baby) {
-		// NA
+		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
+	public void verticalTransmission(Person baby) {
+		// NA	
+	}
+
+	@Override
 	public boolean isOfType(DISEASE disease) {
-		return this.getDiseaseType().equals(disease);
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 	@Override
 	public DISEASE getDiseaseType() {
 		// TODO Auto-generated method stub
-		return DISEASE.DUMMY_WATERBORNE;
+		return null;
 	}
 
 	@Override
 	public String getDiseaseName() {
 		// TODO Auto-generated method stub
-		return DISEASE.DUMMY_WATERBORNE.key;
+		return null;
 	}
 
 	@Override
@@ -95,4 +93,5 @@ public class DummyWaterborneDisease extends Disease{
 	public boolean inATestingAdminZone() {
 		return false;
 	}
+	
 }
