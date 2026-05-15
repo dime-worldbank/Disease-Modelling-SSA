@@ -56,7 +56,7 @@ public class LoggingSetup{
 	
 	public static void scheduleLoggers(WorldBankCovid19Sim world){
 		// set up always used logging
-		
+		LoggingHelperFunctions.setUpAgeBoundaries(world);
 		// initialise the population statistic bins
 		world.populationStats = new GeneratePopulationStats(world);
 		// schedule calculation of population statistics
