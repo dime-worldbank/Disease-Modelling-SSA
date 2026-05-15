@@ -305,7 +305,7 @@ public class ParamsTesting {
 	            new String[]{paramsDir + "params_w_faulty_ODM.txt", paramsDir + "params_w_faulty_econ_status_movement_prob.txt",  
 	            		paramsDir + "params_w_faulty_linelist.txt", paramsDir + "params_w_faulty_inf_transitions.txt", 
 	            		paramsDir + "params_w_faulty_covid_test_numbers.txt", paramsDir + "params_w_faulty_covid_test_locations.txt",
-	            		paramsDir + "params_w_faulty_all_cause_mortality.txt", paramsDir + "params_w_faulty_birthrate.txt"
+	            		paramsDir + "params_w_faulty_all_cause_mortality.txt", paramsDir + "params_w_faulty_birthrate.txt",
 	            		paramsDir + "params_w_faulty_age_category_file.txt"
 	            		}
 	    
