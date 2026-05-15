@@ -76,6 +76,20 @@ public class Person extends Host {
 	Integer dayGaveBirth = Integer.MAX_VALUE;
 	Integer numberOfTimesWithCovid = 0;
 
+	// Malnutrition
+	private enum BMIStatus{UNDERWEIGHT, HEALTHYWEIGHT, OVERWEIGHT, OBESE}
+	
+	BMIStatus bmistatus = BMIStatus.HEALTHYWEIGHT; // Default at healthy weight
+	
+	boolean wasted = false;
+	boolean stunted = false;
+	// GBD indicated nutritional deficiencies
+	boolean protein_energy_malnutrition = false;
+	boolean iodine_malnutrition = false;
+	boolean vitamin_A_deficiency = false;
+	boolean dietary_iron_deficiency = false;
+	
+	
 	// bubble interaction counters
 	int number_of_interactions_at_work = Integer.MIN_VALUE;
 	int number_of_interactions_at_work_happened = 0;
