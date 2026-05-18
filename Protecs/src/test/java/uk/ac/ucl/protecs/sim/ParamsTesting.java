@@ -195,6 +195,29 @@ public class ParamsTesting {
 		
 	}
 	
+	@Test
+	public void testSimLoadsAlternaticAgeBoundaries() {
+		// Create the simulation object without loading in lockdown triggering related filenames
+		// load in age categories, below 50 and over 50
+		WorldBankCovid19Sim sim_w_alt_age_bins = HelperFunctions.CreateDummySim(paramsDir + "params_w_alt_age_bins.txt");
+		// load in regular 5 year intervals
+		WorldBankCovid19Sim sim_w_norm_age_bins = HelperFunctions.CreateDummySim(paramsDir + "params.txt");
+		
+		sim_w_alt_age_bins.start();	
+		sim_w_norm_age_bins.start();		
+		// test they aren't the same
+		Assert.assertTrue(sim_w_alt_age_bins.params.age_category_list.size() != sim_w_norm_age_bins.params.age_category_list.size());
+		Assert.assertTrue(sim_w_alt_age_bins.params.upper_age_range.size() != sim_w_norm_age_bins.params.upper_age_range.size());
+		Assert.assertTrue(sim_w_alt_age_bins.params.lower_age_range.size() != sim_w_norm_age_bins.params.lower_age_range.size());
+		Assert.assertTrue(sim_w_alt_age_bins.params.age_category_list.size() != sim_w_norm_age_bins.params.age_category_list.size());
+		// test that we expect more in the 'normal' age range
+		Assert.assertTrue(sim_w_alt_age_bins.params.age_category_list.size() < sim_w_norm_age_bins.params.age_category_list.size());
+		Assert.assertTrue(sim_w_alt_age_bins.params.upper_age_range.size() < sim_w_norm_age_bins.params.upper_age_range.size());
+		Assert.assertTrue(sim_w_alt_age_bins.params.lower_age_range.size() < sim_w_norm_age_bins.params.lower_age_range.size());
+		Assert.assertTrue(sim_w_alt_age_bins.params.age_category_list.size() < sim_w_norm_age_bins.params.age_category_list.size());
+
+	}
+	
 	// run reject faulty files in bulk
 	// params_w_faulty_ODM.txt
 	// params_w_faulty_econ_status_movement_prob.txt
@@ -202,6 +225,7 @@ public class ParamsTesting {
 	// params_w_faulty_inf_transitions.txt
 	// params_w_faulty_covid_test_numbers.txt
 	// params_w_faulty_covid_test_locations.txt
+	// params_w_faulty_age_category_file.txt
 	
 	@Test
 	public void testParamsWillRejectFaultyInputData() {	
@@ -228,7 +252,8 @@ public class ParamsTesting {
 	            new String[]{paramsDir + "params_w_faulty_ODM.txt", paramsDir + "params_w_faulty_econ_status_movement_prob.txt",  
 	            		paramsDir + "params_w_faulty_linelist.txt", paramsDir + "params_w_faulty_inf_transitions.txt", 
 	            		paramsDir + "params_w_faulty_covid_test_numbers.txt", paramsDir + "params_w_faulty_covid_test_locations.txt",
-	            		paramsDir + "params_unknown_disease_in_line_list", paramsDir + "params_unknown_disease_in_prevalence_line_list"
+	            		paramsDir + "params_unknown_disease_in_line_list", paramsDir + "params_unknown_disease_in_prevalence_line_list",
+	            		paramsDir + "params_w_faulty_age_category_file.txt"
 	            		}
 	    
 	    );
