@@ -23,4 +23,4 @@ lineListWeightingFactor: 1
 
 
 communityLocationFilename: community_loc_empty.txt
-
+loggingAgeBoundaryFilename: logging_age_boundaries.txt
