@@ -20,3 +20,4 @@ workplaceContactsFilename: contact_counts_w_student_teacher.csv
 workplaceConstraintsFilename: workplace_constraints_default.txt
 
 communityLocationFilename: dev_community_loc.txt
+loggingAgeBoundaryFilename: logging_age_boundaries.txt
