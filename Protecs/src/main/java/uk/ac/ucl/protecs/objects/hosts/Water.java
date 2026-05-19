@@ -61,7 +61,7 @@ public class Water extends Host {
 		boolean personIsEligibleToShed = false;
 		if (thisPersonHasCholera) {
 			// if not susceptible then this person is eligible to spread the disease
-			personIsEligibleToShed = !(p.myDiseaseSet.get(DISEASE.CHOLERA.key).getCurrentBehaviourNode().getTitle().equals(CholeraBehaviourNodeInHumans.SUSCEPTIBLE.key));
+			personIsEligibleToShed = !(p.myDiseaseSet.get(DISEASE.CHOLERA.key).getCurrentBehaviourNode().getTitle().equals(CholeraBehaviourNodeInHumans.SUSCEPTIBLE.name()));
 		}
 		
 		// check if the water is contaminated 
@@ -69,7 +69,7 @@ public class Water extends Host {
 		boolean infectionAlreadyExistsInWater = waterIsContaminatedByCholera;
 		// check that this water hasn't become clean
 		if (waterIsContaminatedByCholera) {
-			waterIsContaminatedByCholera = !(this.getDiseaseSet().get(DISEASE.CHOLERA.key).getCurrentBehaviourNode().getTitle().equals(CholeraBehaviourNodeInWater.CLEAN.key));
+			waterIsContaminatedByCholera = !(this.getDiseaseSet().get(DISEASE.CHOLERA.key).getCurrentBehaviourNode().getTitle().equals(CholeraBehaviourNodeInWater.CLEAN.name()));
 		}
 		
 		// if this person has cholera and the location doesn't have cholera, 

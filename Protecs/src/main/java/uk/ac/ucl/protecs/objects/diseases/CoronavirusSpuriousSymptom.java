@@ -61,71 +61,8 @@ public class CoronavirusSpuriousSymptom extends Disease{
 	// =============================================== Disease logging ====================================================================================
 	@Override
 	public String writeOut() {
-		String rec = "";
 		
-		rec += "\t" + time_infected + "\t";
-		
-		// infected at:
-		
-		Location loc = infectedAtLocation;
-		
-		if(loc == null)
-			rec += "SEEDED";
-		else if(loc.getRootSuperLocation() != null)
-			rec += loc.getRootSuperLocation().getId();
-		else
-			rec += loc.getId();
-		
-		// progress of disease: get rid of max vals
-		
-		if(time_contagious == Double.MAX_VALUE)
-			rec += "\t-";
-		else
-			rec += "\t" + (int) time_contagious;
-		
-		if(time_start_symptomatic == Double.MAX_VALUE)
-			rec += "\t-";
-		else
-			rec += "\t" + (int) time_start_symptomatic;
-		
-		if(time_start_severe == Double.MAX_VALUE)
-			rec += "\t-";
-		else
-			rec += "\t" + (int) time_start_severe;
-		
-		if(time_start_critical == Double.MAX_VALUE)
-			rec += "\t-";
-		else
-			rec += "\t" + (int) time_start_critical;
-		
-		if(time_recovered == Double.MAX_VALUE)
-			rec += "\t-";
-		else
-			rec += "\t" + (int) time_recovered;
-		
-		if(time_died == Double.MAX_VALUE)
-			rec += "\t-";
-		else
-			rec += "\t" + (int) time_died;
-		// create variables to calculate DALYs, set to YLD zero as default
-		double yld = 0.0;
-		if(yld == 0.0)
-			rec += "\t-";
-		else
-			rec += "\t" + (double) yld;
-		// calculate YLL (basic)
-		// YLL = Life expectancy in years - age at time of death, if age at death < Life expectancy else 0
-		double yll = 0;
-		// Recored DALYs (YLL + YLD)
-		if (yll + yld == 0.0)
-			rec += "\t-";
-		else
-			rec += "\t" + (double) (yll + yld);
-		// record number of times with covid
-		rec += "\t" + ((Person) this.getHost()).getNumberOfTimesInfected();
-		
-		rec += "\n";
-		return rec;
+		return null;
 		
 	}
 

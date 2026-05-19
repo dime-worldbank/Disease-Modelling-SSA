@@ -17,30 +17,13 @@ public class DummyNonCommunicableDiseaseProgressionFramework extends DiseaseProg
 	public double dummy_ncd_initial_fraction_with_ncd = 0.1;
 	
 	public enum DummyNonCommunicableBehaviourNode{
-		SUSCEPTIBLE("susceptible"), EXPOSED("exposed"), RECOVERED("recovered"), DEAD("dead");
-
-        String key;
-     
-        DummyNonCommunicableBehaviourNode(String key) { this.key = key; }
+		SUSCEPTIBLE, EXPOSED, RECOVERED, DEAD;
     
-        static DummyNonCommunicableBehaviourNode getValue(String x) {
-        	switch (x) {
-        	case "susceptible":
-        		return SUSCEPTIBLE;
-        	case "exposed":
-        		return EXPOSED;
-        	case "recover":
-        		return RECOVERED;
-        	case "dead":
-        		return DEAD;
-        	default:
-        		throw new IllegalArgumentException();
-        	}
-        }
 	}
 	
 	public enum nextStepDummy{
 		NO_SYMPTOMS, CAUSE_SYMPTOMS, DO_NOTHING, RECOVER, HAS_DIED;
+
 	} 
 	private nextStepDummy nextStep;
 
@@ -54,7 +37,7 @@ public class DummyNonCommunicableDiseaseProgressionFramework extends DiseaseProg
 			@Override
 			public String getTitle() {
 				// TODO Auto-generated method stub
-				return DummyNonCommunicableBehaviourNode.SUSCEPTIBLE.key;
+				return DummyNonCommunicableBehaviourNode.SUSCEPTIBLE.name();
 			}
 
 			@Override
@@ -103,7 +86,7 @@ public class DummyNonCommunicableDiseaseProgressionFramework extends DiseaseProg
 		@Override
 		public String getTitle() {
 			// TODO Auto-generated method stub
-			return DummyNonCommunicableBehaviourNode.EXPOSED.key;
+			return DummyNonCommunicableBehaviourNode.EXPOSED.name();
 		}
 
 		@Override
@@ -151,7 +134,7 @@ public class DummyNonCommunicableDiseaseProgressionFramework extends DiseaseProg
 		@Override
 		public String getTitle() {
 			// TODO Auto-generated method stub
-			return DummyNonCommunicableBehaviourNode.RECOVERED.key;
+			return DummyNonCommunicableBehaviourNode.RECOVERED.name();
 		}
 
 		@Override
@@ -179,7 +162,7 @@ public class DummyNonCommunicableDiseaseProgressionFramework extends DiseaseProg
 		@Override
 		public String getTitle() {
 			// TODO Auto-generated method stub
-			return DummyNonCommunicableBehaviourNode.DEAD.key;
+			return DummyNonCommunicableBehaviourNode.DEAD.name();
 		}
 
 		@Override

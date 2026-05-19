@@ -302,80 +302,80 @@ public class InteractionUtilities {
 	/**
 	 * Cluster agents into work bubbles.
 	 */
-	public static void create_community_bubbles(WorldBankCovid19Sim world){
-		
-		// in perfect mixing, just give a copy of everyone
-		if(world.params.setting_perfectMixing) {
-			
-			HashSet <Person> copyOfAllAgents = new HashSet<Person> (world.agents);
-			
-			for(Person p: world.agents)
-				p.setCommunityBubble(copyOfAllAgents);
-			
-			return;
-		}
-		
-		// OTHERWISE, set this up based on actual subsets
-		
-		HashMap <String, List<Person>> peoplePerAdminZone = 
-				new HashMap <String, List<Person>> (); 
-		
-		// position everyone so they can assemble their group of peers
-		for(Person p: world.agents){
-
-			// extract this Person's location
-			String agentLocation = p.getHomeLocation().getRootSuperLocation().getId();
-			
-			// assemble an arraylist of Persons assocaited with each admin zone 
-			if(peoplePerAdminZone.containsKey(agentLocation))
-				peoplePerAdminZone.get(agentLocation).add(p);
-			else {
-				ArrayList <Person> peopleInAdminZone = new ArrayList <Person> ();
-				peopleInAdminZone.add(p);
-				peoplePerAdminZone.put(agentLocation, peopleInAdminZone);
-			}
-		}
-		
-		System.out.print("Attempting to assemble community bubbles...");
-		
-		// for each person, draw their interaction probabilities from the distribution
-		for(Person p: world.agents){
-			
-			// Person has been moved either to workplace or to household (if no job etc.)
-			Location myLocation = p.getLocation();
-			
-			int bubbleSize = world.params.community_bubble_size;
-			
-			// combine these into bubble member candidates and add them to the list of friends
-			ArrayList <Person> candidateBubble = (ArrayList <Person>) peoplePerAdminZone.get(p.getHomeLocation().getRootSuperLocation().getId());
-			HashSet <Person> myBubble = new HashSet <Person> ();
-			
-			int emergencyBrake = 100; // it's dangerous to screw with for loops - take this!
-			
-			for(int i = myBubble.size(); i < bubbleSize; i++){ // TODO this should depend on how many friends already exist for this person!
-
-				if(emergencyBrake == 0){
-					//System.out.println("\nERROR - cannot assemble full bubble for " + p.toString());
-					System.out.print(".");
-					i = bubbleSize;
-					continue;
-				}
-
-				// select the other Person
-				int groupSize = candidateBubble.size(); // save for reuse
-				Person otherPerson = candidateBubble.get(world.random.nextInt(groupSize));
-				while(p == otherPerson)
-					otherPerson = candidateBubble.get(world.random.nextInt(groupSize));
-
-				// save them to the list
-				myBubble.add(otherPerson);
-			}
-			
-			
-			// store the list inside the Person
-			p.addToCommunityBubble(myBubble);			
-		}
-		System.out.println();
+//	public static void create_community_bubbles(WorldBankCovid19Sim world){
+//		
+//		// in perfect mixing, just give a copy of everyone
+//		if(world.params.setting_perfectMixing) {
+//			
+//			HashSet <Person> copyOfAllAgents = new HashSet<Person> (world.agents);
+//			
+//			for(Person p: world.agents)
+//				p.setCommunityBubble(copyOfAllAgents);
+//			
+//			return;
+//		}
+//		
+//		// OTHERWISE, set this up based on actual subsets
+//		
+//		HashMap <String, List<Person>> peoplePerAdminZone = 
+//				new HashMap <String, List<Person>> (); 
+//		
+//		// position everyone so they can assemble their group of peers
+//		for(Person p: world.agents){
+//
+//			// extract this Person's location
+//			String agentLocation = p.getHomeLocation().getRootSuperLocation().getId();
+//			
+//			// assemble an arraylist of Persons assocaited with each admin zone 
+//			if(peoplePerAdminZone.containsKey(agentLocation))
+//				peoplePerAdminZone.get(agentLocation).add(p);
+//			else {
+//				ArrayList <Person> peopleInAdminZone = new ArrayList <Person> ();
+//				peopleInAdminZone.add(p);
+//				peoplePerAdminZone.put(agentLocation, peopleInAdminZone);
+//			}
+//		}
+//		
+//		System.out.print("Attempting to assemble community bubbles...");
+//		
+//		// for each person, draw their interaction probabilities from the distribution
+//		for(Person p: world.agents){
+//			
+//			// Person has been moved either to workplace or to household (if no job etc.)
+//			Location myLocation = p.getLocation();
+//			
+//			int bubbleSize = world.params.community_bubble_size;
+//			
+//			// combine these into bubble member candidates and add them to the list of friends
+//			ArrayList <Person> candidateBubble = (ArrayList <Person>) peoplePerAdminZone.get(p.getHomeLocation().getRootSuperLocation().getId());
+//			HashSet <Person> myBubble = new HashSet <Person> ();
+//			
+//			int emergencyBrake = 100; // it's dangerous to screw with for loops - take this!
+//			
+//			for(int i = myBubble.size(); i < bubbleSize; i++){ // TODO this should depend on how many friends already exist for this person!
+//
+//				if(emergencyBrake == 0){
+//					//System.out.println("\nERROR - cannot assemble full bubble for " + p.toString());
+//					System.out.print(".");
+//					i = bubbleSize;
+//					continue;
+//				}
+//
+//				// select the other Person
+//				int groupSize = candidateBubble.size(); // save for reuse
+//				Person otherPerson = candidateBubble.get(world.random.nextInt(groupSize));
+//				while(p == otherPerson)
+//					otherPerson = candidateBubble.get(world.random.nextInt(groupSize));
+//
+//				// save them to the list
+//				myBubble.add(otherPerson);
+//			}
+//			
+//			
+//			// store the list inside the Person
+//			p.addToCommunityBubble(myBubble);			
+//		}
+//		System.out.println();
 
 		// finally, reset the agent
 //		for(Person p: world.agents)
@@ -403,7 +403,7 @@ public class InteractionUtilities {
 			System.err.println("File input error: " + makeTerribleGraphFilename);
 		}
 */
-	}
+//	}
 	
 	public static int indexOfCumulativeDist(double val, ArrayList<Double> dist){
 		for(int i = 0; i < dist.size(); i++){

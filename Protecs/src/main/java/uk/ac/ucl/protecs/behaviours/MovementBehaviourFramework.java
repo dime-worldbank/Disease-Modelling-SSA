@@ -20,25 +20,7 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 	BehaviourNode workNode = null, communityNode = null, homeNode = null;
 	
 	public enum mobilityNodeTitle{
-        HOME("home"), WORK("work"), COMMUNITY("community");
-         
-        public String key; 
-     
-        mobilityNodeTitle(String key) { this.key = key; }
-    
-        static mobilityNodeTitle getValue(String x) {
-        	
-        	switch (x) {
-        	case "home":
-        		return HOME;
-        	case "work":
-        		return WORK;
-        	case "community":
-        		return COMMUNITY;
-        	default:
-        		throw new IllegalArgumentException();
-        	}
-        }
+        HOME, WORK, COMMUNITY;
    }
 	public MovementBehaviourFramework(WorldBankCovid19Sim model){
 		myWorld = model;
@@ -46,7 +28,7 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 		homeNode = new BehaviourNode(){
 			
 			@Override
-			public String getTitle() {return mobilityNodeTitle.HOME.key;}
+			public String getTitle() {return mobilityNodeTitle.HOME.name();}
 
 			@Override
 			public double next(Steppable s, double time) {
@@ -54,11 +36,14 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 
 				// the Person may have been sent home immobilised: update everything and don't schedule
 				// to run again until it has been un-immobilised!
-				if(p.isImmobilised()) {
-					p.setVisiting(false);
-					p.setAtWork(false);
-					return Double.MAX_VALUE; 
-				}
+				
+				// This section of code isn't reached as in the step function of the person object, 
+				// if a person is immobilised then no movement step decisions are scheduled
+//				if(p.isImmobilised()) {
+//					p.setVisiting(false);
+//					p.setAtWork(false);
+//					return Double.MAX_VALUE; 
+//				}
 				
 				// extract time info
 				int hour = ((int)time) % Params.ticks_per_day;
@@ -189,7 +174,7 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 		workNode = new BehaviourNode(){
 			
 			@Override
-			public String getTitle() { return mobilityNodeTitle.WORK.key; }
+			public String getTitle() { return mobilityNodeTitle.WORK.name(); }
 
 			@Override
 			public double next(Steppable s, double time) {
@@ -230,7 +215,7 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 		communityNode = new BehaviourNode(){
 						
 			@Override
-			public String getTitle() { return mobilityNodeTitle.COMMUNITY.key; }
+			public String getTitle() { return mobilityNodeTitle.COMMUNITY.name(); }
 
 			@Override
 			public double next(Steppable s, double time) {
@@ -242,7 +227,7 @@ public class MovementBehaviourFramework implements BehaviourFramework {
 
 				if(hour >= myWorld.params.hour_end_day_otherday) { // late! Go home! Interact with a community water source before leaving
 					// this section of code is only used if we are modelling cholera. Put a wrapper around it based on that
-					if (myWorld.choleraFramework != null) {
+					if ((myWorld.choleraFramework != null) || (myWorld.dummyWaterborneFramework != null)) {
 						if ((!p.visitingNow()) & p.getWaterGatherer()) {
 							p.fetchWater(p.getHouseholdAsType().getWater().getSource().getWater(), p.getHouseholdAsType().getWater());
 						}

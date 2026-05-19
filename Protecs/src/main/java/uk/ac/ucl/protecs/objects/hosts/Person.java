@@ -17,6 +17,8 @@ import uk.ac.ucl.protecs.objects.diseases.Cholera;
 import uk.ac.ucl.protecs.objects.diseases.CoronavirusInfection;
 import uk.ac.ucl.protecs.objects.diseases.Disease;
 import uk.ac.ucl.protecs.objects.diseases.DummyInfectiousDisease;
+import uk.ac.ucl.protecs.objects.diseases.DummyWaterborneDisease;
+
 import uk.ac.ucl.protecs.objects.locations.Household;
 import uk.ac.ucl.protecs.objects.locations.Location;
 import uk.ac.ucl.protecs.objects.locations.Workplace;
@@ -503,10 +505,12 @@ public class Person extends Host {
 	public HashSet <Person> getWorkBubble(){ return workBubble; }
 	public String checkWorkplaceID() { return myWorkplace.getId(); } 
 	public void setWorkBubble(HashSet <Person> newBubble) { workBubble = newBubble; }
-
-	public void addToCommunityBubble(Collection <Person> newPeople){ communityBubble.addAll(newPeople);}
-	public HashSet <Person> getCommunityBubble(){ return communityBubble; }
-	public void setCommunityBubble(HashSet <Person> newBubble) { communityBubble = newBubble; }
+	
+	
+//	Community bubbles not implemented
+//	public void addToCommunityBubble(Collection <Person> newPeople){ communityBubble.addAll(newPeople);}
+//	public HashSet <Person> getCommunityBubble(){ return communityBubble; }
+//	public void setCommunityBubble(HashSet <Person> newBubble) { communityBubble = newBubble; }
 	
 
 
@@ -672,7 +676,7 @@ public class Person extends Host {
 		if (waterFrom.getDiseaseSet().size() > 0) {
 			for (String diseaseName: waterFrom.getDiseaseSet().keySet()) {
 				// check if this water is clean:
-				boolean cleanWater = waterFrom.getDiseaseSet().get(diseaseName).getCurrentBehaviourNode().getTitle().equals(CholeraBehaviourNodeInWater.CLEAN.key);
+				boolean cleanWater = waterFrom.getDiseaseSet().get(diseaseName).getCurrentBehaviourNode().getTitle().equals(CholeraBehaviourNodeInWater.CLEAN.name());
 				if (!cleanWater) {
 					// if a cholera infection exists in the other watersource, transfer over the behaviour node to represent transferring water over
 					if (waterTo.getDiseaseSet().containsKey(diseaseName)) {
@@ -682,8 +686,14 @@ public class Person extends Host {
 					// tick
 					else {					
 						double time = myWorld.schedule.getTime(); 
-						Cholera inf = new Cholera(waterTo, waterFrom, waterFrom.getDiseaseSet().get(diseaseName).getCurrentBehaviourNode(), myWorld);
-						myWorld.schedule.scheduleOnce(time + 1, myWorld.param_schedule_infecting, inf);
+						if (diseaseName.equals(DISEASE.CHOLERA.key)) {
+							Cholera inf = new Cholera(waterTo, waterFrom, waterFrom.getDiseaseSet().get(diseaseName).getCurrentBehaviourNode(), myWorld);
+							myWorld.schedule.scheduleOnce(time + 1, myWorld.param_schedule_infecting, inf);
+						}
+						else if (diseaseName.equals(DISEASE.DUMMY_WATERBORNE.key)) {
+							DummyWaterborneDisease inf = new DummyWaterborneDisease(waterTo, waterFrom, waterFrom.getDiseaseSet().get(diseaseName).getCurrentBehaviourNode(), myWorld);
+							myWorld.schedule.scheduleOnce(time + 1, myWorld.param_schedule_infecting, inf);
+						}
 					}
 				}
 			}
@@ -705,6 +715,23 @@ public class Person extends Host {
 				}
 			}
 		}
+		// potentially contaminate the water source
+				if (this.getDiseaseSet().containsKey(DISEASE.DUMMY_WATERBORNE.key)) {
+					double rand_to_shed = myWorld.random.nextDouble();
+					if (rand_to_shed < myWorld.dummyWaterborneFramework.getDummy_waterborne_prob_shed_into_water()) {
+						// check if the water source already has cholera
+						if (waterFrom.getDiseaseSet().containsKey(DISEASE.DUMMY_WATERBORNE.key)){
+							// already cholera object here, change it to the entry point for water from humans
+							waterFrom.getDiseaseSet().get(DISEASE.DUMMY_WATERBORNE.key).setBehaviourNode(myWorld.dummyWaterborneFramework.getStandardEntryPointForWater());
+						}
+						else {
+							double time = myWorld.schedule.getTime(); 
+							// create a new cholera object in the water source
+							DummyWaterborneDisease inf = new DummyWaterborneDisease(waterFrom, this, myWorld.dummyWaterborneFramework.getStandardEntryPointForWater(), myWorld);
+							myWorld.schedule.scheduleOnce(time, myWorld.param_schedule_infecting, inf);
+						}
+					}
+				}
 		
 	}
 }

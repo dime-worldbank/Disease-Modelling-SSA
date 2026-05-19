@@ -1,21 +1,33 @@
 package uk.ac.ucl.protecs.objects.diseases;
 
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.CholeraDiseaseProgressionFramework;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.CholeraDiseaseProgressionFramework.CholeraBehaviourNodeInHumans;
 import uk.ac.ucl.protecs.behaviours.diseaseProgression.CoronavirusDiseaseProgressionFramework.CoronavirusBehaviourNodeTitle;
+import uk.ac.ucl.protecs.sim.ImportExport;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import uk.ac.ucl.protecs.helperFunctions.*;
 import uk.ac.ucl.protecs.helperFunctions.HelperFunctions.NodeOption;
 import uk.ac.ucl.protecs.objects.diseases.Disease.DISEASESTAGE;
 import uk.ac.ucl.protecs.objects.hosts.Person;
+
 
 public class CholeraInHumansTesting {
 	// ============================================== Cholera in humans testing suit ==============================================================================
@@ -33,17 +45,71 @@ public class CholeraInHumansTesting {
 	// ============================================================================================================================================================
 	private final static String paramsDir = "src/test/resources/";
 	
+	@Rule
+	public TestName testName = new TestName();
+
+	private String params;
+
+	
+	protected int seed;
+	protected Random random;
+	
+	
+	@Rule
+	public TestWatcher watcher = new TestWatcher() {
+
+	    private String timestamp() {
+	        return LocalDateTime.now()
+	            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
+	    }
+
+	    private void logResult(String result, String extra) {
+		    params = "params_cholera_in_humans";
+	        try (FileWriter writer = new FileWriter("cholera-in-humans-test-seeds.log", true)) {
+	            writer.write(
+	                timestamp() +
+	                " | Test: " + testName.getMethodName() +
+	                " | Params: " + params + ".txt" +
+	                " | Seed: " + seed +
+	                " | RESULT: " + result +
+	                (extra != null ? " | " + extra : "") +
+	                "\n"
+	            );
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
+	    }
+
+	    @Override
+	    protected void succeeded(Description description) {
+	        logResult("PASSED", null);
+	    }
+
+	    @Override
+	    protected void failed(Throwable e, Description description) {
+	        logResult("=========== FAILED ===========", "Error: " + e.getMessage());
+	    }
+	};
+	@Before
+	public void setupSeed() throws IOException {
+	    seed = new java.util.Random().nextInt();;
+	    random = new Random(seed);
+	   
+	}
+	
 	@Test
 	public void choleraCasesAreLoadedInViaLineList() {
+		int seed = (int) this.seed;		
+
 		// Test that cholera infections are created and loaded in via the line list
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_humans.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_humans.txt");
 		sim.start();
 		// assume no cases have been loaded in the the person objects
 		boolean choleraLoadedIn = false;
 		// iterate over the population to try and find a cholera infection via their disease set
 		for (Person p: sim.agents) {
-			if (p.getDiseaseSet().containsKey(DISEASE.CHOLERA.key)) {
+			if (p.getDiseaseSet().containsKey(DISEASE.CHOLERA.name())) {
 				// if we found a cholera case, alter our assumption that none have been loaded in and stop the search
 				choleraLoadedIn = true;
 				break;
@@ -55,19 +121,21 @@ public class CholeraInHumansTesting {
 	
 	@Test
 	public void choleraCasesAreInitiallySetToExposedNode() {
+		int seed = (int) this.seed;		
+
 		// Test that cholera infections are initially load in with the exposed behaviour node
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_humans.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_humans.txt");
 		sim.start();
 		// assume every cholera case starts with the exposed behaviour node
 		boolean startsAsExposed = true;
 		// iterate over the population to try and find a cholera infection via their disease set
 		for (Person p: sim.agents) {
-			if (p.getDiseaseSet().containsKey(DISEASE.CHOLERA.key)) {
+			if (p.getDiseaseSet().containsKey(DISEASE.CHOLERA.name())) {
 				// get this infection's current behaviour
 				String currentBehaviourName = sim.choleraFramework.setNodeForTesting(CholeraBehaviourNodeInHumans.EXPOSED).getTitle();
 				// check this is the exposed node behaviour, break for loop if not
-				if (!p.getDiseaseSet().get(DISEASE.CHOLERA.key).getBehaviourName().equals(currentBehaviourName)) {
+				if (!p.getDiseaseSet().get(DISEASE.CHOLERA.name()).getBehaviourName().equals(currentBehaviourName)) {
 					startsAsExposed = false;
 					break;
 				}
@@ -79,9 +147,12 @@ public class CholeraInHumansTesting {
 	
 	@Test
 	public void exposedNodeLeadsToSusceptibleAsymptomaticMildAndSevere() {
+		int seed = (int) this.seed;		
+
+
 		// Test that the exposed node leads to susceptible, asymptomatic, mild and critical states only
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_humans.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_humans.txt");
 		sim.start();
 		int num_days = 7;
 		// adjust probability of outcomes to (hopefully) make sure that all options are explored from the exposed node
@@ -108,8 +179,8 @@ public class CholeraInHumansTesting {
 		HashSet<String> uniqueNodesInRun = HelperFunctions.getUniqueNodesOverCourseofSim(sim, num_days, NodeOption.Cholera, 1);
 		
 		// list the expected nodes
-		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.EXPOSED.key, CoronavirusBehaviourNodeTitle.SUSCEPTIBLE.key, CoronavirusBehaviourNodeTitle.ASYMPTOMATIC.key, 
-				CoronavirusBehaviourNodeTitle.MILD.key, CoronavirusBehaviourNodeTitle.SEVERE.key);
+		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.EXPOSED.name(), CoronavirusBehaviourNodeTitle.SUSCEPTIBLE.name(), CoronavirusBehaviourNodeTitle.ASYMPTOMATIC.name(), 
+				CoronavirusBehaviourNodeTitle.MILD.name(), CoronavirusBehaviourNodeTitle.SEVERE.name());
 
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
@@ -117,9 +188,11 @@ public class CholeraInHumansTesting {
 	}
 	@Test
 	public void asymptomaticLeadsToRecoveredOnly() {
+		int seed = (int) this.seed;		
+
 		// Test that the asymptomatic node leads to the recovered state only
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_humans.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_humans.txt");
 		sim.start();
 		int num_days = 7;
 		for (Disease d: sim.human_infections) {
@@ -137,7 +210,7 @@ public class CholeraInHumansTesting {
 		HashSet<String> uniqueNodesInRun = HelperFunctions.getUniqueNodesOverCourseofSim(sim, num_days, NodeOption.Cholera, 1);
 		
 		// list the expected nodes
-		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.ASYMPTOMATIC.key, CoronavirusBehaviourNodeTitle.RECOVERED.key);
+		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.ASYMPTOMATIC.name(), CoronavirusBehaviourNodeTitle.RECOVERED.name());
 
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
@@ -145,9 +218,11 @@ public class CholeraInHumansTesting {
 	}
 	@Test
 	public void mildLeadsToRecoveredOnly() {
+		int seed = (int) this.seed;		
+
 		// Test that the mild node leads to the recovered state only
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_humans.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_humans.txt");
 		sim.start();
 		int num_days = 7;
 		for (Disease d: sim.human_infections) {
@@ -166,7 +241,7 @@ public class CholeraInHumansTesting {
 		HashSet<String> uniqueNodesInRun = HelperFunctions.getUniqueNodesOverCourseofSim(sim, num_days, NodeOption.Cholera, 1);
 		
 		// list the expected nodes
-		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.MILD.key, CoronavirusBehaviourNodeTitle.RECOVERED.key);
+		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.MILD.name(), CoronavirusBehaviourNodeTitle.RECOVERED.name());
 
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
@@ -174,9 +249,11 @@ public class CholeraInHumansTesting {
 	}
 	@Test
 	public void severeLeadsToCriticalDeadAndRecoveredOnly() {
+		int seed = (int) this.seed;		
+
 		// Test that the severe node leads to the critical, dead and recovered states only
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_humans.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_humans.txt");
 		sim.start();
 		int num_days = 7;
 		for (Disease d: sim.human_infections) {
@@ -196,7 +273,7 @@ public class CholeraInHumansTesting {
 		HashSet<String> uniqueNodesInRun = HelperFunctions.getUniqueNodesOverCourseofSim(sim, num_days, NodeOption.Cholera, 1);
 		
 		// list the expected nodes
-		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.SEVERE.key, CoronavirusBehaviourNodeTitle.CRITICAL.key, CoronavirusBehaviourNodeTitle.DEAD.key, CoronavirusBehaviourNodeTitle.RECOVERED.key);
+		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.SEVERE.name(), CoronavirusBehaviourNodeTitle.CRITICAL.name(), CoronavirusBehaviourNodeTitle.DEAD.name(), CoronavirusBehaviourNodeTitle.RECOVERED.name());
 
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
@@ -205,9 +282,11 @@ public class CholeraInHumansTesting {
 	
 	@Test
 	public void criticalLeadsToDeadAndRecoveredOnly() {
+		int seed = (int) this.seed;		
+
 		// Test that the critical node leads to the dead and recovered states only
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_humans.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_humans.txt");
 		sim.start();
 		int num_days = 7;
 		for (Disease d: sim.human_infections) {
@@ -226,7 +305,7 @@ public class CholeraInHumansTesting {
 		HashSet<String> uniqueNodesInRun = HelperFunctions.getUniqueNodesOverCourseofSim(sim, num_days, NodeOption.Cholera, 1);
 		
 		// list the expected nodes
-		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.CRITICAL.key, CoronavirusBehaviourNodeTitle.DEAD.key, CoronavirusBehaviourNodeTitle.RECOVERED.key);
+		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.CRITICAL.name(), CoronavirusBehaviourNodeTitle.DEAD.name(), CoronavirusBehaviourNodeTitle.RECOVERED.name());
 
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
@@ -235,9 +314,11 @@ public class CholeraInHumansTesting {
 	
 	@Test
 	public void deadLeadsToDeadOnly() {
+		int seed = (int) this.seed;		
+
 		// Test that the dead node does not change
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_humans.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_humans.txt");
 		sim.start();
 		int num_days = 7;
 		for (Disease d: sim.human_infections) {
@@ -256,7 +337,7 @@ public class CholeraInHumansTesting {
 		HashSet<String> uniqueNodesInRun = HelperFunctions.getUniqueNodesOverCourseofSim(sim, num_days, NodeOption.Cholera, 1);
 		
 		// list the expected nodes
-		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.DEAD.key);
+		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.DEAD.name());
 
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
@@ -265,9 +346,11 @@ public class CholeraInHumansTesting {
 	
 	@Test
 	public void recoveredLeadsToSusceptible() {
+		int seed = (int) this.seed;		
+
 		// Test that the recovered node goes to susceptible
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_humans.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_humans.txt");
 		sim.start();
 		int num_days = 7;
 		for (Disease d: sim.human_infections) {
@@ -285,7 +368,7 @@ public class CholeraInHumansTesting {
 		HashSet<String> uniqueNodesInRun = HelperFunctions.getUniqueNodesOverCourseofSim(sim, num_days, NodeOption.Cholera, 1);
 		
 		// list the expected nodes
-		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.RECOVERED.key, CoronavirusBehaviourNodeTitle.SUSCEPTIBLE.key);
+		List<String> expectedNodes = Arrays.asList(CoronavirusBehaviourNodeTitle.RECOVERED.name(), CoronavirusBehaviourNodeTitle.SUSCEPTIBLE.name());
 
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
@@ -294,8 +377,10 @@ public class CholeraInHumansTesting {
 	
 	@Test
 	public void ifWeGiveEveryoneAnInfectionEventuallyTheyWillRecoverOrDie() {
+		int seed = (int) this.seed;		
+
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_cholera_in_humans.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_humans.txt");
 		sim.choleraFramework = new CholeraDiseaseProgressionFramework(sim);
 
 		sim.start();
@@ -312,7 +397,9 @@ public class CholeraInHumansTesting {
 		// Run the simulation and record the infectious behaviour nodes reached in this simulation
 		List<String> uniqueNodesInRun = HelperFunctions.getFinalNodesInHumans(sim, numDays);
 		// we would expect only the recovered or dead node to appear at the end of simulation
-		List<String> expectedNodes = Arrays.asList(CholeraBehaviourNodeInHumans.SUSCEPTIBLE.key, CholeraBehaviourNodeInHumans.RECOVERED.key, CholeraBehaviourNodeInHumans.DEAD.key);
+		List<String> expectedNodes = Arrays.asList(CholeraBehaviourNodeInHumans.SUSCEPTIBLE.name(), CholeraBehaviourNodeInHumans.RECOVERED.name(), CholeraBehaviourNodeInHumans.DEAD.name());
+		// write out the infection to test that things work without error
+		ImportExport.exportInfections("cholera_human_infections.txt", sim.human_infections);
 		// Make sure than no other nodes are reaching in the simulation
 		Assert.assertTrue(expectedNodes.containsAll(uniqueNodesInRun));
 				
