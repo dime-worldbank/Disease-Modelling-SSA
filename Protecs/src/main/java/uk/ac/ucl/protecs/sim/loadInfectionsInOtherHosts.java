@@ -45,15 +45,6 @@ public class loadInfectionsInOtherHosts{
 					
 					// create new infection
 					switch (d) {
-						case COVID:{
-							break;
-						}
-						case DUMMY_NCD:{
-							break;
-						}
-						case DUMMY_INFECTIOUS:{
-							break;
-						}
 						case DUMMY_WATERBORNE:{
 							if (world.dummyWaterborneFramework.equals(null)) {
 								world.dummyWaterborneFramework = new DummyWaterborneDiseaseProgressionFramework(world);

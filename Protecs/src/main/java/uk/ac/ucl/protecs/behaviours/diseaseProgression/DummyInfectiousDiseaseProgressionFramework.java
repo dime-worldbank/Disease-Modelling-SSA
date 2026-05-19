@@ -15,31 +15,15 @@ public class DummyInfectiousDiseaseProgressionFramework extends DiseaseProgressi
 	public double dummy_infectious_recovery_rate = 0.5;
 	
 	public enum DummyInfectiousBehaviourNode{
-		SUSCEPTIBLE("susceptible"), EXPOSED("exposed"), RECOVERED("recovered"), DEAD("dead");
+		SUSCEPTIBLE, EXPOSED, RECOVERED, DEAD;
 
-        String key;
-     
-        DummyInfectiousBehaviourNode(String key) { this.key = key; }
-    
-        static DummyInfectiousBehaviourNode getValue(String x) {
-        	switch (x) {
-        	case "susceptible":
-        		return SUSCEPTIBLE;
-        	case "exposed":
-        		return EXPOSED;
-        	case "recover":
-        		return RECOVERED;
-        	case "dead":
-        		return DEAD;
-        	default:
-        		throw new IllegalArgumentException();
-        	}
-        }
 	}
 	
 	public enum nextStepDummy{
-		NO_SYMPTOMS, CAUSE_SYMPTOMS, DO_NOTHING, RECOVER, HAS_DIED;
-		
+		NO_SYMPTOMS("noSymptoms"), CAUSE_SYMPTOMS("causeSymptoms"), DO_NOTHING("doNothing"), RECOVER("recover"), HAS_DIED("hasDied");
+		public String key;
+	     
+		nextStepDummy(String key) { this.key = key; }
 	} 
 	private nextStepDummy nextStep;
 
@@ -53,7 +37,7 @@ public class DummyInfectiousDiseaseProgressionFramework extends DiseaseProgressi
 			@Override
 			public String getTitle() {
 				// TODO Auto-generated method stub
-				return DummyInfectiousBehaviourNode.SUSCEPTIBLE.key;
+				return DummyInfectiousBehaviourNode.SUSCEPTIBLE.name();
 			}
 
 			@Override
@@ -74,7 +58,7 @@ public class DummyInfectiousDiseaseProgressionFramework extends DiseaseProgressi
 		@Override
 		public String getTitle() {
 			// TODO Auto-generated method stub
-			return DummyInfectiousBehaviourNode.EXPOSED.key;
+			return DummyInfectiousBehaviourNode.EXPOSED.name();
 		}
 
 		@Override
@@ -125,7 +109,7 @@ public class DummyInfectiousDiseaseProgressionFramework extends DiseaseProgressi
 		@Override
 		public String getTitle() {
 			// TODO Auto-generated method stub
-			return DummyInfectiousBehaviourNode.RECOVERED.key;
+			return DummyInfectiousBehaviourNode.RECOVERED.name();
 		}
 
 		@Override
@@ -153,7 +137,7 @@ public class DummyInfectiousDiseaseProgressionFramework extends DiseaseProgressi
 		@Override
 		public String getTitle() {
 			// TODO Auto-generated method stub
-			return DummyInfectiousBehaviourNode.DEAD.key;
+			return DummyInfectiousBehaviourNode.DEAD.name();
 		}
 
 		@Override

@@ -48,59 +48,13 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 
 	
 	public enum CholeraBehaviourNodeInHumans{
-		SUSCEPTIBLE("susceptible"), EXPOSED("exposed"), PRESYMPTOMATIC("presymptomatic"), ASYMPTOMATIC("asymptomatic"), 
-		MILD("mild"), SEVERE("severe"), CRITICAL("critical"), RECOVERED("recovered"), DEAD("dead");
-        public String key;
-     
-        CholeraBehaviourNodeInHumans(String key) { this.key = key; }
-    
-        static CholeraBehaviourNodeInHumans getValue(String x) {
-        	switch (x) {
-        	case "susceptible":
-        		return SUSCEPTIBLE;
-        	case "exposed":
-        		return EXPOSED;
-        	case "presymptomatic":
-        		return PRESYMPTOMATIC;
-        	case "asymptomatic":
-        		return ASYMPTOMATIC;
-        	case "mild":
-        		return MILD;	
-        	case "severe":
-        		return SEVERE;	
-        	case "critical":
-        		return CRITICAL;
-        	case "recovered":
-        		return RECOVERED;
-        	case "dead":
-        		return DEAD;
-        	default:
-        		throw new IllegalArgumentException();
-        	}
-        }
+		SUSCEPTIBLE, EXPOSED, PRESYMPTOMATIC, ASYMPTOMATIC, MILD, SEVERE, CRITICAL, RECOVERED, DEAD;
 	}
 	
 	public enum CholeraBehaviourNodeInWater{
 		// Cholera in water is only infectious in the time period immediately after initial exposure, it rapidly deteriorates from a hyperinfectious state into an 
 		// 'active but non-culturable' (ABNC) state within 5 hours (https://pubmed.ncbi.nlm.nih.gov/12050664/)
-		CLEAN("clean"), ABNC("ABMC"), HYPERINFECTIOUS("hyperinfectious");
-
-        public String key;
-     
-        CholeraBehaviourNodeInWater(String key) { this.key = key; }
-    
-        static CholeraBehaviourNodeInWater getValue(String x) {
-        	switch (x) {
-        	case "clean":
-        		return CLEAN;
-        	case "ABNC":
-        		return ABNC;
-        	case "hyperinfectious":
-        		return HYPERINFECTIOUS;
-        	default:
-        		throw new IllegalArgumentException();
-        	}
-        }
+		CLEAN, ABNC, HYPERINFECTIOUS;
 	}
 	
 	public enum nextStepCholeraInHumans{
@@ -122,7 +76,7 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 		this.susceptibleNode = new BehaviourNode(){
 			
 			@Override
-			public String getTitle() { return CholeraBehaviourNodeInHumans.SUSCEPTIBLE.key; }
+			public String getTitle() { return CholeraBehaviourNodeInHumans.SUSCEPTIBLE.name(); }
 
 			@Override
 			public double next(Steppable s, double time) {
@@ -167,7 +121,7 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 		@Override
 		public String getTitle() {
 			// TODO Auto-generated method stub
-			return CholeraBehaviourNodeInHumans.EXPOSED.key;
+			return CholeraBehaviourNodeInHumans.EXPOSED.name();
 		}
 
 		@Override
@@ -294,7 +248,7 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 		@Override
 		public String getTitle() {
 
-			return CholeraBehaviourNodeInHumans.ASYMPTOMATIC.key;
+			return CholeraBehaviourNodeInHumans.ASYMPTOMATIC.name();
 		}
 
 		@Override
@@ -350,7 +304,7 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 
 		@Override
 		public String getTitle() {
-			return CholeraBehaviourNodeInHumans.MILD.key;
+			return CholeraBehaviourNodeInHumans.MILD.name();
 		}
 
 		@Override
@@ -407,7 +361,7 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 		// TODO: Make the distinction between seeking treatment and not seeking treatment based off something
 		@Override
 		public String getTitle() {
-			return CholeraBehaviourNodeInHumans.SEVERE.key;
+			return CholeraBehaviourNodeInHumans.SEVERE.name();
 		}
 
 		@Override
@@ -510,7 +464,7 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 
 		@Override
 		public String getTitle() {
-			return CholeraBehaviourNodeInHumans.CRITICAL.key;
+			return CholeraBehaviourNodeInHumans.CRITICAL.name();
 		}
 
 		@Override
@@ -583,7 +537,7 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 		@Override
 		public String getTitle() {
 
-			return CholeraBehaviourNodeInHumans.RECOVERED.key;
+			return CholeraBehaviourNodeInHumans.RECOVERED.name();
 		}
 
 		@Override
@@ -645,7 +599,7 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 		@Override
 		public String getTitle() {
 			// TODO Auto-generated method stub
-			return CholeraBehaviourNodeInHumans.DEAD.key;
+			return CholeraBehaviourNodeInHumans.DEAD.name();
 		}
 
 		@Override
@@ -668,7 +622,7 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 
 		@Override
 		public String getTitle() {
-			return CholeraBehaviourNodeInWater.CLEAN.key;
+			return CholeraBehaviourNodeInWater.CLEAN.name();
 		}
 
 		@Override
@@ -688,7 +642,7 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 		// has consequences on the transmission of disease: https://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.0030007
 		@Override
 		public String getTitle() {
-			return CholeraBehaviourNodeInWater.HYPERINFECTIOUS.key;
+			return CholeraBehaviourNodeInWater.HYPERINFECTIOUS.name();
 		}
 
 		@Override
@@ -730,7 +684,7 @@ public class CholeraDiseaseProgressionFramework extends DiseaseProgressionBehavi
 	this.acitveButNonCulturableNode = new BehaviourNode() {
 		@Override
 		public String getTitle() {
-			return CholeraBehaviourNodeInWater.ABNC.key;
+			return CholeraBehaviourNodeInWater.ABNC.name();
 		}
 
 		@Override

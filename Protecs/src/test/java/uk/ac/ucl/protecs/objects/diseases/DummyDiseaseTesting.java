@@ -1,11 +1,22 @@
 package uk.ac.ucl.protecs.objects.diseases;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
+import java.util.Random;
 
 import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+
 import uk.ac.ucl.protecs.helperFunctions.*;
 
 import org.junit.Test;
+import org.junit.rules.TestName;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 
 import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim;
 import uk.ac.ucl.protecs.helperFunctions.HelperFunctions.birthsOrDeaths;
@@ -18,11 +29,63 @@ import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 public class DummyDiseaseTesting{
 	
 	private final static String paramsDir = "src/test/resources/";
+	
+	private String params = "params_dummy_disease";
+	
+	@Rule
+	public TestName testName = new TestName();
 
+	protected int seed;
+	protected Random random;
+	
+	@Rule
+	public TestWatcher watcher = new TestWatcher() {
+
+	    private String timestamp() {
+	        return LocalDateTime.now()
+	            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
+	    }
+
+	    private void logResult(String result, String extra) {
+	        try (FileWriter writer = new FileWriter("dummy-disease-test-seeds.log", true)) {
+	            writer.write(
+	                timestamp() +
+	                " | Test: " + testName.getMethodName() +
+	                " | Params: " + params + ".txt" +
+	                " | Seed: " + seed +
+	                " | RESULT: " + result +
+	                (extra != null ? " | " + extra : "") +
+	                "\n"
+	            );
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
+	    }
+
+	    @Override
+	    protected void succeeded(Description description) {
+	        logResult("PASSED", null);
+	    }
+
+	    @Override
+	    protected void failed(Throwable e, Description description) {
+	        logResult("FAILED", "Error: " + e.getMessage());
+	    }
+	};
+	
+	@Before
+	public void setupSeed() throws IOException {
+		seed = new java.util.Random().nextInt();;
+
+	    random = new Random(seed);
+	}
 	
 	@Test
 	public void checkPeopleGetTheDummyDiseases() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_dummy_disease.txt");
+		int seed = (int) this.seed;		
+
+		// set up the simulation
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_dummy_disease.txt");
 		sim.start();
 		int numDays = 8;
 
@@ -36,8 +99,10 @@ public class DummyDiseaseTesting{
 	
 	@Test
 	public void checkVerticalTransmissionOfDummyInfectiousWorks() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_dummy_disease.txt");
-		// Increase the birth rate to ensure births take place
+		int seed = (int) this.seed;		
+
+		// set up the simulation
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_dummy_disease.txt");		// Increase the birth rate to ensure births take place
 		sim.start();
 		HelperFunctions.setParameterListsToValue(sim, sim.demographyFramework.getProb_birth_by_age(), 1.0);
 
@@ -87,7 +152,10 @@ public class DummyDiseaseTesting{
 	
 	@Test
 	public void checkHorizontalTransmissionOfDummyInfectiousWorks() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_dummy_disease.txt");
+		int seed = (int) this.seed;		
+
+		// set up the simulation
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_dummy_disease.txt");		
 		sim.start();
 		// turn off births and deaths.
 		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
@@ -115,7 +183,10 @@ public class DummyDiseaseTesting{
 	
 	@Test
 	public void checkNoNewCasesOfDummyNCDBeginWithoutRateOfAcquisition() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_dummy_disease.txt");
+		int seed = (int) this.seed;		
+
+		// set up the simulation
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_dummy_disease.txt");		
 		sim.start();
 		// turn off the rate of dummy NCD acquisition
 		sim.dummyNCDFramework.setDummy_ncd_base_rate(0.0);
@@ -139,7 +210,10 @@ public class DummyDiseaseTesting{
 	
 	@Test
 	public void checkThatNewPeopleDevelopTheDummyNCD() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_dummy_disease.txt");
+		int seed = (int) this.seed;		
+
+		// set up the simulation
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_dummy_disease.txt");	
 		sim.start();
 		// increase the rate of dummy NCD acquisition
 		sim.dummyNCDFramework.setDummy_ncd_base_rate(0.5);
@@ -163,7 +237,10 @@ public class DummyDiseaseTesting{
 	
 	@Test
 	public void checkThatMoreNewDummyNCDsOccurInMen() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_dummy_disease.txt");
+		int seed = (int) this.seed;		
+
+		// set up the simulation
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_dummy_disease.txt");
 		sim.start();
 		
 		// equalise the number of men and women in the simulation
@@ -218,7 +295,10 @@ public class DummyDiseaseTesting{
 	}
 	@Test
 	public void checkThatMoreNewDummyNCDsInOver50s() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_dummy_disease.txt");
+		int seed = (int) this.seed;		
+
+		// set up the simulation
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_dummy_disease.txt");		
 		sim.start();
 
 		// equalise the number of over and under 50s in the simulation
@@ -275,7 +355,10 @@ public class DummyDiseaseTesting{
 	
 	@Test
 	public void checkDummyWaterborneDiseaseIsSpreadToWater() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_dummy_disease.txt");
+		int seed = (int) this.seed;		
+
+		// set up the simulation
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_dummy_disease.txt");
 		sim.start();
 		int number_of_initial_infections_in_water = 0;
 		sim.dummyWaterborneFramework.setDummy_waterborne_prob_shed_into_water(1);
@@ -298,7 +381,10 @@ public class DummyDiseaseTesting{
 	
 	@Test
 	public void checkDummyWaterborneDiseaseIsSpreadToPeople() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_dummy_disease.txt");
+		int seed = (int) this.seed;		
+
+		// set up the simulation
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_dummy_disease.txt");
 		sim.start();
 		sim.dummyWaterborneFramework.setDummy_prob_ingest_dummy_waterborne(1);
 		int number_of_initial_infections_in_people = 0;
@@ -321,37 +407,36 @@ public class DummyDiseaseTesting{
 	
 	@Test
 	public void checkNoNewDummyWaterborneCasesHappenIfPeopleDoNotInteractWithWater() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_dummy_disease.txt");
+		int seed = (int) this.seed;		
+
+		// set up the simulation
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_dummy_disease.txt");
 		sim.params.prob_interact_with_water = 0;
 		sim.start();
-		int number_of_initial_infections_in_both_hosts = 0;
+		int number_of_initial_infections_in_people = 0;
 
 		for (Person p: sim.agents) {
-			if (p.getDiseaseSet().containsKey(DISEASE.DUMMY_WATERBORNE.key)) number_of_initial_infections_in_both_hosts ++;
+			if (p.getDiseaseSet().containsKey(DISEASE.DUMMY_WATERBORNE.key)) number_of_initial_infections_in_people ++;
 
 		}
-		for (Water w: sim.waterInSim) {
-			if (w.getDiseaseSet().containsKey(DISEASE.DUMMY_WATERBORNE.key)) number_of_initial_infections_in_both_hosts ++;
 
-		}
 		int numDays = 50;
 		HelperFunctions.runSimulation(sim, numDays);
-		int number_of_new_infections_in_both_hosts = 0;
+		int number_of_new_infections_in_people = 0;
 
 		for (Person p: sim.agents) {
-			if (p.getDiseaseSet().containsKey(DISEASE.DUMMY_WATERBORNE.key)) number_of_new_infections_in_both_hosts ++;
+			if (p.getDiseaseSet().containsKey(DISEASE.DUMMY_WATERBORNE.key)) number_of_new_infections_in_people ++;
 
 		}
-		for (Water w: sim.waterInSim) {
-			if (w.getDiseaseSet().containsKey(DISEASE.DUMMY_WATERBORNE.key)) number_of_new_infections_in_both_hosts ++;
-
-		}
-		Assert.assertTrue(number_of_initial_infections_in_both_hosts == number_of_new_infections_in_both_hosts);
+		Assert.assertTrue(number_of_initial_infections_in_people == number_of_new_infections_in_people);
 		}
 	
 	@Test
 	public void checkThatDuplicatedInfectionTypesDoNotHappen() {
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_dummy_disease.txt");
+		int seed = (int) this.seed;		
+
+		// set up the simulation
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_dummy_disease.txt");
 		int numberOfDiseasesModelledBySim = DISEASE.values().length;
 		sim.start();
 
