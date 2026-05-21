@@ -29,7 +29,7 @@ import uk.ac.ucl.protecs.objects.diseases.Disease.DISEASESTAGE;
 import uk.ac.ucl.protecs.objects.hosts.Person;
 
 
-public class CholeraInHumansTesting {
+public class CholeraInHumansTesting extends TestWatcherSetup{
 	// ============================================== Cholera in humans testing suit ==============================================================================
 	// Here we aim to test the instantiation of Cholera in the Person object and the disease progression behaviour following subsequent infection.
 	// We test that: 
@@ -43,58 +43,14 @@ public class CholeraInHumansTesting {
 	// 8) death leads only to death
 	// 9) recovery leads to susceptibility only
 	// ============================================================================================================================================================
-	private final static String paramsDir = "src/test/resources/";
-	
-	@Rule
-	public TestName testName = new TestName();
+	@Override
+	protected String getParams() {
+		return "params_cholera_in_humans";
+	}
 
-	private String params;
-
-	
-	protected int seed;
-	protected Random random;
-	
-	
-	@Rule
-	public TestWatcher watcher = new TestWatcher() {
-
-	    private String timestamp() {
-	        return LocalDateTime.now()
-	            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
-	    }
-
-	    private void logResult(String result, String extra) {
-		    params = "params_cholera_in_humans";
-	        try (FileWriter writer = new FileWriter("cholera-in-humans-test-seeds.log", true)) {
-	            writer.write(
-	                timestamp() +
-	                " | Test: " + testName.getMethodName() +
-	                " | Params: " + params + ".txt" +
-	                " | Seed: " + seed +
-	                " | RESULT: " + result +
-	                (extra != null ? " | " + extra : "") +
-	                "\n"
-	            );
-	        } catch (IOException e) {
-	            e.printStackTrace();
-	        }
-	    }
-
-	    @Override
-	    protected void succeeded(Description description) {
-	        logResult("PASSED", null);
-	    }
-
-	    @Override
-	    protected void failed(Throwable e, Description description) {
-	        logResult("=========== FAILED ===========", "Error: " + e.getMessage());
-	    }
-	};
-	@Before
-	public void setupSeed() throws IOException {
-	    seed = new java.util.Random().nextInt();;
-	    random = new Random(seed);
-	   
+	@Override
+	protected String getOutputFileName() {
+		return "cholera-in-humans-test-seeds.log";
 	}
 	
 	@Test
@@ -103,7 +59,7 @@ public class CholeraInHumansTesting {
 
 		// Test that cholera infections are created and loaded in via the line list
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_humans.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_cholera_in_humans.txt");
 		sim.start();
 		// assume no cases have been loaded in the the person objects
 		boolean choleraLoadedIn = false;
@@ -125,7 +81,7 @@ public class CholeraInHumansTesting {
 
 		// Test that cholera infections are initially load in with the exposed behaviour node
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_humans.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_cholera_in_humans.txt");
 		sim.start();
 		// assume every cholera case starts with the exposed behaviour node
 		boolean startsAsExposed = true;
@@ -152,7 +108,7 @@ public class CholeraInHumansTesting {
 
 		// Test that the exposed node leads to susceptible, asymptomatic, mild and critical states only
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_humans.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_cholera_in_humans.txt");
 		sim.start();
 		int num_days = 7;
 		// adjust probability of outcomes to (hopefully) make sure that all options are explored from the exposed node
@@ -192,7 +148,7 @@ public class CholeraInHumansTesting {
 
 		// Test that the asymptomatic node leads to the recovered state only
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_humans.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_cholera_in_humans.txt");
 		sim.start();
 		int num_days = 7;
 		for (Disease d: sim.human_infections) {
@@ -222,7 +178,7 @@ public class CholeraInHumansTesting {
 
 		// Test that the mild node leads to the recovered state only
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_humans.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_cholera_in_humans.txt");
 		sim.start();
 		int num_days = 7;
 		for (Disease d: sim.human_infections) {
@@ -253,7 +209,7 @@ public class CholeraInHumansTesting {
 
 		// Test that the severe node leads to the critical, dead and recovered states only
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_humans.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_cholera_in_humans.txt");
 		sim.start();
 		int num_days = 7;
 		for (Disease d: sim.human_infections) {
@@ -286,7 +242,7 @@ public class CholeraInHumansTesting {
 
 		// Test that the critical node leads to the dead and recovered states only
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_humans.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_cholera_in_humans.txt");
 		sim.start();
 		int num_days = 7;
 		for (Disease d: sim.human_infections) {
@@ -318,7 +274,7 @@ public class CholeraInHumansTesting {
 
 		// Test that the dead node does not change
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_humans.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_cholera_in_humans.txt");
 		sim.start();
 		int num_days = 7;
 		for (Disease d: sim.human_infections) {
@@ -350,7 +306,7 @@ public class CholeraInHumansTesting {
 
 		// Test that the recovered node goes to susceptible
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_humans.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_cholera_in_humans.txt");
 		sim.start();
 		int num_days = 7;
 		for (Disease d: sim.human_infections) {
@@ -380,7 +336,7 @@ public class CholeraInHumansTesting {
 		int seed = (int) this.seed;		
 
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_cholera_in_humans.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_cholera_in_humans.txt");
 		sim.choleraFramework = new CholeraDiseaseProgressionFramework(sim);
 
 		sim.start();

@@ -17,7 +17,7 @@ public class HIVTesting extends TestWatcherSetup {
 	@Override
 	protected String getParams() {
 		// TODO Auto-generated method stub
-		return "params_hiv";
+		return "params_hiv.txt";
 	}
 	
 	@Override

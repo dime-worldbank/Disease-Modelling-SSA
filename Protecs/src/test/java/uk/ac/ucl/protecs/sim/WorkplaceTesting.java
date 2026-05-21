@@ -28,7 +28,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
-public class WorkplaceTesting{
+public class WorkplaceTesting extends TestWatcherSetup{
 	// ================================================ Testing =======================================================================
 	// ===== Here we test that the model is reading in workplaces from the census csv file and are being stored as workplace objects. =
 	// ===== We check that subsequently the workplace bubbles are created and are associated with the workplace location created. =====
@@ -37,82 +37,42 @@ public class WorkplaceTesting{
 	// ===== We check that people travel to their workplace location in the model.                                              =======
 	// ===== We check that the parameters being used to predict workplace contacts are being loaded                             =======
 	// ================================================================================================================================
+	@Override
+	protected String getParams() {
+		return params;
+	}
+
+	@Override
+	protected String getOutputFileName() {
+		return "workplace-test-seeds.loc";
+	}
+	
 	private String params;
-	private final static String paramsDir = "src/test/resources/";
 
 	public WorkplaceTesting(String fileName) {
 		this.params = fileName;
 	}
 
-	@Rule
-	public TestName testName = new TestName();
-
-	protected int seed;
-	protected Random random;
-	
-
-	
-	@Rule
-	public TestWatcher watcher = new TestWatcher() {
-
-	    private String timestamp() {
-	        return LocalDateTime.now()
-	            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
-	    }
-
-	    private void logResult(String result, String extra) {
-	        try (FileWriter writer = new FileWriter("workplace-test-seeds.log", true)) {
-	            writer.write(
-	                timestamp() +
-	                " | Test: " + testName.getMethodName() +
-	                " | Params: " + params + ".txt" +
-	                " | Seed: " + seed +
-	                " | RESULT: " + result +
-	                (extra != null ? " | " + extra : "") +
-	                "\n"
-	            );
-	        } catch (IOException e) {
-	            e.printStackTrace();
-	        }
-	    }
-
-	    @Override
-	    protected void succeeded(Description description) {
-	        logResult("PASSED", null);
-	    }
-
-	    @Override
-	    protected void failed(Throwable e, Description description) {
-	        logResult("FAILED", "Error: " + e.getMessage());
-	    }
-	};
-	
-	@Before
-	public void setupSeed() throws IOException {
-		seed = new java.util.Random().nextInt();;
-
-	    random = new Random(seed);
-	}
 	@Test
 	public void checkPopulationWorkplacesAreBeingLoaded() {
-		this.params = "params_workplace_bubbles";
+		this.params = "params_workplace_bubbles.txt";
 		// workplaces are read in from the csv file now, initialise the simulation		int seed = (int) this.seed;		
 		int seed = (int) this.seed;		
 
 		// set up the simulation
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_workplace_bubbles.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_workplace_bubbles.txt");
 		sim.start();
 		// check that the workplace locations have been created
 		Assert.assertNotNull(sim.workplaces);
 	}
 	@Test
 	public void checkWorkplaceBubblesAreBeingMade() {
-		this.params = "params_workplace_bubbles";
+		this.params = "params_workplace_bubbles.txt";
 		// bubbles are created after during the loading in process of the population		
 		int seed = (int) this.seed;		
 
 		// set up the simulation
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_workplace_bubbles.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_workplace_bubbles.txt");
 		sim.start();
 		// check that everyone has a bubble associated with their workplace
 		for (Person p: sim.agents) {
@@ -122,11 +82,11 @@ public class WorkplaceTesting{
 	@Test
 	public void checkWorkplaceBubblesContainEveryoneInWorkplace() {
 		// bubbles are created after during the loading in process of the population		
-		this.params = "params_workplace_bubbles";
+		this.params = "params_workplace_bubbles.txt";
 		int seed = (int) this.seed;		
 
 		// set up the simulation
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_workplace_bubbles.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_workplace_bubbles.txt");
 		sim.start();
 		// create a function to search through the population and get people belonging to certain bubbles
 		Map<String, List<Person>> belongingToBubble = sim.agents.stream().collect(
@@ -147,11 +107,11 @@ public class WorkplaceTesting{
 	@Test
 	public void checkPeopleGoToTheirWorkplace() {
 		// check the movement of the population to their workplaces		t
-		this.params = "params_workplace_bubbles";
+		this.params = "params_workplace_bubbles.txt";
 		int seed = (int) this.seed;		
 
 		// set up the simulation
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_workplace_bubbles.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_workplace_bubbles.txt");
 		HelperFunctions.makePeopleLeaveTheHouseEachDay(sim);
 		// make everyone decide to go to their workplace
 		sim.params.prob_go_to_work = 1.1d;
@@ -175,11 +135,11 @@ public class WorkplaceTesting{
 	@Test
 	public void checkWorkplacesHaveEnoughPeopleInThem() {
 		// check the movement of the population to their workplaces		
-		this.params = "params_bubble_small";
+		this.params = "params_bubble_small.txt";
 		int seed = (int) this.seed;		
 
 		// set up the simulation
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_bubble_small.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_bubble_small.txt");
 		HelperFunctions.makePeopleLeaveTheHouseEachDay(sim);
 		// make everyone decide to go to their workplace
 		sim.params.prob_go_to_work = 1.1d;
@@ -202,11 +162,11 @@ public class WorkplaceTesting{
 	@Test
 	public void testWorkplaceContactsCountDataIsBeingLoaded() {
 		// check the parameters associated with workplace contacts are being loaded
-		this.params = "params_workplace_bubbles";
+		this.params = "params_workplace_bubbles.txt";
 		int seed = (int) this.seed;		
 
 		// set up the simulation
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_workplace_bubbles.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_workplace_bubbles.txt");
 		sim.start();
 		boolean contactCountDataLoaded = sim.params.workplaceContactCounts.size() > 0;
 		boolean contactProbabilityDataLoaded = sim.params.workplaceContactProbability.keySet().size() > 0;
@@ -217,12 +177,12 @@ public class WorkplaceTesting{
 	@Test
 	public void testWorkplaceConstraintsAreBeingLoaded() {
 		// check the parameters associated with workplace constraints
-		this.params = "params_workplace_bubbles_with_constraints";
+		this.params = "params_workplace_bubbles_with_constraints.txt";
 		// bubbles are created after during the loading in process of the population		
 		int seed = (int) this.seed;		
 
 		// set up the simulation
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_workplace_bubbles_with_constraints.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_workplace_bubbles_with_constraints.txt");
 		sim.start();
 		boolean occupationsNamed = sim.params.OccupationConstraintList.keySet().size() > 0;
 		boolean constraintsLoaded = sim.params.OccupationConstraintList.values().size() > 0;
@@ -233,12 +193,12 @@ public class WorkplaceTesting{
 	@Test
 	public void testThoseConstrainedToHomeAreImmobilised() {
 		// check the parameters associated with workplace constraints
-		this.params = "params_workplace_bubbles_with_constraints";
+		this.params = "params_workplace_bubbles_with_constraints.txt";
 		// bubbles are created after during the loading in process of the population		
 		int seed = (int) this.seed;		
 
 		// set up the simulation
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_workplace_bubbles_with_constraints.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_workplace_bubbles_with_constraints.txt");
 		sim.start();
 		// run for three ticks (people leave the house at tick 2 and leave work at tick 4)
 		int numTicks = 3;
@@ -256,12 +216,12 @@ public class WorkplaceTesting{
 	@Test
 	public void testThoseConstrainedToTheCommunityAreNotAtWork() {
 		// check the parameters associated with workplace constraints
-		this.params = "params_workplace_bubbles_with_constraints";
+		this.params = "params_workplace_bubbles_with_constraints.txt";
 		// bubbles are created after during the loading in process of the population		
 		int seed = (int) this.seed;		
 
 		// set up the simulation
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_workplace_bubbles_with_constraints.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_workplace_bubbles_with_constraints.txt");
 		// make sure that everyone leaves the house that day
 		HelperFunctions.makePeopleLeaveTheHouseEachDay(sim);
 		sim.start();

@@ -29,63 +29,22 @@ import java.util.stream.Collectors;
 // ===== sex and that over the course of the simulation, people have their age updated when they have a birthday. =================
 // ================================================================================================================================
 
-public class DemographyTesting {
-
-	private final static String paramsDir = "src/test/resources/";
-private String params = "params_demography";
-	
-	@Rule
-	public TestName testName = new TestName();
-
-	protected int seed;
-	protected Random random;
-	@Rule
-	public TestWatcher watcher = new TestWatcher() {
-
-	    private String timestamp() {
-	        return LocalDateTime.now()
-	            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
-	    }
-
-	    private void logResult(String result, String extra) {
-	        try (FileWriter writer = new FileWriter("demography-test-seeds.log", true)) {
-	            writer.write(
-	                timestamp() +
-	                " | Test: " + testName.getMethodName() +
-	                " | Params: " + params + ".txt" +
-	                " | Seed: " + seed +
-	                " | RESULT: " + result +
-	                (extra != null ? " | " + extra : "") +
-	                "\n"
-	            );
-	        } catch (IOException e) {
-	            e.printStackTrace();
-	        }
-	    }
-
-	    @Override
-	    protected void succeeded(Description description) {
-	        logResult("PASSED", null);
-	    }
-
-	    @Override
-	    protected void failed(Throwable e, Description description) {
-	        logResult("FAILED", "Error: " + e.getMessage());
-	    }
-	};
-	
-	@Before
-	public void setupSeed() throws IOException {
-		seed = new java.util.Random().nextInt();;
-
-	    random = new Random(seed);
+public class DemographyTesting extends TestWatcherSetup{
+	@Override
+	protected String getParams() {
+		return "params_demography.txt";
 	}
+	@Override
+	protected String getOutputFileName() {
+		return "demography-test-seeds.log";
+	}
+
 	@Test
 	public void testBirthsAreIncreasingPopSize() {
 		int seed = (int) this.seed;		
 
 		// set up the simulation
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_demography.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_demography.txt");
 		sim.start();
 		// turn off deaths to only focus on births.
 		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
@@ -106,7 +65,7 @@ private String params = "params_demography";
 		int seed = (int) this.seed;		
 
 		// set up the simulation
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_demography.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_demography.txt");
 		sim.start();
 		// turn off deaths to only focus on births.
 		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
@@ -128,13 +87,13 @@ private String params = "params_demography";
 		int seed = (int) this.seed;		
 
 		// set up the simulation
-		WorldBankCovid19Sim sim_with_male_mortality = HelperFunctions.CreateDummySimWithSeed(seed, "src/test/resources/params_demography.txt");
+		WorldBankCovid19Sim sim_with_male_mortality = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_demography.txt");
 		sim_with_male_mortality.start();
 		// turn off female mortality in this simulation
 		HelperFunctions.setParameterListsToValue(sim_with_male_mortality, sim_with_male_mortality.demographyFramework.getProb_death_by_age_female(), 0.0);
 		HelperFunctions.setParameterListsToValue(sim_with_male_mortality, sim_with_male_mortality.demographyFramework.getProb_death_by_age_male(), 0.5);
 
-		WorldBankCovid19Sim sim_with_female_mortality = HelperFunctions.CreateDummySimWithSeed(seed, "src/test/resources/params_demography.txt");
+		WorldBankCovid19Sim sim_with_female_mortality = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_demography.txt");
 		sim_with_female_mortality.start();
 		// turn off female mortality in this simulation
 		HelperFunctions.setParameterListsToValue(sim_with_female_mortality, sim_with_female_mortality.demographyFramework.getProb_death_by_age_male(), 0.0);
@@ -178,7 +137,7 @@ private String params = "params_demography";
 		int seed = (int) this.seed;		
 
 		// set up the simulation
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_demography.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_demography.txt");
 		sim.start();
 		// turn off deaths births and deaths
 		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);

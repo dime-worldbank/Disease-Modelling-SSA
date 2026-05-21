@@ -47,7 +47,7 @@ public abstract class TestWatcherSetup {
                 writer.write(
                         timestamp()
                                 + " | Test: " + testName.getMethodName()
-                                + " | Params: " + getParams() + ".txt"
+                                + " | Params: " + getParams()
                                 + " | Seed: " + seed
                                 + " | RESULT: " + result
                                 + (extra != null ? " | " + extra : "")

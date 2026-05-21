@@ -28,70 +28,29 @@ import uk.ac.ucl.protecs.objects.diseases.Disease.DISEASESTAGE;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
-public class CoronavirusInfectiousBehaviourTesting {
+public class CoronavirusInfectiousBehaviourTesting extends TestWatcherSetup{
 	// ==================================== Testing ==================================================================
 	// === These tests are designed to ensure that the transition between different infectious behaviour nodes are ===
 	// === happening as they should do. Each of the behaviour nodes are forced into the population and then the ======
 	// === infectious behaviour nodes that are meant to be transitioned to via the model's inner workings are checked =
 	// === against the infectious behaviour nodes that were activated by the simulation. ==============================
-	private final static String paramsDir = "src/test/resources/";
 	
-	
-	@Rule
-	public TestName testName = new TestName();
-	
+	@Override
+	protected String getParams() {
+		return "params_InfectiousBehaviourTest.txt";
+	}
 
-	protected int seed;
-	protected Random random;
-	
-	private String params;
-
-	@Rule
-	public TestWatcher watcher = new TestWatcher() {
-
-	    private String timestamp() {
-	        return LocalDateTime.now()
-	            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
-	    }
-
-	    private void logResult(String result, String extra) {
-		    params = "params_InfectiousBehaviourTest";
-
-	        try (FileWriter writer = new FileWriter("coronavirus-infectious-behaviour-test-seeds.log", true)) {
-	            writer.write(
-	                timestamp() +
-	                " | Test: " + testName.getMethodName() +
-	                " | Params: " + params + ".txt" +
-	                " | Seed: " + seed +
-	                " | RESULT: " + result +
-	                (extra != null ? " | " + extra : "") +
-	                "\n"
-	            );
-	        } catch (IOException e) {
-	            e.printStackTrace();
-	        }
-	    }
-
-	    @Override
-	    protected void succeeded(Description description) {
-	        logResult("PASSED", null);
-	    }
-
-	    @Override
-	    protected void failed(Throwable e, Description description) {
-	        logResult("FAILED", "Error: " + e.getMessage());
-	    }
-	};
-	@Before
-	public void setupSeed() throws IOException {
-		seed = new java.util.Random().nextInt();	    
-		random = new Random(seed);
+	@Override
+	protected String getOutputFileName() {
+		return "coronavirus-infectious-behaviour-test-seeds.log";
 	}
 
 	@Test
 	public void ifThereAreNoCovidInfectionsPeopleStaySusceptible() {
+		int seed = (int) this.seed;		
+
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_InfectiousBehaviourTest.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_InfectiousBehaviourTest.txt");
 		sim.start();
 		loadInfectiousBehaviour(sim);
 		// Make sure there are no new infections
@@ -118,9 +77,11 @@ public class CoronavirusInfectiousBehaviourTesting {
 	
 	@Test
 	public void haltingAtExposedLeadsToSusceptibleOnly() {
+		int seed = (int) this.seed;		
+
 		// create a simulation and start
 
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_InfectiousBehaviourTest.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_InfectiousBehaviourTest.txt");
 		sim.start();
 		loadInfectiousBehaviour(sim);
 
@@ -150,9 +111,11 @@ public class CoronavirusInfectiousBehaviourTesting {
 	
 	@Test
 	public void exposedBehaviourNodesLeadToSusceptiblePresymptomaticAndAsymptomaticOnly() {
+		int seed = (int) this.seed;		
+
 		// create a simulation and start
 
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_InfectiousBehaviourTest.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_InfectiousBehaviourTest.txt");
 		sim.start();
 		loadInfectiousBehaviour(sim);
 
@@ -183,9 +146,11 @@ public class CoronavirusInfectiousBehaviourTesting {
 	
 	@Test
 	public void presymptomaticBehaviourNodesLeadToMildCasesOnly() {
+		int seed = (int) this.seed;		
+
 		// create a simulation and start
 
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_InfectiousBehaviourTest.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_InfectiousBehaviourTest.txt");
 		sim.start();
 		loadInfectiousBehaviour(sim);
 
@@ -214,8 +179,10 @@ public class CoronavirusInfectiousBehaviourTesting {
 	
 	@Test
 	public void asymptomaticBehaviourNodesLeadsToRecoveredOnly() {
+		int seed = (int) this.seed;		
+
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_InfectiousBehaviourTest.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_InfectiousBehaviourTest.txt");
 		sim.start();
 		loadInfectiousBehaviour(sim);
 
@@ -241,8 +208,10 @@ public class CoronavirusInfectiousBehaviourTesting {
 	
 	@Test
 	public void mildBehaviourNodesLeadToSevereAndRecoveredOnly() {
+		int seed = (int) this.seed;		
+
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_InfectiousBehaviourTest.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_InfectiousBehaviourTest.txt");
 		sim.start();
 		loadInfectiousBehaviour(sim);
 
@@ -270,8 +239,10 @@ public class CoronavirusInfectiousBehaviourTesting {
 	
 	@Test
 	public void confirmMildInfectionsResolveToRecoveredWhenTheyDoNotProgress() {
+		int seed = (int) this.seed;		
+
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_InfectiousBehaviourTest.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_InfectiousBehaviourTest.txt");
 		sim.start();
 		loadInfectiousBehaviour(sim);
 
@@ -298,8 +269,10 @@ public class CoronavirusInfectiousBehaviourTesting {
 	
 	@Test
 	public void severeBehaviourNodesLeadToCriticalAndRecoveredOnly() {
+		int seed = (int) this.seed;		
+
 		// create a simulation and start
-		WorldBankCovid19Sim sim =HelperFunctions.CreateDummySim(paramsDir + "params_InfectiousBehaviourTest.txt");
+		WorldBankCovid19Sim sim =HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_InfectiousBehaviourTest.txt");
 		sim.start();
 		loadInfectiousBehaviour(sim);
 
@@ -328,9 +301,11 @@ public class CoronavirusInfectiousBehaviourTesting {
 	
 	@Test
 	public void confirmSevereInfectionsResolveToRecoveredWhenTheyDoNotProgress() {
+		int seed = (int) this.seed;		
+
 		// create a simulation and start
 
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_InfectiousBehaviourTest.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_InfectiousBehaviourTest.txt");
 		sim.start();
 		loadInfectiousBehaviour(sim);
 
@@ -358,9 +333,11 @@ public class CoronavirusInfectiousBehaviourTesting {
 	
 	@Test
 	public void criticaBehaviourlNodesLeadToDeadOrRecoveredOnly() {
+		int seed = (int) this.seed;		
+
 		// create a simulation and start
 
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_InfectiousBehaviourTest.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_InfectiousBehaviourTest.txt");
 		sim.start();
 		loadInfectiousBehaviour(sim);
 
@@ -387,8 +364,10 @@ public class CoronavirusInfectiousBehaviourTesting {
 	
 	@Test
 	public void confirmCriticalInfectionsResolveToRecoveredWhenTheyDoNotProgress() {
+		int seed = (int) this.seed;		
+
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_InfectiousBehaviourTest.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_InfectiousBehaviourTest.txt");
 		sim.start();
 		loadInfectiousBehaviour(sim);
 
@@ -415,8 +394,10 @@ public class CoronavirusInfectiousBehaviourTesting {
 	}
 	@Test
 	public void recoveredBehaviourNodesStayRecovered() {
+		int seed = (int) this.seed;		
+
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_InfectiousBehaviourTest.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_InfectiousBehaviourTest.txt");
 		sim.start();
 		loadInfectiousBehaviour(sim);
 
@@ -444,8 +425,10 @@ public class CoronavirusInfectiousBehaviourTesting {
 
 	@Test
 	public void deadBehaviourNodesStayDead() {
+		int seed = (int) this.seed;		
+
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_InfectiousBehaviourTest.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_InfectiousBehaviourTest.txt");
 		sim.start();
 		loadInfectiousBehaviour(sim);
 
@@ -470,8 +453,10 @@ public class CoronavirusInfectiousBehaviourTesting {
 	}
 	@Test
 	public void ifWeGiveEveryoneAnInfectionEventuallyTheyWillRecoverOrDie() {
+		int seed = (int) this.seed;		
+
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_InfectiousBehaviourTest.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_InfectiousBehaviourTest.txt");
 		sim.start();
 		loadInfectiousBehaviour(sim);
 
@@ -504,8 +489,10 @@ public class CoronavirusInfectiousBehaviourTesting {
 	}
 	@Test
 	public void ensureNewCovidCasesAreCreated() {
+		int seed = (int) this.seed;		
+
 		// create a simulation and start
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySim(paramsDir + "params_InfectiousBehaviourTest.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_InfectiousBehaviourTest.txt");
 		sim.start();
 		loadInfectiousBehaviour(sim);
 
@@ -549,4 +536,5 @@ public class CoronavirusInfectiousBehaviourTesting {
 			idx ++;
 		}
 	}
+
 }

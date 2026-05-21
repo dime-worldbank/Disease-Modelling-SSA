@@ -23,64 +23,22 @@ import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-public class PregnancyTesting {
-	
-	private final static String paramsDir = "src/test/resources/";
-	
-private String params = "params_demography";
-	
-	@Rule
-	public TestName testName = new TestName();
-
-	protected int seed;
-	protected Random random;
-	@Rule
-	public TestWatcher watcher = new TestWatcher() {
-
-	    private String timestamp() {
-	        return LocalDateTime.now()
-	            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
-	    }
-
-	    private void logResult(String result, String extra) {
-	        try (FileWriter writer = new FileWriter("pregnancy-test-seeds.log", true)) {
-	            writer.write(
-	                timestamp() +
-	                " | Test: " + testName.getMethodName() +
-	                " | Params: " + params + ".txt" +
-	                " | Seed: " + seed +
-	                " | RESULT: " + result +
-	                (extra != null ? " | " + extra : "") +
-	                "\n"
-	            );
-	        } catch (IOException e) {
-	            e.printStackTrace();
-	        }
-	    }
-
-	    @Override
-	    protected void succeeded(Description description) {
-	        logResult("PASSED", null);
-	    }
-
-	    @Override
-	    protected void failed(Throwable e, Description description) {
-	        logResult("FAILED", "Error: " + e.getMessage());
-	    }
-	};
-	
-	@Before
-	public void setupSeed() throws IOException {
-		seed = new java.util.Random().nextInt();;
-
-	    random = new Random(seed);
+public class PregnancyTesting extends TestWatcherSetup{
+	@Override
+	protected String getParams() {
+		return "params_demography.txt";
 	}
+	@Override
+	protected String getOutputFileName() {
+		return "pregnancy-test-seeds.log";
+	}
+	
 	@Test
 	public void testPregnancyIsReset() {
 		int seed = (int) this.seed;		
 
 		// set up the simulation
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_demography.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_demography.txt");
 		sim.start();
 		// turn off deaths
 		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
@@ -117,7 +75,7 @@ private String params = "params_demography";
 		int seed = (int) this.seed;		
 
 		// set up the simulation
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_demography.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_demography.txt");
 		sim.start();
 		// turn off deaths
 		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
@@ -145,7 +103,7 @@ private String params = "params_demography";
 		int seed = (int) this.seed;		
 
 		// set up the simulation
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_demography.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_demography.txt");
 		sim.start();
 		// turn off deaths
 		HelperFunctions.turnOffBirthsOrDeaths(sim, birthsOrDeaths.deaths);
@@ -172,7 +130,7 @@ private String params = "params_demography";
 		int seed = (int) this.seed;		
 
 		// set up the simulation
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_demography.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_demography.txt");
 		sim.start();
 		int initialNumberOfPeople = HelperFunctions.GetNumberAlive(sim);
 		// turn off deaths
@@ -204,5 +162,4 @@ private String params = "params_demography";
 				);
 		return pregnant;
 	}
-
 }

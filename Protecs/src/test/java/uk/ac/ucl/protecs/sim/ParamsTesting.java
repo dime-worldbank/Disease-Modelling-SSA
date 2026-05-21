@@ -29,73 +29,31 @@ import uk.ac.ucl.protecs.objects.hosts.Person;
 
 @RunWith(Parameterized.class)
 
-public class ParamsTesting {
-	
+public class ParamsTesting extends TestWatcherSetup{
+	@Override
+	protected String getParams() {
+		return params;
+	}
+
+	@Override
+	protected String getOutputFileName() {
+		return "params-testing-test-seeds.log";
+	}
 
 	private String params;
 	
 	public ParamsTesting(String fileName) {
 		this.params = fileName;
 	}
-	private final static String paramsDir = "src/test/resources/";
 	
-	@Rule
-	public TestName testName = new TestName();
-
-	protected int seed;
-	protected Random random;
-	
-
-	
-	@Rule
-	public TestWatcher watcher = new TestWatcher() {
-
-	    private String timestamp() {
-	        return LocalDateTime.now()
-	            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
-	    }
-
-	    private void logResult(String result, String extra) {
-	        try (FileWriter writer = new FileWriter("params-testing-test-seeds.log", true)) {
-	            writer.write(
-	                timestamp() +
-	                " | Test: " + testName.getMethodName() +
-	                " | Params: " + params + ".txt" +
-	                " | Seed: " + seed +
-	                " | RESULT: " + result +
-	                (extra != null ? " | " + extra : "") +
-	                "\n"
-	            );
-	        } catch (IOException e) {
-	            e.printStackTrace();
-	        }
-	    }
-
-	    @Override
-	    protected void succeeded(Description description) {
-	        logResult("PASSED", null);
-	    }
-
-	    @Override
-	    protected void failed(Throwable e, Description description) {
-	        logResult("FAILED", "Error: " + e.getMessage());
-	    }
-	};
-	
-	@Before
-	public void setupSeed() throws IOException {
-		seed = new java.util.Random().nextInt();;
-
-	    random = new Random(seed);
-	}
 	@Test
 	public void testCommunityLocationWorks() {
-		this.params = "params_community_locations";
+		this.params = "params_community_locations.txt";
 		// Create the simulation object with the older style census
 		int seed = (int) this.seed;		
 
 		// set up the simulation
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_community_locations.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_community_locations.txt");
 		// attempt to load that object in to the simulation
 		sim.start();
 		Assert.assertTrue(sim.params.communityLocations.size() > 0);
@@ -103,12 +61,12 @@ public class ParamsTesting {
 	
 	@Test
 	public void testOldStyleCensusStillLoads() {
-		this.params = "params_old_census";
+		this.params = "params_old_census.txt";
 		// Create the simulation object with the older style census
 		int seed = (int) this.seed;		
 
 		// set up the simulation
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_old_census.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_old_census.txt");
 		// attempt to load that object in to the simulation
 		try {
 			sim.start();
@@ -125,17 +83,17 @@ public class ParamsTesting {
 	
 	@Test
 	public void testdailyTransitionWeekdayAndHomeRegionColumnOrderIsMutable() {
-		this.params = "params_testing_odm_order";
+		this.params = "params_testing_odm_order.txt";
 		// Create the simulation object with column order 'weekday,home_region,...' in the ODMs
 		int seed = (int) this.seed;		
 
 		// set up the simulation
-		WorldBankCovid19Sim original_order_sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_testing_odm_order.txt");
+		WorldBankCovid19Sim original_order_sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_testing_odm_order.txt");
 		original_order_sim.start();
 		// Create the simulation with column order 'home_region,weekday,...' in the ODMs
 
 		// set up the simulation
-		WorldBankCovid19Sim alternative_order_sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_testing_odm_order_alt.txt");
+		WorldBankCovid19Sim alternative_order_sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_testing_odm_order_alt.txt");
 		alternative_order_sim.start();
 		// check that regardless of column order of the first two columns in the csv file, the ODMs are the same for both lockdown and non-lockdown 
 		boolean ld_odms_equal = original_order_sim.params.dailyTransitionLockdownProbs.equals(alternative_order_sim.params.dailyTransitionLockdownProbs);
@@ -146,12 +104,12 @@ public class ParamsTesting {
 	
 	@Test
 	public void testSimStartsWithoutDemographyFilenames() {
-		this.params = "params_testing_no_demography";
+		this.params = "params_testing_no_demography.txt";
 		// Create the simulation object without loading in demography related filenames
 		int seed = (int) this.seed;		
 
 		// set up the simulation
-		WorldBankCovid19Sim sim_no_demog_files = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_testing_no_demography.txt");
+		WorldBankCovid19Sim sim_no_demog_files = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_testing_no_demography.txt");
 		// start the simulation, which triggers the loading in of parameters
 		sim_no_demog_files.start();
 		// Check that the birth_rate_filename and all_cause_mortality_filename have stayed as their default value.
@@ -160,12 +118,12 @@ public class ParamsTesting {
 	
 	@Test
 	public void testSimRunsWithoutDemographyFilenames() {
-		this.params = "params_testing_no_demography";
+		this.params = "params_testing_no_demography.txt";
 		// Create the simulation object without loading in demography related filenames
 		int seed = (int) this.seed;		
 
 		// set up the simulation
-		WorldBankCovid19Sim sim_no_demog_files = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_testing_no_demography.txt");
+		WorldBankCovid19Sim sim_no_demog_files = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_testing_no_demography.txt");
 		// wrap simulation running in a try catch statement
 		try {
 			// initialise and simulation
@@ -181,12 +139,12 @@ public class ParamsTesting {
 	
 	@Test
 	public void testSimStartsWithoutLockdownFilenames() {
-		this.params = "params_testing_no_lockdown_filename";
+		this.params = "params_testing_no_lockdown_filename.txt";
 		// Create the simulation object without loading in lockdown triggering related filenames
 		int seed = (int) this.seed;		
 
 		// set up the simulation
-		WorldBankCovid19Sim sim_no_lockdown_trigger_files = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_testing_no_lockdown_filename.txt");
+		WorldBankCovid19Sim sim_no_lockdown_trigger_files = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_testing_no_lockdown_filename.txt");
 		// start the simulation, which triggers the loading in of parameters
 		sim_no_lockdown_trigger_files.start();
 		
@@ -196,12 +154,12 @@ public class ParamsTesting {
 	
 	@Test
 	public void testSimRunsWithoutLockdownFilenames() {
-		this.params = "params_testing_no_lockdown_filename";
+		this.params = "params_testing_no_lockdown_filename.txt";
 		// Create the simulation object without loading in lockdown triggering related filenames
 		int seed = (int) this.seed;		
 
 		// set up the simulation
-		WorldBankCovid19Sim sim_no_lockdown_trigger_files = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_testing_no_lockdown_filename.txt");
+		WorldBankCovid19Sim sim_no_lockdown_trigger_files = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_testing_no_lockdown_filename.txt");
 		// wrap simulation running in a try catch statement
 		try {
 			sim_no_lockdown_trigger_files.start();
@@ -215,12 +173,12 @@ public class ParamsTesting {
 
 	@Test
 	public void testSimStartsWithoutCovidTestingFilenames() {
-		this.params = "params_testing_no_covid_testing_file";
+		this.params = "params_testing_no_covid_testing_file.txt";
 		// Create the simulation object without loading in lockdown triggering related filenames
 		int seed = (int) this.seed;		
 
 		// set up the simulation
-		WorldBankCovid19Sim sim_no_covid_testing_files = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_testing_no_covid_testing_file.txt");
+		WorldBankCovid19Sim sim_no_covid_testing_files = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_testing_no_covid_testing_file.txt");
 		// start the simulation, which triggers the loading in of parameters
 		sim_no_covid_testing_files.start();
 		
@@ -230,12 +188,12 @@ public class ParamsTesting {
 	
 	@Test
 	public void testSimRunsWithoutCovidTestingFilenames() {
-		this.params = "params_testing_no_covid_testing_file";
+		this.params = "params_testing_no_covid_testing_file.txt";
 		// Create the simulation object without loading in lockdown triggering related filenames
 		int seed = (int) this.seed;		
 
 		// set up the simulation
-		WorldBankCovid19Sim sim_no_covid_testing_files = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_testing_no_covid_testing_file.txt");
+		WorldBankCovid19Sim sim_no_covid_testing_files = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_testing_no_covid_testing_file.txt");
 		// wrap simulation running in a try catch statement
 		try {
 			sim_no_covid_testing_files.start();
@@ -249,8 +207,9 @@ public class ParamsTesting {
 	
 	@Test
 	public void testDifferentAgeRangesInEndemicInfectionsWorks() {
+		this.params = "params_all_ages_prevalence.txt";
 		// Create the simulation object without loading in lockdown triggering related filenames
-		WorldBankCovid19Sim sim_all_age_prevalence = HelperFunctions.CreateDummySim(paramsDir + "params_all_ages_prevalence.txt");
+		WorldBankCovid19Sim sim_all_age_prevalence = HelperFunctions.CreateDummySim(PARAMS_DIR + "params_all_ages_prevalence.txt");
 		// wrap simulation running in a try catch statement
 		try {
 			sim_all_age_prevalence.start();
@@ -264,8 +223,10 @@ public class ParamsTesting {
 	
 	@Test
 	public void testBothSexCategoryLoadsInEndemicInfectionsWorks() {
+		this.params = "params_both?_sex_prevalence.txt";
+
 		// Create the simulation object without loading in lockdown triggering related filenames
-		WorldBankCovid19Sim sim_both_sex_prevalence = HelperFunctions.CreateDummySim(paramsDir + "params_both_sex_prevalence.txt");
+		WorldBankCovid19Sim sim_both_sex_prevalence = HelperFunctions.CreateDummySim(PARAMS_DIR + "params_both_sex_prevalence.txt");
 		// wrap simulation running in a try catch statement
 		try {
 			sim_both_sex_prevalence.start();
@@ -279,8 +240,10 @@ public class ParamsTesting {
 	
 	@Test
 	public void testAlternativeAgeAndSexCategoriesWorks() {
+		this.params = "params_all_special_cases_prevalence.txt";
+
 		// Create the simulation object without loading in lockdown triggering related filenames
-		WorldBankCovid19Sim sim_both_sex_prevalence = HelperFunctions.CreateDummySim(paramsDir + "params_all_special_cases_prevalence.txt");
+		WorldBankCovid19Sim sim_both_sex_prevalence = HelperFunctions.CreateDummySim(PARAMS_DIR + "params_all_special_cases_prevalence.txt");
 		// wrap simulation running in a try catch statement
 		try {
 			sim_both_sex_prevalence.start();
@@ -294,11 +257,13 @@ public class ParamsTesting {
 	
 	@Test
 	public void testSimLoadsAlternaticAgeBoundaries() {
+		this.params = "params_w_alt_age_bins.txt";
+
 		// Create the simulation object without loading in lockdown triggering related filenames
 		// load in age categories, below 50 and over 50
-		WorldBankCovid19Sim sim_w_alt_age_bins = HelperFunctions.CreateDummySim(paramsDir + "params_w_alt_age_bins.txt");
+		WorldBankCovid19Sim sim_w_alt_age_bins = HelperFunctions.CreateDummySim(PARAMS_DIR + "params_w_alt_age_bins.txt");
 		// load in regular 5 year intervals
-		WorldBankCovid19Sim sim_w_norm_age_bins = HelperFunctions.CreateDummySim(paramsDir + "params.txt");
+		WorldBankCovid19Sim sim_w_norm_age_bins = HelperFunctions.CreateDummySim(PARAMS_DIR + "params.txt");
 		
 		sim_w_alt_age_bins.start();	
 		sim_w_norm_age_bins.start();		
@@ -347,13 +312,15 @@ public class ParamsTesting {
 	@Parameterized.Parameters
 	public static List<String> params() {
 	    return Arrays.asList(
-	            new String[]{paramsDir + "params_w_faulty_ODM.txt", paramsDir + "params_w_faulty_econ_status_movement_prob.txt",  
-	            		paramsDir + "params_w_faulty_linelist.txt", paramsDir + "params_w_faulty_inf_transitions.txt", 
-	            		paramsDir + "params_w_faulty_covid_test_numbers.txt", paramsDir + "params_w_faulty_covid_test_locations.txt",
-	            		paramsDir + "params_unknown_disease_in_line_list", paramsDir + "params_unknown_disease_in_prevalence_line_list",
-	            		paramsDir + "params_w_faulty_age_category_file.txt"
+	            new String[]{PARAMS_DIR + "params_w_faulty_ODM.txt", PARAMS_DIR + "params_w_faulty_econ_status_movement_prob.txt",  
+	            		PARAMS_DIR + "params_w_faulty_linelist.txt", PARAMS_DIR + "params_w_faulty_inf_transitions.txt", 
+	            		PARAMS_DIR + "params_w_faulty_covid_test_numbers.txt", PARAMS_DIR + "params_w_faulty_covid_test_locations.txt",
+	            		PARAMS_DIR + "params_unknown_disease_in_line_list", PARAMS_DIR + "params_unknown_disease_in_prevalence_line_list",
+	            		PARAMS_DIR + "params_w_faulty_age_category_file.txt"
 	            		}
 	    
 	    );
 	}
+
+
 }

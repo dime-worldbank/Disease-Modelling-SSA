@@ -26,66 +26,25 @@ import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-public class CovidTestingTesting {
+public class CovidTestingTesting extends TestWatcherSetup{
 	
-	private final static String paramsDir = "src/test/resources/";
-	
-	private String params = "params_covid_testing";
-	
-	@Rule
-	public TestName testName = new TestName();
-
-	protected int seed;
-	protected Random random;
-	@Rule
-	public TestWatcher watcher = new TestWatcher() {
-
-	    private String timestamp() {
-	        return LocalDateTime.now()
-	            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
-	    }
-
-	    private void logResult(String result, String extra) {
-	        try (FileWriter writer = new FileWriter("covid-testing-test-seeds.log", true)) {
-	            writer.write(
-	                timestamp() +
-	                " | Test: " + testName.getMethodName() +
-	                " | Params: " + params + ".txt" +
-	                " | Seed: " + seed +
-	                " | RESULT: " + result +
-	                (extra != null ? " | " + extra : "") +
-	                "\n"
-	            );
-	        } catch (IOException e) {
-	            e.printStackTrace();
-	        }
-	    }
-
-	    @Override
-	    protected void succeeded(Description description) {
-	        logResult("PASSED", null);
-	    }
-
-	    @Override
-	    protected void failed(Throwable e, Description description) {
-	        logResult("FAILED", "Error: " + e.getMessage());
-	    }
-	};
-	
-	@Before
-	public void setupSeed() throws IOException {
-		seed = new java.util.Random().nextInt();;
-
-	    random = new Random(seed);
+	@Override
+	protected String getParams() {
+		return "params_covid_testing.txt";
 	}
-	
+
+
+	@Override
+	protected String getOutputFileName() {
+		return "covid-testing-test-seeds.log";
+	}
 	
 	@Test
 	public void CheckTestsOnlyHappenForThoseWithSymptomsOfCovid() {
 		int seed = (int) this.seed;		
 
 		// set up the simulation
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_covid_testing.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_covid_testing.txt");
 		sim.start();
 		int numDays = 1;
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(0.5, sim, sim.covidInfectiousFramework.setNodeForTesting(CoronavirusBehaviourNodeTitle.MILD),
@@ -147,4 +106,7 @@ public class CovidTestingTesting {
 	               );
 		return propertiesChecked.get(true);
 	}
+
+
+
 }

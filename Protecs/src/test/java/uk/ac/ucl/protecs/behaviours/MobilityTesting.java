@@ -33,7 +33,7 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
 @RunWith(Parameterized.class)
-public class MobilityTesting {
+public class MobilityTesting extends TestWatcherSetup{
 	// ==================================== Testing ==========================================================================
 	// === These tests are designed to ensure that the transition between different locations are working as intended. =======
 	// === These tests will be split into perfect and imperfect mixing parts, as each form of the model will have different ==
@@ -44,65 +44,26 @@ public class MobilityTesting {
 	// === People go from the home location to their community location at the start of the day. =============================
 	// === We also test that triggering lockdowns reduces the number of outbound trips that take place in the simulatio. =====
 	// =======================================================================================================================
-		
+	
+	
+	@Override
+	protected String getParams() {
+		return params;
+	}
+
+	@Override
+	protected String getOutputFileName() {
+		return "mobility-test-seeds.log";
+	}
 
 	// TESTS FOR PERFECT MIXING
 	
-	private final String params;
-	
-	@Rule
-	public TestName testName = new TestName();
-
-	protected int seed;
-	protected Random random;
+	private String params;
 	
 	public MobilityTesting(String fileName) {
 		this.params = fileName;
 	}
 	
-	@Rule
-	public TestWatcher watcher = new TestWatcher() {
-
-	    private String timestamp() {
-	        return LocalDateTime.now()
-	            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"));
-	    }
-
-	    private void logResult(String result, String extra) {
-	        try (FileWriter writer = new FileWriter("mobility-test-seeds.log", true)) {
-	            writer.write(
-	                timestamp() +
-	                " | Test: " + testName.getMethodName() +
-	                " | Params: " + params + ".txt" +
-	                " | Seed: " + seed +
-	                " | RESULT: " + result +
-	                (extra != null ? " | " + extra : "") +
-	                "\n"
-	            );
-	        } catch (IOException e) {
-	            e.printStackTrace();
-	        }
-	    }
-
-	    @Override
-	    protected void succeeded(Description description) {
-	        logResult("PASSED", null);
-	    }
-
-	    @Override
-	    protected void failed(Throwable e, Description description) {
-	        logResult("FAILED", "Error: " + e.getMessage());
-	    }
-	};
-	
-	@Before
-	public void setupSeed() throws IOException {
-		seed = new java.util.Random().nextInt();;
-
-	    random = new Random(seed);
-	}
-	
-	private final static String paramsDir = "src/test/resources/";
 
 	
 	@Test
@@ -110,7 +71,7 @@ public class MobilityTesting {
 		int seed = (int) this.seed;		
 
 		// set up the simulation
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, params + ".txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, params);
 		sim.start();
 		for (Person p: sim.agents) {
 			p.setMobility(false);
@@ -135,7 +96,7 @@ public class MobilityTesting {
 		int seed = (int) this.seed;		
 
 		// set up the simulation
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, params + ".txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, params);
 		sim.start();
 
 		// make everyone go to the community
@@ -156,7 +117,7 @@ public class MobilityTesting {
 		int seed = (int) this.seed;		
 
 		// set up the simulation
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, params + ".txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, params);
 		sim.start();
 		// make everyone go to the community
 		HelperFunctions.SetFractionObjectsWithCertainBehaviourNode(1.0, sim, sim.movementFramework.setMobilityNodeForTesting(mobilityNodeTitle.COMMUNITY), 
@@ -181,7 +142,7 @@ public class MobilityTesting {
 	public void PeopleDoingTheHomeNodeSwitchToCommunityNodeBehaviourAtTheStartOfDay() {
 		int seed = (int) this.seed;		
 		// set up the simulation
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, params + ".txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, params);
 		sim.start();
 		HelperFunctions.makePeopleAlwaysLeaveHome(sim);
 		// when new people are born, they are sent to their home. Remove chances of birth to prevent this happening
@@ -193,32 +154,13 @@ public class MobilityTesting {
 		System.out.println(finalNodesInRun);
 		Assert.assertTrue(expectedNodes.containsAll(finalNodesInRun) && finalNodesInRun.containsAll(expectedNodes));
 	}
-	@Test
-	public void PeopleWithinTheHomeLocationGoToTheCommunityLocationAtTheStartOfDay() {
-		int seed = (int) this.seed;		
-
-		// set up the simulation
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_no_district_movement.txt");
-		sim.start();
-		// people start at home and then go to the community afterwards
-		HelperFunctions.makePeopleAlwaysLeaveHome(sim);
-		List<String> _unused = HelperFunctions.getFinalBehaviourNodesInSim(sim, 2.01 / sim.params.ticks_per_day, NodeOption.MovementBehaviour);
-		// Create a hashset to store the whether everyone is at their community location
-		
-		HashSet<Boolean> allAtCommunity =  new HashSet<Boolean>();
-		for (Person p: sim.agents) {
-			allAtCommunity.add(p.getCommunityLocation().getPeople().contains(p));
-		}
-		// if everyone is at the community, then allAtHome should not have false in it
-		Assert.assertFalse(allAtCommunity.contains(false));
-	}
 	
 	@Test
 	public void MakeSureThatPeopleOnlyDoTheCommunityAndHomeNodeBehavioursWithPerfectMixing() {
 		int seed = (int) this.seed;		
 
 		//Arrange
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, params + ".txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, params);
 		sim.start();
 		// ensure that perfect mixing is turned on
 		sim.params.setting_perfectMixing = true;
@@ -236,7 +178,7 @@ public class MobilityTesting {
 		//Arrange
 		int seed = (int) this.seed;		
 
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, params + ".txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, params);
 		sim.start();
 		// make everyone go to the community
 		sim.params.setting_perfectMixing = true;		
@@ -257,12 +199,12 @@ public class MobilityTesting {
 	public void LockdownReducesTheNumberOfVisitsToOtherAdminZones() {
 		int seed = (int) this.seed;		
 
-		WorldBankCovid19Sim sim_no_lockdown = HelperFunctions.CreateDummySimWithSeed(seed, params + ".txt");
+		WorldBankCovid19Sim sim_no_lockdown = HelperFunctions.CreateDummySimWithSeed(seed, params);
 		sim_no_lockdown.start();
 		
 		int noLockdownOutboundTripCounts = outboundTripCountInSim(sim_no_lockdown, 100);
 		
-		WorldBankCovid19Sim sim_with_lockdown = HelperFunctions.CreateDummySimWithSeed(seed, params + "_with_lockdown.txt");
+		WorldBankCovid19Sim sim_with_lockdown = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_with_lockdown.txt");
 		sim_with_lockdown.start();
 
 		int lockdownOutboundTripCounts = outboundTripCountInSim(sim_with_lockdown, 100);
@@ -275,7 +217,7 @@ public class MobilityTesting {
 		int seed = (int) this.seed;		
 
 		// check the movement of the population to their workplaces
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_workplace_bubbles.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_workplace_bubbles.txt");
 		HelperFunctions.makePeopleLeaveTheHouseEachDay(sim);
 		// make everyone decide to go to their workplace
 		sim.params.prob_go_to_work = 1.1d;
@@ -294,7 +236,8 @@ public class MobilityTesting {
 					Assert.assertTrue(p.getLocation() instanceof Workplace);
 					Assert.assertTrue(p.getActivityNode().getTitle().equals(mobilityNodeTitle.WORK.name()));
 				}
-		}		
+		}
+		this.params = "params_workplace_bubbles.txt";
 	}
 	
 	@Test
@@ -302,7 +245,7 @@ public class MobilityTesting {
 		int seed = (int) this.seed;		
 		
 		// check the movement of the population to their workplaces
-		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_workplace_bubbles.txt");
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_workplace_bubbles.txt");
 		HelperFunctions.makePeopleLeaveTheHouseEachDay(sim);
 		// make everyone decide to go to their workplace
 		sim.params.prob_go_to_work = 1.1d;
@@ -324,7 +267,7 @@ public class MobilityTesting {
 			}
 			// Now rerun the simulation with the same seed making sure that people leave their workplace
 			int numTicksForAfterWork = 5;
-			sim = HelperFunctions.CreateDummySimWithSeed(seed, paramsDir + "params_workplace_bubbles.txt");
+			sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_workplace_bubbles.txt");
 			HelperFunctions.makePeopleLeaveTheHouseEachDay(sim);
 			sim.params.prob_go_to_work = 1.1d;
 			sim.start();
@@ -336,13 +279,33 @@ public class MobilityTesting {
 				Assert.assertTrue(!(p.getActivityNode().getTitle().equals(mobilityNodeTitle.WORK.name())));
 
 			}
+			params = "params_workplace_bubbles.txt";
 	}
-	
+	@Test
+	public void PeopleWithinTheHomeLocationGoToTheCommunityLocationAtTheStartOfDay() {
+		int seed = (int) this.seed;		
+
+		// set up the simulation
+		WorldBankCovid19Sim sim = HelperFunctions.CreateDummySimWithSeed(seed, PARAMS_DIR + "params_no_district_movement.txt");
+		sim.start();
+		// people start at home and then go to the community afterwards
+		HelperFunctions.makePeopleAlwaysLeaveHome(sim);
+		List<String> _unused = HelperFunctions.getFinalBehaviourNodesInSim(sim, 2.01 / sim.params.ticks_per_day, NodeOption.MovementBehaviour);
+		// Create a hashset to store the whether everyone is at their community location
+		
+		HashSet<Boolean> allAtCommunity =  new HashSet<Boolean>();
+		for (Person p: sim.agents) {
+			allAtCommunity.add(p.getCommunityLocation().getPeople().contains(p));
+		}
+		// if everyone is at the community, then allAtHome should not have false in it
+		Assert.assertFalse(allAtCommunity.contains(false));
+		this.params = "params_no_district_movement.txt";
+	}
 	
 	@Parameterized.Parameters
 	public static List<String> params() {
 	    return Arrays.asList(
-	            new String[]{paramsDir + "params", paramsDir + "params_ward_dummy"}
+	            new String[]{PARAMS_DIR + "params.txt", PARAMS_DIR + "params_ward_dummy.txt"}
 	    
 	    );
 	}
