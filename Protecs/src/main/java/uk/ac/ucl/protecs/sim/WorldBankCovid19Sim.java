@@ -237,7 +237,7 @@ public class WorldBankCovid19Sim extends SimState {
 		loadInfectionsInHumans.seed_infections_in_humans(this);
 		// load in infections by prevalence if using
 		if (this.params.prevalenceLineList != null) {
-			loadEndemicInfections.seed_endemic_infections(this);
+			loadEndemicConditions.seed_endemic_conditions(this);
 		}
 		
 		// ======================================================= cholera set up ====================================================================

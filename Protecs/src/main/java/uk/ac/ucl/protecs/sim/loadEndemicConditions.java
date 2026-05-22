@@ -13,7 +13,7 @@ import uk.ac.ucl.protecs.sim.WorldBankCovid19Sim.DISEASE;
 import java.util.stream.Collectors;
 
 
-public class loadEndemicInfections{
+public class loadEndemicConditions{
 	
 
 	public static List<Person> get_demographic(WorldBankCovid19Sim world, int[] age_range, String sex) {
@@ -30,7 +30,7 @@ public class loadEndemicInfections{
 	    }
 	}
 	
-	static void seed_endemic_infections(WorldBankCovid19Sim world) {
+	static void seed_endemic_conditions(WorldBankCovid19Sim world) {
 
 	    for (Entry<DISEASE, HashMap<String, HashMap<String, Double>>> diseaseEntry : world.params.prevalenceLineList.entrySet()) {
 	        DISEASE disease = diseaseEntry.getKey();
