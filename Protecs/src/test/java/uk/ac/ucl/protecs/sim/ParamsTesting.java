@@ -223,7 +223,7 @@ public class ParamsTesting extends TestWatcherSetup{
 	
 	@Test
 	public void testBothSexCategoryLoadsInEndemicInfectionsWorks() {
-		this.params = "params_both?_sex_prevalence.txt";
+		this.params = "params_both_sex_prevalence.txt";
 
 		// Create the simulation object without loading in lockdown triggering related filenames
 		WorldBankCovid19Sim sim_both_sex_prevalence = HelperFunctions.CreateDummySim(PARAMS_DIR + "params_both_sex_prevalence.txt");
